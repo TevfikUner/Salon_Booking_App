@@ -1,0 +1,7 @@
+# Kopyalayın: key.properties (git'e EKLENMEZ)
+# Anahtar oluşturma:
+#   keytool -genkey -v -keystore premium-berber.jks -keyalg RSA -keysize 2048 -validity 10000 -alias premium
+storePassword=DEGISTIR
+keyPassword=DEGISTIR
+keyAlias=premium
+storeFile=../premium-berber.jks

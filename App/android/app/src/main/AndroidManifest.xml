@@ -4,6 +4,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Android 13+ push bildirim izni -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <!-- Android 11+ : dış uygulamaları (tel, mail, harita, Instagram) açabilmek için -->
     <queries>
@@ -36,7 +38,7 @@
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="https" />
         </intent>
-        <!-- WhatsApp -->
+        <!-- WhatsApp (wa.me onay mesajı) -->
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="whatsapp" />
@@ -46,8 +48,7 @@
     <application
         android:label="Premium Berber"
         android:name="${applicationName}"
-        android:icon="@mipmap/launcher_icon"
-        android:usesCleartextTraffic="true">
+        android:icon="@mipmap/launcher_icon">
 
 
         <activity
