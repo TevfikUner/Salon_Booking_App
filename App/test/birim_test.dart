@@ -1,4 +1,6 @@
+import 'package:berber_app_ui/data/api/api_client.dart';
 import 'package:berber_app_ui/data/models/berber.dart';
+import 'package:berber_app_ui/data/models/salon.dart';
 import 'package:berber_app_ui/data/models/randevu.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/features/randevu_al/widgets/saat_slot.dart';
@@ -54,6 +56,53 @@ void main() {
       expect(b.tamAd, 'Zeki');
       expect(b.puan, 0);
     });
+  });
+
+  group('Salon', () {
+    test('kapalı günler backend 0=Pzt biçiminden Dart weekday biçimine çevrilir', () {
+      final s = Salon.fromJson({'id': 1, 'ad': 'A', 'kapali_gunler': '6', 'acilis_saati': '09:00',
+        'kapanis_saati': '21:00', 'pazar_acilis_saati': '10:00', 'pazar_kapanis_saati': '17:00'});
+      expect(s.kapaliGunler, {DateTime.sunday});
+      expect(s.calismaSaati(DateTime.sunday), isNull);
+      expect(s.calismaSaati(DateTime.monday), '09:00 – 21:00');
+    });
+    test('Pazar açıksa Pazar saatleri kullanılır; mesafe ve konum okunur', () {
+      final s = Salon.fromJson({'id': 1, 'ad': 'A', 'mesafe_km': 2.4, 'konum': {'lat': 37.8, 'lng': 32.4}});
+      expect(s.calismaSaati(DateTime.sunday), '10:00 – 17:00');
+      expect(s.mesafeKm, 2.4);
+      expect(s.konumVar, isTrue);
+    });
+  });
+
+  group('API hata çözümleme', () {
+    test('düz metin detay', () {
+      final h = ApiClient.hataCoz(400, {'detail': 'Geçmiş tarih'});
+      expect(h.mesaj, 'Geçmiş tarih');
+      expect(h.kod, 400);
+    });
+    test('çakışma: mesaj + öneriler', () {
+      final h = ApiClient.hataCoz(409, {
+        'detail': {'mesaj': 'Saat dolu', 'oneriler': ['10:30', '11:00']}
+      });
+      expect(h.mesaj, 'Saat dolu');
+      expect(h.oneriler, ['10:30', '11:00']);
+    });
+    test('gövdesiz 401 Türkçe mesaj', () {
+      expect(ApiClient.hataCoz(401, null).mesaj, contains('tekrar giriş'));
+    });
+  });
+
+  test('favoriler yanıtındaki berber_id favori olarak okunur', () {
+    final b = Berber.fromJson({'berber_id': 3, 'ad': 'Ali', 'soyad': 'Usta', 'salon_ad': 'X', 'puan': 4.5});
+    expect(b.id, 3);
+    expect(b.favori, isTrue);
+    expect(b.salonAd, 'X');
+  });
+
+  test('telefonBicimli', () {
+    expect(telefonBicimli('5321234567'), '0532 123 45 67');
+    expect(telefonBicimli('05321234567'), '0532 123 45 67');
+    expect(telefonBicimli('123'), '123');
   });
 
   group('Widget', () {

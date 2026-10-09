@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:berber_app_ui/core/theme/app_theme.dart';
-import 'package:berber_app_ui/core/widgets/berber_desen.dart';
-import 'package:berber_app_ui/core/utils/bicim.dart';
-import 'package:berber_app_ui/features/musteri/main_screen.dart';
 
+import 'package:berber_app_ui/core/theme/app_theme.dart';
+import 'package:berber_app_ui/core/utils/bicim.dart';
+import 'package:berber_app_ui/core/widgets/altin_buton.dart';
+import 'package:berber_app_ui/core/widgets/berber_desen.dart';
+import 'package:berber_app_ui/features/musteri/main_screen.dart';
+import 'package:berber_app_ui/features/randevu_al/widgets/randevu_ozeti.dart';
+
+/// Randevu alındıktan sonraki onay ekranı.
 class OnaySayfasi extends StatefulWidget {
   final String tarih;
   final String saat;
+  final String? bitis;
   final String berber;
   final String? salonAd;
-  final String? bitis;
   final List<String> hizmetler;
   final double toplamFiyat;
   final String randevuId;
@@ -20,220 +24,86 @@ class OnaySayfasi extends StatefulWidget {
     required this.tarih,
     required this.saat,
     required this.berber,
-    this.salonAd,
-    this.bitis,
     required this.hizmetler,
     required this.toplamFiyat,
     required this.randevuId,
+    this.bitis,
+    this.salonAd,
   });
 
   @override
   State<OnaySayfasi> createState() => _OnaySayfasiState();
 }
 
-class _OnaySayfasiState extends State<OnaySayfasi>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _ctrl;
-  late Animation<double> _scaleAnim;
-  late Animation<double> _fadeAnim;
-
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 800));
-    _scaleAnim = Tween<double>(begin: 0.0, end: 1.0)
-        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.elasticOut));
-    _fadeAnim = CurvedAnimation(parent: _ctrl, curve: Curves.easeIn);
-    _ctrl.forward();
-  }
+class _OnaySayfasiState extends State<OnaySayfasi> with SingleTickerProviderStateMixin {
+  late final _anim = AnimationController(vsync: this, duration: const Duration(milliseconds: 800))..forward();
 
   @override
   void dispose() {
-    _ctrl.dispose();
+    _anim.dispose();
     super.dispose();
   }
+
+  void _anaEkrana(int sekme) => Navigator.of(context)
+      .pushAndRemoveUntil(MaterialPageRoute(builder: (_) => MainScreen(baslangicSekmesi: sekme)), (_) => false);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.black,
-      body: Stack(
-        children: [
-          const BerberDesenWidget(),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Animasyonlu onay ikonu
-                  ScaleTransition(
-                    scale: _scaleAnim,
-                    child: Container(
-                      width: 110,
-                      height: 110,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: AppTheme.goldGradient,
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppTheme.gold.withValues(alpha: 0.5),
-                            blurRadius: 40,
-                            spreadRadius: 4,
-                          )
-                        ],
-                      ),
-                      child: const Icon(Icons.check_rounded,
-                          color: AppTheme.black, size: 60),
+      body: Stack(children: [
+        const BerberDesenWidget(),
+        SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(children: [
+                ScaleTransition(
+                  scale: CurvedAnimation(parent: _anim, curve: Curves.elasticOut),
+                  child: Container(
+                    width: 110,
+                    height: 110,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: AppTheme.goldGradient,
+                      boxShadow: [BoxShadow(color: AppTheme.gold.withValues(alpha: 0.5), blurRadius: 40, spreadRadius: 4)],
                     ),
+                    child: const Icon(Icons.check_rounded, color: AppTheme.black, size: 60),
                   ),
-                  const SizedBox(height: 28),
-                  FadeTransition(
-                    opacity: _fadeAnim,
-                    child: Column(
-                      children: [
-                        Text('Randevunuz Onaylandı!',
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.playfairDisplay(
-                                color: AppTheme.gold,
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 8),
-                        Text('Sizi bekliyoruz 💈',
-                            style: GoogleFonts.inter(
-                                color: AppTheme.textSecondary, fontSize: 15)),
-                        const SizedBox(height: 32),
-                        // Detay kartı
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: AppTheme.surface,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                                color: AppTheme.gold.withValues(alpha: 0.2)),
-                          ),
-                          child: Column(
-                            children: [
-                              if (widget.salonAd != null)
-                                _DetaySatir(
-                                    icon: Icons.storefront,
-                                    label: 'Salon',
-                                    value: widget.salonAd!),
-                              _DetaySatir(
-                                  icon: Icons.calendar_today,
-                                  label: 'Tarih',
-                                  value: tarihUzun(widget.tarih, yil: true)),
-                              _DetaySatir(
-                                  icon: Icons.access_time,
-                                  label: 'Saat',
-                                  value: widget.bitis == null ? widget.saat : '${widget.saat} – ${widget.bitis}'),
-                              _DetaySatir(
-                                  icon: Icons.person,
-                                  label: 'Personel',
-                                  value: widget.berber),
-                              _DetaySatir(
-                                  icon: Icons.content_cut,
-                                  label: 'Hizmetler',
-                                  value: widget.hizmetler.join(', ')),
-                              Divider(
-                                  color: AppTheme.gold.withValues(alpha: 0.15),
-                                  height: 24),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('Toplam',
-                                      style: GoogleFonts.inter(
-                                          color: AppTheme.textSecondary,
-                                          fontSize: 14)),
-                                  Text(
-                                    '${widget.toplamFiyat.toStringAsFixed(0)} ₺',
-                                    style: GoogleFonts.playfairDisplay(
-                                        color: AppTheme.gold,
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 32),
-                        // Ana sayfaya dön butonu
-                        SizedBox(
-                          width: double.infinity,
-                          height: 54,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              gradient: AppTheme.goldGradient,
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            child: ElevatedButton(
-                              onPressed: () {
-                                // BURASI KRİTİK: Artık MainScreen'e gidiyoruz
-                                Navigator.of(context).pushAndRemoveUntil(
-                                  MaterialPageRoute(
-                                      builder: (_) => const MainScreen()),
-                                  (_) => false,
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.transparent,
-                                shadowColor: Colors.transparent,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(14)),
-                              ),
-                              child: Text('Ana Sayfaya Dön',
-                                  style: GoogleFonts.inter(
-                                      color: AppTheme.black,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16)),
-                            ),
-                          ),
-                        ),
+                ),
+                const SizedBox(height: 28),
+                FadeTransition(
+                  opacity: CurvedAnimation(parent: _anim, curve: Curves.easeIn),
+                  child: Column(children: [
+                    Text('Randevunuz Onaylandı!',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 28, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    Text('Sizi bekliyoruz 💈', style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 15)),
+                    const SizedBox(height: 28),
+                    RandevuOzeti(
+                      toplam: widget.toplamFiyat,
+                      satirlar: [
+                        if (widget.salonAd != null) (Icons.storefront, 'Salon', widget.salonAd!),
+                        (Icons.calendar_today, 'Tarih', tarihUzun(widget.tarih, yil: true)),
+                        (Icons.access_time, 'Saat', widget.bitis == null ? widget.saat : '${widget.saat} – ${widget.bitis}'),
+                        (Icons.person, 'Personel', widget.berber),
+                        (Icons.content_cut, 'Hizmetler', widget.hizmetler.join(', ')),
                       ],
                     ),
-                  ),
-                ],
-              ),
+                    const SizedBox(height: 12),
+                    Text('Randevudan 1 saat önce hatırlatma bildirimi alacaksınız.',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
+                    const SizedBox(height: 28),
+                    AltinButon(text: 'Ana Sayfaya Dön', onPressed: () => _anaEkrana(0)),
+                    TextButton(onPressed: () => _anaEkrana(1), child: const Text('Randevularımı Gör')),
+                  ]),
+                ),
+              ]),
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DetaySatir extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  const _DetaySatir(
-      {required this.icon, required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 7),
-      child: Row(
-        children: [
-          Icon(icon, color: AppTheme.gold, size: 16),
-          const SizedBox(width: 10),
-          Text('$label: ',
-              style: GoogleFonts.inter(
-                  color: AppTheme.textSecondary, fontSize: 13)),
-          Expanded(
-            child: Text(value,
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.inter(
-                    color: Colors.white,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500)),
-          ),
-        ],
-      ),
+        ),
+      ]),
     );
   }
 }

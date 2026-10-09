@@ -1,16 +1,21 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+
 import 'package:berber_app_ui/core/theme/app_theme.dart';
+import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/core/widgets/altin_buton.dart';
+import 'package:berber_app_ui/core/widgets/form_alanlari.dart';
+import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
 import 'package:berber_app_ui/data/api/api_client.dart';
 import 'package:berber_app_ui/data/api/hesap_api.dart';
 import 'package:berber_app_ui/data/api/randevu_api.dart';
-import 'package:berber_app_ui/features/randevu_al/randevu_provider.dart';
 import 'package:berber_app_ui/features/randevu_al/onay_screen.dart';
+import 'package:berber_app_ui/features/randevu_al/randevu_provider.dart';
+import 'package:berber_app_ui/features/randevu_al/widgets/randevu_ozeti.dart';
 
+/// Son adım: özet + iletişim bilgileri (profilden önceden doldurulur) → randevuyu oluştur.
 class Adim5Form extends StatefulWidget {
   const Adim5Form({super.key});
 
@@ -19,217 +24,123 @@ class Adim5Form extends StatefulWidget {
 }
 
 class _Adim5FormState extends State<Adim5Form> {
-  final _formKey = GlobalKey<FormState>();
-  final _adCtrl = TextEditingController();
-  final _soyadCtrl = TextEditingController();
-  final _telefonCtrl = TextEditingController();
-  
-  bool _loading = false;
+  final _form = GlobalKey<FormState>();
+  final _ad = TextEditingController();
+  final _soyad = TextEditingController();
+  final _telefon = TextEditingController();
+  bool _gonderiliyor = false;
   bool _profilYukleniyor = true;
 
   @override
   void initState() {
     super.initState();
-    _profilBilgileriniCek();
-  }
-
-  Future<void> _profilBilgileriniCek() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user?.displayName != null) {
-        final parts = user!.displayName!.split(' ');
-        if (parts.isNotEmpty) _adCtrl.text = parts.first;
-        if (parts.length > 1) _soyadCtrl.text = parts.sublist(1).join(' ');
-      }
-
-      final profil = await HesapApi.profil();
-      if (profil != null) {
-        if (profil['ad']?.toString().isNotEmpty ?? false) _adCtrl.text = profil['ad'];
-        if (profil['soyad']?.toString().isNotEmpty ?? false) _soyadCtrl.text = profil['soyad'];
-        if (profil['telefon']?.toString().isNotEmpty ?? false) {
-          String tel = profil['telefon'].toString();
-          if (tel.startsWith('0')) tel = tel.substring(1);
-          _telefonCtrl.text = tel;
-        }
-      }
-    } catch (e) {
-      debugPrint("Profil çekme hatası: $e");
-    } finally {
-      if (mounted) setState(() => _profilYukleniyor = false);
-    }
-  }
-
-  Future<void> _randevuOlustur() async {
-    if (!_formKey.currentState!.validate()) return;
-    setState(() => _loading = true);
-
-    final provider = context.read<RandevuProvider>();
-
-    try {
-      final berber = provider.seciliBerber;
-      final tarih = provider.seciliTarih;
-      final saat = provider.seciliSaat;
-      if (berber == null || tarih == null || saat == null) {
-        throw Exception('Lütfen tüm adımları tamamlayın.');
-      }
-
-      final tarihStr = '${tarih.year}-${tarih.month.toString().padLeft(2, '0')}-${tarih.day.toString().padLeft(2, '0')}';
-
-      final sonuc = await RandevuApi.olustur(
-        berberId: berber.id,
-        saat: saat,
-        tarih: tarihStr,
-        hizmetIds: provider.seciliHizmetler.map((h) => h.id).toList(),
-        ad: _adCtrl.text.trim(),
-        soyad: _soyadCtrl.text.trim(),
-        telefon: '0${_telefonCtrl.text.trim()}',
-      );
-
-      final List<String> hizmetAdlari = provider.seciliHizmetler.map((h) => h.ad).toList();
-      final double toplamFiyat = (sonuc['toplam_fiyat'] as num?)?.toDouble() ?? provider.toplamFiyat;
-      final String berberTamAd = "${berber.ad} ${berber.soyad}";
-
-      provider.reset(); 
-
-      if (!mounted) return;
-
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder: (_) => OnaySayfasi(
-            tarih: tarihStr,
-            saat: saat,
-            berber: berberTamAd,
-            salonAd: sonuc['salon_ad']?.toString(),
-            bitis: sonuc['bitis']?.toString(),
-            hizmetler: hizmetAdlari,
-            toplamFiyat: toplamFiyat,
-            randevuId: sonuc['randevu_id']?.toString() ?? '',
-          ),
-        ),
-        (route) => route.isFirst,
-      );
-
-    } on ApiHata catch (e) {
-      if (!mounted) return;
-      final oneri = e.oneriler.isEmpty ? '' : '\nUygun saatler: ${e.oneriler.take(4).join(', ')}';
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('${e.mesaj}$oneri'),
-        backgroundColor: AppTheme.error,
-        duration: const Duration(seconds: 6),
-      ));
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(e.toString()),
-        backgroundColor: AppTheme.error,
-      ));
-    } finally {
-      if (mounted) setState(() => _loading = false);
-    }
+    _profiliDoldur();
   }
 
   @override
   void dispose() {
-    _adCtrl.dispose();
-    _soyadCtrl.dispose();
-    _telefonCtrl.dispose();
+    _ad.dispose();
+    _soyad.dispose();
+    _telefon.dispose();
     super.dispose();
   }
 
+  Future<void> _profiliDoldur() async {
+    final parcalar = (FirebaseAuth.instance.currentUser?.displayName ?? '').split(' ');
+    _ad.text = parcalar.first;
+    _soyad.text = parcalar.skip(1).join(' ');
+    final p = await HesapApi.profil();
+    if (p != null) {
+      if ((p['ad'] as String? ?? '').isNotEmpty) _ad.text = p['ad'];
+      if ((p['soyad'] as String? ?? '').isNotEmpty) _soyad.text = p['soyad'];
+      final tel = p['telefon'] as String? ?? '';
+      if (tel.isNotEmpty) _telefon.text = tel.startsWith('0') ? tel.substring(1) : tel;
+    }
+    if (mounted) setState(() => _profilYukleniyor = false);
+  }
+
+  Future<void> _olustur() async {
+    if (!_form.currentState!.validate()) return;
+    final p = context.read<RandevuProvider>();
+    final berber = p.seciliBerber, tarih = p.seciliTarih, saat = p.seciliSaat;
+    if (berber == null || tarih == null || saat == null) {
+      return bilgiGoster(context, 'Lütfen tüm adımları tamamlayın.', hata: true);
+    }
+    setState(() => _gonderiliyor = true);
+    try {
+      final sonuc = await RandevuApi.olustur(
+        berberId: berber.id,
+        saat: saat,
+        tarih: tarihStr(tarih),
+        hizmetIds: p.seciliHizmetler.map((h) => h.id).toList(),
+        ad: _ad.text.trim(),
+        soyad: _soyad.text.trim(),
+        telefon: '0${_telefon.text.trim()}',
+      );
+      final onay = OnaySayfasi(
+        tarih: tarihStr(tarih),
+        saat: saat,
+        bitis: sonuc['bitis']?.toString(),
+        berber: berber.tamAd,
+        salonAd: sonuc['salon_ad']?.toString(),
+        hizmetler: p.seciliHizmetler.map((h) => h.ad).toList(),
+        toplamFiyat: (sonuc['toplam_fiyat'] as num?)?.toDouble() ?? p.toplamFiyat,
+        randevuId: '${sonuc['randevu_id']}',
+      );
+      p.reset();
+      if (!mounted) return;
+      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (_) => onay), (r) => r.isFirst);
+    } on ApiHata catch (e) {
+      if (!mounted) return;
+      final oneri = e.oneriler.isEmpty ? '' : '\nUygun saatler: ${e.oneriler.take(4).join(', ')}';
+      bilgiGoster(context, '${e.mesaj}$oneri', hata: true, sure: const Duration(seconds: 6));
+    } finally {
+      if (mounted) setState(() => _gonderiliyor = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<RandevuProvider>();
-    final berberTamAd = provider.seciliBerber != null 
-        ? "${provider.seciliBerber!.ad} ${provider.seciliBerber!.soyad}" 
-        : "-";
-
+    final p = context.watch<RandevuProvider>();
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
       child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppTheme.surface,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppTheme.gold.withValues(alpha: 0.2)),
-              ),
-              child: Column(
-                children: [
-                  _OzetSatir(Icons.person, 'Personel', berberTamAd),
-                  _OzetSatir(Icons.calendar_today, 'Tarih', provider.seciliTarih == null ? '-' : '${provider.seciliTarih!.day}.${provider.seciliTarih!.month}.${provider.seciliTarih!.year}'),
-                  _OzetSatir(Icons.access_time, 'Saat', provider.seciliSaat ?? '-'),
-                  _OzetSatir(Icons.content_cut, 'Hizmetler', provider.seciliHizmetler.map((h) => h.ad).join(', ')),
-                  Divider(color: AppTheme.gold.withValues(alpha: 0.15)),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Toplam', style: GoogleFonts.inter(color: AppTheme.textSecondary)),
-                      Text('${provider.toplamFiyat.toStringAsFixed(0)} ₺',
-                          style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 20, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text('İletişim Bilgileriniz', style: GoogleFonts.playfairDisplay(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
-            if (_profilYukleniyor) 
-              const Center(child: Padding(padding: EdgeInsets.all(32.0), child: CircularProgressIndicator(color: AppTheme.gold)))
-            else
-              Column(
-                children: [
-                  Row(children: [
-                    Expanded(child: TextFormField(controller: _adCtrl, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'Ad', prefixIcon: Icon(Icons.person_outline, color: AppTheme.gold)), validator: (v) => (v == null || v.isEmpty) ? 'Zorunlu' : null)),
-                    const SizedBox(width: 12),
-                    Expanded(child: TextFormField(controller: _soyadCtrl, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'Soyad'), validator: (v) => (v == null || v.isEmpty) ? 'Zorunlu' : null)),
-                  ]),
-                  const SizedBox(height: 14),
-                  TextFormField(
-                    controller: _telefonCtrl,
-                    keyboardType: TextInputType.phone,
-                    maxLength: 10,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    style: const TextStyle(color: Colors.white),
-                    decoration: const InputDecoration(
-                      labelText: 'Telefon Numarası',
-                      prefixIcon: Icon(Icons.phone_outlined, color: AppTheme.gold),
-                      prefixText: '0  ',
-                      prefixStyle: TextStyle(color: AppTheme.gold, fontWeight: FontWeight.bold),
-                      counterText: '',
-                      hintText: '5XX XXX XX XX',
-                      hintStyle: TextStyle(color: Colors.white30),
-                    ),
-                    validator: (v) => (v?.trim().length != 10) ? '10 rakam giriniz' : null,
-                  ),
-                ],
-              ),
-            const SizedBox(height: 32),
-            AltinButon(text: 'Randevumu Onayla', onPressed: _randevuOlustur, loading: _loading, icon: const Icon(Icons.check_circle_outline, color: AppTheme.black, size: 20)),
+        key: _form,
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          RandevuOzeti(
+            toplam: p.toplamFiyat,
+            satirlar: [
+              (Icons.person, 'Personel', p.seciliBerber?.tamAd ?? '-'),
+              (Icons.calendar_today, 'Tarih', p.seciliTarih == null ? '-' : tarihUzun(tarihStr(p.seciliTarih!), yil: true)),
+              (Icons.access_time, 'Saat', p.seciliSaat ?? '-'),
+              (Icons.content_cut, 'Hizmetler', p.seciliHizmetler.map((h) => h.ad).join(', ')),
+              (Icons.timer_outlined, 'Süre', sureMetni(p.toplamSureDk)),
+            ],
+          ),
+          const SizedBox(height: 24),
+          Text('İletişim Bilgileriniz',
+              style: GoogleFonts.playfairDisplay(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 16),
+          if (_profilYukleniyor)
+            const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator(color: AppTheme.gold)))
+          else ...[
+            Row(children: [
+              Expanded(child: Alanlar.metin(_ad, 'Ad', Icons.person_outline)),
+              const SizedBox(width: 12),
+              Expanded(child: Alanlar.metin(_soyad, 'Soyad', Icons.person_outline, zorunlu: false)),
+            ]),
+            const SizedBox(height: 14),
+            Alanlar.telefon(_telefon),
           ],
-        ),
+          const SizedBox(height: 28),
+          AltinButon(
+            text: 'Randevumu Onayla',
+            onPressed: _olustur,
+            loading: _gonderiliyor,
+            icon: const Icon(Icons.check_circle_outline, color: AppTheme.black, size: 20),
+          ),
+        ]),
       ),
-    );
-  }
-}
-
-class _OzetSatir extends StatelessWidget {
-  final IconData icon; final String label; final String value;
-  const _OzetSatir(this.icon, this.label, this.value);
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(children: [
-        Icon(icon, color: AppTheme.gold, size: 16),
-        const SizedBox(width: 10),
-        Text('$label: ', style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 13)),
-        Expanded(child: Text(value, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500))),
-      ]),
     );
   }
 }

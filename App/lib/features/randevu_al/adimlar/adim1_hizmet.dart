@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/data/models/hizmet.dart';
+import 'package:berber_app_ui/core/widgets/durum_gorunumleri.dart';
+import 'package:berber_app_ui/data/api/api_client.dart';
 import 'package:berber_app_ui/data/api/salon_api.dart';
 import 'package:berber_app_ui/features/randevu_al/randevu_provider.dart';
 
@@ -25,54 +27,28 @@ class _Adim1HizmetState extends State<Adim1Hizmet> {
   }
 
   Future<void> _yukle() async {
-    setState(() { _yukleniyor = true; _hata = null; });
+    setState(() {
+      _yukleniyor = true;
+      _hata = null;
+    });
     try {
       final data = await SalonApi.hizmetler(context.read<RandevuProvider>().salonId);
-      if (mounted) setState(() { _hizmetler = data; _yukleniyor = false; });
-    } catch (e) {
-      if (mounted) setState(() { _yukleniyor = false; _hata = e.toString(); });
+      if (mounted) setState(() => _hizmetler = data);
+    } on ApiHata catch (e) {
+      if (mounted) setState(() => _hata = e.mesaj);
+    } finally {
+      if (mounted) setState(() => _yukleniyor = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<RandevuProvider>();
-
-    if (_yukleniyor) {
-      return const Center(child: CircularProgressIndicator(color: AppTheme.gold));
+    if (_yukleniyor || _hata != null) {
+      return AsenkronGorunum(yukleniyor: _yukleniyor, hata: _hata, onTekrar: _yukle, builder: (_) => const SizedBox());
     }
-
-    if (_hata != null || _hizmetler == null || _hizmetler!.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.wifi_off, color: AppTheme.error, size: 48),
-              const SizedBox(height: 16),
-              Text('Hizmetler yüklenemedi',
-                  style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
-              if (_hata != null) ...[
-                const SizedBox(height: 8),
-                Text(_hata!, textAlign: TextAlign.center,
-                    style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
-              ],
-              const SizedBox(height: 20),
-              ElevatedButton.icon(
-                onPressed: _yukle,
-                icon: const Icon(Icons.refresh),
-                label: const Text('Yeniden Dene'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.gold,
-                  foregroundColor: AppTheme.black,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
+    if (_hizmetler!.isEmpty) {
+      return const BosGorunum(ikon: Icons.content_cut, mesaj: 'Bu salon henüz hizmet menüsünü eklemedi.');
     }
 
     return Column(
