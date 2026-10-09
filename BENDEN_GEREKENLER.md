@@ -70,6 +70,8 @@ Bu makineye bağlı cihaz/emülatör yoktu; gerçek cihaz testini yapamadım.
 
 ## 6. Sonra
 
+- Flutter, projedeki Kotlin 2.2.20 desteğini yakında bırakacağını uyarıyor; bir sonraki bakımda `App/android/settings.gradle.kts`'te Kotlin'i ≥ 2.3.20'ye yükseltin.
+
 - Fotoğraf depolama (Cloudinary / S3 / Firebase Storage) — Render diski kalıcı değil.
 - `scripts/yedekle.sh`'i haftalık çalıştıracak bir yer (GitHub Actions / kendi bilgisayarınız).
 - Ödeme (kapora / no-show ücreti) için iyzico veya PayTR sözleşmesi.

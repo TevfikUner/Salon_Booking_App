@@ -206,4 +206,4 @@ Format: `[Öncelik] · [Efor] · Dosya:satır · Açıklama · Çözüm · Karar
 | `flutter test` | ✅ 14/14 (yeni: Salon saatleri, API hata çözümleme, favori JSON, telefon biçimi) |
 | Canlı API duman testi | ✅ kayıt → harf duyarsız/konumlu keşfet → randevu → çakışma 409 |
 | Paket adı betiği | ✅ geçici kopyada gerçek çalıştırma; yanlış JSON'u reddediyor |
-| APK derlemesi | APK2_DURUMU |
+| APK derlemesi | ✅ Android SDK kuruldu, lisanslar kabul edildi → `flutter build apk --debug` ve `--release` (59 MB, R8 + release manifest) başarılı. Release şimdilik debug anahtarıyla imzalı (key.properties yok). Gerçek cihaz/emülatör bağlı olmadığı için cihazda çalıştırılmadı. |
