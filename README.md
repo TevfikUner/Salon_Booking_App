@@ -1,0 +1,109 @@
+# Premium Berber
+
+Berber ve kuaför randevu uygulaması. Müşteri salon keşfeder, berber + hizmet seçer, uygun saati alır;
+işletme sahibi günün akışını, ekibini, menüsünü ve kapalı günlerini telefonundan yönetir.
+
+| Klasör | İçerik |
+|---|---|
+| `backend/` | FastAPI + SQLAlchemy + Alembic, APScheduler, Firebase Admin (token doğrulama + FCM) |
+| `App/` | Flutter uygulaması (müşteri + işletme paneli tek uygulamada, rol bazlı) |
+| `docker-compose.yml` | Yerel PostgreSQL + API |
+| `render.yaml` | Render blueprint (API + PostgreSQL) |
+
+Diğer belgeler: [ANALIZ_RAPORU.md](ANALIZ_RAPORU.md) · [KARARLAR.md](KARARLAR.md) · [BENDEN_GEREKENLER.md](BENDEN_GEREKENLER.md) · [DEMO.md](DEMO.md)
+
+---
+
+## 1. Backend — yerel kurulum
+
+Gereksinim: Python 3.12+ (3.14 ile de test edildi).
+
+```bash
+cd backend
+python -m venv .venv
+# Windows: .venv\Scripts\activate    macOS/Linux: source .venv/bin/activate
+pip install -r requirements-dev.txt
+cp .env.example .env                 # AUTH_MODE=dev ile gelir
+alembic upgrade head                 # şemayı oluşturur (SQLite: berber_yeni.db)
+python seed.py                       # demo verisi (TÜM tabloları temizler!)
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+- API belgesi: http://localhost:8000/docs · sağlık: http://localhost:8000/saglik
+- Testler: `pytest` (44 test: slot/çakışma/eşzamanlılık/iptal/bekleme listesi/panel yetkileri/KVKK)
+
+### Kimlik doğrulama
+
+Her istek `Authorization: Bearer <Firebase ID token>` taşır.
+
+- `AUTH_MODE=firebase` (production): token Firebase Admin SDK ile doğrulanır → `serviceAccountKey.json` veya `FIREBASE_CREDENTIALS_JSON` gerekir.
+- `AUTH_MODE=dev` (yerel): imza doğrulanmaz; Postman/curl için `Authorization: Bearer dev:<uid>` yazılabilir.
+  Seed'deki hazır kullanıcılar: `dev:demo-musteri`, `dev:demo-isletme`.
+
+Roller: **müşteri** (varsayılan) · **işletme** (`isletmeler` kaydı, admin onaylı) · **personel** (işletmenin girdiği e-postayla giriş) · **admin** (`ADMIN_UIDS`).
+
+```bash
+curl -H "Authorization: Bearer dev:demo-isletme" localhost:8000/panel/akis
+```
+
+### Veritabanı / migration
+
+- Geliştirme SQLite, production PostgreSQL — yalnızca `DATABASE_URL` değişir.
+- Model değiştirdiğinizde: `alembic revision --autogenerate -m "aciklama"` → oluşan dosyayı gözden geçirin → `alembic upgrade head`.
+
+## 2. Flutter uygulaması
+
+Gereksinim: Flutter 3.4x, **JDK 17 veya 21** (Android derlemesi; JDK 25 Gradle ile uyumsuz).
+
+```bash
+cd App
+flutter pub get
+# Android emülatör + yerel backend (varsayılan adres zaten 10.0.2.2:8000):
+flutter run
+# Gerçek telefon + aynı Wi-Fi'daki bilgisayar:
+flutter run --dart-define=API_BASE_URL=http://192.168.1.20:8000
+# Production derlemesi:
+flutter build appbundle --release --dart-define=API_BASE_URL=https://api.premiumberber.app
+```
+
+- `flutter analyze` → temiz · `flutter test` → birim testleri
+- Release imzası: `android/key.properties.example` → `android/key.properties`
+- Debug derlemesi `http` adreslerine izin verir; release yalnızca HTTPS kullanır.
+
+## 3. Yayına alma (Render)
+
+1. Repo'yu GitHub'a gönderin → Render → **New → Blueprint** → repo'yu seçin. `render.yaml` bir Docker web servisi ve PostgreSQL oluşturur.
+2. Render panelinde gizli değişkenleri girin: `FIREBASE_CREDENTIALS_JSON` (servis hesabı JSON'unun tamamı), `ADMIN_UIDS`.
+3. Konteyner her açılışta `alembic upgrade head` çalıştırır; sağlık kontrolü `/saglik`.
+4. Özel alan adı ekleyin (HTTPS otomatik) ve uygulamayı `--dart-define=API_BASE_URL=https://...` ile derleyin.
+
+Yerelde production benzeri ortam (Docker gerekir):
+
+```bash
+docker compose up --build
+docker compose exec api python seed.py     # isteğe bağlı demo verisi
+```
+
+**Yedekleme:** Render PostgreSQL günlük yedek alır. Elle yedek: `./scripts/yedekle.sh "$DATABASE_URL"` (geri yükleme komutu betiğin içinde).
+
+**Ölçekleme notu:** Zamanlayıcı (hatırlatma, otomatik tamamlama) API sürecinin içinde çalışır. Birden fazla instance'a çıkarken bir tanesi dışında `SCHEDULER_ENABLED=false` yapın.
+
+## 4. Önemli uçlar
+
+| Uç | Açıklama |
+|---|---|
+| `GET /ben` | Oturumdaki kullanıcının rolü ve bağlamı |
+| `GET /dukkan/salonlar`, `/dukkan/salon/{id}` | Keşfet |
+| `GET /hizmetler/?salon_id=` | Salonun menüsü |
+| `GET /randevular/musait-takvim?berber_id=` | Açık günler (tatil/izin/kapalı gün hariç) |
+| `GET /randevular/musait-saatler/{berber_id}?tarih=&hizmet_ids=` | Tek doğruluk kaynağı: müsait saatler |
+| `POST /randevular/olustur` | Randevu (çakışmada 409 + öneriler) |
+| `POST /randevular/{id}/iptal` | Müşteri iptali (son 30 dk hariç) |
+| `GET /randevular/her-zamanki` | ⭐ "Her Zamanki" + en yakın boş slotlar |
+| `POST /randevular/bekleme-listesi` | Yer açılırsa haber ver |
+| `GET /panel/akis?tarih=` | ⭐ Bugünün Akışı (özet, güven skoru, WhatsApp linki) |
+| `PATCH /panel/randevular/{id}/durum` | tamamlandi / gelmedi / iptal |
+| `POST /panel/randevular` | Telefonla/kapıdan gelen müşteri |
+| `/panel/personel`, `/panel/hizmetler`, `/panel/tatil`, `/panel/izin`, `/panel/rapor`, `/panel/salon` | İşletme yönetimi |
+| `POST /isletmeler/kayit`, `POST /isletmeler/{id}/onayla` | İşletme başvurusu ve admin onayı |
+| `DELETE /musteriler/hesabim` | KVKK hesap silme (anonimleştirme) |

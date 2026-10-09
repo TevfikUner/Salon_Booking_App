@@ -120,7 +120,7 @@ class _RandevularimScreenState extends State<RandevularimScreen> with SingleTick
                 _yukle();
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Yorumun için teşekkürler kanki!"), backgroundColor: AppTheme.success)
+                      const SnackBar(content: Text("Değerlendirmeniz için teşekkürler!"), backgroundColor: AppTheme.success)
                   );
                 }
               } catch (e) {
