@@ -175,7 +175,10 @@ def panel_randevu_ekle(veri: PanelRandevuIstegi, p: PanelBaglami = Depends(panel
     tel = veri.musteri_telefon.strip()
     musteri = None
     if tel:
+        # Yalnızca uygulaması olmayan (panelden eklenmiş) müşteri kaydıyla eşleşir; kayıtlı bir kullanıcının
+        # hesabına onun haberi olmadan randevu eklenmesin.
         musteri = db.query(models.Musteri).filter(models.Musteri.telefon == tel,
+                                                  models.Musteri.firebase_uid.is_(None),
                                                   models.Musteri.silindi.is_(False)).first()
     if not musteri:
         parca = veri.musteri_ad.strip().split(" ", 1)

@@ -28,6 +28,7 @@ from zaman import simdi
 class Kimlik:
     uid: str
     email: str | None = None
+    email_dogrulandi: bool = False
 
 
 @dataclass
@@ -65,7 +66,7 @@ def token_coz(token: str) -> Kimlik:
         uid = veri.get("user_id") or veri.get("sub")
         if not uid:
             raise HTTPException(status_code=401, detail="Geçersiz oturum anahtarı.")
-        return Kimlik(uid=uid, email=veri.get("email"))
+        return Kimlik(uid=uid, email=veri.get("email"), email_dogrulandi=bool(veri.get("email_verified")))
 
     from firebase_admin import auth as fb_auth
 
@@ -77,7 +78,7 @@ def token_coz(token: str) -> Kimlik:
         veri = fb_auth.verify_id_token(token, check_revoked=False)
     except Exception as e:
         raise HTTPException(status_code=401, detail="Oturum süresi doldu veya geçersiz. Lütfen tekrar giriş yapın.") from e
-    return Kimlik(uid=veri["uid"], email=veri.get("email"))
+    return Kimlik(uid=veri["uid"], email=veri.get("email"), email_dogrulandi=bool(veri.get("email_verified")))
 
 
 def kimlik_gerekli(authorization: str | None = Header(default=None)) -> Kimlik:

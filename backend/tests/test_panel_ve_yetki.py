@@ -15,7 +15,12 @@ def test_ben_rolleri(client, veri):
 
 def test_personel_davet_eposta_ile_baglanir(client, veri, db, monkeypatch):
     import auth as auth_mod
-    monkeypatch.setattr(auth_mod, "token_coz", lambda t: auth_mod.Kimlik(uid="ali-uid", email="ALI@salon.test"))
+    # Doğrulanmamış e-postayla personel rolü ele geçirilemez
+    monkeypatch.setattr(auth_mod, "token_coz", lambda t: auth_mod.Kimlik(uid="sahte", email="ali@salon.test"))
+    assert client.get("/ben", headers={"Authorization": "Bearer x"}).json()["rol"] == "musteri"
+    assert db.get(models.Berber, veri["ali"]).firebase_uid is None
+    monkeypatch.setattr(auth_mod, "token_coz", lambda t: auth_mod.Kimlik(uid="ali-uid", email="ALI@salon.test",
+                                                                        email_dogrulandi=True))
     v = client.get("/ben", headers={"Authorization": "Bearer x"}).json()
     assert v["rol"] == "personel" and v["berber"]["id"] == veri["ali"]
     assert db.get(models.Berber, veri["ali"]).firebase_uid == "ali-uid"
@@ -95,6 +100,12 @@ def test_panelden_walkin_randevu(client, veri):
         "musteri_ad": "Selim Kara", "musteri_telefon": "05301234567", "notlar": "Telefonla aradı"})
     assert r.status_code == 200, r.text
     assert r.json()["randevu"]["musteri"]["ad"] == "Selim Kara"
+    # kayıtlı kullanıcının telefonu girilse bile onun hesabına bağlanmaz
+    r = client.post("/panel/randevular", headers=auth("isletme-a"), json={
+        "berber_id": veri["veli"], "tarih": YARIN, "saat": "12:00", "hizmet_ids": [veri["kesim"]],
+        "musteri_ad": "Başka Biri", "musteri_telefon": "05321112233"})
+    assert r.status_code == 200
+    assert client.get("/randevular/benim-randevularim", headers=auth("musteri-1")).json() == []
     # aynı slot uygulamadan alınamaz
     assert randevu_al(client, "musteri-1", veri["veli"], YARIN, "11:00", [veri["kesim"]]).status_code == 409
     # başka salonun personeline eklenemez

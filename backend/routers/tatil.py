@@ -24,7 +24,7 @@ def tatil_ekle(
         from datetime import datetime
         datetime.strptime(tarih, "%Y-%m-%d")
     except ValueError:
-        raise HTTPException(status_code=400, detail="Tarih formatı hatalı. Doğru format: YYYY-MM-DD")
+        raise HTTPException(status_code=400, detail="Tarih formatı hatalı. Doğru format: YYYY-MM-DD") from None
 
     # Zaten var mı?
     var_mi = db.query(models.TatilGunu).filter(models.TatilGunu.tarih == tarih,

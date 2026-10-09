@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import func
 from database import get_db
 from auth import admin_dogrula
 import models

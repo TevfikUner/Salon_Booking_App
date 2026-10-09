@@ -1,4 +1,4 @@
-import os, shutil
+import os
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from auth import admin_dogrula
 from sqlalchemy.orm import Session
@@ -6,6 +6,7 @@ from database import get_db
 import models
 
 router = APIRouter(prefix="/berberler", tags=["Berber Yönetimi"])
+MAKS_FOTO_BOYUTU = 5 * 1024 * 1024
 
 @router.post("/ekle")
 def berber_ekle(
@@ -19,10 +20,10 @@ def berber_ekle(
     _: None = Depends(admin_dogrula)  # 🔒 Sadece admin ekleyebilir
 ):
     yeni_berber = models.Berber(
-        ad=ad, 
-        soyad=soyad, 
-        uzmanlik=uzmanlik, 
-        foto_url=foto_url, 
+        ad=ad,
+        soyad=soyad,
+        uzmanlik=uzmanlik,
+        foto_url=foto_url,
         puan=puan,
         salon_id=salon_id,
     )
@@ -30,7 +31,7 @@ def berber_ekle(
     db.commit()
     db.refresh(yeni_berber)
     return {
-        "mesaj": "Yeni personel kadroya katıldı.", 
+        "mesaj": "Yeni personel kadroya katıldı.",
         "berber": f"{yeni_berber.ad} ({yeni_berber.uzmanlik})"
     }
 @router.get("/")
@@ -57,11 +58,17 @@ def berber_guncelle(
     if not berber:
         raise HTTPException(status_code=404, detail="Berber bulunamadı.")
 
-    if ad: berber.ad = ad
-    if soyad: berber.soyad = soyad
-    if uzmanlik: berber.uzmanlik = uzmanlik
-    if foto_url: berber.foto_url = foto_url
-    if puan is not None: berber.puan = puan
+    if ad:
+
+        berber.ad = ad
+    if soyad:
+        berber.soyad = soyad
+    if uzmanlik:
+        berber.uzmanlik = uzmanlik
+    if foto_url:
+        berber.foto_url = foto_url
+    if puan is not None:
+        berber.puan = puan
 
     db.commit()
     db.refresh(berber)
@@ -99,7 +106,7 @@ def berber_izin_ekle(
     try:
         datetime.strptime(tarih, "%Y-%m-%d")
     except ValueError:
-        raise HTTPException(status_code=400, detail="Tarih formatı hatalı. Doğru format: YYYY-MM-DD")
+        raise HTTPException(status_code=400, detail="Tarih formatı hatalı. Doğru format: YYYY-MM-DD") from None
 
     berber = db.query(models.Berber).filter(models.Berber.id == berber_id).first()
     if not berber:
@@ -170,8 +177,11 @@ async def berber_foto_yukle(
     dosya_adi = f"berber_{berber_id}.{uzanti}"
     dosya_yolu = os.path.join(klasor, dosya_adi)
 
+    icerik = await foto.read(MAKS_FOTO_BOYUTU + 1)
+    if len(icerik) > MAKS_FOTO_BOYUTU:
+        raise HTTPException(status_code=413, detail="Fotoğraf en fazla 5 MB olabilir.")
     with open(dosya_yolu, "wb") as buffer:
-        shutil.copyfileobj(foto.file, buffer)
+        buffer.write(icerik)
 
     # Veritabanındaki URL'yi güncelle (/uploads/... şeklinde erişilebilir URL)
     berber.foto_url = f"/uploads/berberler/{dosya_adi}"

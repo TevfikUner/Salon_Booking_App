@@ -116,6 +116,8 @@ def favori_listele(kimlik: Kimlik = Depends(kimlik_gerekli), db: Session = Depen
         return []
     return [{
         "berber_id": b.id,
+        "ad": b.ad,
+        "soyad": b.soyad,
         "berber_ad": f"{b.ad} {b.soyad}".strip(),
         "salon_id": b.salon_id,
         "salon_ad": b.salon.ad if b.salon else "",

@@ -13,7 +13,7 @@ import gorevler
 from config import ayarlar
 from database import get_db
 from routers import (berberler, degerlendirmeler, dukkan, hesap, hizmetler, isletmeler, kurumsal, musteriler, panel,
-                     randevular, raporlar, tatil)
+                     randevular, raporlar, salonlar, tatil)
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("premium_berber")
@@ -47,7 +47,7 @@ app.add_middleware(
 os.makedirs(os.path.join(ayarlar().uploads_dir, "berberler"), exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=ayarlar().uploads_dir), name="uploads")
 
-for r in (hesap, musteriler, dukkan, randevular, berberler, hizmetler, isletmeler, panel, degerlendirmeler, tatil,
+for r in (hesap, musteriler, salonlar, dukkan, randevular, berberler, hizmetler, isletmeler, panel, degerlendirmeler, tatil,
           raporlar, kurumsal):
     app.include_router(r.router)
 
