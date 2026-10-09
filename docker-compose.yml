@@ -1,0 +1,35 @@
+# Yerel üretim benzeri ortam: PostgreSQL + API
+#   docker compose up --build
+#   (ilk sefer demo verisi için) docker compose exec api python seed.py
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: berber
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-berber_yerel}
+      POSTGRES_DB: berber
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U berber"]
+      interval: 5s
+      retries: 10
+
+  api:
+    build: ./backend
+    env_file:
+      - path: ./backend/.env
+        required: false
+    environment:
+      DATABASE_URL: postgresql://berber:${POSTGRES_PASSWORD:-berber_yerel}@db:5432/berber
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - uploads:/app/uploads
+
+volumes:
+  pgdata:
+  uploads:
