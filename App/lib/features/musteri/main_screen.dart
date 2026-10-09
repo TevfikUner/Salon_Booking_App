@@ -1,165 +1,66 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:berber_app_ui/core/theme/app_theme.dart';
-import 'package:berber_app_ui/features/musteri/ana_sayfa/ana_sayfa_screen.dart';
-import 'package:berber_app_ui/features/musteri/randevularim/randevularim_screen.dart';
-import 'package:berber_app_ui/features/kesfet/kesfet_screen.dart';
-import 'package:berber_app_ui/features/musteri/profil/profil_screen.dart';
 
-/// 4 sekmeli ana ekran (Bottom Navigation Bar).
-/// Sekmeler: Ana Sayfa, Randevularım, Keşfet, Profil
+import 'package:berber_app_ui/core/theme/app_theme.dart';
+import 'package:berber_app_ui/features/kesfet/kesfet_screen.dart';
+import 'package:berber_app_ui/features/musteri/ana_sayfa/ana_sayfa_screen.dart';
+import 'package:berber_app_ui/features/musteri/profil/profil_screen.dart';
+import 'package:berber_app_ui/features/musteri/randevularim/randevularim_screen.dart';
+
+/// Müşteri kabuğu: Ana Sayfa, Randevularım, Keşfet, Profil.
+/// Sekmeye dönüldüğünde Ana Sayfa ve Randevularım tazelenir (başka ekranda randevu alınmış/iptal edilmiş olabilir).
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+  final int baslangicSekmesi;
+  const MainScreen({super.key, this.baslangicSekmesi = 0});
 
   @override
-  State<MainScreen> createState() => MainScreenState();
+  State<MainScreen> createState() => _MainScreenState();
 }
 
-class MainScreenState extends State<MainScreen> {
-  int _seciliIndex = 0;
-
-  /// Dışarıdan sekme değişimi için (örn. Keşfet'e git)
-  void sekmeGit(int index) {
-    setState(() => _seciliIndex = index);
-  }
+class _MainScreenState extends State<MainScreen> {
+  late int _sekme = widget.baslangicSekmesi;
+  final _anaSayfa = GlobalKey<AnaSayfaScreenState>();
+  final _randevularim = GlobalKey<RandevularimScreenState>();
 
   late final List<Widget> _sayfalar = [
-    AnaSayfaScreen(onKesfeteGit: () => sekmeGit(2)),
-    const RandevularimScreen(),
+    AnaSayfaScreen(key: _anaSayfa, onKesfeteGit: () => _git(2), onRandevularimaGit: () => _git(1)),
+    RandevularimScreen(key: _randevularim),
     const KesfetScreen(),
     const ProfilEkrani(),
   ];
 
+  void _git(int sekme) {
+    if (sekme == _sekme) return;
+    setState(() => _sekme = sekme);
+    if (sekme == 0) _anaSayfa.currentState?.yenile();
+    if (sekme == 1) _randevularim.currentState?.yenile();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _seciliIndex,
-        children: _sayfalar,
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFF141414),
-          border: Border(
-            top: BorderSide(
-              color: AppTheme.gold.withValues(alpha: 0.15),
-              width: 0.5,
-            ),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
-              blurRadius: 20,
-              offset: const Offset(0, -5),
-            ),
-          ],
+      body: IndexedStack(index: _sekme, children: _sayfalar),
+      bottomNavigationBar: NavigationBarTheme(
+        data: NavigationBarThemeData(
+          backgroundColor: const Color(0xFF141414),
+          indicatorColor: AppTheme.gold.withValues(alpha: 0.15),
+          labelTextStyle: WidgetStateProperty.resolveWith((s) => GoogleFonts.inter(
+                fontSize: 11,
+                fontWeight: s.contains(WidgetState.selected) ? FontWeight.w700 : FontWeight.w500,
+                color: s.contains(WidgetState.selected) ? AppTheme.gold : AppTheme.textSecondary,
+              )),
+          iconTheme: WidgetStateProperty.resolveWith(
+              (s) => IconThemeData(color: s.contains(WidgetState.selected) ? AppTheme.gold : AppTheme.textSecondary)),
         ),
-        child: SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _NavItem(
-                  icon: Icons.home_outlined,
-                  activeIcon: Icons.home,
-                  label: 'Ana Sayfa',
-                  isActive: _seciliIndex == 0,
-                  onTap: () => setState(() => _seciliIndex = 0),
-                ),
-                _NavItem(
-                  icon: Icons.calendar_today_outlined,
-                  activeIcon: Icons.calendar_today,
-                  label: 'Randevularım',
-                  isActive: _seciliIndex == 1,
-                  onTap: () => setState(() => _seciliIndex = 1),
-                ),
-                _NavItem(
-                  icon: Icons.explore_outlined,
-                  activeIcon: Icons.explore,
-                  label: 'Keşfet',
-                  isActive: _seciliIndex == 2,
-                  onTap: () => setState(() => _seciliIndex = 2),
-                ),
-                _NavItem(
-                  icon: Icons.person_outline,
-                  activeIcon: Icons.person,
-                  label: 'Profil',
-                  isActive: _seciliIndex == 3,
-                  onTap: () => setState(() => _seciliIndex = 3),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ═══════════════════════════════════════════════
-// CUSTOM NAV ITEM
-// ═══════════════════════════════════════════════
-class _NavItem extends StatelessWidget {
-  final IconData icon;
-  final IconData activeIcon;
-  final String label;
-  final bool isActive;
-  final VoidCallback onTap;
-
-  const _NavItem({
-    required this.icon,
-    required this.activeIcon,
-    required this.label,
-    required this.isActive,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: isActive ? AppTheme.gold.withValues(alpha: 0.1) : Colors.transparent,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              child: Icon(
-                isActive ? activeIcon : icon,
-                key: ValueKey(isActive),
-                color: isActive ? AppTheme.gold : AppTheme.textSecondary,
-                size: 24,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: GoogleFonts.inter(
-                color: isActive ? AppTheme.gold : AppTheme.textSecondary,
-                fontSize: 10,
-                fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-              ),
-            ),
-            // Aktif gösterge noktası
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              margin: const EdgeInsets.only(top: 4),
-              width: isActive ? 5 : 0,
-              height: isActive ? 5 : 0,
-              decoration: const BoxDecoration(
-                color: AppTheme.gold,
-                shape: BoxShape.circle,
-              ),
-            ),
+        child: NavigationBar(
+          selectedIndex: _sekme,
+          onDestinationSelected: _git,
+          destinations: const [
+            NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Ana Sayfa'),
+            NavigationDestination(
+                icon: Icon(Icons.calendar_today_outlined), selectedIcon: Icon(Icons.calendar_today), label: 'Randevularım'),
+            NavigationDestination(icon: Icon(Icons.explore_outlined), selectedIcon: Icon(Icons.explore), label: 'Keşfet'),
+            NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Profil'),
           ],
         ),
       ),

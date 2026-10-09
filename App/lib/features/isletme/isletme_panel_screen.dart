@@ -31,7 +31,7 @@ class _IsletmePanelScreenState extends State<IsletmePanelScreen> {
     await AuthService.cikisYap();
     if (!mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const RoleSelectionScreen()), (_) => false);
+        MaterialPageRoute(builder: (_) => const RolSecimScreen()), (_) => false);
   }
 
   @override

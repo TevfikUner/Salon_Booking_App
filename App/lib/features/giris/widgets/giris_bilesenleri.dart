@@ -1,0 +1,213 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+import 'package:berber_app_ui/core/theme/app_theme.dart';
+import 'package:berber_app_ui/core/widgets/berber_desen.dart';
+
+/// Giriş/kayıt ekranlarının ortak iskeleti: desenli arka plan, güvenli alan, kaydırma, geri düğmesi.
+class GirisIskeleti extends StatelessWidget {
+  final List<Widget> children;
+  final bool geriDugmesi;
+  const GirisIskeleti({super.key, required this.children, this.geriDugmesi = true});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(children: [
+        const BerberDesenWidget(),
+        SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              if (geriDugmesi && Navigator.canPop(context))
+                IconButton(
+                  tooltip: 'Geri',
+                  icon: const Icon(Icons.arrow_back_ios, color: AppTheme.gold),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ...children,
+            ]),
+          ),
+        ),
+      ]),
+    );
+  }
+}
+
+/// Parlayan logo.
+class GirisLogosu extends StatelessWidget {
+  final double boyut;
+  const GirisLogosu({super.key, this.boyut = 150});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Container(
+        width: boyut,
+        height: boyut,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [BoxShadow(color: AppTheme.gold.withValues(alpha: 0.35), blurRadius: 40, spreadRadius: 8)],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Image.asset('assets/images/logo.png', fit: BoxFit.contain, semanticLabel: 'Premium Berber logosu'),
+        ),
+      ),
+    );
+  }
+}
+
+/// Büyük başlık + alt açıklama.
+class GirisBasligi extends StatelessWidget {
+  final String baslik;
+  final String alt;
+  final Color renk;
+  const GirisBasligi({super.key, required this.baslik, required this.alt, this.renk = AppTheme.gold});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16, bottom: 28),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(baslik, style: GoogleFonts.playfairDisplay(color: renk, fontSize: 30, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 6),
+        Text(alt, style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 14)),
+      ]),
+    );
+  }
+}
+
+/// Doğrulamalı form alanları.
+class Alanlar {
+  Alanlar._();
+
+  static Widget metin(TextEditingController c, String etiket, IconData ikon,
+          {bool zorunlu = true, TextInputType? klavye, TextCapitalization buyukHarf = TextCapitalization.words}) =>
+      TextFormField(
+        controller: c,
+        keyboardType: klavye,
+        textCapitalization: buyukHarf,
+        decoration: InputDecoration(labelText: etiket, prefixIcon: Icon(ikon, color: AppTheme.gold)),
+        validator: (v) => zorunlu && (v == null || v.trim().isEmpty) ? 'Zorunlu alan' : null,
+      );
+
+  static Widget eposta(TextEditingController c) => TextFormField(
+        controller: c,
+        keyboardType: TextInputType.emailAddress,
+        autofillHints: const [AutofillHints.email],
+        decoration: const InputDecoration(labelText: 'E-posta', prefixIcon: Icon(Icons.email_outlined, color: AppTheme.gold)),
+        validator: (v) => RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(v?.trim() ?? '') ? null : 'Geçerli bir e-posta girin',
+      );
+
+  /// 10 haneli, 5 ile başlayan cep telefonu; başında sabit "0".
+  static Widget telefon(TextEditingController c) => TextFormField(
+        controller: c,
+        keyboardType: TextInputType.phone,
+        maxLength: 10,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        decoration: const InputDecoration(
+          labelText: 'Cep Telefonu',
+          prefixIcon: Icon(Icons.phone_outlined, color: AppTheme.gold),
+          prefixText: '0 ',
+          counterText: '',
+          hintText: '5XX XXX XX XX',
+        ),
+        validator: (v) {
+          final t = v?.trim() ?? '';
+          return t.length == 10 && t.startsWith('5') ? null : '5 ile başlayan 10 rakam girin';
+        },
+      );
+}
+
+/// Göster/gizle düğmeli şifre alanı.
+class SifreAlani extends StatefulWidget {
+  final TextEditingController controller;
+  final String etiket;
+  const SifreAlani({super.key, required this.controller, this.etiket = 'Şifre'});
+
+  @override
+  State<SifreAlani> createState() => _SifreAlaniState();
+}
+
+class _SifreAlaniState extends State<SifreAlani> {
+  bool _gizli = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: widget.controller,
+      obscureText: _gizli,
+      autofillHints: const [AutofillHints.password],
+      decoration: InputDecoration(
+        labelText: widget.etiket,
+        prefixIcon: const Icon(Icons.lock_outline, color: AppTheme.gold),
+        suffixIcon: IconButton(
+          tooltip: _gizli ? 'Şifreyi göster' : 'Şifreyi gizle',
+          icon: Icon(_gizli ? Icons.visibility_off : Icons.visibility, color: AppTheme.textSecondary),
+          onPressed: () => setState(() => _gizli = !_gizli),
+        ),
+      ),
+      validator: (v) => (v == null || v.length < 6) ? 'En az 6 karakter' : null,
+    );
+  }
+}
+
+/// Açıklamalı onay kutusu (KVKK, ticari ileti).
+class OnayKutusu extends StatelessWidget {
+  final bool deger;
+  final ValueChanged<bool> degisti;
+  final String metin;
+  final VoidCallback? metniOku;
+
+  const OnayKutusu({super.key, required this.deger, required this.degisti, required this.metin, this.metniOku});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Checkbox(value: deger, onChanged: (v) => degisti(v ?? false), activeColor: AppTheme.gold, checkColor: AppTheme.black),
+      Expanded(
+        child: GestureDetector(
+          onTap: () => degisti(!deger),
+          child: Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(metin, style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12, height: 1.4)),
+              if (metniOku != null)
+                TextButton(
+                  onPressed: metniOku,
+                  style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(0, 32)),
+                  child: const Text('Metni oku', style: TextStyle(decoration: TextDecoration.underline)),
+                ),
+            ]),
+          ),
+        ),
+      ),
+    ]);
+  }
+}
+
+/// "Hesabın yok mu? Kayıt ol" tarzı alt bağlantı.
+class AltBaglanti extends StatelessWidget {
+  final String soru;
+  final String eylem;
+  final VoidCallback onTap;
+  const AltBaglanti({super.key, required this.soru, required this.eylem, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: TextButton(
+        onPressed: onTap,
+        child: Text.rich(TextSpan(
+          text: '$soru ',
+          style: const TextStyle(color: AppTheme.textSecondary),
+          children: [
+            TextSpan(text: eylem, style: GoogleFonts.inter(color: AppTheme.gold, fontWeight: FontWeight.bold)),
+          ],
+        )),
+      ),
+    );
+  }
+}

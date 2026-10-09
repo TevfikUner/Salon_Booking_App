@@ -1,378 +1,127 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+
 import 'package:berber_app_ui/core/theme/app_theme.dart';
+import 'package:berber_app_ui/core/utils/bicim.dart';
+import 'package:berber_app_ui/core/widgets/durum_gorunumleri.dart';
+import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
 import 'package:berber_app_ui/data/api/api_client.dart';
 import 'package:berber_app_ui/data/api/randevu_api.dart';
 import 'package:berber_app_ui/data/models/randevu.dart';
-import 'package:berber_app_ui/core/utils/bicim.dart';
-import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
+import 'package:berber_app_ui/features/musteri/degerlendirme/degerlendirme_screen.dart';
+import 'package:berber_app_ui/features/musteri/randevularim/widgets/randevu_karti.dart';
 
+/// Yaklaşan ve geçmiş randevular; iptal ve değerlendirme.
 class RandevularimScreen extends StatefulWidget {
   const RandevularimScreen({super.key});
 
   @override
-  State<RandevularimScreen> createState() => _RandevularimScreenState();
+  State<RandevularimScreen> createState() => RandevularimScreenState();
 }
 
-class _RandevularimScreenState extends State<RandevularimScreen> with SingleTickerProviderStateMixin {
-  List<Randevu>? _randevular;
+class RandevularimScreenState extends State<RandevularimScreen> {
+  List<Randevu> _randevular = [];
   bool _yukleniyor = true;
-  late TabController _tabController;
+  String? _hata;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-    _yukle();
+    yenile();
   }
 
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _yukle() async {
+  Future<void> yenile() async {
+    setState(() {
+      _yukleniyor = _randevular.isEmpty;
+      _hata = null;
+    });
     try {
-      final data = await RandevuApi.randevularim();
-      if (mounted) setState(() { _randevular = data; _yukleniyor = false; });
-    } catch (e) {
-      if (mounted) {
-        setState(() => _yukleniyor = false);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Yüklenemedi: $e'), backgroundColor: AppTheme.error));
-      }
+      final liste = await RandevuApi.randevularim();
+      if (mounted) setState(() => _randevular = liste);
+    } on ApiHata catch (e) {
+      if (mounted) setState(() => _hata = e.mesaj);
+    } finally {
+      if (mounted) setState(() => _yukleniyor = false);
     }
   }
 
-  void _degerlendirmeDialogGoster(Randevu r) {
-    double secilenPuan = 5;
-    final TextEditingController yorumCtrl = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text("Sıhhatler Olsun! ⭐",
-            style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontWeight: FontWeight.bold)),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text("${r.berber} ustadan aldığın hizmeti puanla:",
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.white, fontSize: 14)),
-              const SizedBox(height: 20),
-
-              RatingBar.builder(
-                initialRating: 5,
-                minRating: 1,
-                direction: Axis.horizontal,
-                allowHalfRating: false,
-                itemCount: 5,
-                itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
-                itemBuilder: (context, _) => const Icon(Icons.star, color: AppTheme.gold),
-                onRatingUpdate: (rating) => secilenPuan = rating,
-              ),
-
-              const SizedBox(height: 20),
-
-              TextField(
-                controller: yorumCtrl,
-                maxLines: 3,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  hintText: "Yorumun (isteğe bağlı)...",
-                  hintStyle: const TextStyle(color: Colors.white30),
-                  filled: true,
-                  fillColor: AppTheme.black,
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: AppTheme.gold.withValues(alpha: 0.2)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppTheme.gold),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text("Vazgeç", style: TextStyle(color: AppTheme.textSecondary)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.gold,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            ),
-            onPressed: () async {
-              try {
-                await RandevuApi.degerlendir(
-                  randevuId: r.id,
-                  puan: secilenPuan.toInt(),
-                  yorum: yorumCtrl.text.trim(),
-                );
-                if (ctx.mounted) Navigator.pop(ctx);
-                _yukle();
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Değerlendirmeniz için teşekkürler!"), backgroundColor: AppTheme.success)
-                  );
-                }
-              } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Hata: $e"), backgroundColor: AppTheme.error)
-                  );
-                }
-              }
-            },
-            child: const Text("Gönder", style: TextStyle(color: AppTheme.black, fontWeight: FontWeight.bold)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _sil(Randevu r) async {
-    final onay = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.surface,
-        title: Text('Randevu İptal', style: GoogleFonts.playfairDisplay(color: AppTheme.gold)),
-        content: Text('${tarihUzun(r.tarih)} ${r.saat} randevunuzu iptal etmek istiyor musunuz?',
-            style: const TextStyle(color: Colors.white)),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Vazgeç', style: TextStyle(color: AppTheme.textSecondary))),
-          TextButton(onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('İptal Et', style: TextStyle(color: AppTheme.error))),
-        ],
-      ),
-    );
-    if (onay != true) return;
+  Future<void> _iptal(Randevu r) async {
+    final onay = await onayIste(context, 'Randevu İptali',
+        '${tarihUzun(r.tarih)} ${r.saat} randevunuzu iptal etmek istiyor musunuz?',
+        evet: 'İptal Et', tehlikeli: true);
+    if (!onay) return;
     try {
       await RandevuApi.iptal(r.id);
       if (mounted) bilgiGoster(context, 'Randevunuz iptal edildi.');
-      _yukle();
+      yenile();
     } on ApiHata catch (e) {
       if (mounted) bilgiGoster(context, e.mesaj, hata: true);
     }
   }
 
-  Color _durumRenk(String durum) {
-    switch (durum) {
-      case 'onaylandi': return AppTheme.success;
-      case 'iptal': return AppTheme.error;
-      case 'tamamlandi': return AppTheme.textSecondary;
-      case 'gelmedi': return Colors.orange;
-      default: return AppTheme.gold;
-    }
-  }
-
-  String _durumMetin(String durum) {
-    switch (durum) {
-      case 'onaylandi': return '✓ Onaylandı';
-      case 'iptal': return '✗ İptal';
-      case 'tamamlandi': return '✔ Tamamlandı';
-      case 'gelmedi': return 'Gelinmedi';
-      default: return durum;
-    }
+  Future<void> _degerlendir(Randevu r) async {
+    final gonderildi = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (_) => DegerlendirmeEkrani(randevuId: r.id, berberAdi: r.berber)),
+    );
+    if (gonderildi == true) yenile();
   }
 
   @override
   Widget build(BuildContext context) {
-    final yaklasanlar = (_randevular?.where((r) => r.durum == 'onaylandi').toList() ?? [])
-      ..sort((a, b) => '${a.tarih} ${a.saat}'.compareTo('${b.tarih} ${b.saat}'));
-    final gecmis = _randevular?.where((r) => r.durum != 'onaylandi').toList() ?? [];
+    final yaklasanlar = _randevular.where((r) => r.durum == 'onaylandi').toList()
+      ..sort((a, b) => a.baslangic.compareTo(b.baslangic));
+    final gecmis = _randevular.where((r) => r.durum != 'onaylandi').toList();
 
-    return Scaffold(
-      backgroundColor: AppTheme.black,
-      appBar: AppBar(
-        title: const Text('Randevularım'),
-        automaticallyImplyLeading: false,
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: AppTheme.gold,
-          labelColor: AppTheme.gold,
-          unselectedLabelColor: AppTheme.textSecondary,
-          labelStyle: GoogleFonts.inter(fontWeight: FontWeight.bold),
-          tabs: const [
-            Tab(text: 'YAKLAŞANLAR', icon: Icon(Icons.calendar_today, size: 20)),
-            Tab(text: 'GEÇMİŞ', icon: Icon(Icons.history, size: 20)),
-          ],
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Randevularım'),
+          automaticallyImplyLeading: false,
+          bottom: const TabBar(
+            indicatorColor: AppTheme.gold,
+            labelColor: AppTheme.gold,
+            unselectedLabelColor: AppTheme.textSecondary,
+            tabs: [
+              Tab(text: 'YAKLAŞANLAR', icon: Icon(Icons.calendar_today, size: 20)),
+              Tab(text: 'GEÇMİŞ', icon: Icon(Icons.history, size: 20)),
+            ],
+          ),
         ),
-      ),
-      body: _yukleniyor
-          ? const Center(child: CircularProgressIndicator(color: AppTheme.gold))
-          : TabBarView(
-        controller: _tabController,
-        children: [
-          _buildRandevuListesi(yaklasanlar, 'Henüz aktif randevunuz yok', false),
-          _buildRandevuListesi(gecmis, 'Geçmiş randevu bulunamadı', true),
-        ],
+        body: AsenkronGorunum(
+          yukleniyor: _yukleniyor,
+          hata: _hata,
+          onTekrar: yenile,
+          builder: (_) => TabBarView(children: [
+            _liste(yaklasanlar, 'Henüz aktif randevunuz yok'),
+            _liste(gecmis, 'Geçmiş randevu bulunamadı'),
+          ]),
+        ),
       ),
     );
   }
 
-  Widget _buildRandevuListesi(List<Randevu> liste, String bosMesaj, bool gecmisMi) {
-    if (liste.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.calendar_today_outlined, color: AppTheme.gold.withValues(alpha: 0.3), size: 72),
-            const SizedBox(height: 16),
-            Text(bosMesaj,
-                style: GoogleFonts.playfairDisplay(color: AppTheme.textSecondary, fontSize: 18)),
-          ],
-        ),
-      );
-    }
-
+  Widget _liste(List<Randevu> liste, String bosMesaj) {
     return RefreshIndicator(
       color: AppTheme.gold,
-      onRefresh: _yukle,
-      child: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: liste.length,
-        itemBuilder: (_, i) {
-          final r = liste[i];
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            decoration: BoxDecoration(
-              color: AppTheme.surface,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppTheme.gold.withValues(alpha: 0.15)),
-            ),
-            child: Padding(
+      onRefresh: yenile,
+      child: liste.isEmpty
+          ? ListView(children: [
+              const SizedBox(height: 120),
+              BosGorunum(ikon: Icons.calendar_today_outlined, mesaj: bosMesaj),
+            ])
+          : ListView.builder(
               padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: _durumRenk(r.durum).withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: _durumRenk(r.durum).withValues(alpha: 0.4)),
-                        ),
-                        child: Text(_durumMetin(r.durum),
-                            style: GoogleFonts.inter(
-                                color: _durumRenk(r.durum),
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600)),
-                      ),
-                      Text('${r.toplamFiyat.toStringAsFixed(0)} ₺',
-                          style: GoogleFonts.playfairDisplay(
-                              color: AppTheme.gold,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(children: [
-                    const Icon(Icons.calendar_today, color: AppTheme.gold, size: 16),
-                    const SizedBox(width: 8),
-                    Text('${tarihGoreli(r.tarih)}  •  ${r.saat}${r.bitis.isNotEmpty ? ' – ${r.bitis}' : ''}',
-                        style: GoogleFonts.inter(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600)),
-                  ]),
-                  const SizedBox(height: 6),
-                  Row(children: [
-                    const Icon(Icons.person, color: AppTheme.textSecondary, size: 16),
-                    const SizedBox(width: 8),
-                    Text(r.berber,
-                        style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 13)),
-                  ]),
-                  const SizedBox(height: 6),
-                  Row(children: [
-                    const Icon(Icons.content_cut, color: AppTheme.textSecondary, size: 16),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(r.hizmetler.join(', '),
-                          style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 13)),
-                    ),
-                  ]),
-                  if (r.salonAd.isNotEmpty) ...[
-                    const SizedBox(height: 6),
-                    Row(children: [
-                      const Icon(Icons.store_outlined, color: AppTheme.gold, size: 16),
-                      const SizedBox(width: 8),
-                      Text(r.salonAd,
-                          style: GoogleFonts.inter(color: AppTheme.gold, fontSize: 13, fontWeight: FontWeight.w500)),
-                    ]),
-                  ],
-
-                  if (r.durum == 'iptal' && r.iptalEden == 'isletme') ...[
-                    const SizedBox(height: 8),
-                    Text('Salon tarafından iptal edildi.',
-                        style: GoogleFonts.inter(color: AppTheme.error, fontSize: 12)),
-                  ],
-                  // ─── AKILLI BUTONLAR ───
-                  if (r.durum == 'onaylandi') ...[
-                    const SizedBox(height: 14),
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppTheme.error,
-                          side: BorderSide(color: AppTheme.error.withValues(alpha: 0.5)),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        ),
-                        onPressed: () => _sil(r),
-                        child: Text('Randevuyu İptal Et', style: GoogleFonts.inter(fontSize: 13)),
-                      ),
-                    ),
-                  ]
-                  else if (gecmisMi && r.durum == 'tamamlandi') ...[
-                    const SizedBox(height: 14),
-                    SizedBox(
-                      width: double.infinity,
-                      child: r.puan != null // Zaten değerlendirilmişse
-                          ? Container(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        decoration: BoxDecoration(
-                          color: AppTheme.success.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: AppTheme.success.withValues(alpha: 0.3)),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.check_circle_outline, color: AppTheme.success, size: 20),
-                            const SizedBox(width: 8),
-                            Text('Değerlendirildi (${r.puan} ⭐)',
-                                style: GoogleFonts.inter(color: AppTheme.success, fontWeight: FontWeight.bold)),
-                          ],
-                        ),
-                      )
-                          : ElevatedButton.icon( // Henüz değerlendirilmemişse
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.gold,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        ),
-                        onPressed: () => _degerlendirmeDialogGoster(r),
-                        icon: const Icon(Icons.star_border, color: AppTheme.black),
-                        label: const Text('Hizmeti Değerlendir',
-                            style: TextStyle(color: AppTheme.black, fontWeight: FontWeight.bold)),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
+              itemCount: liste.length,
+              itemBuilder: (_, i) {
+                final r = liste[i];
+                return RandevuKarti(
+                  randevu: r,
+                  onIptal: r.yaklasan ? () => _iptal(r) : null,
+                  onDegerlendir: () => _degerlendir(r),
+                );
+              },
             ),
-          );
-        },
-      ),
     );
   }
 }

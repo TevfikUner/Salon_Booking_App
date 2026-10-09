@@ -37,7 +37,7 @@ class _IsletmeBeklemeScreenState extends State<IsletmeBeklemeScreen> {
     await AuthService.cikisYap();
     if (!mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const RoleSelectionScreen()), (_) => false);
+        MaterialPageRoute(builder: (_) => const RolSecimScreen()), (_) => false);
   }
 
   @override

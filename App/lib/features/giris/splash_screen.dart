@@ -40,7 +40,7 @@ class _SplashScreenState extends State<SplashScreen>
     setState(() => _hata = null);
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const RoleSelectionScreen()));
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const RolSecimScreen()));
       return;
     }
     try {

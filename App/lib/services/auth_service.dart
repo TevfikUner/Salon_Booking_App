@@ -20,17 +20,14 @@ class AuthService {
     required String telefon,
     required bool kvkkOnay,
     required bool ticariIletiIzni,
-  }) async {
-    final cred = await _auth.createUserWithEmailAndPassword(email: email, password: sifre);
-    await cred.user?.updateDisplayName('$ad $soyad'.trim());
-    await HesapApi.musteriKayit(
-      ad: ad,
-      soyad: soyad,
-      telefon: telefon,
-      kvkkOnay: kvkkOnay,
-      ticariIletiIzni: ticariIletiIzni,
-    );
-  }
+  }) =>
+      _hesapAcVeKaydet(email, sifre, '$ad $soyad'.trim(), () => HesapApi.musteriKayit(
+            ad: ad,
+            soyad: soyad,
+            telefon: telefon,
+            kvkkOnay: kvkkOnay,
+            ticariIletiIzni: ticariIletiIzni,
+          ));
 
   static Future<void> sifreSifirla(String email) async {
     await _auth.setLanguageCode('tr');
@@ -46,15 +43,33 @@ class AuthService {
     required String soyad,
     required String telefon,
     required String isletmeAdi,
-  }) async {
-    await _auth.createUserWithEmailAndPassword(email: email, password: sifre);
-    await HesapApi.isletmeKayit(
-      ad: ad,
-      soyad: soyad,
-      telefon: telefon,
-      email: email,
-      isletmeAdi: isletmeAdi,
-    );
+  }) =>
+      _hesapAcVeKaydet(email, sifre, '$ad $soyad'.trim(), () => HesapApi.isletmeKayit(
+            ad: ad,
+            soyad: soyad,
+            telefon: telefon,
+            email: email,
+            isletmeAdi: isletmeAdi,
+          ));
+
+  /// Firebase hesabını açar, sunucu kaydını yapar. Sunucu kaydı başarısız olursa Firebase hesabı geri alınır;
+  /// aksi halde kullanıcı aynı e-postayla tekrar denediğinde "e-posta zaten kullanımda" hatasına takılırdı.
+  /// Doğrulama e-postası da gönderilir (personel davetinin eşleşmesi doğrulanmış e-posta ister).
+  static Future<void> _hesapAcVeKaydet(String email, String sifre, String adSoyad, Future<void> Function() kayit) async {
+    final cred = await _auth.createUserWithEmailAndPassword(email: email, password: sifre);
+    try {
+      await cred.user?.updateDisplayName(adSoyad);
+      await kayit();
+    } catch (_) {
+      await cred.user?.delete();
+      rethrow;
+    }
+    try {
+      await _auth.setLanguageCode('tr');
+      await cred.user?.sendEmailVerification();
+    } catch (_) {
+      // Doğrulama e-postası gönderilemese de kayıt geçerlidir.
+    }
   }
 
   /// Hesabı siler: önce backend'deki kişisel veriler, sonra Firebase kullanıcısı.

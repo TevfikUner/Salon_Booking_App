@@ -19,6 +19,10 @@ class AppConfig {
 
   static const Duration timeout = Duration(seconds: 15);
 
+  /// Paket adı değişince (BENDEN_GEREKENLER #8) burası da güncellenir.
+  static const String magazaLinki = 'https://play.google.com/store/apps/details?id=com.premiumberber.app';
+  static const String destekEposta = String.fromEnvironment('DESTEK_EPOSTA', defaultValue: 'destek@premiumberber.app');
+
   /// Göreli (/uploads/...) veya tam URL'yi görüntülenebilir adrese çevirir.
   static String medyaUrl(String yol) => yol.startsWith('http') ? yol : '$baseUrl$yol';
 }
