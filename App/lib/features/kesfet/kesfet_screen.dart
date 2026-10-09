@@ -84,6 +84,7 @@ class _KesfetScreenState extends State<KesfetScreen> {
     setState(() => _konumAliniyor = true);
     try {
       final p = await KonumServisi.mevcutKonum();
+      if (!mounted) return;
       setState(() => _konum = (lat: p.latitude, lng: p.longitude));
       await _yukle();
     } on KonumHatasi catch (e) {

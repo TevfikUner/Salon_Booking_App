@@ -10,7 +10,7 @@ işletme sahibi günün akışını, ekibini, menüsünü ve kapalı günlerini 
 | `docker-compose.yml` | Yerel PostgreSQL + API |
 | `render.yaml` | Render blueprint (API + PostgreSQL) |
 
-Diğer belgeler: [ANALIZ_RAPORU.md](ANALIZ_RAPORU.md) · [KARARLAR.md](KARARLAR.md) · [BENDEN_GEREKENLER.md](BENDEN_GEREKENLER.md) · [DEMO.md](DEMO.md)
+Diğer belgeler: [ANALIZ_RAPORU.md](ANALIZ_RAPORU.md) · [KARARLAR.md](KARARLAR.md) · [BENDEN_GEREKENLER.md](BENDEN_GEREKENLER.md) · [DEMO.md](DEMO.md) · [YAPILACAKLAR.md](YAPILACAKLAR.md)
 
 ---
 
@@ -96,7 +96,7 @@ Kural: ekran dosyası durum + düzen taşır; görsel parçalar `widgets/` altı
 
 Adım adım kopyala-çalıştır talimatı: [BENDEN_GEREKENLER.md](BENDEN_GEREKENLER.md) (Firebase → Render → paket adı → cihaz).
 
-1. Render → **New → Blueprint** → repo ve dal (`feature/v1-hazirlik`). `render.yaml` bir Docker web servisi ve PostgreSQL oluşturur.
+1. Render → **New → Blueprint** → repo ve dal (`main`). `render.yaml` bir Docker web servisi ve PostgreSQL oluşturur.
 2. Render panelinde gizli değişkenleri girin: `FIREBASE_CREDENTIALS_JSON` (servis hesabı JSON'unun tamamı), `ADMIN_UIDS`.
 3. Konteyner her açılışta `alembic upgrade head` çalıştırır; sağlık kontrolü `/saglik`.
 4. Özel alan adı ekleyin (HTTPS otomatik) ve uygulamayı `--dart-define=API_BASE_URL=https://...` ile derleyin.

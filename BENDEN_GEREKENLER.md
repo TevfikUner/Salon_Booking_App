@@ -19,9 +19,9 @@ Sıra önemlidir: 1 → 2 → 3 → 4.
 
 ## 2. Render'a yayın (≈15 dk)
 
-Kod GitHub'da `feature/v1-hazirlik` dalında hazır, `render.yaml` blueprint'i API + PostgreSQL'i birlikte kurar.
+Kod GitHub'da `main` dalında hazır, `render.yaml` blueprint'i API + PostgreSQL'i birlikte kurar.
 
-1. render.com → **New → Blueprint** → `TevfikUner/pro_berber_full` → dal: `feature/v1-hazirlik`.
+1. render.com → **New → Blueprint** → `TevfikUner/pro_berber_full` → dal: `main`.
 2. İstenen gizli değerleri girin: `FIREBASE_CREDENTIALS_JSON`, `ADMIN_UIDS`.
 3. Deploy bitince: `https://<servis>.onrender.com/saglik` → `{"durum":"ok"}`.
 4. Render → servis → **Shell**:

@@ -55,8 +55,13 @@ class ApiClient {
   static Future<Map<String, String>> _basliklar({required bool json}) async {
     final h = <String, String>{};
     if (json) h['Content-Type'] = 'application/json';
-    final token = await FirebaseAuth.instance.currentUser?.getIdToken();
-    if (token != null) h['Authorization'] = 'Bearer $token';
+    try {
+      final token = await FirebaseAuth.instance.currentUser?.getIdToken();
+      if (token != null) h['Authorization'] = 'Bearer $token';
+    } on FirebaseAuthException {
+      // Token yenilenemedi (ağ yok / oturum geçersiz): ekran sonsuz yüklemede kalmasın
+      throw const ApiHata('Oturum doğrulanamadı. İnternet bağlantınızı kontrol edip tekrar deneyin.');
+    }
     return h;
   }
 
@@ -77,7 +82,8 @@ class ApiClient {
       res = await istek.timeout(AppConfig.timeout);
     } on TimeoutException {
       throw const ApiHata('Sunucu yanıt vermiyor. İnternet bağlantınızı kontrol edip tekrar deneyin.');
-    } on SocketException {
+    } on IOException {
+      // SocketException, HandshakeException (TLS) vb.
       throw const ApiHata('Sunucuya ulaşılamadı. İnternet bağlantınızı kontrol edin.');
     } on http.ClientException {
       throw const ApiHata('Sunucuya ulaşılamadı. İnternet bağlantınızı kontrol edin.');

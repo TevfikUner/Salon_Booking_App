@@ -1,6 +1,6 @@
 # Render Blueprint — https://render.com/docs/blueprint-spec
 # Gizli değerler (FIREBASE_CREDENTIALS_JSON, ADMIN_UIDS) panelden girilir (sync: false).
-# Kurulum: Render → New → Blueprint → bu repo → dal: feature/v1-hazirlik (main'e birleştirince main).
+# Kurulum: Render → New → Blueprint → bu repo → dal: main.
 services:
   - type: web
     name: premium-berber-api
