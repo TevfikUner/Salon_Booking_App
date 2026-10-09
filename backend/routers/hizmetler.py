@@ -1,68 +1,63 @@
 from fastapi import APIRouter, Depends, HTTPException
-from auth import admin_dogrula
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
-from database import get_db
+
 import models
+from auth import admin_dogrula
+from database import get_db
 
 router = APIRouter(prefix="/hizmetler", tags=["Hizmet Menüsü"])
 
-@router.post("/ekle")
-def hizmet_ekle(
-    ad: str,
-    fiyat: float,
-    sure: int,
-    aciklama: str = None,
-    db: Session = Depends(get_db),
-    _: None = Depends(admin_dogrula)  # 🔒 Sadece admin ekleyebilir
-):
-    yeni_hizmet = models.Hizmet(
-        ad=ad, 
-        fiyat=fiyat, 
-        sure=sure, 
-        aciklama=aciklama # Modeldeki yeni sütuna gönderiyoruz
-    )
-    db.add(yeni_hizmet)
-    db.commit()
-    db.refresh(yeni_hizmet)
-    return {"mesaj": "Hizmet başarıyla menüye eklendi!", "id": yeni_hizmet.id}
+
+def _json(h: models.Hizmet) -> dict:
+    return {"id": h.id, "ad": h.ad, "fiyat": h.fiyat, "sure": h.sure, "aciklama": h.aciklama, "salon_id": h.salon_id}
+
 
 @router.get("/")
-def hizmetleri_listele(db: Session = Depends(get_db)):
-    return db.query(models.Hizmet).all()
+def hizmetleri_listele(salon_id: int | None = None, db: Session = Depends(get_db)):
+    """salon_id verilirse o salonun hizmetleri (+ varsa ortak hizmetler); verilmezse ortak hizmetler."""
+    q = db.query(models.Hizmet).filter(models.Hizmet.aktif.is_(True))
+    if salon_id is not None:
+        q = q.filter(or_(models.Hizmet.salon_id == salon_id, models.Hizmet.salon_id.is_(None)))
+    else:
+        q = q.filter(models.Hizmet.salon_id.is_(None))
+    return [_json(h) for h in q.order_by(models.Hizmet.id).all()]
 
-@router.put("/guncelle/{hizmet_id}")
-def hizmet_guncelle(
-    hizmet_id: int,
-    ad: str = None,
-    fiyat: float = None,
-    sure: int = None,
-    aciklama: str = None,
-    db: Session = Depends(get_db),
-    _: None = Depends(admin_dogrula)  # 🔒 Sadece admin güncelleyebilir
-):
-    hizmet = db.query(models.Hizmet).filter(models.Hizmet.id == hizmet_id).first()
-    if not hizmet:
-        raise HTTPException(status_code=404, detail="Hizmet bulunamadı.")
 
-    if ad: hizmet.ad = ad
-    if fiyat is not None: hizmet.fiyat = fiyat
-    if sure is not None: hizmet.sure = sure
-    if aciklama: hizmet.aciklama = aciklama
+# ── Admin (işletmeler kendi hizmetlerini /panel/hizmetler ile yönetir) ──
 
+@router.post("/ekle", dependencies=[Depends(admin_dogrula)])
+def hizmet_ekle(ad: str, fiyat: float, sure: int, aciklama: str | None = None, salon_id: int | None = None,
+                db: Session = Depends(get_db)):
+    h = models.Hizmet(ad=ad, fiyat=fiyat, sure=sure, aciklama=aciklama, salon_id=salon_id)
+    db.add(h)
     db.commit()
-    db.refresh(hizmet)
-    return {"mesaj": "Hizmet güncellendi.", "hizmet": hizmet.ad, "yeni_fiyat": hizmet.fiyat}
+    return {"mesaj": "Hizmet eklendi.", "id": h.id}
 
-@router.delete("/sil/{hizmet_id}")
-def hizmet_sil(
-    hizmet_id: int,
-    db: Session = Depends(get_db),
-    _: None = Depends(admin_dogrula)  # 🔒 Sadece admin silebilir
-):
-    hizmet = db.query(models.Hizmet).filter(models.Hizmet.id == hizmet_id).first()
-    if not hizmet:
+
+@router.put("/guncelle/{hizmet_id}", dependencies=[Depends(admin_dogrula)])
+def hizmet_guncelle(hizmet_id: int, ad: str | None = None, fiyat: float | None = None, sure: int | None = None,
+                    aciklama: str | None = None, db: Session = Depends(get_db)):
+    h = db.get(models.Hizmet, hizmet_id)
+    if not h:
         raise HTTPException(status_code=404, detail="Hizmet bulunamadı.")
-
-    db.delete(hizmet)
+    if ad:
+        h.ad = ad
+    if fiyat is not None:
+        h.fiyat = fiyat
+    if sure is not None:
+        h.sure = sure
+    if aciklama:
+        h.aciklama = aciklama
     db.commit()
-    return {"mesaj": f"'{hizmet.ad}' hizmeti menüden kaldırıldı."}
+    return {"mesaj": "Hizmet güncellendi.", "hizmet": h.ad, "yeni_fiyat": h.fiyat}
+
+
+@router.delete("/sil/{hizmet_id}", dependencies=[Depends(admin_dogrula)])
+def hizmet_sil(hizmet_id: int, db: Session = Depends(get_db)):
+    h = db.get(models.Hizmet, hizmet_id)
+    if not h:
+        raise HTTPException(status_code=404, detail="Hizmet bulunamadı.")
+    h.aktif = False  # geçmiş randevular bu hizmete referans veriyor
+    db.commit()
+    return {"mesaj": f"'{h.ad}' hizmeti menüden kaldırıldı."}

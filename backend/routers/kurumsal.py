@@ -5,7 +5,7 @@ import models
 
 router = APIRouter(prefix="/kurumsal", tags=["Dükkan Bilgileri"])
 
-@router.get("/bilgiler")
+@router.get("/bilgiler", deprecated=True)
 def dukkan_bilgilerini_getir(db: Session = Depends(get_db)):
     bilgi = db.query(models.Dukkan).first()
     if not bilgi:

@@ -4,7 +4,7 @@ from sqlalchemy import func
 from database import get_db
 from auth import admin_dogrula
 import models
-from datetime import datetime, date
+from zaman import bugun, simdi
 
 router = APIRouter(prefix="/raporlar", tags=["Admin İstatistik & Raporlar"])
 
@@ -16,7 +16,7 @@ def gunluk_rapor(
     _: None = Depends(admin_dogrula)
 ):
     """Belirli bir günün ciro, randevu ve hizmet istatistiklerini döner."""
-    hedef = tarih or date.today().strftime("%Y-%m-%d")
+    hedef = tarih or bugun().isoformat()
 
     randevular = db.query(models.Randevu).filter(
         models.Randevu.tarih == hedef,
@@ -52,9 +52,9 @@ def aylik_rapor(
     _: None = Depends(admin_dogrula)
 ):
     """Belirli bir ayın özet istatistiklerini döner. Boş bırakılırsa bu ay."""
-    simdi = datetime.now()
-    hedef_yil = yil or simdi.year
-    hedef_ay = ay or simdi.month
+    an = simdi()
+    hedef_yil = yil or an.year
+    hedef_ay = ay or an.month
     ay_prefix = f"{hedef_yil}-{hedef_ay:02d}"  # örn: "2025-04"
 
     randevular = db.query(models.Randevu).filter(

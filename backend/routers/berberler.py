@@ -14,6 +14,7 @@ def berber_ekle(
     uzmanlik: str,  # Buraya "Usta", "Kalfa" gibi değerler gireceğiz
     foto_url: str = None,
     puan: float = 5.0,
+    salon_id: int | None = None,
     db: Session = Depends(get_db),
     _: None = Depends(admin_dogrula)  # 🔒 Sadece admin ekleyebilir
 ):
@@ -22,18 +23,24 @@ def berber_ekle(
         soyad=soyad, 
         uzmanlik=uzmanlik, 
         foto_url=foto_url, 
-        puan=puan
+        puan=puan,
+        salon_id=salon_id,
     )
     db.add(yeni_berber)
     db.commit()
     db.refresh(yeni_berber)
     return {
-        "mesaj": "Yeni personel kadroya başarıyla katıldı kanki!", 
+        "mesaj": "Yeni personel kadroya katıldı.", 
         "berber": f"{yeni_berber.ad} ({yeni_berber.uzmanlik})"
     }
 @router.get("/")
-def berberleri_listele(db: Session = Depends(get_db)):
-    return db.query(models.Berber).all()
+def berberleri_listele(salon_id: int | None = None, db: Session = Depends(get_db)):
+    q = db.query(models.Berber).filter(models.Berber.aktif.is_(True))
+    if salon_id is not None:
+        q = q.filter(models.Berber.salon_id == salon_id)
+    return [{"id": b.id, "ad": b.ad, "soyad": b.soyad, "uzmanlik": b.uzmanlik, "foto_url": b.foto_url,
+             "puan": b.puan, "salon_id": b.salon_id, "instagram_username": b.instagram_username}
+            for b in q.all()]
 
 @router.put("/guncelle/{berber_id}")
 def berber_guncelle(
@@ -70,7 +77,7 @@ def berber_sil(
     if not berber:
         raise HTTPException(status_code=404, detail="Berber bulunamadı.")
 
-    db.delete(berber)
+    berber.aktif = False  # geçmiş randevular bozulmasın
     db.commit()
     return {"mesaj": f"{berber.ad} {berber.soyad} kadrodan çıkarıldı."}
 
@@ -159,7 +166,7 @@ async def berber_foto_yukle(
     # Klasörü oluştur ve dosyayı kaydet
     klasor = "uploads/berberler"
     os.makedirs(klasor, exist_ok=True)
-    uzanti = foto.filename.rsplit(".", 1)[-1]
+    uzanti = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp"}[foto.content_type]
     dosya_adi = f"berber_{berber_id}.{uzanti}"
     dosya_yolu = os.path.join(klasor, dosya_adi)
 

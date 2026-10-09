@@ -1,102 +1,70 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func
-from database import get_db
+from sqlalchemy.orm import Session
+
 import models
-from datetime import datetime
+from auth import Kimlik, kimlik_gerekli
+from database import get_db
+from zaman import simdi
 
 router = APIRouter(prefix="/degerlendirmeler", tags=["Değerlendirme & Puan"])
+
+
+def _kisa_ad(m: models.Musteri | None) -> str:
+    if not m or m.silindi:
+        return "Anonim"
+    soyad = (m.soyad or "").strip()
+    return f"{m.ad} {soyad[0]}." if soyad else (m.ad or "Anonim")
 
 
 @router.post("/ekle")
 def degerlendirme_ekle(
     randevu_id: int,
     puan: int,
-    yorum: str = None,
-    x_firebase_uid: str = Header(...),
-    db: Session = Depends(get_db)
+    yorum: str | None = None,
+    kimlik: Kimlik = Depends(kimlik_gerekli),
+    db: Session = Depends(get_db),
 ):
-    """
-    Müşteri tamamlanan randevusunu değerlendirir.
-    - Puan 1-5 arasında olmalı
-    - Aynı randevu için iki kez değerlendirme yapılamaz
-    - Sadece 'tamamlandi' durumundaki randevular değerlendirilebilir
-    """
-    # Müşteri doğrulama
-    musteri = db.query(models.Musteri).filter(models.Musteri.firebase_uid == x_firebase_uid).first()
-    if not musteri:
-        raise HTTPException(status_code=401, detail="Önce kayıt olmalısın!")
-
-    # Puan aralığı kontrolü
+    """Müşteri tamamlanan randevusunu bir kez değerlendirir (1-5)."""
     if not (1 <= puan <= 5):
         raise HTTPException(status_code=400, detail="Puan 1 ile 5 arasında olmalı.")
-
-    # Randevu var mı ve bu müşteriye mi ait?
-    randevu = db.query(models.Randevu).filter(models.Randevu.id == randevu_id).first()
+    randevu = db.get(models.Randevu, randevu_id)
     if not randevu:
         raise HTTPException(status_code=404, detail="Randevu bulunamadı.")
-    if randevu.musteri_id != musteri.id:
-        raise HTTPException(status_code=403, detail="Bu randevu sana ait değil kanki!")
-
-    # Sadece tamamlanan randevular değerlendirilebilir
+    if not randevu.musteri or randevu.musteri.firebase_uid != kimlik.uid:
+        raise HTTPException(status_code=403, detail="Bu randevu size ait değil.")
     if randevu.durum != "tamamlandi":
-        raise HTTPException(
-            status_code=400,
-            detail="Sadece tamamlanan randevuları değerlendirebilirsin."
-        )
+        raise HTTPException(status_code=400, detail="Sadece tamamlanan randevuları değerlendirebilirsiniz.")
+    if randevu.puan is not None or db.query(models.Degerlendirme).filter_by(randevu_id=randevu_id).first():
+        raise HTTPException(status_code=400, detail="Bu randevuyu zaten değerlendirdiniz.")
 
-    # Daha önce değerlendirilmiş mi?
-    var_mi = db.query(models.Degerlendirme).filter(
-        models.Degerlendirme.randevu_id == randevu_id
-    ).first()
-    if var_mi:
-        raise HTTPException(status_code=400, detail="Bu randevuyu zaten değerlendirdin.")
+    yorum = (yorum or "").strip()[:500] or None
+    db.add(models.Degerlendirme(musteri_id=randevu.musteri_id, berber_id=randevu.berber_id, salon_id=randevu.salon_id,
+                                randevu_id=randevu_id, puan=puan, yorum=yorum, tarih=simdi().date().isoformat()))
+    randevu.puan, randevu.yorum = puan, yorum
+    db.flush()
 
-    # Değerlendirmeyi oluştur ve session'a ekle
-    yeni = models.Degerlendirme(
-        musteri_id=musteri.id,
-        berber_id=randevu.berber_id,
-        randevu_id=randevu_id,
-        puan=puan,
-        yorum=yorum,
-        tarih=datetime.now().strftime("%Y-%m-%d")
-    )
-    db.add(yeni)
-    db.flush()  # ID atanır ama commit edilmez — avg hesabına yeni kayıt dahil olur
-
-    # Berberin ortalama puanını yeniden hesapla (flush ile yeni kayıt dahil)
-    ort_puan = db.query(func.avg(models.Degerlendirme.puan)).filter(
-        models.Degerlendirme.berber_id == randevu.berber_id
-    ).scalar() or puan
-    berber = db.query(models.Berber).filter(models.Berber.id == randevu.berber_id).first()
-    berber.puan = round(float(ort_puan), 2)
-
+    berber = db.get(models.Berber, randevu.berber_id)
+    ort = db.query(func.avg(models.Degerlendirme.puan)).filter(models.Degerlendirme.berber_id == berber.id).scalar()
+    berber.puan = round(float(ort or puan), 2)
+    if randevu.salon_id:
+        salon = db.get(models.Salon, randevu.salon_id)
+        s_ort = db.query(func.avg(models.Degerlendirme.puan)).filter(
+            models.Degerlendirme.salon_id == salon.id).scalar()
+        salon.puan = round(float(s_ort or puan), 2)
     db.commit()
-    return {"mesaj": "Değerlendirme için teşekkürler!", "verilen_puan": puan, "berber_yeni_puan": berber.puan}
+    return {"mesaj": "Değerlendirmeniz için teşekkürler!", "verilen_puan": puan, "berber_yeni_puan": berber.puan}
 
 
 @router.get("/berber/{berber_id}")
 def berber_degerlendirmeleri(berber_id: int, db: Session = Depends(get_db)):
-    """Bir berberin tüm değerlendirmelerini ve ortalama puanını döner."""
-    degerlendirmeler = db.query(models.Degerlendirme).filter(
-        models.Degerlendirme.berber_id == berber_id
-    ).all()
-
-    if not degerlendirmeler:
+    liste = db.query(models.Degerlendirme).filter(models.Degerlendirme.berber_id == berber_id) \
+        .order_by(models.Degerlendirme.id.desc()).all()
+    if not liste:
         return {"ortalama_puan": None, "toplam": 0, "yorumlar": []}
-
-    ort = round(sum(d.puan for d in degerlendirmeler) / len(degerlendirmeler), 2)
-
     return {
-        "ortalama_puan": ort,
-        "toplam": len(degerlendirmeler),
-        "yorumlar": [
-            {
-                "puan": d.puan,
-                "yorum": d.yorum,
-                "tarih": d.tarih,
-                "musteri": f"{d.musteri.ad} {d.musteri.soyad[0]}."  # Gizlilik için soyad baş harfi
-            }
-            for d in degerlendirmeler
-        ]
+        "ortalama_puan": round(sum(d.puan for d in liste) / len(liste), 2),
+        "toplam": len(liste),
+        "yorumlar": [{"puan": d.puan, "yorum": d.yorum, "tarih": d.tarih, "musteri": _kisa_ad(d.musteri)}
+                     for d in liste[:50]],
     }

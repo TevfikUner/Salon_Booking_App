@@ -6,7 +6,7 @@ import models
 
 router = APIRouter(prefix="/dukkan", tags=["Dükkan Bilgileri"])
 
-@router.get("/")
+@router.get("/", deprecated=True)
 def dukkan_bilgisi(db: Session = Depends(get_db)):
     """
     Dükkan bilgilerini veritabanından çeker. 
@@ -21,7 +21,7 @@ def dukkan_bilgisi(db: Session = Depends(get_db)):
     # Koordinatları parçalayalım (Veritabanında "37.876, 32.485" olarak tuttuğunu varsayıyorum)
     try:
         lat, lng = bilgi.harita_konum.split(",")
-    except:
+    except (ValueError, AttributeError):
         lat, lng = "0", "0"
 
     yol_tarifi = f"https://www.google.com/maps/search/?api=1&query={lat.strip()},{lng.strip()}"
@@ -43,7 +43,7 @@ def dukkan_bilgisi(db: Session = Depends(get_db)):
     }
 
 # --- YENİ: Dükkan Bilgisi Ekleme/Güncelleme Kapısı ---
-@router.post("/guncelle")
+@router.post("/guncelle", deprecated=True)
 def dukkan_guncelle(
     ad: str,
     adres: str,
@@ -91,7 +91,7 @@ def salonlari_listele(
     Tüm salonları listeler. İsteğe bağlı şehir ve ilçe filtreleri.
     Keşfet sekmesi bu endpoint'i kullanır.
     """
-    sorgu = db.query(models.Salon)
+    sorgu = db.query(models.Salon).filter(models.Salon.aktif.is_(True))
     if sehir:
         sorgu = sorgu.filter(models.Salon.sehir == sehir)
     if ilce:
@@ -110,6 +110,9 @@ def salonlari_listele(
             "puan": s.puan,
             "acilis_saati": s.acilis_saati,
             "kapanis_saati": s.kapanis_saati,
+            "pazar_acilis_saati": s.pazar_acilis_saati,
+            "pazar_kapanis_saati": s.pazar_kapanis_saati,
+            "kapali_gunler": s.kapali_gunler,
         }
         for s in salonlar
     ]
@@ -136,7 +139,7 @@ def salon_detay(salon_id: int, db: Session = Depends(get_db)):
     # Salonun berberlerini getir
     berberler = (
         db.query(models.Berber)
-        .filter(models.Berber.salon_id == salon_id)
+        .filter(models.Berber.salon_id == salon_id, models.Berber.aktif.is_(True))
         .all()
     )
 
@@ -153,6 +156,9 @@ def salon_detay(salon_id: int, db: Session = Depends(get_db)):
         "puan": salon.puan,
         "acilis_saati": salon.acilis_saati,
         "kapanis_saati": salon.kapanis_saati,
+        "pazar_acilis_saati": salon.pazar_acilis_saati,
+        "pazar_kapanis_saati": salon.pazar_kapanis_saati,
+        "kapali_gunler": salon.kapali_gunler,
         "konum": {
             "lat": salon.konum_lat,
             "lng": salon.konum_long,
@@ -179,7 +185,7 @@ def salon_detay(salon_id: int, db: Session = Depends(get_db)):
 @router.get("/filtreler")
 def filtre_secenekleri(db: Session = Depends(get_db)):
     """Keşfet sekmesindeki filtre dropdown'ları için mevcut şehir/ilçe listesini döner."""
-    salonlar = db.query(models.Salon).all()
+    salonlar = db.query(models.Salon).filter(models.Salon.aktif.is_(True)).all()
     sehirler = sorted(set(s.sehir for s in salonlar if s.sehir))
     ilceler = {}
     for s in salonlar:
