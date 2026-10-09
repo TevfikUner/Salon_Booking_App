@@ -1,339 +1,327 @@
+import 'dart:async';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
+
 import '../config.dart';
-import '../models/hizmet.dart';
 import '../models/berber.dart';
+import '../models/hizmet.dart';
 import '../models/randevu.dart';
 
+/// Backend'in döndürdüğü, kullanıcıya gösterilebilir hata.
+class ApiHata implements Exception {
+  final int? kod;
+  final String mesaj;
+  final List<String> oneriler;
+
+  const ApiHata(this.mesaj, {this.kod, this.oneriler = const []});
+
+  @override
+  String toString() => mesaj;
+}
+
+/// Tüm HTTP çağrıları. Kimlik: Firebase ID token (Authorization: Bearer).
 class ApiService {
-  static final String _base = AppConfig.baseUrl;
+  static String get _base => AppConfig.baseUrl;
 
-  // ── Yardımcı ─────────────────────────────────────────────
-  static Future<Map<String, String>> _authHeaders() async {
-    final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
-    return {'Content-Type': 'application/json', 'x-firebase-uid': uid};
+  // ── Altyapı ──────────────────────────────────────────────
+  static Future<Map<String, String>> _basliklar({bool json = false}) async {
+    final h = <String, String>{};
+    if (json) h['Content-Type'] = 'application/json';
+    final token = await FirebaseAuth.instance.currentUser?.getIdToken();
+    if (token != null) h['Authorization'] = 'Bearer $token';
+    return h;
   }
 
-  static String _buildQuery(String path, Map<String, dynamic> params) {
-    final parts = params.entries.expand((e) {
-      if (e.value is List) {
-        return (e.value as List)
-            .map((v) => '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(v.toString())}');
+  static Uri _uri(String path, [Map<String, dynamic>? params]) {
+    final parts = <String>[];
+    params?.forEach((k, v) {
+      if (v == null) return;
+      final liste = v is List ? v : [v];
+      for (final x in liste) {
+        parts.add('${Uri.encodeQueryComponent(k)}=${Uri.encodeQueryComponent(x.toString())}');
       }
-      if (e.value != null) {
-        return ['${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value.toString())}'];
-      }
-      return <String>[];
     });
-    final q = parts.join('&');
-    return q.isEmpty ? '$_base$path' : '$_base$path?$q';
+    return Uri.parse(parts.isEmpty ? '$_base$path' : '$_base$path?${parts.join('&')}');
   }
 
-  // ── Dükkan ───────────────────────────────────────────────
-  static Future<Map<String, dynamic>> getDukkanBilgisi() async {
-    final res = await http.get(Uri.parse('$_base/dukkan/')).timeout(AppConfig.timeout);
-    if (res.statusCode == 200) return json.decode(utf8.decode(res.bodyBytes));
-    throw Exception('Dükkan bilgisi yüklenemedi');
-  }
-
-  // ── İstatistik (ana sayfa / salon bazlı) ───────────────────
-  static Future<Map<String, dynamic>> getIstatistik({int? salonId}) async {
-    String url = '$_base/randevular/istatistik';
-    if (salonId != null) url += '?salon_id=$salonId';
-    final res = await http.get(Uri.parse(url)).timeout(AppConfig.timeout);
-    if (res.statusCode == 200) return json.decode(utf8.decode(res.bodyBytes));
-    return {'bugunki_randevu': 0, 'musait_slot_sayisi': 0};
-  }
-
-  // ── Hizmetler ────────────────────────────────────────────
-  static Future<List<Hizmet>> getHizmetler() async {
-    final res = await http.get(Uri.parse('$_base/hizmetler/')).timeout(AppConfig.timeout);
-    if (res.statusCode == 200) {
-      final List data = json.decode(utf8.decode(res.bodyBytes));
-      return data.map((e) => Hizmet.fromJson(e)).toList();
-    }
-    throw Exception('Hizmetler yüklenemedi');
-  }
-
-  // ── Berberler ────────────────────────────────────────────
-  static Future<List<Berber>> getBerberler() async {
-    final res = await http.get(Uri.parse('$_base/berberler/')).timeout(AppConfig.timeout);
-    if (res.statusCode == 200) {
-      final List data = json.decode(utf8.decode(res.bodyBytes));
-      return data.map((e) => Berber.fromJson(e)).toList();
-    }
-    throw Exception('Berberler yüklenemedi');
-  }
-
-  // ── Takvim ───────────────────────────────────────────────
-  static Future<List<Map<String, dynamic>>> getMusaitTakvim({int? berberId}) async {
-    final url = berberId != null
-        ? '$_base/randevular/musait-takvim?berber_id=$berberId'
-        : '$_base/randevular/musait-takvim';
-    final res = await http.get(Uri.parse(url)).timeout(AppConfig.timeout);
-    if (res.statusCode == 200) {
-      final List data = json.decode(utf8.decode(res.bodyBytes));
-      return data.cast<Map<String, dynamic>>();
-    }
-    throw Exception('Takvim yüklenemedi');
-  }
-
-  // ── Dolu Saatler ─────────────────────────────────────────
-  static Future<List<String>> getDoluSaatler(int berberId, String tarih) async {
-    final res = await http
-        .get(Uri.parse('$_base/randevular/dolu-saatler/$berberId?tarih=$tarih'))
-        .timeout(AppConfig.timeout);
-    if (res.statusCode == 200) {
-      final List data = json.decode(utf8.decode(res.bodyBytes));
-      return data.cast<String>();
-    }
-    return [];
-  }
-
-  // ── Randevu Oluştur ──────────────────────────────────────
-  static Future<Map<String, dynamic>> randevuOlustur({
-    required int berberId,
-    required String saat,
-    required String tarih,
-    required List<int> hizmetIds,
-    required String ad,
-    required String soyad,
-    required String telefon,
+  static Future<dynamic> _istek(
+    String metod,
+    String path, {
+    Map<String, dynamic>? params,
+    Object? govde,
   }) async {
-    final headers = await _authHeaders();
-    final url = _buildQuery('/randevular/olustur', {
-      'berber_id': berberId,
-      'saat': saat,
-      'tarih': tarih,
-      'hizmet_ids': hizmetIds,
-      'ad': ad,
-      'soyad': soyad,
-      'telefon': telefon,
-    });
-
-    final http.Response res;
+    final uri = _uri(path, params);
+    final h = await _basliklar(json: govde != null);
+    final body = govde != null ? json.encode(govde) : null;
+    http.Response res;
     try {
-      res = await http.post(Uri.parse(url), headers: headers).timeout(AppConfig.timeout);
-    } on Exception catch (e) {
-      throw Exception('Bağlantı hatası: $e');
+      final f = switch (metod) {
+        'GET' => http.get(uri, headers: h),
+        'POST' => http.post(uri, headers: h, body: body),
+        'PUT' => http.put(uri, headers: h, body: body),
+        'PATCH' => http.patch(uri, headers: h, body: body),
+        'DELETE' => http.delete(uri, headers: h, body: body),
+        _ => throw ArgumentError(metod),
+      };
+      res = await f.timeout(AppConfig.timeout);
+    } on TimeoutException {
+      throw const ApiHata('Sunucu yanıt vermiyor. İnternet bağlantınızı kontrol edip tekrar deneyin.');
+    } on SocketException {
+      throw const ApiHata('Sunucuya ulaşılamadı. İnternet bağlantınızı kontrol edin.');
+    } on http.ClientException {
+      throw const ApiHata('Sunucuya ulaşılamadı. İnternet bağlantınızı kontrol edin.');
     }
 
-    final rawBody = utf8.decode(res.bodyBytes);
-
-    // JSON parse güvenli — HTML 500/502 sayfaları için koruma
-    Map<String, dynamic> body;
+    final ham = utf8.decode(res.bodyBytes);
+    dynamic veri;
     try {
-      final decoded = json.decode(rawBody);
-      if (decoded is Map<String, dynamic>) {
-        body = decoded;
-      } else {
-        throw Exception('Sunucu beklenmeyen yanıt döndürdü: $rawBody');
-      }
+      veri = ham.isEmpty ? null : json.decode(ham);
     } catch (_) {
-      // JSON değilse raw body'yi göster (HTML hata sayfası vs)
-      throw Exception('Sunucu hatası (${res.statusCode}): $rawBody');
+      veri = null;
     }
-
-    if (res.statusCode == 200) return body;
-    throw Exception(body['detail']?.toString() ?? 'Randevu oluşturulamadı (${res.statusCode})');
+    if (res.statusCode >= 200 && res.statusCode < 300) return veri;
+    throw _hataCoz(res.statusCode, veri);
   }
 
-
-  // ── Randevularım ─────────────────────────────────────────
-  static Future<List<Randevu>> getRandevularim() async {
-    final headers = await _authHeaders();
-    final res = await http
-        .get(Uri.parse('$_base/randevular/benim-randevularim'), headers: headers)
-        .timeout(AppConfig.timeout);
-    if (res.statusCode == 200) {
-      final List data = json.decode(utf8.decode(res.bodyBytes));
-      return data.map((e) => Randevu.fromJson(e)).toList();
-    }
-    throw Exception('Randevularınız yüklenemedi');
-  }
-
-  // ── Randevu Sil ──────────────────────────────────────────
-  static Future<void> randevuSil(int randevuId) async {
-    final headers = await _authHeaders();
-    final res = await http
-        .delete(Uri.parse('$_base/randevular/sil/$randevuId'), headers: headers)
-        .timeout(AppConfig.timeout);
-    if (res.statusCode != 200) {
-      final body = json.decode(utf8.decode(res.bodyBytes));
-      throw Exception(body['detail']?.toString() ?? 'Silinemedi');
-    }
-  }
-
-  // ── Müşteri Kayıt ────────────────────────────────────────
-  static Future<void> musteriEkle({
-    required String ad,
-    required String soyad,
-    required String telefon,
-    required String firebaseUid,
-  }) async {
-    final url = _buildQuery('/musteriler/ekle', {
-      'ad': ad,
-      'soyad': soyad,
-      'telefon': telefon,
-      'firebase_uid': firebaseUid,
-    });
-    await http.post(Uri.parse(url)).timeout(AppConfig.timeout);
-  }
-
-  // ── Değerlendirme Ekle ───────────────────────────────────
-  static Future<Map<String, dynamic>> degerlendirmeEkle({
-    required int randevuId,
-    required int puan,
-    String? yorum,
-  }) async {
-    final headers = await _authHeaders();
-    final url = _buildQuery('/degerlendirmeler/ekle', {
-      'randevu_id': randevuId,
-      'puan': puan,
-      if (yorum != null && yorum.isNotEmpty) 'yorum': yorum,
-    });
-    final res = await http
-        .post(Uri.parse(url), headers: headers)
-        .timeout(AppConfig.timeout);
-    final body = json.decode(utf8.decode(res.bodyBytes));
-    if (res.statusCode == 200) return body as Map<String, dynamic>;
-    throw Exception((body as Map)['detail']?.toString() ?? 'Değerlendirme gönderilemedi');
-  }
-  // ... senin önceki kodların (örneğin degerlendirme vs.)
-
-  // --- KULLANICI PROFİLİNİ GETİR (Bunu içeri aldık!) ---
-  static Future<Map<String, dynamic>?> profilGetir() async {
-    try {
-      final uid = FirebaseAuth.instance.currentUser?.uid;
-      if (uid == null) return null;
-
-      final response = await http.get(
-        Uri.parse('$_base/randevular/profil'),
-        headers: {
-          'Content-Type': 'application/json',
-          'x-firebase-uid': uid,
-        },
+  static ApiHata _hataCoz(int kod, dynamic veri) {
+    final detay = veri is Map ? veri['detail'] : null;
+    if (detay is String) return ApiHata(detay, kod: kod);
+    if (detay is Map) {
+      return ApiHata(
+        detay['mesaj']?.toString() ?? 'İşlem tamamlanamadı.',
+        kod: kod,
+        oneriler: List<String>.from(detay['oneriler'] ?? const []),
       );
-
-      if (response.statusCode == 200) {
-        return json.decode(utf8.decode(response.bodyBytes));
-      }
-      return null;
-    } catch (e) {
-      print("Profil getirme hatası: $e");
-      return null;
     }
+    if (detay is List && detay.isNotEmpty) {
+      return ApiHata('Girilen bilgileri kontrol edin.', kod: kod); // 422 doğrulama
+    }
+    return switch (kod) {
+      401 => ApiHata('Oturumunuzun süresi doldu. Lütfen tekrar giriş yapın.', kod: kod),
+      403 => ApiHata('Bu işlem için yetkiniz yok.', kod: kod),
+      404 => ApiHata('Kayıt bulunamadı.', kod: kod),
+      _ => ApiHata('Sunucu hatası ($kod). Lütfen daha sonra tekrar deneyin.', kod: kod),
+    };
   }
-  // --- KULLANICI PROFİLİNİ GÜNCELLE ---
-  static Future<void> profilGuncelle({
+
+  static List<Map<String, dynamic>> _liste(dynamic v) =>
+      (v as List? ?? const []).cast<Map<String, dynamic>>();
+
+  // ── Hesap ────────────────────────────────────────────────
+  /// Oturumdaki kullanıcının rolü: musteri / isletme / personel / admin
+  static Future<Map<String, dynamic>> ben() async => await _istek('GET', '/ben');
+
+  static Future<void> musteriKayit({
     required String ad,
     required String soyad,
     required String telefon,
-  }) async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null) throw Exception("Kullanıcı girişi bulunamadı.");
-
-    final response = await http.post(
-      Uri.parse('$_base/randevular/profil/guncelle'),
-      headers: {
-        'Content-Type': 'application/json',
-        'x-firebase-uid': uid,
-      },
-      body: json.encode({
+    required bool kvkkOnay,
+    required bool ticariIletiIzni,
+  }) =>
+      _istek('POST', '/musteriler/kayit', govde: {
         'ad': ad,
         'soyad': soyad,
         'telefon': telefon,
-      }),
-    );
+        'kvkk_onay': kvkkOnay,
+        'ticari_ileti_izni': ticariIletiIzni,
+      });
 
-    if (response.statusCode != 200) {
-      throw Exception("Profil güncellenirken bir hata oluştu.");
+  static Future<void> fcmTokenKaydet(String token) =>
+      _istek('PATCH', '/musteriler/fcm-token-guncelle', params: {'fcm_token': token});
+
+  static Future<void> hesapSil() => _istek('DELETE', '/musteriler/hesabim');
+
+  static Future<Map<String, dynamic>?> profilGetir() async {
+    if (FirebaseAuth.instance.currentUser == null) return null;
+    try {
+      return await _istek('GET', '/musteriler/profil');
+    } on ApiHata {
+      return null;
     }
   }
 
-  // ── İşletme Kayıt ────────────────────────────────────────
+  static Future<void> profilGuncelle({required String ad, required String soyad, required String telefon}) =>
+      _istek('PUT', '/musteriler/profil', govde: {'ad': ad, 'soyad': soyad, 'telefon': telefon});
+
   static Future<void> isletmeKayit({
     required String ad,
     required String soyad,
     required String telefon,
     required String email,
     required String isletmeAdi,
-    required String firebaseUid,
-  }) async {
-    final url = _buildQuery('/isletmeler/kayit', {
-      'ad': ad,
-      'soyad': soyad,
-      'telefon': telefon,
-      'email': email,
-      'isletme_adi': isletmeAdi,
-      'firebase_uid': firebaseUid,
-    });
-    final res = await http.post(Uri.parse(url)).timeout(AppConfig.timeout);
-    if (res.statusCode != 200) {
-      final body = json.decode(utf8.decode(res.bodyBytes));
-      throw Exception(body['detail']?.toString() ?? 'İşletme kaydı başarısız');
+  }) =>
+      _istek('POST', '/isletmeler/kayit', params: {
+        'ad': ad,
+        'soyad': soyad,
+        'telefon': telefon,
+        'email': email,
+        'isletme_adi': isletmeAdi,
+      });
+
+  // ── Keşfet ───────────────────────────────────────────────
+  static Future<List<Map<String, dynamic>>> getSalonlar({String? sehir, String? ilce}) async =>
+      _liste(await _istek('GET', '/dukkan/salonlar', params: {'sehir': sehir, 'ilce': ilce}));
+
+  static Future<Map<String, dynamic>> getSalonDetay(int salonId) async =>
+      await _istek('GET', '/dukkan/salon/$salonId');
+
+  static Future<Map<String, dynamic>> getFiltreler() async => await _istek('GET', '/dukkan/filtreler');
+
+  static Future<Map<String, dynamic>> getIstatistik({int? salonId}) async {
+    try {
+      return await _istek('GET', '/randevular/istatistik', params: {'salon_id': salonId});
+    } on ApiHata {
+      return {'bugunku_randevu': 0, 'musait_slot_sayisi': 0};
     }
   }
 
-  // ── Keşfet: Salon Listesi ────────────────────────────────
-  static Future<List<Map<String, dynamic>>> getSalonlar({
-    String? sehir,
-    String? ilce,
-  }) async {
-    final params = <String, dynamic>{};
-    if (sehir != null) params['sehir'] = sehir;
-    if (ilce != null) params['ilce'] = ilce;
-    final url = _buildQuery('/dukkan/salonlar', params);
-    final res = await http.get(Uri.parse(url)).timeout(AppConfig.timeout);
-    if (res.statusCode == 200) {
-      final List data = json.decode(utf8.decode(res.bodyBytes));
-      return data.cast<Map<String, dynamic>>();
+  static Future<List<Hizmet>> getHizmetler({int? salonId}) async =>
+      _liste(await _istek('GET', '/hizmetler/', params: {'salon_id': salonId})).map(Hizmet.fromJson).toList();
+
+  static Future<List<Berber>> getBerberler({int? salonId}) async =>
+      _liste(await _istek('GET', '/berberler/', params: {'salon_id': salonId})).map(Berber.fromJson).toList();
+
+  // ── Randevu akışı ────────────────────────────────────────
+  static Future<List<Map<String, dynamic>>> getMusaitTakvim({int? berberId, int? salonId}) async =>
+      _liste(await _istek('GET', '/randevular/musait-takvim',
+          params: {'berber_id': berberId, 'salon_id': salonId}));
+
+  /// Seçilen gün + hizmetler için backend'in hesapladığı saatler (tek doğruluk kaynağı).
+  static Future<Map<String, dynamic>> getMusaitSaatler(int berberId, String tarih, List<int> hizmetIds) async =>
+      await _istek('GET', '/randevular/musait-saatler/$berberId',
+          params: {'tarih': tarih, 'hizmet_ids': hizmetIds});
+
+  static Future<List<Map<String, dynamic>>> getEnYakinSlotlar(int berberId, List<int> hizmetIds,
+          {int adet = 3}) async =>
+      _liste((await _istek('GET', '/randevular/en-yakin/$berberId',
+          params: {'hizmet_ids': hizmetIds, 'adet': adet}))['slotlar']);
+
+  static Future<Map<String, dynamic>> randevuOlustur({
+    required int berberId,
+    required String saat,
+    required String tarih,
+    required List<int> hizmetIds,
+    String ad = '',
+    String soyad = '',
+    String telefon = '',
+  }) async =>
+      await _istek('POST', '/randevular/olustur', params: {
+        'berber_id': berberId,
+        'saat': saat,
+        'tarih': tarih,
+        'hizmet_ids': hizmetIds,
+        'ad': ad,
+        'soyad': soyad,
+        'telefon': telefon,
+      });
+
+  static Future<void> beklemeListesineEkle(int berberId, String tarih, List<int> hizmetIds) =>
+      _istek('POST', '/randevular/bekleme-listesi',
+          govde: {'berber_id': berberId, 'tarih': tarih, 'hizmet_ids': hizmetIds});
+
+  static Future<List<Randevu>> getRandevularim() async {
+    try {
+      return _liste(await _istek('GET', '/randevular/benim-randevularim')).map(Randevu.fromJson).toList();
+    } on ApiHata catch (e) {
+      if (e.kod == 404) return []; // henüz müşteri kaydı yok
+      rethrow;
     }
-    return [];
   }
 
-  // ── Keşfet: Salon Detay ──────────────────────────────────
-  static Future<Map<String, dynamic>> getSalonDetay(int salonId) async {
-    final res = await http
-        .get(Uri.parse('$_base/dukkan/salon/$salonId'))
-        .timeout(AppConfig.timeout);
-    if (res.statusCode == 200) {
-      return json.decode(utf8.decode(res.bodyBytes));
+  /// İmza özellik: en sık alınan berber+hizmet ve en yakın boş slotlar (geçmiş yoksa null).
+  static Future<Map<String, dynamic>?> herZamanki() async {
+    try {
+      return await _istek('GET', '/randevular/her-zamanki') as Map<String, dynamic>?;
+    } on ApiHata catch (e) {
+      if (e.kod == 404) return null;
+      rethrow;
     }
-    throw Exception('Salon bilgileri yüklenemedi');
   }
 
-  // ── Keşfet: Filtre Seçenekleri ───────────────────────────
-  static Future<Map<String, dynamic>> getFiltreler() async {
-    final res = await http
-        .get(Uri.parse('$_base/dukkan/filtreler'))
-        .timeout(AppConfig.timeout);
-    if (res.statusCode == 200) {
-      return json.decode(utf8.decode(res.bodyBytes));
-    }
-    return {'sehirler': [], 'ilceler': {}};
-  }
+  static Future<void> randevuIptal(int randevuId) => _istek('POST', '/randevular/$randevuId/iptal');
 
-  // ── Favori Berber Toggle (Çoklu Favori) ────────────────────
-  static Future<Map<String, dynamic>> favoriToggle(int berberId) async {
-    final headers = await _authHeaders();
-    final url = _buildQuery('/randevular/profil/favori-toggle', {'berber_id': berberId});
-    final res = await http.post(Uri.parse(url), headers: headers).timeout(AppConfig.timeout);
-    if (res.statusCode == 200) return json.decode(utf8.decode(res.bodyBytes));
-    throw Exception('Favori güncellenemedi');
-  }
+  static Future<Map<String, dynamic>> degerlendirmeEkle({
+    required int randevuId,
+    required int puan,
+    String? yorum,
+  }) async =>
+      await _istek('POST', '/degerlendirmeler/ekle', params: {
+        'randevu_id': randevuId,
+        'puan': puan,
+        if (yorum != null && yorum.isNotEmpty) 'yorum': yorum,
+      });
 
-  // ── Favori Berber Listesi ─────────────────────────────────
+  // ── Favoriler ────────────────────────────────────────────
+  static Future<Map<String, dynamic>> favoriToggle(int berberId) async =>
+      await _istek('POST', '/musteriler/favori-toggle', params: {'berber_id': berberId});
+
   static Future<List<Map<String, dynamic>>> favorileriGetir() async {
-    final headers = await _authHeaders();
-    final res = await http.get(
-      Uri.parse('$_base/randevular/profil/favoriler'),
-      headers: headers,
-    ).timeout(AppConfig.timeout);
-    if (res.statusCode == 200) {
-      return List<Map<String, dynamic>>.from(json.decode(utf8.decode(res.bodyBytes)));
+    try {
+      return _liste(await _istek('GET', '/musteriler/favoriler'));
+    } on ApiHata {
+      return [];
     }
-    return [];
   }
+
+  // ── İşletme paneli ───────────────────────────────────────
+  static Future<Map<String, dynamic>> panelAkis({String? tarih}) async =>
+      await _istek('GET', '/panel/akis', params: {'tarih': tarih});
+
+  static Future<void> panelDurum(int randevuId, String durum) =>
+      _istek('PATCH', '/panel/randevular/$randevuId/durum', govde: {'durum': durum});
+
+  static Future<Map<String, dynamic>> panelRandevuEkle({
+    required int berberId,
+    required String tarih,
+    required String saat,
+    required List<int> hizmetIds,
+    required String musteriAd,
+    String musteriTelefon = '',
+    String? notlar,
+  }) async =>
+      await _istek('POST', '/panel/randevular', govde: {
+        'berber_id': berberId,
+        'tarih': tarih,
+        'saat': saat,
+        'hizmet_ids': hizmetIds,
+        'musteri_ad': musteriAd,
+        'musteri_telefon': musteriTelefon,
+        'notlar': notlar,
+      });
+
+  static Future<Map<String, dynamic>> panelMusaitSaatler(int berberId, String tarih, List<int> hizmetIds) async =>
+      await _istek('GET', '/panel/musait-saatler',
+          params: {'berber_id': berberId, 'tarih': tarih, 'hizmet_ids': hizmetIds});
+
+  static Future<List<Map<String, dynamic>>> panelPersonel() async => _liste(await _istek('GET', '/panel/personel'));
+
+  static Future<void> panelPersonelEkle(Map<String, dynamic> veri) => _istek('POST', '/panel/personel', govde: veri);
+
+  static Future<void> panelPersonelCikar(int id) => _istek('DELETE', '/panel/personel/$id');
+
+  static Future<List<Map<String, dynamic>>> panelHizmetler() async => _liste(await _istek('GET', '/panel/hizmetler'));
+
+  static Future<void> panelHizmetKaydet(Map<String, dynamic> veri, {int? id}) => id == null
+      ? _istek('POST', '/panel/hizmetler', govde: veri)
+      : _istek('PUT', '/panel/hizmetler/$id', govde: veri);
+
+  static Future<void> panelHizmetKaldir(int id) => _istek('DELETE', '/panel/hizmetler/$id');
+
+  static Future<Map<String, dynamic>> panelKapaliGunler() async => await _istek('GET', '/panel/tatil');
+
+  static Future<Map<String, dynamic>> panelTatilEkle(String tarih, String? aciklama) async =>
+      await _istek('POST', '/panel/tatil', govde: {'tarih': tarih, 'aciklama': aciklama});
+
+  static Future<void> panelTatilSil(int id) => _istek('DELETE', '/panel/tatil/$id');
+
+  static Future<Map<String, dynamic>> panelIzinEkle(int berberId, String tarih, String? aciklama) async =>
+      await _istek('POST', '/panel/izin', govde: {'berber_id': berberId, 'tarih': tarih, 'aciklama': aciklama});
+
+  static Future<void> panelIzinSil(int id) => _istek('DELETE', '/panel/izin/$id');
+
+  static Future<Map<String, dynamic>> panelRapor({int? yil, int? ay}) async =>
+      await _istek('GET', '/panel/rapor', params: {'yil': yil, 'ay': ay});
 }

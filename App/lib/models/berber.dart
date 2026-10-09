@@ -5,7 +5,7 @@ class Berber {
   final String uzmanlik;
   final String? fotoUrl;
   final double puan;
-  // 1. BURASI KRİTİK: Değişkenleri burada tanımlıyoruz
+  final int? salonId;
   final String? whatsappNo;
   final String? instagramUsername;
 
@@ -16,19 +16,21 @@ class Berber {
     required this.uzmanlik,
     this.fotoUrl,
     required this.puan,
-    // 2. BURASI: Constructor içinde değişkenleri bağlıyoruz
+    this.salonId,
     this.whatsappNo,
     this.instagramUsername,
   });
 
+  String get tamAd => '$ad $soyad'.trim();
+
   factory Berber.fromJson(Map<String, dynamic> j) => Berber(
         id: j['id'],
-        ad: j['ad'],
-        soyad: j['soyad'],
-        uzmanlik: j['uzmanlik'],
+        ad: j['ad'] ?? '',
+        soyad: j['soyad'] ?? '',
+        uzmanlik: j['uzmanlik'] ?? '',
         fotoUrl: j['foto_url'],
-        puan: (j['puan'] as num).toDouble(),
-        // 3. BURASI: JSON'dan gelen veriyi modele aktarıyoruz
+        puan: (j['puan'] as num? ?? 0).toDouble(),
+        salonId: j['salon_id'],
         whatsappNo: j['whatsapp_no'],
         instagramUsername: j['instagram_username'],
       );
