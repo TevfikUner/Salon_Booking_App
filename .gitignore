@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# Ortam / gizli bilgiler
+.env
+backend/.env
+serviceAccountKey.json
+backend/serviceAccountKey.json
+
+# Yerel veritabanı ve yüklemeler
+*.db
+*.db-journal
+backend/uploads/
+
+# İşletim sistemi
+desktop.ini
+.DS_Store
+Thumbs.db
