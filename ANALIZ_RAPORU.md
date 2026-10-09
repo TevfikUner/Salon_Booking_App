@@ -164,3 +164,46 @@ Format: `[Öncelik] · [Efor] · Dosya:satır · Açıklama · Çözüm · Karar
 | F7 Online kapora / no-show ücreti | Ödeme kuruluşu sözleşmesi gerekiyor; güven skoru + WhatsApp onayı ilk adım olarak bunun yerine geçiyor. |
 | F8 Personel için ayrı takvim görünümü | Rol ve uçlar hazır, personel şimdilik panelin "Akış" sekmesini (yalnızca kendi randevuları) görüyor. |
 | Zamanlayıcının ayrı cron'a taşınması | Tek instance için gerek yok; ölçeklenirken. |
+
+---
+
+## Tur 2 — Tam Kod Taraması ve Mimari (2026-10-09)
+
+### Düzeltilen hatalar
+
+| # | Öncelik | Yer | Hata | Durum |
+|---|---|---|---|---|
+| T1 | Kritik | backend/routers/hesap.py | Personel daveti doğrulanmamış e-postayla eşleşiyordu → biri personelin adresiyle hesap açıp salonun müşteri verilerine erişebilirdi. | ✅ `email_verified` şartı + test |
+| T2 | Yüksek | backend/routers/panel.py | Panelden eklenen randevu, aynı telefonlu **kayıtlı** kullanıcının hesabına bağlanıyordu (onun "Randevularım"ına düşüyordu). | ✅ yalnızca UID'siz kayıtla eşleşir + test |
+| T3 | Yüksek | App auth_service | Firebase hesabı açılıp sunucu kaydı başarısız olursa hesap yarım kalıyor, tekrar denemede "e-posta zaten kullanımda". | ✅ geri alma |
+| T4 | Yüksek | App (tüm uygulama) | Favoriye ekleme butonu hiçbir ekranda yoktu; favoriler hiç doldurulamıyordu. | ✅ salon detayında ♥ |
+| T5 | Yüksek | App favoriler | Favoriler ekranı yalnızca geçmiş randevulardaki berberleri gösteriyordu. | ✅ birleşik liste |
+| T6 | Orta | App salon detay | Pazar günü sabit "Kapalı"; salonun gerçek Pazar saatleri ve kapalı günleri yok sayılıyordu. | ✅ `Salon.calismaSaati` |
+| T7 | Orta | App keşfet + backend | "Konumuma yakın" mesafeye göre sıralamıyordu; il adı harf farkında ("Istanbul"/"İstanbul") sonuç boş. | ✅ Haversine + normalize + test |
+| T8 | Orta | App destek | "Dosya ekle" sahteydi; dosyalar e-postaya eklenmiyordu. | ✅ paylaşım menüsüyle gerçek ek |
+| T9 | Orta | App profil | Profil fotoğrafı yalnızca bellekte; uygulama kapanınca kayboluyordu. | ✅ kaldırıldı (baş harfli avatar) |
+| T10 | Orta | App giriş | Mevcut işletme sahibinin giriş yapacağı yol yoktu (yalnızca kayıt). | ✅ "Giriş Yapın" bağlantıları |
+| T11 | Orta | App (8 ekran) | Yükleme hataları yutuluyor, ekran "bulunamadı/boş" diyordu. | ✅ `AsenkronGorunum` |
+| T12 | Düşük | App adım 1 | Salonda hizmet yokken "Hizmetler yüklenemedi" hatası. | ✅ ayrı boş durum |
+| T13 | Düşük | App ana sayfa / randevularım | Sekmeye dönünce veri tazelenmiyordu. | ✅ sekme değişiminde yenileme |
+| T14 | Düşük | App | İki ayrı değerlendirme arayüzü; dialog yorum alanı kullanmıyordu. | ✅ tek ekran, yorumlu |
+| T15 | Düşük | backend | Ruff: kullanılmayan import, `raise ... from` eksikleri, tek satır `if`. | ✅ `ruff check` temiz |
+| T16 | Düşük | App | Ölü kod: `home_screen.dart` (dışarıdan geri gelmişti), `webview_screen.dart`; kullanılmayan `geocoding`, `flutter_rating_bar`, `webview_flutter`. | ✅ kaldırıldı |
+
+### Mimari
+
+- Flutter: `screens/ widgets/ services/ models/` → **özellik bazlı** `core/ data/ features/ services/`.
+- En büyük dosya 845 → **250** satır; 400+ satırlık 10 dosya bölündü (Keşfet 457 → 140 + 4 bileşen, Ana sayfa 635 → 190 + 4 bileşen, Profil 495 → 165 + 2 bileşen …).
+- `ApiService` (50 metot) → `ApiClient` + `HesapApi` / `SalonApi` / `RandevuApi` / `PanelApi`.
+
+### Doğrulama
+
+| Kontrol | Sonuç |
+|---|---|
+| `pytest` | ✅ 48/48 (yeni: Türkçe normalize, mesafe sıralaması, favori işareti, doğrulanmamış e-posta, walk-in izolasyonu) |
+| `ruff check` | ✅ temiz |
+| `flutter analyze` | ✅ No issues found |
+| `flutter test` | ✅ 14/14 (yeni: Salon saatleri, API hata çözümleme, favori JSON, telefon biçimi) |
+| Canlı API duman testi | ✅ kayıt → harf duyarsız/konumlu keşfet → randevu → çakışma 409 |
+| Paket adı betiği | ✅ geçici kopyada gerçek çalıştırma; yanlış JSON'u reddediyor |
+| APK derlemesi | APK2_DURUMU |

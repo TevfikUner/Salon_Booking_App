@@ -30,7 +30,8 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 - API belgesi: http://localhost:8000/docs · sağlık: http://localhost:8000/saglik
-- Testler: `pytest` (44 test: slot/çakışma/eşzamanlılık/iptal/bekleme listesi/panel yetkileri/KVKK)
+- Testler: `pytest` (48 test: slot/çakışma/eşzamanlılık/iptal/bekleme listesi/panel yetkileri/KVKK/keşfet) · Lint: `ruff check .`
+- Yönetim: `python araclar.py --help` (admin UID bulma, işletme başvurusu onay/red, sağlık kontrolü)
 
 ### Kimlik doğrulama
 
@@ -66,13 +67,36 @@ flutter run --dart-define=API_BASE_URL=http://192.168.1.20:8000
 flutter build appbundle --release --dart-define=API_BASE_URL=https://api.premiumberber.app
 ```
 
-- `flutter analyze` → temiz · `flutter test` → birim testleri
+- `flutter analyze` → temiz · `flutter test` → 14 birim/widget testi
+
+### Kod yapısı
+
+```
+lib/
+├── core/          config, tema, biçimlendirme, dış uygulama açıcı, ortak bileşenler (form alanları, durum görünümleri…)
+├── data/
+│   ├── api/       ApiClient (HTTP + hata) ve alan servisleri: HesapApi, SalonApi, RandevuApi, PanelApi
+│   ├── models/    Berber, Hizmet, Randevu, Salon
+│   └── sabit/     il/ilçe, SSS, yasal metinler
+├── features/      her özellik kendi klasöründe: ekran + widgets/
+│   ├── giris/     splash, rol seçimi, giriş, kayıt, işletme başvurusu
+│   ├── musteri/   ana sayfa (Her Zamanki), randevularım, favoriler, profil, değerlendirme
+│   ├── kesfet/    salon listesi (konuma göre), salon detayı
+│   ├── randevu_al/ 5 adımlı akış + onay
+│   ├── isletme/   panel: akış, ekip & menü, kapalı günler, rapor
+│   └── destek/    SSS, bize ulaşın, yasal metinler
+└── services/      kimlik, bildirim (FCM), rol bazlı yönlendirme
+```
+
+Kural: ekran dosyası durum + düzen taşır; görsel parçalar `widgets/` altına. Dosya başına ≤ 250 satır.
 - Release imzası: `android/key.properties.example` → `android/key.properties`
 - Debug derlemesi `http` adreslerine izin verir; release yalnızca HTTPS kullanır.
 
 ## 3. Yayına alma (Render)
 
-1. Repo'yu GitHub'a gönderin → Render → **New → Blueprint** → repo'yu seçin. `render.yaml` bir Docker web servisi ve PostgreSQL oluşturur.
+Adım adım kopyala-çalıştır talimatı: [BENDEN_GEREKENLER.md](BENDEN_GEREKENLER.md) (Firebase → Render → paket adı → cihaz).
+
+1. Render → **New → Blueprint** → repo ve dal (`feature/v1-hazirlik`). `render.yaml` bir Docker web servisi ve PostgreSQL oluşturur.
 2. Render panelinde gizli değişkenleri girin: `FIREBASE_CREDENTIALS_JSON` (servis hesabı JSON'unun tamamı), `ADMIN_UIDS`.
 3. Konteyner her açılışta `alembic upgrade head` çalıştırır; sağlık kontrolü `/saglik`.
 4. Özel alan adı ekleyin (HTTPS otomatik) ve uygulamayı `--dart-define=API_BASE_URL=https://...` ile derleyin.
@@ -93,7 +117,7 @@ docker compose exec api python seed.py     # isteğe bağlı demo verisi
 | Uç | Açıklama |
 |---|---|
 | `GET /ben` | Oturumdaki kullanıcının rolü ve bağlamı |
-| `GET /dukkan/salonlar`, `/dukkan/salon/{id}` | Keşfet |
+| `GET /salonlar?sehir=&ilce=&lat=&lng=`, `/salonlar/{id}` | Keşfet (harf duyarsız filtre, konuma göre sıralama, favori işareti) |
 | `GET /hizmetler/?salon_id=` | Salonun menüsü |
 | `GET /randevular/musait-takvim?berber_id=` | Açık günler (tatil/izin/kapalı gün hariç) |
 | `GET /randevular/musait-saatler/{berber_id}?tarih=&hizmet_ids=` | Tek doğruluk kaynağı: müsait saatler |

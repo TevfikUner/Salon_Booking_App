@@ -1,36 +1,76 @@
 # Benden Gerekenler
 
-Kodda yer tutucu/mock ile geçilen, yalnızca sizin yapabileceğiniz işler. Öncelik sırasıyla.
+Yalnızca sizin hesabınızla yapılabilecek işler. Her adımı tek komuta indiren araçlar hazır.
+Sıra önemlidir: 1 → 2 → 3 → 4.
 
-## 🔴 Hemen
+## 1. Firebase (≈10 dk) — olmadan production'da kimse giriş yapamaz
 
-1. **Eski admin şifresini geçersiz sayın.** `***KALDIRILDI***` public repoda ve git geçmişinde açık duruyor. Kodda artık kullanılmıyor ama başka bir yerde (e-posta, Firebase, sunucu) aynı şifreyi kullandıysanız değiştirin. `ADMIN_SECRET` kullanacaksanız uzun, rastgele yeni bir değer verin (`python -c "import secrets;print(secrets.token_urlsafe(32))"`).
-2. **Repo'yu private yapmayı düşünün** veya en azından `App/android/app/google-services.json`'daki API anahtarına Firebase Console → Google Cloud → API kısıtlaması (Android paket adı + SHA-1) ekleyin.
-3. **Firebase servis hesabı (Admin SDK) anahtarı:** Firebase Console → Proje Ayarları → Hizmet Hesapları → "Yeni özel anahtar oluştur".
+1. **Eski admin şifresi:** `***KALDIRILDI***` public repoda ve git geçmişinde açık. Kod artık kullanmıyor; ama aynı şifreyi başka bir yerde (e-posta, Firebase, sunucu) kullandıysanız orada değiştirin.
+2. **Servis hesabı anahtarı:** Firebase Console → ⚙ Proje ayarları → Hizmet hesapları → *Yeni özel anahtar oluştur* → JSON iner.
    - Yerel: `backend/serviceAccountKey.json` olarak kaydedin (git'e eklenmez).
-   - Render: dosyanın tüm içeriğini `FIREBASE_CREDENTIALS_JSON` ortam değişkenine yapıştırın.
-   - Bu olmadan production'da token doğrulanamaz (`AUTH_MODE=firebase`) ve push bildirimi gitmez.
-4. **Admin UID'niz:** Firebase Console → Authentication'dan kendi kullanıcınızın UID'sini `ADMIN_UIDS` değişkenine yazın (işletme başvurularını onaylamak için).
+   - Render: dosyanın **tüm içeriğini** `FIREBASE_CREDENTIALS_JSON` değişkenine yapıştırın (adım 2).
+3. **Authentication → Sign-in method → E-posta/Şifre** açık olmalı. *Templates* bölümünden doğrulama ve şifre sıfırlama e-postalarının dilini Türkçe yapın.
+4. **Admin UID'niz:** anahtar yerindeyken
+   ```bash
+   cd backend && python araclar.py uid sizin@eposta.com
+   ```
+   Çıkan UID'yi `ADMIN_UIDS` değişkenine yazın (yerelde `backend/.env`, Render'da panel).
+5. (Önerilir) Google Cloud Console → API anahtarları → Android anahtarına paket adı + SHA-1 kısıtı ekleyin; repo public.
 
-## 🟠 Yayın öncesi
+## 2. Render'a yayın (≈15 dk)
 
-5. **Android SDK lisanslarını kabul edin:** `flutter doctor --android-licenses` (hepsine `y`). Derleme NDK 28.2 lisansı kabul edilmediği için duruyor. Bu makinedeki JDK 25 için Gradle 9.1.0 / AGP 8.13.0'a yükselttim; sorun çıkarsa JDK 21 kurup `flutter config --jdk-dir "<jdk21 yolu>"` ile eski sürümlere dönebilirsiniz.
-6. **Render hesabı:** render.com → New → Blueprint → bu repo. `render.yaml` servis + PostgreSQL'i oluşturur. Panelde `FIREBASE_CREDENTIALS_JSON` ve `ADMIN_UIDS` girin. Sonra bir kez Shell'den demo veri istemiyorsanız hiçbir şey yapmayın; istiyorsanız `SEED_ZORLA=1 python seed.py` (production verisini SİLER, yalnızca ilk kurulumda).
-7. **Alan adı:** `api.premiumberber.app` gibi bir alan adı alıp Render'a bağlayın; `render.yaml`'daki `CORS_ORIGINS` ve uygulama derleme komutundaki `API_BASE_URL`'i güncelleyin.
-8. **Android paket adı:** Şu an `com.example.berber_app_ui` — Google Play `com.example` kabul etmez. Örn. `com.premiumberber.app` seçin; Firebase Console'da bu paket adıyla yeni Android uygulaması ekleyip yeni `google-services.json` indirin. Sonra `App/android/app/build.gradle.kts` içindeki `namespace` ve `applicationId` ile `MainActivity.kt` paket yolunu değiştirin (bunu ben yapmadım çünkü Firebase kaydı olmadan uygulama açılmaz).
-9. **Release imza anahtarı:** `keytool` ile `.jks` oluşturun, `App/android/key.properties.example`'ı `key.properties` olarak kopyalayıp doldurun. Anahtarı ve şifreleri güvenli yerde yedekleyin (kaybolursa uygulama güncellenemez).
-10. **Google Play Console** hesabı (tek seferlik 25 $), mağaza görselleri, gizlilik politikası URL'si (mevcut PDF'i bir web sayfasına koyun), Veri Güvenliği formu (toplanan veriler: ad, telefon, e-posta, randevu geçmişi; hesap silme: uygulama içinden).
-11. **Apple** (iOS yayını isterseniz): Apple Developer (99 $/yıl), `GoogleService-Info.plist`, APNs anahtarı Firebase'e yüklenmeli.
+Kod GitHub'da `feature/v1-hazirlik` dalında hazır, `render.yaml` blueprint'i API + PostgreSQL'i birlikte kurar.
 
-## 🟡 Hukuki / içerik
+1. render.com → **New → Blueprint** → `TevfikUner/pro_berber_full` → dal: `feature/v1-hazirlik`.
+2. İstenen gizli değerleri girin: `FIREBASE_CREDENTIALS_JSON`, `ADMIN_UIDS`.
+3. Deploy bitince: `https://<servis>.onrender.com/saglik` → `{"durum":"ok"}`.
+4. Render → servis → **Shell**:
+   ```bash
+   python araclar.py saglik          # DB + Firebase kontrolü
+   python araclar.py basvurular      # bekleyen işletme başvuruları
+   python araclar.py onayla 3 --sehir Konya --ilce Selçuklu
+   ```
+5. (İsteğe bağlı) Özel alan adı: Render → Settings → Custom Domain (HTTPS otomatik). `render.yaml`'daki `CORS_ORIGINS`'i güncelleyin.
+6. Production DB boş başlar. Demo verisi isterseniz yalnızca ilk kurulumda: `SEED_ZORLA=1 python seed.py` (**tüm verileri siler**).
 
-12. **KVKK aydınlatma metni ve gizlilik politikası** hukukçu kontrolünden geçmeli. Uygulamadaki metin (`yasal_dokuman_screen.dart`) ve kökteki PDF taslak niteliğinde; veri sorumlusu unvanı, adres, VERBİS durumu, saklama süreleri doldurulmalı.
-13. **Ticari elektronik ileti:** Kampanya mesajı gönderecekseniz İYS (İleti Yönetim Sistemi) kaydı gerekir. Uygulama izni zaten ayrı ve isteğe bağlı topluyor.
-14. **Demo salon verileri** kurgusaldır (telefonlar `0332 000 00 0x`). Gerçek salonları admin onayıyla ekleyin.
+## 3. Paket adı ve mağaza (≈20 dk)
 
-## 🟢 Sonra
+Google Play `com.example...` kabul etmez. Firebase'e yeni paket adını kaydetmeden değiştirirsek uygulama açılmaz; bu yüzden betik önce JSON'u doğrular.
 
-15. **Fotoğraf depolama:** Render diski kalıcı değil; berber/salon fotoğrafları için Cloudinary / S3 / Firebase Storage hesabı.
-16. **Yedekleme:** Render PostgreSQL'in günlük yedeği plan dahilinde; ek olarak `scripts/yedekle.sh`'i haftalık çalıştıracak bir yer (GitHub Actions / kendi bilgisayarınız).
-17. **Ödeme (kapora / no-show ücreti)** isterseniz iyzico veya PayTR üye işyeri sözleşmesi.
-18. **Reserve with Google** partnerliği (Google Haritalar'da "Randevu al" butonu) için başvuru.
+1. Firebase Console → Proje ayarları → **Uygulama ekle → Android** → paket adı `com.premiumberber.app` → `google-services.json` indir.
+2. Repo kökünde:
+   ```bash
+   python scripts/paket_adi_degistir.py com.premiumberber.app ~/Downloads/google-services.json --dene   # önizleme
+   python scripts/paket_adi_degistir.py com.premiumberber.app ~/Downloads/google-services.json
+   ```
+3. Release imza anahtarı:
+   ```bash
+   keytool -genkey -v -keystore App/premium-berber.jks -keyalg RSA -keysize 2048 -validity 10000 -alias premium
+   cp App/android/key.properties.example App/android/key.properties   # şifreleri doldurun
+   ```
+   Anahtarı ve şifreleri güvenli yerde yedekleyin (kaybolursa uygulama güncellenemez).
+4. Derleme: `cd App && flutter build appbundle --release --dart-define=API_BASE_URL=https://<render-adresi>`
+5. Google Play Console (tek seferlik 25 $): mağaza görselleri, gizlilik politikası URL'si, Veri Güvenliği formu (toplanan: ad, telefon, e-posta, randevu geçmişi; hesap silme: uygulama içinden).
+
+## 4. Gerçek cihazda deneme
+
+Bu makineye bağlı cihaz/emülatör yoktu; gerçek cihaz testini yapamadım.
+
+1. Telefonda Geliştirici seçenekleri → USB hata ayıklama → USB ile bağlayın → `flutter devices` cihazı görmeli.
+2. Yerel backend + aynı Wi-Fi: `flutter run --dart-define=API_BASE_URL=http://<bilgisayar-ip>:8000`
+   veya Render: `flutter run --dart-define=API_BASE_URL=https://<servis>.onrender.com`
+3. [DEMO.md](DEMO.md) senaryosunu izleyin.
+
+## 5. Hukuki / içerik
+
+- **KVKK aydınlatma metni ve gizlilik politikası** (`App/lib/data/sabit/yasal_metinler.dart`, kökteki PDF) taslaktır; veri sorumlusu unvanı, adres, VERBİS durumu, saklama süreleri hukukçu kontrolüyle doldurulmalı.
+- **Ticari ileti:** kampanya mesajı gönderecekseniz İYS kaydı gerekir (uygulama izni ayrı ve isteğe bağlı topluyor).
+- **Destek e-postası:** varsayılan `destek@premiumberber.app`; gerçek adresi derlemede `--dart-define=DESTEK_EPOSTA=...` ile verin.
+- **Apple / iOS** yayını isterseniz: Apple Developer (99 $/yıl), `GoogleService-Info.plist`, APNs anahtarı.
+
+## 6. Sonra
+
+- Fotoğraf depolama (Cloudinary / S3 / Firebase Storage) — Render diski kalıcı değil.
+- `scripts/yedekle.sh`'i haftalık çalıştıracak bir yer (GitHub Actions / kendi bilgisayarınız).
+- Ödeme (kapora / no-show ücreti) için iyzico veya PayTR sözleşmesi.
+- Reserve with Google partnerliği.

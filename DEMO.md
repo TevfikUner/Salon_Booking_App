@@ -31,7 +31,8 @@ günün akışını telefonundan yönetiyor ve gelmeyen müşteriler yüzünden 
 |---|---|---|
 | 0:00 | Ana sayfa | **"Her Zamanki" kartı:** "Ali Usta · Saç & Sakal · 45 dk · 450 ₺ — en yakın boş saatler." *"Ahmet hiçbir şey aramıyor."* |
 | 0:20 | Kartta bir saat çipine dokun → onay | 3 saniyede randevu; onay ekranında salon, saat aralığı (örn. 18:00–18:45), toplam. *"Rakiplerde 'tekrar al' var ama boş saati yine siz arıyorsunuz."* |
-| 0:45 | Keşfet → Konya → Premium Berber Center → Randevu Al | Klasik akış: hizmetler bu salonun menüsü ve fiyatları. Birden fazla hizmet seçin → toplam süre ve fiyat altta. |
+| 0:45 | Keşfet → **Konumuma Yakın Salonlar** | Salonlar yakından uzağa, mesafe rozetiyle sıralanır ("1,2 km"). İl seçicide "istanbul" yazmak da "İstanbul"u bulur. |
+| 0:55 | Premium Berber Center → ekipte **♥** → Randevu Al | Favoriye ekleme anında; ana sayfadaki favori şeridine düşer. Hizmetler bu salonun menüsü ve fiyatları; birden fazla hizmet seçin → toplam süre ve fiyat altta. |
 | 1:15 | Personel → Mehmet Kalfa → Takvim | 2 gün sonrası (izin) ve 10 gün sonrası (tadilat) **kapalı**. *"Salon saatleri, tatil ve izinler tek yerden; müşteri asla kapalı güne randevu alamaz."* |
 | 1:35 | Saat seçimi | Yalnızca hizmetin **tamamının sığdığı** saatler yeşil. 90 dk'lık seçimde kapanışa yakın saatler kapanır. |
 | 1:50 | Dolu bir gün seçin (veya tüm saatleri dolu bir berber) | "Bu gün boş saat kalmadı" → **Yer açılırsa haber ver** + **En yakın boş saatler** çipleri. |

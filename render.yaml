@@ -1,10 +1,12 @@
 # Render Blueprint — https://render.com/docs/blueprint-spec
 # Gizli değerler (FIREBASE_CREDENTIALS_JSON, ADMIN_UIDS) panelden girilir (sync: false).
+# Kurulum: Render → New → Blueprint → bu repo → dal: feature/v1-hazirlik (main'e birleştirince main).
 services:
   - type: web
     name: premium-berber-api
     runtime: docker
-    rootDir: backend
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
     plan: starter
     region: frankfurt
     healthCheckPath: /saglik
