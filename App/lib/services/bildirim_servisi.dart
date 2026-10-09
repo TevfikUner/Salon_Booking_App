@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
-import '../screens/degerlendirme_ekrani.dart';
-import '../theme/app_theme.dart';
-import 'api_service.dart';
+import 'package:berber_app_ui/features/musteri/degerlendirme/degerlendirme_screen.dart';
+import 'package:berber_app_ui/core/theme/app_theme.dart';
+import 'package:berber_app_ui/data/api/api_service.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();

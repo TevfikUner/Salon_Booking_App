@@ -1,7 +1,7 @@
-import 'package:berber_app_ui/models/berber.dart';
-import 'package:berber_app_ui/models/randevu.dart';
-import 'package:berber_app_ui/widgets/ortak.dart';
-import 'package:berber_app_ui/widgets/saat_slot_widget.dart';
+import 'package:berber_app_ui/data/models/berber.dart';
+import 'package:berber_app_ui/data/models/randevu.dart';
+import 'package:berber_app_ui/core/widgets/ortak.dart';
+import 'package:berber_app_ui/features/randevu_al/widgets/saat_slot.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

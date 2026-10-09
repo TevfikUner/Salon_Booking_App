@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'api_service.dart';
+import 'package:berber_app_ui/data/api/api_service.dart';
 
 class AuthService {
   static final _auth = FirebaseAuth.instance;

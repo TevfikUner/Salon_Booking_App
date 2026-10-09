@@ -5,10 +5,10 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 
-import 'providers/randevu_provider.dart';
-import 'screens/splash_screen.dart';
-import 'services/bildirim_servisi.dart';
-import 'theme/app_theme.dart';
+import 'package:berber_app_ui/features/randevu_al/randevu_provider.dart';
+import 'package:berber_app_ui/features/giris/splash_screen.dart';
+import 'package:berber_app_ui/services/bildirim_servisi.dart';
+import 'package:berber_app_ui/core/theme/app_theme.dart';
 
 @pragma('vm:entry-point')
 Future<void> _fcmBackgroundHandler(RemoteMessage message) async {

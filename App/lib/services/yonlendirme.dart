@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../screens/isletme/isletme_bekleme_screen.dart';
-import '../screens/isletme/isletme_panel_screen.dart';
-import '../screens/main_screen.dart';
-import 'api_service.dart';
-import 'bildirim_servisi.dart';
+import 'package:berber_app_ui/features/isletme/isletme_bekleme_screen.dart';
+import 'package:berber_app_ui/features/isletme/isletme_panel_screen.dart';
+import 'package:berber_app_ui/features/musteri/main_screen.dart';
+import 'package:berber_app_ui/data/api/api_service.dart';
+import 'package:berber_app_ui/services/bildirim_servisi.dart';
 
 /// Girişten sonra kullanıcının rolüne göre açılacak ekranı belirler.
 class Yonlendirme {
