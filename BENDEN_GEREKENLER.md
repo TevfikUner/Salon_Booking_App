@@ -14,7 +14,7 @@ Kodda yer tutucu/mock ile geçilen, yalnızca sizin yapabileceğiniz işler. Ön
 
 ## 🟠 Yayın öncesi
 
-5. **JDK 17 veya 21 kurun** (Android derlemesi için). Bu makinede yalnızca JDK 25 var; Gradle 8.14 bunu desteklemiyor. Kurulumdan sonra: `flutter config --jdk-dir "C:\Program Files\Eclipse Adoptium\jdk-21..."`. (Bkz. ANALIZ_RAPORU — APK derleme notu.)
+5. **Android SDK lisanslarını kabul edin:** `flutter doctor --android-licenses` (hepsine `y`). Derleme NDK 28.2 lisansı kabul edilmediği için duruyor. Bu makinedeki JDK 25 için Gradle 9.1.0 / AGP 8.13.0'a yükselttim; sorun çıkarsa JDK 21 kurup `flutter config --jdk-dir "<jdk21 yolu>"` ile eski sürümlere dönebilirsiniz.
 6. **Render hesabı:** render.com → New → Blueprint → bu repo. `render.yaml` servis + PostgreSQL'i oluşturur. Panelde `FIREBASE_CREDENTIALS_JSON` ve `ADMIN_UIDS` girin. Sonra bir kez Shell'den demo veri istemiyorsanız hiçbir şey yapmayın; istiyorsanız `SEED_ZORLA=1 python seed.py` (production verisini SİLER, yalnızca ilk kurulumda).
 7. **Alan adı:** `api.premiumberber.app` gibi bir alan adı alıp Render'a bağlayın; `render.yaml`'daki `CORS_ORIGINS` ve uygulama derleme komutundaki `API_BASE_URL`'i güncelleyin.
 8. **Android paket adı:** Şu an `com.example.berber_app_ui` — Google Play `com.example` kabul etmez. Örn. `com.premiumberber.app` seçin; Firebase Console'da bu paket adıyla yeni Android uygulaması ekleyip yeni `google-services.json` indirin. Sonra `App/android/app/build.gradle.kts` içindeki `namespace` ve `applicationId` ile `MainActivity.kt` paket yolunu değiştirin (bunu ben yapmadım çünkü Firebase kaydı olmadan uygulama açılmaz).

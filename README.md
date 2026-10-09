@@ -53,7 +53,7 @@ curl -H "Authorization: Bearer dev:demo-isletme" localhost:8000/panel/akis
 
 ## 2. Flutter uygulaması
 
-Gereksinim: Flutter 3.4x, **JDK 17 veya 21** (Android derlemesi; JDK 25 Gradle ile uyumsuz).
+Gereksinim: Flutter 3.4x, JDK 17–25 (Gradle 9.1 / AGP 8.13), kabul edilmiş Android SDK lisansları (`flutter doctor --android-licenses`).
 
 ```bash
 cd App
