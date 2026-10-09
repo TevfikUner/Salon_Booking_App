@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
-import 'package:berber_app_ui/data/api/api_service.dart';
+import 'package:berber_app_ui/data/api/hesap_api.dart';
+import 'package:berber_app_ui/data/api/randevu_api.dart';
 import 'package:berber_app_ui/data/models/randevu.dart';
 
 /// Favori berberler yönetim sayfası
@@ -27,8 +28,8 @@ class _FavoriBerberlerScreenState extends State<FavoriBerberlerScreen> {
   Future<void> _yukle() async {
     try {
       final results = await Future.wait([
-        ApiService.getRandevularim(),
-        ApiService.favorileriGetir(),
+        RandevuApi.randevularim(),
+        HesapApi.favoriler(),
       ]);
 
       final randevular = results[0] as List<Randevu>;
@@ -65,7 +66,7 @@ class _FavoriBerberlerScreenState extends State<FavoriBerberlerScreen> {
 
   Future<void> _favoriToggle(_BerberItem item) async {
     try {
-      await ApiService.favoriToggle(item.berberId);
+      await HesapApi.favoriToggle(item.berberId);
       setState(() {
         item.favoriMi = !item.favoriMi;
         // Sıralamayı güncelle

@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/data/models/hizmet.dart';
-import 'package:berber_app_ui/data/api/api_service.dart';
+import 'package:berber_app_ui/data/api/salon_api.dart';
 import 'package:berber_app_ui/features/randevu_al/randevu_provider.dart';
 
 class Adim1Hizmet extends StatefulWidget {
@@ -27,7 +27,7 @@ class _Adim1HizmetState extends State<Adim1Hizmet> {
   Future<void> _yukle() async {
     setState(() { _yukleniyor = true; _hata = null; });
     try {
-      final data = await ApiService.getHizmetler(salonId: context.read<RandevuProvider>().salonId);
+      final data = await SalonApi.hizmetler(context.read<RandevuProvider>().salonId);
       if (mounted) setState(() { _hizmetler = data; _yukleniyor = false; });
     } catch (e) {
       if (mounted) setState(() { _yukleniyor = false; _hata = e.toString(); });

@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/widgets/altin_buton.dart';
-import 'package:berber_app_ui/data/api/api_service.dart';
+import 'package:berber_app_ui/data/api/randevu_api.dart';
 import 'package:berber_app_ui/core/config.dart';
 
 /// Randevu saatinden 2 saat sonra müşteriye gösterilen berber puanlama ekranı.
@@ -50,7 +50,7 @@ class _DegerlendirmeEkraniState extends State<DegerlendirmeEkrani>
   Future<void> _degerlendirmeGonder() async {
     setState(() => _loading = true);
     try {
-      await ApiService.degerlendirmeEkle(
+      await RandevuApi.degerlendir(
         randevuId: widget.randevuId,
         puan: _seciliYildiz,
       );

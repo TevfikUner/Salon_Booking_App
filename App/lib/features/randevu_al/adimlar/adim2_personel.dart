@@ -6,9 +6,10 @@ import 'package:provider/provider.dart';
 import 'package:berber_app_ui/core/config.dart';
 import 'package:berber_app_ui/data/models/berber.dart';
 import 'package:berber_app_ui/features/randevu_al/randevu_provider.dart';
-import 'package:berber_app_ui/data/api/api_service.dart';
+import 'package:berber_app_ui/data/api/api_client.dart';
+import 'package:berber_app_ui/data/api/salon_api.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
-import 'package:berber_app_ui/core/widgets/ortak.dart';
+import 'package:berber_app_ui/core/widgets/durum_gorunumleri.dart';
 
 class Adim2Personel extends StatefulWidget {
   const Adim2Personel({super.key});
@@ -34,7 +35,7 @@ class _Adim2PersonelState extends State<Adim2Personel> {
       _hata = null;
     });
     try {
-      final data = await ApiService.getBerberler(salonId: context.read<RandevuProvider>().salonId);
+      final data = await SalonApi.berberler(context.read<RandevuProvider>().salonId);
       if (mounted) setState(() => _berberler = data);
     } on ApiHata catch (e) {
       if (mounted) setState(() => _hata = e.mesaj);

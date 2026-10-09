@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'package:berber_app_ui/data/api/api_service.dart';
+import 'package:berber_app_ui/data/api/api_client.dart';
+import 'package:berber_app_ui/data/api/panel_api.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
-import 'package:berber_app_ui/core/widgets/ortak.dart';
+import 'package:berber_app_ui/core/utils/bicim.dart';
+import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
+import 'package:berber_app_ui/core/widgets/durum_gorunumleri.dart';
 
 /// Salonun kapalı günleri (tatil) ve personel izinleri.
 class KapaliGunlerSekmesi extends StatefulWidget {
@@ -29,7 +32,7 @@ class _KapaliGunlerSekmesiState extends State<KapaliGunlerSekmesi> {
   Future<void> _yukle() async {
     setState(() => _hata = null);
     try {
-      final s = await Future.wait([ApiService.panelKapaliGunler(), ApiService.panelPersonel()]);
+      final s = await Future.wait([PanelApi.kapaliGunler(), PanelApi.personel()]);
       final g = s[0] as Map<String, dynamic>;
       if (mounted) {
         setState(() {
@@ -77,7 +80,7 @@ class _KapaliGunlerSekmesiState extends State<KapaliGunlerSekmesi> {
     final a = await _aciklamaSor('Salon kapalı: ${tarihUzun(tarihStr(g))}');
     if (a == null) return;
     try {
-      final v = await ApiService.panelTatilEkle(tarihStr(g), a.isEmpty ? null : a);
+      final v = await PanelApi.tatilEkle(tarihStr(g), a.isEmpty ? null : a);
       if (mounted) bilgiGoster(context, v['uyari'] ?? 'Kapalı gün eklendi.', hata: v['uyari'] != null);
       _yukle();
     } on ApiHata catch (e) {
@@ -106,7 +109,7 @@ class _KapaliGunlerSekmesiState extends State<KapaliGunlerSekmesi> {
     final g = await _gunSec();
     if (g == null) return;
     try {
-      final v = await ApiService.panelIzinEkle(secilen['id'], tarihStr(g), null);
+      final v = await PanelApi.izinEkle(secilen['id'], tarihStr(g), null);
       final etk = v['etkilenen_randevu'] as int? ?? 0;
       if (mounted) {
         bilgiGoster(context, etk > 0 ? 'İzin eklendi. Bu günde $etk aktif randevu var; müşterilere haber verin.'
@@ -147,7 +150,7 @@ class _KapaliGunlerSekmesiState extends State<KapaliGunlerSekmesi> {
               subtitle: t['aciklama'] != null ? Text(t['aciklama']) : null,
               trailing: IconButton(
                   tooltip: 'Kaldır', icon: const Icon(Icons.close),
-                  onPressed: () => _sil(() => ApiService.panelTatilSil(t['id']))),
+                  onPressed: () => _sil(() => PanelApi.tatilSil(t['id']))),
             ),
           ),
         const SizedBox(height: 12),
@@ -161,7 +164,7 @@ class _KapaliGunlerSekmesiState extends State<KapaliGunlerSekmesi> {
               subtitle: i['aciklama'] != null ? Text(i['aciklama']) : null,
               trailing: IconButton(
                   tooltip: 'Kaldır', icon: const Icon(Icons.close),
-                  onPressed: () => _sil(() => ApiService.panelIzinSil(i['id']))),
+                  onPressed: () => _sil(() => PanelApi.izinSil(i['id']))),
             ),
           ),
       ]),

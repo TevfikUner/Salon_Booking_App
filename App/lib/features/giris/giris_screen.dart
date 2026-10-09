@@ -4,7 +4,7 @@ import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/widgets/altin_buton.dart';
 import 'package:berber_app_ui/core/widgets/berber_desen.dart';
 import 'package:berber_app_ui/services/auth_service.dart';
-import 'package:berber_app_ui/data/api/api_service.dart';
+import 'package:berber_app_ui/data/api/api_client.dart';
 import 'package:berber_app_ui/services/yonlendirme.dart';
 import 'package:berber_app_ui/features/giris/kayit_screen.dart';
 

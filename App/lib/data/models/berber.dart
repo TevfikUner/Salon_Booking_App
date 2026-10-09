@@ -6,8 +6,10 @@ class Berber {
   final String? fotoUrl;
   final double puan;
   final int? salonId;
-  final String? whatsappNo;
-  final String? instagramUsername;
+  final String? salonAd;
+
+  /// Oturumdaki müşterinin favorisi mi (yalnızca salon detayı / favoriler yanıtında anlamlı)
+  final bool favori;
 
   const Berber({
     required this.id,
@@ -17,21 +19,34 @@ class Berber {
     this.fotoUrl,
     required this.puan,
     this.salonId,
-    this.whatsappNo,
-    this.instagramUsername,
+    this.salonAd,
+    this.favori = false,
   });
 
   String get tamAd => '$ad $soyad'.trim();
 
   factory Berber.fromJson(Map<String, dynamic> j) => Berber(
-        id: j['id'],
+        // /musteriler/favoriler yanıtı "berber_id" kullanır
+        id: j['id'] ?? j['berber_id'],
         ad: j['ad'] ?? '',
         soyad: j['soyad'] ?? '',
         uzmanlik: j['uzmanlik'] ?? '',
         fotoUrl: j['foto_url'],
         puan: (j['puan'] as num? ?? 0).toDouble(),
         salonId: j['salon_id'],
-        whatsappNo: j['whatsapp_no'],
-        instagramUsername: j['instagram_username'],
+        salonAd: j['salon_ad'],
+        favori: j['favori'] == true || j.containsKey('berber_id'),
+      );
+
+  Berber copyWith({bool? favori}) => Berber(
+        id: id,
+        ad: ad,
+        soyad: soyad,
+        uzmanlik: uzmanlik,
+        fotoUrl: fotoUrl,
+        puan: puan,
+        salonId: salonId,
+        salonAd: salonAd,
+        favori: favori ?? this.favori,
       );
 }

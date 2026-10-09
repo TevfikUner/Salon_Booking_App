@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'package:berber_app_ui/data/api/api_service.dart';
+import 'package:berber_app_ui/data/api/hesap_api.dart';
 
 class AuthService {
   static final _auth = FirebaseAuth.instance;
@@ -23,7 +23,7 @@ class AuthService {
   }) async {
     final cred = await _auth.createUserWithEmailAndPassword(email: email, password: sifre);
     await cred.user?.updateDisplayName('$ad $soyad'.trim());
-    await ApiService.musteriKayit(
+    await HesapApi.musteriKayit(
       ad: ad,
       soyad: soyad,
       telefon: telefon,
@@ -48,7 +48,7 @@ class AuthService {
     required String isletmeAdi,
   }) async {
     await _auth.createUserWithEmailAndPassword(email: email, password: sifre);
-    await ApiService.isletmeKayit(
+    await HesapApi.isletmeKayit(
       ad: ad,
       soyad: soyad,
       telefon: telefon,
@@ -61,7 +61,7 @@ class AuthService {
   /// Firebase son girişin eski olduğunu söylerse kullanıcı çıkış yaptırılır;
   /// backend tarafı zaten silinmiş olur.
   static Future<bool> hesabiSil() async {
-    await ApiService.hesapSil();
+    await HesapApi.hesapSil();
     try {
       await _auth.currentUser?.delete();
       return true;

@@ -3,9 +3,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'package:berber_app_ui/features/randevu_al/randevu_provider.dart';
-import 'package:berber_app_ui/data/api/api_service.dart';
+import 'package:berber_app_ui/data/api/api_client.dart';
+import 'package:berber_app_ui/data/api/randevu_api.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
-import 'package:berber_app_ui/core/widgets/ortak.dart';
+import 'package:berber_app_ui/core/utils/bicim.dart';
+import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
+import 'package:berber_app_ui/core/widgets/durum_gorunumleri.dart';
 import 'package:berber_app_ui/features/randevu_al/widgets/saat_slot.dart';
 
 /// Saat seçimi. Müsaitlik tamamen backend'de hesaplanır (salon saatleri, tatil, izin, çakışma, geçmiş saat);
@@ -47,11 +50,11 @@ class _Adim4SaatState extends State<Adim4Saat> {
     });
     final ids = p.seciliHizmetler.map((h) => h.id).toList();
     try {
-      final v = await ApiService.getMusaitSaatler(berber.id, tarihStr(tarih), ids);
+      final v = await RandevuApi.musaitSaatler(berber.id, tarihStr(tarih), ids);
       final musait = Set<String>.from(v['musait_saatler']);
       List<Map<String, dynamic>> enYakin = [];
       if (musait.isEmpty) {
-        enYakin = await ApiService.getEnYakinSlotlar(berber.id, ids, adet: 4);
+        enYakin = await RandevuApi.enYakinSlotlar(berber.id, ids, adet: 4);
       }
       if (!mounted) return;
       setState(() {
@@ -71,7 +74,7 @@ class _Adim4SaatState extends State<Adim4Saat> {
     final p = context.read<RandevuProvider>();
     setState(() => _beklemeGonderiliyor = true);
     try {
-      await ApiService.beklemeListesineEkle(
+      await RandevuApi.beklemeListesineEkle(
           p.seciliBerber!.id, tarihStr(p.seciliTarih!), p.seciliHizmetler.map((h) => h.id).toList());
       if (!mounted) return;
       setState(() => _beklemede = true);

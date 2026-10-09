@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/widgets/berber_desen.dart';
-import 'package:berber_app_ui/data/api/api_service.dart';
+import 'package:berber_app_ui/data/api/hesap_api.dart';
+import 'package:berber_app_ui/data/api/randevu_api.dart';
 import 'package:berber_app_ui/data/models/berber.dart';
 import 'package:berber_app_ui/data/models/randevu.dart';
 import 'package:berber_app_ui/features/randevu_al/randevu_flow.dart';
@@ -34,10 +35,10 @@ class _AnaSayfaScreenState extends State<AnaSayfaScreen> {
   Future<void> _yukle() async {
     try {
       final results = await Future.wait([
-        ApiService.profilGetir(),
-        ApiService.favorileriGetir(),
-        ApiService.getRandevularim(),
-        ApiService.herZamanki().catchError((_) => null),
+        HesapApi.profil(),
+        HesapApi.favoriler(),
+        RandevuApi.randevularim(),
+        RandevuApi.herZamanki().catchError((_) => null),
       ]);
 
       if (mounted) {

@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:berber_app_ui/features/randevu_al/onay_screen.dart';
-import 'package:berber_app_ui/data/api/api_service.dart';
+import 'package:berber_app_ui/data/api/api_client.dart';
+import 'package:berber_app_ui/data/api/randevu_api.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
-import 'package:berber_app_ui/core/widgets/ortak.dart';
+import 'package:berber_app_ui/core/utils/bicim.dart';
+import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
 
 /// İmza özellik — "Her Zamanki": müdavimin en sık aldığı berber + hizmet kombinasyonu,
 /// en yakın boş slotlarla birlikte. Tek dokunuş + onay = randevu.
@@ -36,7 +38,7 @@ class _HerZamankiKartiState extends State<HerZamankiKarti> {
     final anahtar = '${slot['tarih']} ${slot['saat']}';
     setState(() => _gonderilen = anahtar);
     try {
-      final sonuc = await ApiService.randevuOlustur(
+      final sonuc = await RandevuApi.olustur(
         berberId: berber['id'],
         saat: slot['saat'],
         tarih: slot['tarih'],

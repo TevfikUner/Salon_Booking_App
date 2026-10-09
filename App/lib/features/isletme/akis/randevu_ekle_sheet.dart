@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'package:berber_app_ui/data/api/api_service.dart';
+import 'package:berber_app_ui/data/api/api_client.dart';
+import 'package:berber_app_ui/data/api/panel_api.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/widgets/altin_buton.dart';
-import 'package:berber_app_ui/core/widgets/ortak.dart';
+import 'package:berber_app_ui/core/utils/bicim.dart';
+import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
 
 /// İşletmenin telefonla/kapıdan gelen müşteri için randevu eklemesi.
 /// Saatler müşteri uygulamasıyla aynı kurallarla backend'den gelir (çift rezervasyon olmaz).
@@ -51,7 +53,7 @@ class _RandevuEkleSheetState extends State<RandevuEkleSheet> {
 
   Future<void> _yukle() async {
     try {
-      final sonuc = await Future.wait([ApiService.panelPersonel(), ApiService.panelHizmetler()]);
+      final sonuc = await Future.wait([PanelApi.personel(), PanelApi.hizmetler()]);
       if (!mounted) return;
       setState(() {
         _personel = sonuc[0];
@@ -76,7 +78,7 @@ class _RandevuEkleSheetState extends State<RandevuEkleSheet> {
     if (_berberId == null || _secili.isEmpty) return;
     setState(() => _saatYukleniyor = true);
     try {
-      final v = await ApiService.panelMusaitSaatler(_berberId!, tarihStr(_tarih), _secili.toList());
+      final v = await PanelApi.musaitSaatler(_berberId!, tarihStr(_tarih), _secili.toList());
       if (mounted) {
         setState(() {
           _saatler = List<String>.from(v['musait_saatler']);
@@ -111,7 +113,7 @@ class _RandevuEkleSheetState extends State<RandevuEkleSheet> {
     }
     setState(() => _kaydediliyor = true);
     try {
-      await ApiService.panelRandevuEkle(
+      await PanelApi.randevuEkle(
         berberId: _berberId!,
         tarih: tarihStr(_tarih),
         saat: _saat!,

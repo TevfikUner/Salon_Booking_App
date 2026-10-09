@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:berber_app_ui/features/isletme/isletme_bekleme_screen.dart';
 import 'package:berber_app_ui/features/isletme/isletme_panel_screen.dart';
 import 'package:berber_app_ui/features/musteri/main_screen.dart';
-import 'package:berber_app_ui/data/api/api_service.dart';
+import 'package:berber_app_ui/data/api/hesap_api.dart';
 import 'package:berber_app_ui/services/bildirim_servisi.dart';
 
 /// Girişten sonra kullanıcının rolüne göre açılacak ekranı belirler.
 class Yonlendirme {
   static Future<Widget> girisSonrasi() async {
-    final ben = await ApiService.ben();
+    final ben = await HesapApi.ben();
     BildirimServisi.baslat(); // beklemeden arka planda
     final rol = ben['rol'] as String? ?? 'musteri';
     final isletme = ben['isletme'] as Map<String, dynamic>?;

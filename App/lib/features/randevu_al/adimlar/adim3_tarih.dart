@@ -3,7 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
-import 'package:berber_app_ui/data/api/api_service.dart';
+import 'package:berber_app_ui/data/api/api_client.dart';
+import 'package:berber_app_ui/data/api/randevu_api.dart';
 import 'package:berber_app_ui/features/randevu_al/randevu_provider.dart';
 
 class Adim3Tarih extends StatefulWidget {
@@ -28,7 +29,7 @@ class _Adim3TarihState extends State<Adim3Tarih> {
     final provider = context.read<RandevuProvider>();
     final berberId = provider.seciliBerber?.id;
     try {
-      final data = await ApiService.getMusaitTakvim(berberId: berberId, salonId: provider.salonId);
+      final data = await RandevuApi.musaitTakvim(berberId: berberId, salonId: provider.salonId);
       if (mounted) {
         setState(() {
           _musaitTarihler = data.map((e) => e['tarih'] as String).toSet();

@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'package:berber_app_ui/data/api/api_service.dart';
+import 'package:berber_app_ui/data/api/api_client.dart';
+import 'package:berber_app_ui/data/api/panel_api.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
-import 'package:berber_app_ui/core/widgets/ortak.dart';
+import 'package:berber_app_ui/core/utils/bicim.dart';
+import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
+import 'package:berber_app_ui/core/widgets/durum_gorunumleri.dart';
+import 'package:berber_app_ui/features/isletme/widgets/guven_rozeti.dart';
 import 'package:berber_app_ui/features/isletme/akis/randevu_ekle_sheet.dart';
 
 /// "Bugünün Akışı": günün randevuları saat sırasıyla, müşteri/hizmet/süre/ücret,
@@ -36,7 +40,7 @@ class _AkisSekmesiState extends State<AkisSekmesi> {
       _hata = null;
     });
     try {
-      final v = await ApiService.panelAkis(tarih: tarihStr(_gun));
+      final v = await PanelApi.akis(tarih: tarihStr(_gun));
       if (mounted) setState(() => _veri = v);
     } on ApiHata catch (e) {
       if (mounted) setState(() => _hata = e.mesaj);
@@ -74,7 +78,7 @@ class _AkisSekmesiState extends State<AkisSekmesi> {
     }
     setState(() => _islemde.add(r['id']));
     try {
-      await ApiService.panelDurum(r['id'], durum);
+      await PanelApi.durumGuncelle(r['id'], durum);
       if (mounted) bilgiGoster(context, 'Randevu "$metin" olarak işaretlendi.');
       await _yukle();
     } on ApiHata catch (e) {

@@ -5,7 +5,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/widgets/altin_buton.dart';
-import 'package:berber_app_ui/data/api/api_service.dart';
+import 'package:berber_app_ui/data/api/api_client.dart';
+import 'package:berber_app_ui/data/api/hesap_api.dart';
+import 'package:berber_app_ui/data/api/randevu_api.dart';
 import 'package:berber_app_ui/features/randevu_al/randevu_provider.dart';
 import 'package:berber_app_ui/features/randevu_al/onay_screen.dart';
 
@@ -40,7 +42,7 @@ class _Adim5FormState extends State<Adim5Form> {
         if (parts.length > 1) _soyadCtrl.text = parts.sublist(1).join(' ');
       }
 
-      final profil = await ApiService.profilGetir();
+      final profil = await HesapApi.profil();
       if (profil != null) {
         if (profil['ad']?.toString().isNotEmpty ?? false) _adCtrl.text = profil['ad'];
         if (profil['soyad']?.toString().isNotEmpty ?? false) _soyadCtrl.text = profil['soyad'];
@@ -73,7 +75,7 @@ class _Adim5FormState extends State<Adim5Form> {
 
       final tarihStr = '${tarih.year}-${tarih.month.toString().padLeft(2, '0')}-${tarih.day.toString().padLeft(2, '0')}';
 
-      final sonuc = await ApiService.randevuOlustur(
+      final sonuc = await RandevuApi.olustur(
         berberId: berber.id,
         saat: saat,
         tarih: tarihStr,

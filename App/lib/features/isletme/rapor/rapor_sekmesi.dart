@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'package:berber_app_ui/data/api/api_service.dart';
+import 'package:berber_app_ui/data/api/api_client.dart';
+import 'package:berber_app_ui/data/api/panel_api.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
-import 'package:berber_app_ui/core/widgets/ortak.dart';
+import 'package:berber_app_ui/core/utils/bicim.dart';
+import 'package:berber_app_ui/core/widgets/durum_gorunumleri.dart';
 
 const _aylar = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım',
   'Aralık'];
@@ -33,7 +35,7 @@ class _RaporSekmesiState extends State<RaporSekmesi> {
       _hata = null;
     });
     try {
-      final v = await ApiService.panelRapor(yil: _ay.year, ay: _ay.month);
+      final v = await PanelApi.rapor(yil: _ay.year, ay: _ay.month);
       if (mounted) setState(() => _v = v);
     } on ApiHata catch (e) {
       if (mounted) setState(() => _hata = e.mesaj);

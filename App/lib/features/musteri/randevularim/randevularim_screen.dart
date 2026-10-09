@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
-import 'package:berber_app_ui/data/api/api_service.dart';
+import 'package:berber_app_ui/data/api/api_client.dart';
+import 'package:berber_app_ui/data/api/randevu_api.dart';
 import 'package:berber_app_ui/data/models/randevu.dart';
-import 'package:berber_app_ui/core/widgets/ortak.dart';
+import 'package:berber_app_ui/core/utils/bicim.dart';
+import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
 
 class RandevularimScreen extends StatefulWidget {
   const RandevularimScreen({super.key});
@@ -33,7 +35,7 @@ class _RandevularimScreenState extends State<RandevularimScreen> with SingleTick
 
   Future<void> _yukle() async {
     try {
-      final data = await ApiService.getRandevularim();
+      final data = await RandevuApi.randevularim();
       if (mounted) setState(() { _randevular = data; _yukleniyor = false; });
     } catch (e) {
       if (mounted) {
@@ -111,7 +113,7 @@ class _RandevularimScreenState extends State<RandevularimScreen> with SingleTick
             ),
             onPressed: () async {
               try {
-                await ApiService.degerlendirmeEkle(
+                await RandevuApi.degerlendir(
                   randevuId: r.id,
                   puan: secilenPuan.toInt(),
                   yorum: yorumCtrl.text.trim(),
@@ -156,7 +158,7 @@ class _RandevularimScreenState extends State<RandevularimScreen> with SingleTick
     );
     if (onay != true) return;
     try {
-      await ApiService.randevuIptal(r.id);
+      await RandevuApi.iptal(r.id);
       if (mounted) bilgiGoster(context, 'Randevunuz iptal edildi.');
       _yukle();
     } on ApiHata catch (e) {

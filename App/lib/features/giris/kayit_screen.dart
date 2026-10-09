@@ -6,7 +6,7 @@ import 'package:berber_app_ui/core/widgets/altin_buton.dart';
 import 'package:berber_app_ui/core/widgets/berber_desen.dart';
 import 'package:berber_app_ui/services/auth_service.dart';
 import 'package:berber_app_ui/services/yonlendirme.dart';
-import 'package:berber_app_ui/core/widgets/ortak.dart';
+import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
 import 'package:berber_app_ui/features/destek/yasal_dokuman_screen.dart';
 
 class RegisterScreen extends StatefulWidget {

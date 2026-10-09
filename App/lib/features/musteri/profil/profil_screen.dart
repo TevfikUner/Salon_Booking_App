@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
-import 'package:berber_app_ui/data/api/api_service.dart';
+import 'package:berber_app_ui/data/api/hesap_api.dart';
 import 'package:berber_app_ui/services/auth_service.dart';
 import 'package:berber_app_ui/services/bildirim_servisi.dart';
 import 'package:berber_app_ui/features/giris/rol_secim_screen.dart';
@@ -101,7 +101,7 @@ class _ProfilEkraniState extends State<ProfilEkrani> {
   Future<void> _bilgileriGetir() async {
     setState(() => yukleniyor = true);
     try {
-      final veriler = await ApiService.profilGetir();
+      final veriler = await HesapApi.profil();
       if (veriler != null) {
         adKontrolcusu.text = veriler['ad'] ?? '';
         soyadKontrolcusu.text = veriler['soyad'] ?? '';
@@ -121,7 +121,7 @@ class _ProfilEkraniState extends State<ProfilEkrani> {
     try {
       String gidenTel = telefonKontrolcusu.text.trim();
       if (gidenTel.isNotEmpty) gidenTel = '0$gidenTel';
-      await ApiService.profilGuncelle(
+      await HesapApi.profilGuncelle(
         ad: adKontrolcusu.text.trim(),
         soyad: soyadKontrolcusu.text.trim(),
         telefon: gidenTel,

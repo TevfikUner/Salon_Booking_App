@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'package:berber_app_ui/data/api/api_service.dart';
+import 'package:berber_app_ui/data/api/api_client.dart';
+import 'package:berber_app_ui/data/api/panel_api.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
-import 'package:berber_app_ui/core/widgets/ortak.dart';
+import 'package:berber_app_ui/core/utils/bicim.dart';
+import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
+import 'package:berber_app_ui/core/widgets/durum_gorunumleri.dart';
 
 /// Personel ve hizmet menüsü yönetimi.
 class EkipSekmesi extends StatefulWidget {
@@ -29,7 +32,7 @@ class _EkipSekmesiState extends State<EkipSekmesi> {
   Future<void> _yukle() async {
     setState(() => _hata = null);
     try {
-      final s = await Future.wait([ApiService.panelPersonel(), ApiService.panelHizmetler()]);
+      final s = await Future.wait([PanelApi.personel(), PanelApi.hizmetler()]);
       if (mounted) {
         setState(() {
           _personel = s[0];
@@ -69,7 +72,7 @@ class _EkipSekmesiState extends State<EkipSekmesi> {
     ]);
     if (tamam != true || ad.text.trim().isEmpty) return;
     await _calistir(
-        () => ApiService.panelPersonelEkle({
+        () => PanelApi.personelEkle({
               'ad': ad.text.trim(),
               'soyad': soyad.text.trim(),
               'uzmanlik': unvan.text.trim().isEmpty ? 'Berber' : unvan.text.trim(),
@@ -83,7 +86,7 @@ class _EkipSekmesiState extends State<EkipSekmesi> {
         'Geçmiş randevu kayıtları korunur.', evet: 'Çıkar', tehlikeli: true)) {
       return;
     }
-    await _calistir(() => ApiService.panelPersonelCikar(p['id']), 'Personel kadrodan çıkarıldı.');
+    await _calistir(() => PanelApi.personelCikar(p['id']), 'Personel kadrodan çıkarıldı.');
   }
 
   // ── Hizmet ──
@@ -112,7 +115,7 @@ class _EkipSekmesiState extends State<EkipSekmesi> {
       return;
     }
     await _calistir(
-        () => ApiService.panelHizmetKaydet({
+        () => PanelApi.hizmetKaydet({
               'ad': ad.text.trim(),
               'fiyat': f,
               'sure': s,
@@ -126,7 +129,7 @@ class _EkipSekmesiState extends State<EkipSekmesi> {
         evet: 'Kaldır', tehlikeli: true)) {
       return;
     }
-    await _calistir(() => ApiService.panelHizmetKaldir(h['id']), 'Hizmet kaldırıldı.');
+    await _calistir(() => PanelApi.hizmetKaldir(h['id']), 'Hizmet kaldırıldı.');
   }
 
   Future<bool?> _form(String baslik, List<Widget> alanlar) => showDialog<bool>(

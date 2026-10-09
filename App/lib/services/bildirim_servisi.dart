@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'package:berber_app_ui/features/musteri/degerlendirme/degerlendirme_screen.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
-import 'package:berber_app_ui/data/api/api_service.dart';
+import 'package:berber_app_ui/data/api/hesap_api.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
@@ -21,8 +21,8 @@ class BildirimServisi {
       final fm = FirebaseMessaging.instance;
       await fm.requestPermission();
       final token = await fm.getToken();
-      if (token != null) await ApiService.fcmTokenKaydet(token);
-      _tokenAboneligi ??= fm.onTokenRefresh.listen((t) => ApiService.fcmTokenKaydet(t).catchError((_) {}));
+      if (token != null) await HesapApi.fcmTokenKaydet(token);
+      _tokenAboneligi ??= fm.onTokenRefresh.listen((t) => HesapApi.fcmTokenKaydet(t).catchError((_) {}));
     } catch (e) {
       debugPrint('Bildirim kaydı yapılamadı: $e');
     }
