@@ -1,76 +1,63 @@
+import logging
+import os
+from contextlib import asynccontextmanager
+
 from apscheduler.schedulers.background import BackgroundScheduler
-from utils import degerlendirme_gorevi
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from apscheduler.schedulers.background import BackgroundScheduler
-import models, utils
-from database import engine
-from routers import dukkan, randevular, berberler, musteriler, hizmetler, kurumsal
-from routers import degerlendirmeler, tatil, raporlar
+from sqlalchemy import text
+from sqlalchemy.orm import Session
 
-models.Base.metadata.create_all(bind=engine)
-app = FastAPI(title="Premium Berber")
+import gorevler
+from config import ayarlar
+from database import get_db
+from routers import (berberler, degerlendirmeler, dukkan, hesap, hizmetler, isletmeler, kurumsal, musteriler, panel,
+                     randevular, raporlar, tatil)
 
-# Zamanlayıcıyı kuruyoruz
-scheduler = BackgroundScheduler()
-# degerlendirme_gorevi fonksiyonunu her 15 dakikada bir çalışacak şekilde ayarla
-scheduler.add_job(degerlendirme_gorevi, 'interval', minutes=15)
-scheduler.start()
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+log = logging.getLogger("premium_berber")
 
 
-# --- 6. CORS MIDDLEWARE ---
-# Flutter Web veya harici istemciler için gerekli.
-# Prodüksiyonda allow_origins'i kendi domain'inle değiştir.
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    scheduler = None
+    if ayarlar().scheduler_enabled:
+        scheduler = BackgroundScheduler(timezone=ayarlar().zaman_dilimi)
+        scheduler.add_job(gorevler.hatirlatma_gorevi, "interval", minutes=5, id="hatirlatma", max_instances=1)
+        scheduler.add_job(gorevler.tamamlama_ve_degerlendirme_gorevi, "interval", minutes=5, id="tamamlama",
+                          max_instances=1)
+        scheduler.start()
+        log.info("Zamanlayıcı başlatıldı.")
+    yield
+    if scheduler:
+        scheduler.shutdown(wait=False)
+
+
+app = FastAPI(title="Premium Berber API", version="1.0.0", lifespan=lifespan)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],        # Prodüksiyonda: ["https://senin-domain.com"]
-    allow_credentials=True,
+    allow_origins=ayarlar().cors_listesi,
+    allow_credentials=False,  # kimlik Authorization header ile taşınır, cookie yok
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# --- STATİK DOSYA SUNUMU (Fotoğraf upload için) ---
-import os
-os.makedirs("uploads/berberler", exist_ok=True)
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+os.makedirs(os.path.join(ayarlar().uploads_dir, "berberler"), exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=ayarlar().uploads_dir), name="uploads")
 
-# --- 3. APScheduler — HATIRLATMA + DEĞERLENDİRME BİLDİRİMLERİ ---
-scheduler = BackgroundScheduler()
-scheduler.add_job(
-    utils.hatirlatma_gorevi,
-    trigger="interval",
-    minutes=15,
-    id="hatirlatma_gorevi"
-)
-scheduler.add_job(
-    utils.degerlendirme_gorevi,
-    trigger="interval",
-    minutes=15,
-    id="degerlendirme_gorevi"
-)
+for r in (hesap, musteriler, dukkan, randevular, berberler, hizmetler, isletmeler, panel, degerlendirmeler, tatil,
+          raporlar, kurumsal):
+    app.include_router(r.router)
 
-@app.on_event("startup")
-def uygulama_baslangic():
-    scheduler.start()
-    print("[APScheduler] Hatırlatma zamanlayıcısı başlatıldı.")
-
-@app.on_event("shutdown")
-def uygulama_kapanis():
-    scheduler.shutdown()
-    print("[APScheduler] Zamanlayıcı durduruldu.")
-
-# --- ROUTER'LAR ---
-app.include_router(dukkan.router)
-app.include_router(randevular.router)
-app.include_router(berberler.router)
-app.include_router(musteriler.router)
-app.include_router(hizmetler.router)
-app.include_router(kurumsal.router)
-app.include_router(degerlendirmeler.router)  # ✅ Yeni: Değerlendirme & Puan
-app.include_router(tatil.router)             # ✅ Yeni: Tatil Günleri
-app.include_router(raporlar.router)          # ✅ Yeni: Admin Raporlar
 
 @app.get("/")
 def home():
-    return {"durum": "Sistem tıkır tıkır çalışıyor kanki!"}
+    return {"durum": "ok", "servis": "Premium Berber API"}
+
+
+@app.get("/saglik")
+def saglik(db: Session = Depends(get_db)):
+    db.execute(text("SELECT 1"))
+    return {"durum": "ok"}
