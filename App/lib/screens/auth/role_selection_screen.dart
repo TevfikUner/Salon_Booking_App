@@ -75,7 +75,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFFC9A84C).withOpacity(0.3),
+                            color: const Color(0xFFC9A84C).withValues(alpha: 0.3),
                             blurRadius: 40,
                             spreadRadius: 8,
                           ),
@@ -121,7 +121,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                           Color(0xFF2A1F0E),
                           Color(0xFF1A1510),
                         ],
-                        borderColor: AppTheme.gold.withOpacity(0.4),
+                        borderColor: AppTheme.gold.withValues(alpha: 0.4),
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(builder: (_) => const LoginScreen()),
@@ -141,7 +141,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                           Color(0xFF0E1F2A),
                           Color(0xFF101518),
                         ],
-                        borderColor: const Color(0xFF4A90D9).withOpacity(0.4),
+                        borderColor: const Color(0xFF4A90D9).withValues(alpha: 0.4),
                         iconColor: const Color(0xFF4A90D9),
                         onTap: () => Navigator.push(
                           context,
@@ -159,20 +159,20 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                       children: [
                         Expanded(
                           child: Divider(
-                            color: AppTheme.gold.withOpacity(0.2),
+                            color: AppTheme.gold.withValues(alpha: 0.2),
                           ),
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
                           child: Icon(
                             Icons.content_cut,
-                            color: AppTheme.gold.withOpacity(0.3),
+                            color: AppTheme.gold.withValues(alpha: 0.3),
                             size: 16,
                           ),
                         ),
                         Expanded(
                           child: Divider(
-                            color: AppTheme.gold.withOpacity(0.2),
+                            color: AppTheme.gold.withValues(alpha: 0.2),
                           ),
                         ),
                       ],
@@ -181,7 +181,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                     Text(
                       'Premium Berber Hizmetleri',
                       style: GoogleFonts.inter(
-                        color: AppTheme.textSecondary.withOpacity(0.5),
+                        color: AppTheme.textSecondary.withValues(alpha: 0.5),
                         fontSize: 12,
                         letterSpacing: 1.5,
                       ),
@@ -253,7 +253,7 @@ class _RolKartiState extends State<_RolKarti> {
             border: Border.all(color: widget.borderColor, width: 1.2),
             boxShadow: [
               BoxShadow(
-                color: color.withOpacity(0.08),
+                color: color.withValues(alpha: 0.08),
                 blurRadius: 20,
                 offset: const Offset(0, 8),
               ),
@@ -267,8 +267,8 @@ class _RolKartiState extends State<_RolKarti> {
                 height: 64,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: color.withOpacity(0.12),
-                  border: Border.all(color: color.withOpacity(0.3)),
+                  color: color.withValues(alpha: 0.12),
+                  border: Border.all(color: color.withValues(alpha: 0.3)),
                 ),
                 child: Icon(widget.icon, color: color, size: 30),
               ),
@@ -301,7 +301,7 @@ class _RolKartiState extends State<_RolKarti> {
               // Ok ikonu
               Icon(
                 Icons.arrow_forward_ios,
-                color: color.withOpacity(0.6),
+                color: color.withValues(alpha: 0.6),
                 size: 20,
               ),
             ],

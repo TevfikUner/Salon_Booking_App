@@ -1,12 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:share_plus/share_plus.dart';
 import '../theme/app_theme.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
+import '../services/bildirim_servisi.dart';
 import 'auth/role_selection_screen.dart';
 import 'profil/yardim_destek_screen.dart';
 import 'profil/yasal_dokuman_screen.dart';
@@ -48,7 +48,7 @@ class _ProfilEkraniState extends State<ProfilEkrani> {
               Container(
                 width: 40, height: 4,
                 decoration: BoxDecoration(
-                  color: AppTheme.textSecondary.withOpacity(0.3),
+                  color: AppTheme.textSecondary.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -61,7 +61,7 @@ class _ProfilEkraniState extends State<ProfilEkrani> {
                 leading: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: AppTheme.gold.withOpacity(0.1),
+                    color: AppTheme.gold.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(Icons.camera_alt, color: AppTheme.gold),
@@ -75,7 +75,7 @@ class _ProfilEkraniState extends State<ProfilEkrani> {
                 leading: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: AppTheme.gold.withOpacity(0.1),
+                    color: AppTheme.gold.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(Icons.photo_library, color: AppTheme.gold),
@@ -110,7 +110,7 @@ class _ProfilEkraniState extends State<ProfilEkrani> {
         telefonKontrolcusu.text = tel;
       }
     } catch (e) {
-      print("Bilgi getirme hatası: $e");
+      debugPrint('Bilgi getirme hatası: $e');
     } finally {
       if (mounted) setState(() => yukleniyor = false);
     }
@@ -179,6 +179,7 @@ class _ProfilEkraniState extends State<ProfilEkrani> {
       ),
     );
     if (onay == true) {
+      await BildirimServisi.durdur();
       await AuthService.cikisYap();
       if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(
@@ -209,8 +210,29 @@ class _ProfilEkraniState extends State<ProfilEkrani> {
         ],
       ),
     );
-    if (onay == true) {
-      // Hesap silme işlemi buraya gelecek
+    if (onay != true || !mounted) return;
+    setState(() => yukleniyor = true);
+    try {
+      await BildirimServisi.durdur();
+      final tamamen = await AuthService.hesabiSil();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(tamamen
+            ? 'Hesabınız ve kişisel verileriniz silindi.'
+            : 'Kişisel verileriniz silindi. Güvenlik nedeniyle oturumunuz kapatıldı.'),
+        backgroundColor: AppTheme.success,
+      ));
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const RoleSelectionScreen()),
+        (_) => false,
+      );
+    } catch (e) {
+      if (mounted) {
+        setState(() => yukleniyor = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Hesap silinemedi: $e'), backgroundColor: AppTheme.error),
+        );
+      }
     }
   }
 
@@ -240,7 +262,7 @@ class _ProfilEkraniState extends State<ProfilEkrani> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: AppTheme.surface,
-                      border: Border.all(color: AppTheme.gold.withOpacity(0.3), width: 2),
+                      border: Border.all(color: AppTheme.gold.withValues(alpha: 0.3), width: 2),
                       image: _profilFoto != null
                           ? DecorationImage(image: FileImage(_profilFoto!), fit: BoxFit.cover)
                           : null,
@@ -385,7 +407,7 @@ class _SectionCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppTheme.surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppTheme.gold.withOpacity(0.1)),
+        border: Border.all(color: AppTheme.gold.withValues(alpha: 0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -396,7 +418,7 @@ class _SectionCard extends StatelessWidget {
               const SizedBox(width: 8),
               Text(title, style: GoogleFonts.playfairDisplay(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
               const Spacer(),
-              if (trailing != null) trailing!,
+              ?trailing,
             ],
           ),
           const SizedBox(height: 14),
@@ -428,7 +450,7 @@ class _MenuSatir extends StatelessWidget {
             Icon(icon, color: iconColor ?? AppTheme.textSecondary, size: 20),
             const SizedBox(width: 14),
             Expanded(child: Text(label, style: GoogleFonts.inter(color: labelColor ?? Colors.white, fontSize: 14))),
-            Icon(Icons.arrow_forward_ios, color: AppTheme.textSecondary.withOpacity(0.4), size: 14),
+            Icon(Icons.arrow_forward_ios, color: AppTheme.textSecondary.withValues(alpha: 0.4), size: 14),
           ],
         ),
       ),
@@ -439,7 +461,7 @@ class _MenuSatir extends StatelessWidget {
 class _MenuDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Divider(color: AppTheme.gold.withOpacity(0.06), height: 1);
+    return Divider(color: AppTheme.gold.withValues(alpha: 0.06), height: 1);
   }
 }
 
@@ -461,12 +483,12 @@ class _ProfilGirdisi extends StatelessWidget {
       style: TextStyle(color: enabled ? Colors.white : AppTheme.textSecondary),
       decoration: InputDecoration(
         labelText: baslik,
-        labelStyle: TextStyle(color: AppTheme.textSecondary.withOpacity(0.7)),
-        prefixIcon: Icon(ikon, color: AppTheme.gold.withOpacity(0.7)),
+        labelStyle: TextStyle(color: AppTheme.textSecondary.withValues(alpha: 0.7)),
+        prefixIcon: Icon(ikon, color: AppTheme.gold.withValues(alpha: 0.7)),
         filled: true,
         fillColor: enabled ? AppTheme.black : AppTheme.surface,
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppTheme.gold.withOpacity(0.15))),
-        disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppTheme.gold.withOpacity(0.05))),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppTheme.gold.withValues(alpha: 0.15))),
+        disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppTheme.gold.withValues(alpha: 0.05))),
         focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppTheme.gold)),
       ),
     );

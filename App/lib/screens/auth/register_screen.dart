@@ -5,7 +5,9 @@ import '../../theme/app_theme.dart';
 import '../../widgets/altin_buton.dart';
 import '../../widgets/berber_desen.dart';
 import '../../services/auth_service.dart';
-import '../main_screen.dart';
+import '../../services/yonlendirme.dart';
+import '../../widgets/ortak.dart';
+import '../profil/yasal_dokuman_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -23,9 +25,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _sifreCtrl = TextEditingController();
   bool _loading = false;
   bool _sifreGizli = true;
+  bool _kvkkOnay = false;
+  bool _ticariIzin = false;
 
   Future<void> _kayitOl() async {
     if (!_formKey.currentState!.validate()) return;
+    if (!_kvkkOnay) {
+      bilgiGoster(context, "Devam etmek için KVKK Aydınlatma Metni'ni onaylamalısınız.", hata: true);
+      return;
+    }
     setState(() => _loading = true);
     try {
       await AuthService.kayitOl(
@@ -34,18 +42,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ad: _adCtrl.text.trim(),
         soyad: _soyadCtrl.text.trim(),
         telefon: '0${_telefonCtrl.text.trim()}',
+        kvkkOnay: _kvkkOnay,
+        ticariIletiIzni: _ticariIzin,
       );
       if (!mounted) return;
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const MainScreen()),
-        (_) => false,
-      );
+      await Yonlendirme.git(context);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Kayıt başarısız: ${e.toString()}'),
-        backgroundColor: AppTheme.error,
-      ));
+      bilgiGoster(context, 'Kayıt başarısız: ${AuthService.hataMesaji(e)}', hata: true);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -164,7 +168,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         validator: (v) =>
                             (v == null || v.length < 6) ? 'En az 6 karakter' : null),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 18),
+                    _onayKutusu(
+                      deger: _kvkkOnay,
+                      degisti: (v) => setState(() => _kvkkOnay = v),
+                      metin: "KVKK Aydınlatma Metni'ni okudum, kişisel verilerimin randevu hizmeti için "
+                          'işlenmesini kabul ediyorum. (Zorunlu)',
+                      link: () => Navigator.push(context, MaterialPageRoute(
+                          builder: (_) => const YasalDokumanScreen(
+                              baslik: 'KVKK Aydınlatma Metni', icerik: YasalDokumanScreen.kvkkMetni))),
+                    ),
+                    _onayKutusu(
+                      deger: _ticariIzin,
+                      degisti: (v) => setState(() => _ticariIzin = v),
+                      metin: 'Kampanya ve fırsatlardan haberdar olmak için ticari elektronik ileti almak '
+                          'istiyorum. (İsteğe bağlı)',
+                    ),
+                    const SizedBox(height: 24),
                     AltinButon(
                         text: 'Kayıt Ol', onPressed: _kayitOl, loading: _loading),
                   ],
@@ -175,5 +195,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ],
       ),
     );
+  }
+
+  Widget _onayKutusu({required bool deger, required ValueChanged<bool> degisti, required String metin,
+      VoidCallback? link}) {
+    return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Checkbox(
+        value: deger,
+        onChanged: (v) => degisti(v ?? false),
+        activeColor: AppTheme.gold,
+        checkColor: AppTheme.black,
+      ),
+      Expanded(
+        child: GestureDetector(
+          onTap: () => degisti(!deger),
+          child: Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(metin, style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12, height: 1.4)),
+              if (link != null)
+                GestureDetector(
+                  onTap: link,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text('Metni oku', style: GoogleFonts.inter(color: AppTheme.gold, fontSize: 12,
+                        fontWeight: FontWeight.w600, decoration: TextDecoration.underline)),
+                  ),
+                ),
+            ]),
+          ),
+        ),
+      ),
+    ]);
   }
 }

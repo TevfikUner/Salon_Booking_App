@@ -4,7 +4,8 @@ import '../../theme/app_theme.dart';
 import '../../widgets/altin_buton.dart';
 import '../../widgets/berber_desen.dart';
 import '../../services/auth_service.dart';
-import '../main_screen.dart';
+import '../../services/api_service.dart';
+import '../../services/yonlendirme.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -27,12 +28,17 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await AuthService.girisYap(_emailCtrl.text.trim(), _sifreCtrl.text);
       if (!mounted) return;
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const MainScreen()));
+      await Yonlendirme.git(context);
+    } on ApiHata catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(e.mesaj),
+        backgroundColor: AppTheme.error,
+      ));
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Giriş başarısız: ${e.toString()}'),
+        content: Text('Giriş başarısız: ${AuthService.hataMesaji(e)}'),
         backgroundColor: AppTheme.error,
       ));
     } finally {
@@ -54,7 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
               backgroundColor: AppTheme.surface,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
-                side: BorderSide(color: AppTheme.gold.withOpacity(0.3)),
+                side: BorderSide(color: AppTheme.gold.withValues(alpha: 0.3)),
               ),
               title: Text(
                 'Şifremi Unuttum',
@@ -122,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             setDialogState(() => sending = false);
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text('Hata: ${e.toString()}'),
+                                content: Text('Hata: ${AuthService.hataMesaji(e)}'),
                                 backgroundColor: AppTheme.error,
                               ),
                             );
@@ -187,7 +193,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFFC9A84C).withOpacity(0.35),
+                              color: const Color(0xFFC9A84C).withValues(alpha: 0.35),
                               blurRadius: 40,
                               spreadRadius: 8,
                             )
@@ -259,7 +265,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Text(
                           'Şifremi Unuttum',
                           style: GoogleFonts.inter(
-                            color: AppTheme.gold.withOpacity(0.8),
+                            color: AppTheme.gold.withValues(alpha: 0.8),
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
                           ),

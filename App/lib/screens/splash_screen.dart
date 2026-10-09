@@ -3,8 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../widgets/berber_desen.dart';
+import '../services/yonlendirme.dart';
+import '../widgets/ortak.dart';
 import 'auth/role_selection_screen.dart';
-import 'main_screen.dart'; // Bu importun doğruluğundan emin ol kanki
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -32,17 +33,21 @@ class _SplashScreenState extends State<SplashScreen>
     Future.delayed(const Duration(seconds: 2), _navigate);
   }
 
-  void _navigate() {
-    final user = FirebaseAuth.instance.currentUser;
-    if (!mounted) return;
+  String? _hata;
 
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => user != null 
-            ? const MainScreen() // Giriş yaptıysa direkt 4 menülü yere git
-            : const RoleSelectionScreen(), // Yapmadıysa rol seçimine git
-      ),
-    );
+  Future<void> _navigate() async {
+    if (!mounted) return;
+    setState(() => _hata = null);
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const RoleSelectionScreen()));
+      return;
+    }
+    try {
+      await Yonlendirme.git(context); // rolüne göre: müşteri / işletme paneli / onay bekleme
+    } catch (e) {
+      if (mounted) setState(() => _hata = e.toString());
+    }
   }
 
   @override
@@ -74,7 +79,7 @@ class _SplashScreenState extends State<SplashScreen>
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFFC9A84C).withOpacity(0.35),
+                            color: const Color(0xFFC9A84C).withValues(alpha: 0.35),
                             blurRadius: 48,
                             spreadRadius: 10,
                           )
@@ -108,14 +113,17 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                     ),
                     const SizedBox(height: 48),
-                    const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation(Color(0xFFC9A84C)),
-                      ),
-                    )
+                    if (_hata == null)
+                      const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation(Color(0xFFC9A84C)),
+                        ),
+                      )
+                    else
+                      SizedBox(height: 220, width: 320, child: HataGorunumu(mesaj: _hata!, onTekrar: _navigate)),
                   ],
                 ),
               ),
