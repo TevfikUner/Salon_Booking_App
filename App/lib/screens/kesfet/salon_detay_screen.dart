@@ -31,11 +31,13 @@ class _SalonDetayScreenState extends State<SalonDetayScreen> {
         ApiService.getSalonDetay(widget.salonId),
         ApiService.getIstatistik(salonId: widget.salonId),
       ]);
-      if (mounted) setState(() {
-        _salon = results[0] as Map<String, dynamic>;
-        _istatistik = results[1] as Map<String, dynamic>;
-        _yukleniyor = false;
-      });
+      if (mounted) {
+        setState(() {
+          _salon = results[0];
+          _istatistik = results[1];
+          _yukleniyor = false;
+        });
+      }
     } catch (_) {
       if (mounted) setState(() => _yukleniyor = false);
     }
@@ -136,7 +138,7 @@ class _SalonDetayScreenState extends State<SalonDetayScreen> {
                   decoration: BoxDecoration(
                     color: AppTheme.surface,
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppTheme.gold.withOpacity(0.2)),
+                    border: Border.all(color: AppTheme.gold.withValues(alpha: 0.2)),
                   ),
                   child: Column(
                     children: [
@@ -185,7 +187,7 @@ class _SalonDetayScreenState extends State<SalonDetayScreen> {
                       decoration: BoxDecoration(
                         color: AppTheme.surface,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppTheme.gold.withOpacity(0.3)),
+                        border: Border.all(color: AppTheme.gold.withValues(alpha: 0.3)),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -195,7 +197,7 @@ class _SalonDetayScreenState extends State<SalonDetayScreen> {
                           Text(_salon!['telefon'] ?? 'Telefon yok',
                               style: GoogleFonts.inter(color: AppTheme.gold, fontWeight: FontWeight.w600, fontSize: 15)),
                           const SizedBox(width: 8),
-                          Icon(Icons.copy, color: AppTheme.gold.withOpacity(0.5), size: 16),
+                          Icon(Icons.copy, color: AppTheme.gold.withValues(alpha: 0.5), size: 16),
                         ],
                       ),
                     ),
@@ -216,7 +218,7 @@ class _SalonDetayScreenState extends State<SalonDetayScreen> {
                   decoration: BoxDecoration(
                     color: AppTheme.surface,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppTheme.gold.withOpacity(0.15)),
+                    border: Border.all(color: AppTheme.gold.withValues(alpha: 0.15)),
                   ),
                   child: Column(
                     children: [
@@ -227,7 +229,7 @@ class _SalonDetayScreenState extends State<SalonDetayScreen> {
                             child: Container(
                               padding: const EdgeInsets.all(14),
                               decoration: BoxDecoration(
-                                color: AppTheme.gold.withOpacity(0.06),
+                                color: AppTheme.gold.withValues(alpha: 0.06),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Column(
@@ -249,11 +251,11 @@ class _SalonDetayScreenState extends State<SalonDetayScreen> {
                               padding: const EdgeInsets.all(14),
                               decoration: BoxDecoration(
                                 color: musaitSlot == 0
-                                    ? AppTheme.error.withOpacity(0.06)
-                                    : AppTheme.success.withOpacity(0.06),
+                                    ? AppTheme.error.withValues(alpha: 0.06)
+                                    : AppTheme.success.withValues(alpha: 0.06),
                                 borderRadius: BorderRadius.circular(12),
                                 border: musaitSlot == 0
-                                    ? Border.all(color: AppTheme.error.withOpacity(0.2))
+                                    ? Border.all(color: AppTheme.error.withValues(alpha: 0.2))
                                     : null,
                               ),
                               child: Column(
@@ -279,7 +281,7 @@ class _SalonDetayScreenState extends State<SalonDetayScreen> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: AppTheme.black.withOpacity(0.3),
+                          color: AppTheme.black.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Column(
@@ -299,7 +301,7 @@ class _SalonDetayScreenState extends State<SalonDetayScreen> {
                               borderRadius: BorderRadius.circular(6),
                               child: LinearProgressIndicator(
                                 value: toplamSlot > 0 ? (toplamSlot - musaitSlot) / toplamSlot : 0,
-                                backgroundColor: AppTheme.gold.withOpacity(0.1),
+                                backgroundColor: AppTheme.gold.withValues(alpha: 0.1),
                                 valueColor: AlwaysStoppedAnimation<Color>(
                                   musaitSlot == 0 ? AppTheme.error : AppTheme.gold,
                                 ),
@@ -344,7 +346,7 @@ class _SalonDetayScreenState extends State<SalonDetayScreen> {
                   decoration: BoxDecoration(
                     color: AppTheme.surface,
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: AppTheme.gold.withOpacity(0.1)),
+                    border: Border.all(color: AppTheme.gold.withValues(alpha: 0.1)),
                   ),
                   child: Column(
                     children: _calismaSaatleri.asMap().entries.map((e) {
@@ -354,8 +356,8 @@ class _SalonDetayScreenState extends State<SalonDetayScreen> {
                       return Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         decoration: BoxDecoration(
-                          color: bugun ? AppTheme.gold.withOpacity(0.08) : Colors.transparent,
-                          border: i < 6 ? Border(bottom: BorderSide(color: AppTheme.gold.withOpacity(0.06))) : null,
+                          color: bugun ? AppTheme.gold.withValues(alpha: 0.08) : Colors.transparent,
+                          border: i < 6 ? Border(bottom: BorderSide(color: AppTheme.gold.withValues(alpha: 0.06))) : null,
                         ),
                         child: Row(
                           children: [
@@ -429,7 +431,7 @@ class _SosyalButon extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withOpacity(0.3))),
+        decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withValues(alpha: 0.3))),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(icon, color: color, size: 20), const SizedBox(width: 8), Text(label, style: GoogleFonts.inter(color: color, fontWeight: FontWeight.w600, fontSize: 13))]),
       ),
     );
@@ -445,7 +447,7 @@ class _AksiyonButon extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(color: filled ? AppTheme.gold : AppTheme.surface, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppTheme.gold.withOpacity(0.3))),
+        decoration: BoxDecoration(color: filled ? AppTheme.gold : AppTheme.surface, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppTheme.gold.withValues(alpha: 0.3))),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(icon, color: filled ? Colors.black : AppTheme.gold, size: 20), const SizedBox(width: 8), Text(label, style: GoogleFonts.inter(color: filled ? Colors.black : AppTheme.gold, fontWeight: FontWeight.w600, fontSize: 13))]),
       ),
     );
@@ -460,10 +462,10 @@ class _BerberKart extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: AppTheme.surface, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppTheme.gold.withOpacity(0.1))),
+      decoration: BoxDecoration(color: AppTheme.surface, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppTheme.gold.withValues(alpha: 0.1))),
       child: Row(
         children: [
-          CircleAvatar(backgroundColor: AppTheme.gold.withOpacity(0.1), child: const Icon(Icons.person, color: AppTheme.gold)),
+          CircleAvatar(backgroundColor: AppTheme.gold.withValues(alpha: 0.1), child: const Icon(Icons.person, color: AppTheme.gold)),
           const SizedBox(width: 12),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text("${berber['ad']} ${berber['soyad']}", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)), Text(berber['uzmanlik'] ?? '', style: TextStyle(color: AppTheme.textSecondary, fontSize: 12))])),
           Row(children: [const Icon(Icons.star, color: AppTheme.gold, size: 16), const SizedBox(width: 4), Text(berber['puan']?.toString() ?? '0.0', style: const TextStyle(color: AppTheme.gold, fontWeight: FontWeight.bold))]),

@@ -32,7 +32,7 @@ class AltinButon extends StatelessWidget {
               ? []
               : [
                   BoxShadow(
-                    color: AppTheme.gold.withOpacity(0.3),
+                    color: AppTheme.gold.withValues(alpha: 0.3),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   )

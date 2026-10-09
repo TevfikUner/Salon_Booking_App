@@ -57,7 +57,7 @@ class _KesfetScreenState extends State<KesfetScreen> {
         return;
       }
 
-      final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      final pos = await Geolocator.getCurrentPosition(locationSettings: const LocationSettings(accuracy: LocationAccuracy.high));
       final placemarks = await placemarkFromCoordinates(pos.latitude, pos.longitude);
 
       if (placemarks.isNotEmpty && mounted) {
@@ -68,7 +68,7 @@ class _KesfetScreenState extends State<KesfetScreen> {
         // Türkiye lokasyonlarında eşleşme ara
         if (sehir != null) {
           final eslesen = TurkiyeLokasyon.sehirler.firstWhere(
-            (s) => s.toLowerCase() == sehir!.toLowerCase() || sehir!.toLowerCase().contains(s.toLowerCase()),
+            (s) => s.toLowerCase() == sehir!.toLowerCase() || sehir.toLowerCase().contains(s.toLowerCase()),
             orElse: () => '',
           );
           if (eslesen.isNotEmpty) sehir = eslesen;
@@ -143,7 +143,7 @@ class _KesfetScreenState extends State<KesfetScreen> {
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
             decoration: BoxDecoration(
               color: AppTheme.surface,
-              border: Border(bottom: BorderSide(color: AppTheme.gold.withOpacity(0.1))),
+              border: Border(bottom: BorderSide(color: AppTheme.gold.withValues(alpha: 0.1))),
             ),
             child: Column(
               children: [
@@ -157,7 +157,7 @@ class _KesfetScreenState extends State<KesfetScreen> {
                           decoration: BoxDecoration(
                             color: AppTheme.black,
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: AppTheme.gold.withOpacity(0.2)),
+                            border: Border.all(color: AppTheme.gold.withValues(alpha: 0.2)),
                           ),
                           child: Row(
                             children: [
@@ -180,7 +180,7 @@ class _KesfetScreenState extends State<KesfetScreen> {
                           decoration: BoxDecoration(
                             color: AppTheme.black,
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: _seciliSehir != null ? AppTheme.gold.withOpacity(0.2) : AppTheme.textSecondary.withOpacity(0.1)),
+                            border: Border.all(color: _seciliSehir != null ? AppTheme.gold.withValues(alpha: 0.2) : AppTheme.textSecondary.withValues(alpha: 0.1)),
                           ),
                           child: Row(
                             children: [
@@ -204,7 +204,7 @@ class _KesfetScreenState extends State<KesfetScreen> {
                         child: Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: AppTheme.error.withOpacity(0.1),
+                            color: AppTheme.error.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: const Icon(Icons.clear, color: AppTheme.error, size: 18),
@@ -221,9 +221,9 @@ class _KesfetScreenState extends State<KesfetScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     decoration: BoxDecoration(
-                      color: AppTheme.gold.withOpacity(0.1),
+                      color: AppTheme.gold.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppTheme.gold.withOpacity(0.3)),
+                      border: Border.all(color: AppTheme.gold.withValues(alpha: 0.3)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -252,11 +252,11 @@ class _KesfetScreenState extends State<KesfetScreen> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.store_outlined, color: AppTheme.gold.withOpacity(0.3), size: 72),
+                            Icon(Icons.store_outlined, color: AppTheme.gold.withValues(alpha: 0.3), size: 72),
                             const SizedBox(height: 16),
                             Text('Salon bulunamadı', style: GoogleFonts.playfairDisplay(color: AppTheme.textSecondary, fontSize: 18)),
                             const SizedBox(height: 8),
-                            Text('Filtrelerinizi değiştirmeyi deneyin', style: GoogleFonts.inter(color: AppTheme.textSecondary.withOpacity(0.6), fontSize: 13)),
+                            Text('Filtrelerinizi değiştirmeyi deneyin', style: GoogleFonts.inter(color: AppTheme.textSecondary.withValues(alpha: 0.6), fontSize: 13)),
                           ],
                         ),
                       )
@@ -304,7 +304,7 @@ class _SehirSecimSheetState extends State<_SehirSecimSheet> {
       builder: (_, ctrl) => Column(
         children: [
           const SizedBox(height: 12),
-          Container(width: 40, height: 4, decoration: BoxDecoration(color: AppTheme.textSecondary.withOpacity(0.3), borderRadius: BorderRadius.circular(2))),
+          Container(width: 40, height: 4, decoration: BoxDecoration(color: AppTheme.textSecondary.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(2))),
           Padding(
             padding: const EdgeInsets.all(16),
             child: TextField(
@@ -353,7 +353,7 @@ class _IlceSecimSheet extends StatelessWidget {
       builder: (_, ctrl) => Column(
         children: [
           const SizedBox(height: 12),
-          Container(width: 40, height: 4, decoration: BoxDecoration(color: AppTheme.textSecondary.withOpacity(0.3), borderRadius: BorderRadius.circular(2))),
+          Container(width: 40, height: 4, decoration: BoxDecoration(color: AppTheme.textSecondary.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(2))),
           const SizedBox(height: 16),
           Text('İlçe Seçin', style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
@@ -399,17 +399,17 @@ class _SalonKart extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppTheme.surface,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppTheme.gold.withOpacity(0.12)),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 10, offset: const Offset(0, 4))],
+          border: Border.all(color: AppTheme.gold.withValues(alpha: 0.12)),
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 10, offset: const Offset(0, 4))],
         ),
         child: Row(
           children: [
             Container(
               width: 60, height: 60,
               decoration: BoxDecoration(
-                color: AppTheme.gold.withOpacity(0.08),
+                color: AppTheme.gold.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppTheme.gold.withOpacity(0.2)),
+                border: Border.all(color: AppTheme.gold.withValues(alpha: 0.2)),
               ),
               child: const Icon(Icons.content_cut, color: AppTheme.gold, size: 26),
             ),
@@ -430,7 +430,7 @@ class _SalonKart extends StatelessWidget {
                   Row(children: [
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(color: AppTheme.gold.withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
+                      decoration: BoxDecoration(color: AppTheme.gold.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6)),
                       child: Row(mainAxisSize: MainAxisSize.min, children: [
                         const Icon(Icons.star, color: AppTheme.gold, size: 13),
                         const SizedBox(width: 3),
@@ -440,15 +440,15 @@ class _SalonKart extends StatelessWidget {
                     const SizedBox(width: 10),
                     if (acilis.isNotEmpty && kapanis.isNotEmpty)
                       Row(children: [
-                        Icon(Icons.access_time, color: AppTheme.textSecondary.withOpacity(0.5), size: 13),
+                        Icon(Icons.access_time, color: AppTheme.textSecondary.withValues(alpha: 0.5), size: 13),
                         const SizedBox(width: 3),
-                        Text('$acilis - $kapanis', style: GoogleFonts.inter(color: AppTheme.textSecondary.withOpacity(0.7), fontSize: 11)),
+                        Text('$acilis - $kapanis', style: GoogleFonts.inter(color: AppTheme.textSecondary.withValues(alpha: 0.7), fontSize: 11)),
                       ]),
                   ]),
                 ],
               ),
             ),
-            Icon(Icons.arrow_forward_ios, color: AppTheme.gold.withOpacity(0.4), size: 16),
+            Icon(Icons.arrow_forward_ios, color: AppTheme.gold.withValues(alpha: 0.4), size: 16),
           ],
         ),
       ),

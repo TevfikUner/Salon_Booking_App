@@ -27,7 +27,7 @@ class YasalDokumanScreen extends StatelessWidget {
         child: Text(
           icerik,
           style: GoogleFonts.inter(
-            color: Colors.white.withOpacity(0.85),
+            color: Colors.white.withValues(alpha: 0.85),
             fontSize: 14,
             height: 1.7,
           ),

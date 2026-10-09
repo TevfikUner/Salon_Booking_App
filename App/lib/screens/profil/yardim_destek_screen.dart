@@ -61,7 +61,7 @@ class _SSSTab extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppTheme.surface,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppTheme.gold.withOpacity(0.1)),
+            border: Border.all(color: AppTheme.gold.withValues(alpha: 0.1)),
           ),
           child: Theme(
             data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
@@ -124,19 +124,19 @@ class _BizeUlasinTabState extends State<_BizeUlasinTab> {
               Text('Dosya Ekle', style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               ListTile(
-                leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: AppTheme.gold.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: AppTheme.gold.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
                   child: const Icon(Icons.camera_alt, color: AppTheme.gold)),
                 title: Text('Fotoğraf Çek', style: GoogleFonts.inter(color: Colors.white)),
                 onTap: () => Navigator.pop(ctx, 'camera'),
               ),
               ListTile(
-                leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: AppTheme.gold.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: AppTheme.gold.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
                   child: const Icon(Icons.photo_library, color: AppTheme.gold)),
                 title: Text('Galeriden Seç', style: GoogleFonts.inter(color: Colors.white)),
                 onTap: () => Navigator.pop(ctx, 'gallery'),
               ),
               ListTile(
-                leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: AppTheme.gold.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: AppTheme.gold.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
                   child: const Icon(Icons.attach_file, color: AppTheme.gold)),
                 title: Text('Dosya Seç', style: GoogleFonts.inter(color: Colors.white)),
                 onTap: () => Navigator.pop(ctx, 'file'),
@@ -215,9 +215,9 @@ class _BizeUlasinTabState extends State<_BizeUlasinTab> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppTheme.gold.withOpacity(0.08),
+              color: AppTheme.gold.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppTheme.gold.withOpacity(0.2)),
+              border: Border.all(color: AppTheme.gold.withValues(alpha: 0.2)),
             ),
             child: Row(
               children: [
@@ -243,7 +243,7 @@ class _BizeUlasinTabState extends State<_BizeUlasinTab> {
             decoration: BoxDecoration(
               color: AppTheme.surface,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.gold.withOpacity(0.2)),
+              border: Border.all(color: AppTheme.gold.withValues(alpha: 0.2)),
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
@@ -277,7 +277,7 @@ class _BizeUlasinTabState extends State<_BizeUlasinTab> {
               fillColor: AppTheme.surface,
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppTheme.gold.withOpacity(0.2)),
+                borderSide: BorderSide(color: AppTheme.gold.withValues(alpha: 0.2)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -299,11 +299,11 @@ class _BizeUlasinTabState extends State<_BizeUlasinTab> {
               decoration: BoxDecoration(
                 color: AppTheme.surface,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.gold.withOpacity(0.2)),
+                border: Border.all(color: AppTheme.gold.withValues(alpha: 0.2)),
               ),
               child: Column(
                 children: [
-                  Icon(Icons.cloud_upload_outlined, color: AppTheme.gold.withOpacity(0.5), size: 32),
+                  Icon(Icons.cloud_upload_outlined, color: AppTheme.gold.withValues(alpha: 0.5), size: 32),
                   const SizedBox(height: 8),
                   Text('Fotoğraf, ekran görüntüsü veya dosya ekleyin',
                       style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
@@ -318,7 +318,7 @@ class _BizeUlasinTabState extends State<_BizeUlasinTab> {
               margin: const EdgeInsets.only(bottom: 6),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: AppTheme.gold.withOpacity(0.08),
+                color: AppTheme.gold.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Row(

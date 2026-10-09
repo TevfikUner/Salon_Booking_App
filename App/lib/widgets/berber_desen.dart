@@ -17,7 +17,7 @@ class _BerberPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppTheme.gold.withOpacity(0.055)
+      ..color = AppTheme.gold.withValues(alpha: 0.055)
       ..strokeWidth = 1.8
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;

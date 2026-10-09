@@ -117,7 +117,7 @@ class _DegerlendirmeEkraniState extends State<DegerlendirmeEkrani>
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.gold.withOpacity(0.25),
+                        color: AppTheme.gold.withValues(alpha: 0.25),
                         blurRadius: 40,
                         spreadRadius: 10,
                       )
@@ -198,7 +198,7 @@ class _DegerlendirmeEkraniState extends State<DegerlendirmeEkrani>
             height: 80,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppTheme.gold.withOpacity(0.15),
+              color: AppTheme.gold.withValues(alpha: 0.15),
             ),
             child: const Icon(Icons.check_circle, color: AppTheme.gold, size: 50),
           ),
@@ -228,7 +228,7 @@ class _DegerlendirmeEkraniState extends State<DegerlendirmeEkrani>
           width: 104,
           height: 104,
           fit: BoxFit.cover,
-          errorWidget: (_, __, ___) =>
+          errorWidget: (_, _, _) =>
               const Icon(Icons.person, color: AppTheme.gold, size: 48),
         ),
       );

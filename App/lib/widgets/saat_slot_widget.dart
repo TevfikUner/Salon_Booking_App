@@ -29,12 +29,12 @@ class SaatSlotWidget extends StatelessWidget {
     } else {
       switch (durum) {
         case SlotDurumu.musait:
-          bgColor = AppTheme.slotGreen.withOpacity(0.18);
+          bgColor = AppTheme.slotGreen.withValues(alpha: 0.18);
           textColor = AppTheme.success;
           borderColor = AppTheme.slotGreen;
           break;
         case SlotDurumu.dolu:
-          bgColor = AppTheme.slotRed.withOpacity(0.18);
+          bgColor = AppTheme.slotRed.withValues(alpha: 0.18);
           textColor = AppTheme.error;
           borderColor = AppTheme.slotRed;
           break;

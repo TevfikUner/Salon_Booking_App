@@ -42,13 +42,13 @@ class MainScreenState extends State<MainScreen> {
           color: const Color(0xFF141414),
           border: Border(
             top: BorderSide(
-              color: AppTheme.gold.withOpacity(0.15),
+              color: AppTheme.gold.withValues(alpha: 0.15),
               width: 0.5,
             ),
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withValues(alpha: 0.3),
               blurRadius: 20,
               offset: const Offset(0, -5),
             ),
@@ -125,7 +125,7 @@ class _NavItem extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isActive ? AppTheme.gold.withOpacity(0.1) : Colors.transparent,
+          color: isActive ? AppTheme.gold.withValues(alpha: 0.1) : Colors.transparent,
           borderRadius: BorderRadius.circular(14),
         ),
         child: Column(
