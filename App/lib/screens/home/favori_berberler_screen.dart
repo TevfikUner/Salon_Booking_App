@@ -113,13 +113,13 @@ class _FavoriBerberlerScreenState extends State<FavoriBerberlerScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.star_border, color: AppTheme.gold.withOpacity(0.3), size: 64),
+                      Icon(Icons.star_border, color: AppTheme.gold.withValues(alpha: 0.3), size: 64),
                       const SizedBox(height: 16),
                       Text('Henüz randevu geçmişiniz yok', style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 15)),
                       const SizedBox(height: 8),
                       Text('Randevu aldıktan sonra berberleriniz\nburada görünecektir',
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.inter(color: AppTheme.textSecondary.withOpacity(0.5), fontSize: 13)),
+                          style: GoogleFonts.inter(color: AppTheme.textSecondary.withValues(alpha: 0.5), fontSize: 13)),
                     ],
                   ),
                 )
@@ -147,7 +147,7 @@ class _FavoriBerberlerScreenState extends State<FavoriBerberlerScreen> {
                                 const SizedBox(width: 8),
                                 Text('Favorileriniz', style: GoogleFonts.inter(color: AppTheme.gold, fontSize: 13, fontWeight: FontWeight.w600)),
                                 const SizedBox(width: 8),
-                                Expanded(child: Divider(color: AppTheme.gold.withOpacity(0.2))),
+                                Expanded(child: Divider(color: AppTheme.gold.withValues(alpha: 0.2))),
                               ]),
                             ),
                           if (ayiriciGoster && !item.favoriMi)
@@ -158,24 +158,24 @@ class _FavoriBerberlerScreenState extends State<FavoriBerberlerScreen> {
                                 const SizedBox(width: 8),
                                 Text('Diğer Berberler', style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 13, fontWeight: FontWeight.w600)),
                                 const SizedBox(width: 8),
-                                Expanded(child: Divider(color: AppTheme.textSecondary.withOpacity(0.2))),
+                                Expanded(child: Divider(color: AppTheme.textSecondary.withValues(alpha: 0.2))),
                               ]),
                             ),
                           Container(
                             margin: const EdgeInsets.only(bottom: 8),
                             padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(
-                              color: item.favoriMi ? AppTheme.gold.withOpacity(0.06) : AppTheme.surface,
+                              color: item.favoriMi ? AppTheme.gold.withValues(alpha: 0.06) : AppTheme.surface,
                               borderRadius: BorderRadius.circular(14),
                               border: Border.all(
-                                color: item.favoriMi ? AppTheme.gold.withOpacity(0.3) : AppTheme.gold.withOpacity(0.1),
+                                color: item.favoriMi ? AppTheme.gold.withValues(alpha: 0.3) : AppTheme.gold.withValues(alpha: 0.1),
                               ),
                             ),
                             child: Row(
                               children: [
                                 CircleAvatar(
                                   radius: 24,
-                                  backgroundColor: AppTheme.gold.withOpacity(0.1),
+                                  backgroundColor: AppTheme.gold.withValues(alpha: 0.1),
                                   child: const Icon(Icons.person, color: AppTheme.gold, size: 22),
                                 ),
                                 const SizedBox(width: 14),
@@ -206,7 +206,7 @@ class _FavoriBerberlerScreenState extends State<FavoriBerberlerScreen> {
                                     padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color: item.favoriMi ? AppTheme.gold.withOpacity(0.2) : AppTheme.surface,
+                                      color: item.favoriMi ? AppTheme.gold.withValues(alpha: 0.2) : AppTheme.surface,
                                     ),
                                     child: Icon(
                                       item.favoriMi ? Icons.star : Icons.star_border,

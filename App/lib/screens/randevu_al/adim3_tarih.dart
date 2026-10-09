@@ -28,23 +28,22 @@ class _Adim3TarihState extends State<Adim3Tarih> {
     final provider = context.read<RandevuProvider>();
     final berberId = provider.seciliBerber?.id;
     try {
-      final data = await ApiService.getMusaitTakvim(berberId: berberId);
+      final data = await ApiService.getMusaitTakvim(berberId: berberId, salonId: provider.salonId);
       if (mounted) {
         setState(() {
           _musaitTarihler = data.map((e) => e['tarih'] as String).toSet();
           _yukleniyor = false;
         });
       }
-    } catch (_) {
-      if (mounted) setState(() => _yukleniyor = false);
+    } on ApiHata catch (e) {
+      if (mounted) {
+        setState(() => _yukleniyor = false);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.mesaj), backgroundColor: AppTheme.error));
+      }
     }
   }
 
   bool _isDayEnabled(DateTime day) {
-    // Geçmiş günler kapalı
-    if (day.isBefore(DateTime.now().subtract(const Duration(days: 1)))) {
-      return false;
-    }
     final str =
         '${day.year}-${day.month.toString().padLeft(2, '0')}-${day.day.toString().padLeft(2, '0')}';
     return _musaitTarihler.contains(str);
@@ -66,10 +65,12 @@ class _Adim3TarihState extends State<Adim3Tarih> {
   Widget build(BuildContext context) {
     final provider = context.watch<RandevuProvider>();
     final now = DateTime.now();
-    // İçinde bulunulan ayın 1'i
-    final ayBaslangic = DateTime(now.year, now.month, 1);
-    // 2 ay sonra
-    final ayBitis = DateTime(now.year, now.month + 2, 0);
+    final ayBaslangic = DateTime(now.year, now.month, now.day);
+    // Takvim, backend'in açtığı rezervasyon ufku kadar uzanır
+    final sonAcik = _musaitTarihler.isEmpty
+        ? ayBaslangic.add(const Duration(days: 30))
+        : _musaitTarihler.map(DateTime.parse).reduce((a, b) => a.isAfter(b) ? a : b);
+    final ayBitis = sonAcik.isBefore(ayBaslangic) ? ayBaslangic : sonAcik;
 
     if (_yukleniyor) {
       return const Center(
@@ -85,13 +86,13 @@ class _Adim3TarihState extends State<Adim3Tarih> {
             decoration: BoxDecoration(
               color: AppTheme.surface,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppTheme.gold.withOpacity(0.15)),
+              border: Border.all(color: AppTheme.gold.withValues(alpha: 0.15)),
             ),
             child: TableCalendar(
               locale: 'tr_TR',
               firstDay: ayBaslangic,
               lastDay: ayBitis,
-              focusedDay: _focusedDay,
+              focusedDay: _focusedDay.isAfter(ayBitis) ? ayBitis : _focusedDay,
               // Ayı değiştirince lockedDay sıfırlanmasın
               startingDayOfWeek: StartingDayOfWeek.monday,
               selectedDayPredicate: (day) =>
@@ -112,10 +113,10 @@ class _Adim3TarihState extends State<Adim3Tarih> {
               calendarStyle: CalendarStyle(
                 outsideDaysVisible: true,
                 outsideTextStyle: TextStyle(
-                    color: Colors.white.withOpacity(0.2), fontSize: 13),
+                    color: Colors.white.withValues(alpha: 0.2), fontSize: 13),
                 // Bugün
                 todayDecoration: BoxDecoration(
-                    color: AppTheme.gold.withOpacity(0.25),
+                    color: AppTheme.gold.withValues(alpha: 0.25),
                     shape: BoxShape.circle),
                 todayTextStyle:
                     const TextStyle(color: AppTheme.gold, fontWeight: FontWeight.bold),
@@ -131,10 +132,10 @@ class _Adim3TarihState extends State<Adim3Tarih> {
                     const TextStyle(color: Colors.white, fontSize: 13),
                 // Kapalı günler (soluk)
                 disabledTextStyle: TextStyle(
-                    color: Colors.white.withOpacity(0.18), fontSize: 13),
+                    color: Colors.white.withValues(alpha: 0.18), fontSize: 13),
                 disabledDecoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.03)),
+                    color: Colors.white.withValues(alpha: 0.03)),
                 // Müsait günlere altın nokta
                 markerDecoration: const BoxDecoration(
                     color: AppTheme.gold, shape: BoxShape.circle),
@@ -159,7 +160,7 @@ class _Adim3TarihState extends State<Adim3Tarih> {
                     fontSize: 12,
                     fontWeight: FontWeight.w600),
                 weekendStyle: GoogleFonts.inter(
-                    color: AppTheme.gold.withOpacity(0.7),
+                    color: AppTheme.gold.withValues(alpha: 0.7),
                     fontSize: 12,
                     fontWeight: FontWeight.w600),
               ),
@@ -179,9 +180,9 @@ class _Adim3TarihState extends State<Adim3Tarih> {
               padding:
                   const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               decoration: BoxDecoration(
-                color: AppTheme.gold.withOpacity(0.1),
+                color: AppTheme.gold.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppTheme.gold.withOpacity(0.35)),
+                border: Border.all(color: AppTheme.gold.withValues(alpha: 0.35)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -208,12 +209,12 @@ class _Adim3TarihState extends State<Adim3Tarih> {
               _LejantItem(renk: AppTheme.gold, label: 'Müsait gün'),
               const SizedBox(width: 20),
               _LejantItem(
-                  renk: Colors.white.withOpacity(0.18), label: 'Kapalı gün'),
+                  renk: Colors.white.withValues(alpha: 0.18), label: 'Kapalı gün'),
             ],
           ),
           const SizedBox(height: 8),
           Text(
-            'Tatil ve personel izin günleri otomatik olarak kapalıdır.',
+            'Salonun kapalı olduğu günler ve personel izinleri otomatik olarak kapalıdır.',
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
                 color: AppTheme.textSecondary,

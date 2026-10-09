@@ -27,7 +27,7 @@ class _Adim1HizmetState extends State<Adim1Hizmet> {
   Future<void> _yukle() async {
     setState(() { _yukleniyor = true; _hata = null; });
     try {
-      final data = await ApiService.getHizmetler();
+      final data = await ApiService.getHizmetler(salonId: context.read<RandevuProvider>().salonId);
       if (mounted) setState(() { _hizmetler = data; _yukleniyor = false; });
     } catch (e) {
       if (mounted) setState(() { _yukleniyor = false; _hata = e.toString(); });
@@ -91,11 +91,11 @@ class _Adim1HizmetState extends State<Adim1Hizmet> {
                   margin: const EdgeInsets.only(bottom: 10),
                   decoration: BoxDecoration(
                     color: secili
-                        ? AppTheme.gold.withOpacity(0.12)
+                        ? AppTheme.gold.withValues(alpha: 0.12)
                         : AppTheme.surface,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: secili ? AppTheme.gold : AppTheme.gold.withOpacity(0.15),
+                      color: secili ? AppTheme.gold : AppTheme.gold.withValues(alpha: 0.15),
                       width: secili ? 1.5 : 1,
                     ),
                   ),
@@ -169,7 +169,7 @@ class _Adim1HizmetState extends State<Adim1Hizmet> {
             decoration: BoxDecoration(
               color: AppTheme.surface,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppTheme.gold.withOpacity(0.3)),
+              border: Border.all(color: AppTheme.gold.withValues(alpha: 0.3)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

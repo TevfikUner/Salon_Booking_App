@@ -4,6 +4,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import '../../theme/app_theme.dart';
 import '../../services/api_service.dart';
 import '../../models/randevu.dart';
+import '../../widgets/ortak.dart';
 
 class RandevularimScreen extends StatefulWidget {
   const RandevularimScreen({super.key});
@@ -87,7 +88,7 @@ class _RandevularimScreenState extends State<RandevularimScreen> with SingleTick
                   fillColor: AppTheme.black,
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: AppTheme.gold.withOpacity(0.2)),
+                    borderSide: BorderSide(color: AppTheme.gold.withValues(alpha: 0.2)),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -143,7 +144,7 @@ class _RandevularimScreenState extends State<RandevularimScreen> with SingleTick
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.surface,
         title: Text('Randevu İptal', style: GoogleFonts.playfairDisplay(color: AppTheme.gold)),
-        content: Text('${r.tarih} - ${r.saat} randevunuzu iptal etmek istiyor musunuz?',
+        content: Text('${tarihUzun(r.tarih)} ${r.saat} randevunuzu iptal etmek istiyor musunuz?',
             style: const TextStyle(color: Colors.white)),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false),
@@ -155,11 +156,11 @@ class _RandevularimScreenState extends State<RandevularimScreen> with SingleTick
     );
     if (onay != true) return;
     try {
-      await ApiService.randevuSil(r.id);
+      await ApiService.randevuIptal(r.id);
+      if (mounted) bilgiGoster(context, 'Randevunuz iptal edildi.');
       _yukle();
-    } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: AppTheme.error));
+    } on ApiHata catch (e) {
+      if (mounted) bilgiGoster(context, e.mesaj, hata: true);
     }
   }
 
@@ -168,6 +169,7 @@ class _RandevularimScreenState extends State<RandevularimScreen> with SingleTick
       case 'onaylandi': return AppTheme.success;
       case 'iptal': return AppTheme.error;
       case 'tamamlandi': return AppTheme.textSecondary;
+      case 'gelmedi': return Colors.orange;
       default: return AppTheme.gold;
     }
   }
@@ -177,14 +179,16 @@ class _RandevularimScreenState extends State<RandevularimScreen> with SingleTick
       case 'onaylandi': return '✓ Onaylandı';
       case 'iptal': return '✗ İptal';
       case 'tamamlandi': return '✔ Tamamlandı';
+      case 'gelmedi': return 'Gelinmedi';
       default: return durum;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final yaklasanlar = _randevular?.where((r) => r.durum == 'onaylandi').toList() ?? [];
-    final gecmis = _randevular?.where((r) => r.durum == 'tamamlandi' || r.durum == 'iptal').toList() ?? [];
+    final yaklasanlar = (_randevular?.where((r) => r.durum == 'onaylandi').toList() ?? [])
+      ..sort((a, b) => '${a.tarih} ${a.saat}'.compareTo('${b.tarih} ${b.saat}'));
+    final gecmis = _randevular?.where((r) => r.durum != 'onaylandi').toList() ?? [];
 
     return Scaffold(
       backgroundColor: AppTheme.black,
@@ -221,7 +225,7 @@ class _RandevularimScreenState extends State<RandevularimScreen> with SingleTick
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.calendar_today_outlined, color: AppTheme.gold.withOpacity(0.3), size: 72),
+            Icon(Icons.calendar_today_outlined, color: AppTheme.gold.withValues(alpha: 0.3), size: 72),
             const SizedBox(height: 16),
             Text(bosMesaj,
                 style: GoogleFonts.playfairDisplay(color: AppTheme.textSecondary, fontSize: 18)),
@@ -243,7 +247,7 @@ class _RandevularimScreenState extends State<RandevularimScreen> with SingleTick
             decoration: BoxDecoration(
               color: AppTheme.surface,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppTheme.gold.withOpacity(0.15)),
+              border: Border.all(color: AppTheme.gold.withValues(alpha: 0.15)),
             ),
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -256,9 +260,9 @@ class _RandevularimScreenState extends State<RandevularimScreen> with SingleTick
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: _durumRenk(r.durum).withOpacity(0.15),
+                          color: _durumRenk(r.durum).withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: _durumRenk(r.durum).withOpacity(0.4)),
+                          border: Border.all(color: _durumRenk(r.durum).withValues(alpha: 0.4)),
                         ),
                         child: Text(_durumMetin(r.durum),
                             style: GoogleFonts.inter(
@@ -277,7 +281,7 @@ class _RandevularimScreenState extends State<RandevularimScreen> with SingleTick
                   Row(children: [
                     const Icon(Icons.calendar_today, color: AppTheme.gold, size: 16),
                     const SizedBox(width: 8),
-                    Text('${r.tarih}  •  ${r.saat}',
+                    Text('${tarihGoreli(r.tarih)}  •  ${r.saat}${r.bitis.isNotEmpty ? ' – ${r.bitis}' : ''}',
                         style: GoogleFonts.inter(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600)),
                   ]),
                   const SizedBox(height: 6),
@@ -306,6 +310,11 @@ class _RandevularimScreenState extends State<RandevularimScreen> with SingleTick
                     ]),
                   ],
 
+                  if (r.durum == 'iptal' && r.iptalEden == 'isletme') ...[
+                    const SizedBox(height: 8),
+                    Text('Salon tarafından iptal edildi.',
+                        style: GoogleFonts.inter(color: AppTheme.error, fontSize: 12)),
+                  ],
                   // ─── AKILLI BUTONLAR ───
                   if (r.durum == 'onaylandi') ...[
                     const SizedBox(height: 14),
@@ -314,7 +323,7 @@ class _RandevularimScreenState extends State<RandevularimScreen> with SingleTick
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppTheme.error,
-                          side: BorderSide(color: AppTheme.error.withOpacity(0.5)),
+                          side: BorderSide(color: AppTheme.error.withValues(alpha: 0.5)),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                         onPressed: () => _sil(r),
@@ -330,9 +339,9 @@ class _RandevularimScreenState extends State<RandevularimScreen> with SingleTick
                           ? Container(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          color: AppTheme.success.withOpacity(0.1),
+                          color: AppTheme.success.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: AppTheme.success.withOpacity(0.3)),
+                          border: Border.all(color: AppTheme.success.withValues(alpha: 0.3)),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,

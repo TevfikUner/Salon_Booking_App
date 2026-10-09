@@ -20,6 +20,7 @@ class RandevuProvider extends ChangeNotifier {
     } else {
       seciliHizmetler.add(h);
     }
+    seciliSaat = null; // süre değişti, seçili saat artık uygun olmayabilir
     notifyListeners();
   }
 
@@ -32,6 +33,10 @@ class RandevuProvider extends ChangeNotifier {
   Berber? seciliBerber;
 
   void berberSec(Berber b) {
+    if (seciliBerber?.id != b.id) {
+      seciliTarih = null; // berber değişince izin günleri değişebilir
+      seciliSaat = null;
+    }
     seciliBerber = b;
     notifyListeners();
   }
@@ -51,6 +56,17 @@ class RandevuProvider extends ChangeNotifier {
   void saatSec(String s) {
     seciliSaat = s;
     notifyListeners();
+  }
+
+  /// Yeni bir randevu akışı başlarken önceki (yarım kalmış) seçimleri temizler.
+  void baslat({int? salon, Berber? berber}) {
+    salonId = salon;
+    seciliHizmetler.clear();
+    seciliBerber = berber;
+    seciliTarih = null;
+    seciliSaat = null;
+    // notifyListeners yok: akış ekranının initState'inde (build sırasında) çağrılır,
+    // adım ekranları zaten bu değerlerle ilk kez oluşturulur.
   }
 
   // ── Son onaydan sonra sıfırla ─────────────────────────────

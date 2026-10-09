@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/berber_desen.dart';
-import '../main_screen.dart'; // BURASI GÜNCELLENDİ: Ana çatıya yönlendirme için
+import '../../widgets/ortak.dart';
+import '../main_screen.dart';
 
 class OnaySayfasi extends StatefulWidget {
   final String tarih;
   final String saat;
   final String berber;
+  final String? salonAd;
+  final String? bitis;
   final List<String> hizmetler;
   final double toplamFiyat;
   final String randevuId;
@@ -17,6 +20,8 @@ class OnaySayfasi extends StatefulWidget {
     required this.tarih,
     required this.saat,
     required this.berber,
+    this.salonAd,
+    this.bitis,
     required this.hizmetler,
     required this.toplamFiyat,
     required this.randevuId,
@@ -73,7 +78,7 @@ class _OnaySayfasiState extends State<OnaySayfasi>
                         gradient: AppTheme.goldGradient,
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.gold.withOpacity(0.5),
+                            color: AppTheme.gold.withValues(alpha: 0.5),
                             blurRadius: 40,
                             spreadRadius: 4,
                           )
@@ -107,18 +112,23 @@ class _OnaySayfasiState extends State<OnaySayfasi>
                             color: AppTheme.surface,
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                                color: AppTheme.gold.withOpacity(0.2)),
+                                color: AppTheme.gold.withValues(alpha: 0.2)),
                           ),
                           child: Column(
                             children: [
+                              if (widget.salonAd != null)
+                                _DetaySatir(
+                                    icon: Icons.storefront,
+                                    label: 'Salon',
+                                    value: widget.salonAd!),
                               _DetaySatir(
                                   icon: Icons.calendar_today,
                                   label: 'Tarih',
-                                  value: widget.tarih),
+                                  value: tarihUzun(widget.tarih, yil: true)),
                               _DetaySatir(
                                   icon: Icons.access_time,
                                   label: 'Saat',
-                                  value: widget.saat),
+                                  value: widget.bitis == null ? widget.saat : '${widget.saat} – ${widget.bitis}'),
                               _DetaySatir(
                                   icon: Icons.person,
                                   label: 'Personel',
@@ -128,7 +138,7 @@ class _OnaySayfasiState extends State<OnaySayfasi>
                                   label: 'Hizmetler',
                                   value: widget.hizmetler.join(', ')),
                               Divider(
-                                  color: AppTheme.gold.withOpacity(0.15),
+                                  color: AppTheme.gold.withValues(alpha: 0.15),
                                   height: 24),
                               Row(
                                 mainAxisAlignment:

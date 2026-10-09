@@ -84,7 +84,7 @@ class _Adim5FormState extends State<Adim5Form> {
       );
 
       final List<String> hizmetAdlari = provider.seciliHizmetler.map((h) => h.ad).toList();
-      final double toplamFiyat = provider.toplamFiyat;
+      final double toplamFiyat = (sonuc['toplam_fiyat'] as num?)?.toDouble() ?? provider.toplamFiyat;
       final String berberTamAd = "${berber.ad} ${berber.soyad}";
 
       provider.reset(); 
@@ -97,6 +97,8 @@ class _Adim5FormState extends State<Adim5Form> {
             tarih: tarihStr,
             saat: saat,
             berber: berberTamAd,
+            salonAd: sonuc['salon_ad']?.toString(),
+            bitis: sonuc['bitis']?.toString(),
             hizmetler: hizmetAdlari,
             toplamFiyat: toplamFiyat,
             randevuId: sonuc['randevu_id']?.toString() ?? '',
@@ -105,6 +107,14 @@ class _Adim5FormState extends State<Adim5Form> {
         (route) => route.isFirst,
       );
 
+    } on ApiHata catch (e) {
+      if (!mounted) return;
+      final oneri = e.oneriler.isEmpty ? '' : '\nUygun saatler: ${e.oneriler.take(4).join(', ')}';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('${e.mesaj}$oneri'),
+        backgroundColor: AppTheme.error,
+        duration: const Duration(seconds: 6),
+      ));
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -143,7 +153,7 @@ class _Adim5FormState extends State<Adim5Form> {
               decoration: BoxDecoration(
                 color: AppTheme.surface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppTheme.gold.withOpacity(0.2)),
+                border: Border.all(color: AppTheme.gold.withValues(alpha: 0.2)),
               ),
               child: Column(
                 children: [
@@ -151,7 +161,7 @@ class _Adim5FormState extends State<Adim5Form> {
                   _OzetSatir(Icons.calendar_today, 'Tarih', provider.seciliTarih == null ? '-' : '${provider.seciliTarih!.day}.${provider.seciliTarih!.month}.${provider.seciliTarih!.year}'),
                   _OzetSatir(Icons.access_time, 'Saat', provider.seciliSaat ?? '-'),
                   _OzetSatir(Icons.content_cut, 'Hizmetler', provider.seciliHizmetler.map((h) => h.ad).join(', ')),
-                  Divider(color: AppTheme.gold.withOpacity(0.15)),
+                  Divider(color: AppTheme.gold.withValues(alpha: 0.15)),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

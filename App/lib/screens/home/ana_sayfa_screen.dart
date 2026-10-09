@@ -6,6 +6,7 @@ import '../../services/api_service.dart';
 import '../../models/berber.dart';
 import '../../models/randevu.dart';
 import '../randevu_al/randevu_flow.dart';
+import '../../widgets/her_zamanki_karti.dart';
 import 'favori_berberler_screen.dart';
 
 /// Ana Sayfa — Selamlama, Favori Berberler, Yaklaşan Randevu, Hızlı İşlemler
@@ -21,6 +22,7 @@ class _AnaSayfaScreenState extends State<AnaSayfaScreen> {
   Map<String, dynamic>? _profil;
   List<Map<String, dynamic>> _favoriler = [];
   List<Randevu> _yaklasanlar = [];
+  Map<String, dynamic>? _herZamanki;
   bool _yukleniyor = true;
 
   @override
@@ -35,6 +37,7 @@ class _AnaSayfaScreenState extends State<AnaSayfaScreen> {
         ApiService.profilGetir(),
         ApiService.favorileriGetir(),
         ApiService.getRandevularim(),
+        ApiService.herZamanki().catchError((_) => null),
       ]);
 
       if (mounted) {
@@ -49,6 +52,7 @@ class _AnaSayfaScreenState extends State<AnaSayfaScreen> {
           _profil = results[0] as Map<String, dynamic>?;
           _favoriler = results[1] as List<Map<String, dynamic>>;
           _yaklasanlar = yaklasan.take(3).toList();
+          _herZamanki = results[3] as Map<String, dynamic>?;
           _yukleniyor = false;
         });
       }
@@ -86,7 +90,7 @@ class _AnaSayfaScreenState extends State<AnaSayfaScreen> {
               Container(
                 width: 40, height: 4,
                 decoration: BoxDecoration(
-                  color: AppTheme.textSecondary.withOpacity(0.3),
+                  color: AppTheme.textSecondary.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -168,6 +172,9 @@ class _AnaSayfaScreenState extends State<AnaSayfaScreen> {
                   ),
                 ),
 
+                if (_yukleniyor)
+                  const SliverToBoxAdapter(child: LinearProgressIndicator(color: AppTheme.gold, minHeight: 2)),
+
                 // ── Selamlama Mesajı ────────────────────────
                 SliverToBoxAdapter(
                   child: Padding(
@@ -203,6 +210,15 @@ class _AnaSayfaScreenState extends State<AnaSayfaScreen> {
                   ),
                 ),
 
+                // ── İmza özellik: Her Zamanki ───────────────
+                if (_herZamanki != null)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                      child: HerZamankiKarti(veri: _herZamanki!, onDegisti: _yukle),
+                    ),
+                  ),
+
                 // ── Randevu Al Butonu ───────────────────────
                 SliverToBoxAdapter(
                   child: Padding(
@@ -217,7 +233,7 @@ class _AnaSayfaScreenState extends State<AnaSayfaScreen> {
                           borderRadius: BorderRadius.circular(18),
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.gold.withOpacity(0.35),
+                              color: AppTheme.gold.withValues(alpha: 0.35),
                               blurRadius: 20, offset: const Offset(0, 6),
                             ),
                           ],
@@ -261,7 +277,7 @@ class _AnaSayfaScreenState extends State<AnaSayfaScreen> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                     decoration: BoxDecoration(
-                      border: Border.all(color: AppTheme.gold.withOpacity(0.3)),
+                      border: Border.all(color: AppTheme.gold.withValues(alpha: 0.3)),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text('Düzenle', style: GoogleFonts.inter(color: AppTheme.gold, fontSize: 11, fontWeight: FontWeight.w600)),
@@ -278,21 +294,21 @@ class _AnaSayfaScreenState extends State<AnaSayfaScreen> {
                               decoration: BoxDecoration(
                                 color: AppTheme.surface,
                                 borderRadius: BorderRadius.circular(14),
-                                border: Border.all(color: AppTheme.gold.withOpacity(0.1)),
+                                border: Border.all(color: AppTheme.gold.withValues(alpha: 0.1)),
                               ),
                               child: Row(
                                 children: [
                                   Container(
                                     width: 46, height: 46,
-                                    decoration: BoxDecoration(shape: BoxShape.circle, color: AppTheme.gold.withOpacity(0.08)),
-                                    child: Icon(Icons.explore_outlined, color: AppTheme.gold.withOpacity(0.5), size: 22),
+                                    decoration: BoxDecoration(shape: BoxShape.circle, color: AppTheme.gold.withValues(alpha: 0.08)),
+                                    child: Icon(Icons.explore_outlined, color: AppTheme.gold.withValues(alpha: 0.5), size: 22),
                                   ),
                                   const SizedBox(width: 14),
                                   Expanded(
                                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                                       Text('Henüz favori berberiniz yok', style: GoogleFonts.inter(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500)),
                                       const SizedBox(height: 2),
-                                      Text('Salon keşfedin ve randevu alın', style: GoogleFonts.inter(color: AppTheme.textSecondary.withOpacity(0.5), fontSize: 11)),
+                                      Text('Salon keşfedin ve randevu alın', style: GoogleFonts.inter(color: AppTheme.textSecondary.withValues(alpha: 0.5), fontSize: 11)),
                                     ]),
                                   ),
                                   const Icon(Icons.arrow_forward_ios, color: AppTheme.gold, size: 16),
@@ -362,9 +378,9 @@ class _AnaSayfaScreenState extends State<AnaSayfaScreen> {
                     margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
                     padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: [AppTheme.gold.withOpacity(0.08), AppTheme.gold.withOpacity(0.02)]),
+                      gradient: LinearGradient(colors: [AppTheme.gold.withValues(alpha: 0.08), AppTheme.gold.withValues(alpha: 0.02)]),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppTheme.gold.withOpacity(0.15)),
+                      border: Border.all(color: AppTheme.gold.withValues(alpha: 0.15)),
                     ),
                     child: Row(
                       children: [
@@ -372,7 +388,7 @@ class _AnaSayfaScreenState extends State<AnaSayfaScreen> {
                           width: 48, height: 48,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: AppTheme.gold.withOpacity(0.1),
+                            color: AppTheme.gold.withValues(alpha: 0.1),
                           ),
                           child: const Icon(Icons.info_outline, color: AppTheme.gold, size: 24),
                         ),
@@ -413,7 +429,7 @@ class _AnaSayfaScreenState extends State<AnaSayfaScreen> {
           Icon(icon, color: AppTheme.gold, size: 20),
           const SizedBox(width: 8),
           Expanded(child: Text(title, style: GoogleFonts.playfairDisplay(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold))),
-          if (trailing != null) trailing,
+          ?trailing,
         ],
       ),
     );
@@ -436,7 +452,7 @@ class _YaklasanRandevuKart extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppTheme.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.gold.withOpacity(0.2)),
+        border: Border.all(color: AppTheme.gold.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -445,7 +461,7 @@ class _YaklasanRandevuKart extends StatelessWidget {
           Row(children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(color: AppTheme.gold.withOpacity(0.15), borderRadius: BorderRadius.circular(8)),
+              decoration: BoxDecoration(color: AppTheme.gold.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
               child: Text(randevu.saat, style: GoogleFonts.inter(color: AppTheme.gold, fontSize: 13, fontWeight: FontWeight.bold)),
             ),
             const SizedBox(width: 8),
@@ -487,14 +503,14 @@ class _FavoriBerberChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppTheme.surface,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppTheme.gold.withOpacity(0.2)),
+          border: Border.all(color: AppTheme.gold.withValues(alpha: 0.2)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             CircleAvatar(
               radius: 22,
-              backgroundColor: AppTheme.gold.withOpacity(0.1),
+              backgroundColor: AppTheme.gold.withValues(alpha: 0.1),
               child: const Icon(Icons.person, color: AppTheme.gold, size: 22),
             ),
             const SizedBox(height: 8),
@@ -533,7 +549,7 @@ class _HizliIslemKart extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppTheme.surface,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppTheme.gold.withOpacity(0.15)),
+          border: Border.all(color: AppTheme.gold.withValues(alpha: 0.15)),
         ),
         child: Column(
           children: [
@@ -565,12 +581,12 @@ class _BottomSheetTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppTheme.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.gold.withOpacity(0.1)),
+        border: Border.all(color: AppTheme.gold.withValues(alpha: 0.1)),
       ),
       child: ListTile(
         leading: Container(
           width: 44, height: 44,
-          decoration: BoxDecoration(shape: BoxShape.circle, color: AppTheme.gold.withOpacity(0.08)),
+          decoration: BoxDecoration(shape: BoxShape.circle, color: AppTheme.gold.withValues(alpha: 0.08)),
           child: Icon(icon, color: AppTheme.gold, size: 22),
         ),
         title: Text(title, style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14)),
@@ -596,13 +612,13 @@ class _FavoriSecimTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppTheme.gold.withOpacity(0.06),
+        color: AppTheme.gold.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.gold.withOpacity(0.15)),
+        border: Border.all(color: AppTheme.gold.withValues(alpha: 0.15)),
       ),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: AppTheme.gold.withOpacity(0.15),
+          backgroundColor: AppTheme.gold.withValues(alpha: 0.15),
           child: const Icon(Icons.person, color: AppTheme.gold, size: 20),
         ),
         title: Text(fav['berber_ad'] ?? '', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14)),

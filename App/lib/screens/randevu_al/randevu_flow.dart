@@ -47,17 +47,8 @@ class _RandevuFlowState extends State<RandevuFlow> {
     _currentStep = 0;
     _pageCtrl = PageController();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = context.read<RandevuProvider>();
-      // Salon ID'yi provider'a set et
-      if (widget.salonId != null) {
-        provider.salonSec(widget.salonId!);
-      }
-      // Favori berber varsa otomatik seç
-      if (widget.favoriBerber != null) {
-        provider.berberSec(widget.favoriBerber!);
-      }
-    });
+    // Önceki yarım kalmış akışın seçimleri yeni salona taşınmasın.
+    context.read<RandevuProvider>().baslat(salon: widget.salonId, berber: widget.favoriBerber);
   }
 
   int get _totalSteps => _stepBasliklari.length;
