@@ -1,190 +1,187 @@
-/// Uygulama içi yasal metinler (taslak — hukuki kontrol gerekir, bkz. BENDEN_GEREKENLER).
+// OTOMATİK ÜRETİLDİ — elle düzenlemeyin. Kaynak: backend/yasal/*.md
+// Güncellemek için: python scripts/yasal_senkron.py
+import 'package:berber_app_ui/core/config.dart';
+
 class YasalMetin {
   final String baslik;
-  final String icerik;
-  const YasalMetin(this.baslik, this.icerik);
+  final String _ham;
+
+  /// Web'deki aynı belgenin adresi (Play Console ve tarayıcı için).
+  final String yol;
+  const YasalMetin(this.baslik, this._ham, this.yol);
+
+  String get icerik => _ham
+      .replaceAll('{DESTEK_EPOSTA}', AppConfig.destekEposta)
+      .replaceAll('{HESAP_SILME_URL}', AppConfig.hesapSilmeUrl)
+      .replaceAll('{KVKK_URL}', '${AppConfig.baseUrl}/yasal/kvkk');
+
+  String get webAdresi => '${AppConfig.baseUrl}/yasal/$yol';
 }
 
 class YasalMetinler {
   YasalMetinler._();
 
-  static const gizlilik = YasalMetin('Gizlilik Politikası', _gizlilik);
-  static const kvkk = YasalMetin('KVKK Aydınlatma Metni', _kvkk);
-  static const kullanim = YasalMetin('Kullanım Koşulları', _kullanim);
+  static const gizlilik = YasalMetin('Gizlilik Politikası', _gizlilik, 'gizlilik');
+  static const kvkk = YasalMetin('KVKK Aydınlatma Metni', _kvkk, 'kvkk');
+  static const kullanim = YasalMetin('Kullanım Koşulları', _kullanim, 'kullanim');
 
-  static const String _gizlilik = '''
-GİZLİLİK POLİTİKASI
+  static const String _gizlilik = r'''
+Son güncelleme: 10.10.2026
 
-Son Güncelleme: 01.05.2026
+Bu politika, Premium Berber mobil uygulamasının (“Uygulama”) hangi kişisel verileri neden topladığını, kimlerle paylaştığını, ne kadar sakladığını ve haklarınızı açıklar. Uygulamayı kullanarak bu politikayı okuduğunuzu kabul edersiniz.
 
-Premium Berber uygulaması olarak, kullanıcılarımızın gizliliğine büyük önem veriyoruz. Bu gizlilik politikası, kişisel verilerinizin nasıl toplandığını, kullanıldığını ve korunduğunu açıklamaktadır.
+1. TOPLADIĞIMIZ VERİLER
 
-1. TOPLANAN BİLGİLER
+Hesap bilgileri: ad, soyad, cep telefonu, e-posta adresi. Şifreniz bizim sunucularımıza gelmez; Google Firebase Authentication tarafından şifrelenmiş olarak saklanır.
 
-1.1 Kişisel Bilgiler
-• Ad ve soyad
-• Telefon numarası
-• E-posta adresi
-• Profil fotoğrafı (isteğe bağlı)
+Randevu bilgileri: seçtiğiniz salon, personel, hizmetler, tarih ve saat, ücret, randevu durumu (onaylandı, tamamlandı, iptal, gelinmedi), bekleme listesi kayıtları, favori berberleriniz, verdiğiniz puan ve yorumlar.
 
-1.2 Kullanım Verileri
-• Randevu geçmişi
-• Favori berber seçimleri
-• Değerlendirme ve yorumlar
+Konum: yalnızca “Konumuma Yakın Salonlar” düğmesine bastığınızda ve izin verdiğinizde, cihazınızın yaklaşık konumu salonları mesafeye göre sıralamak için bir kez kullanılır. Konumunuz sunucularımızda saklanmaz.
 
-1.3 Konum Verileri
-• Yakındaki berberleri bulmak amacıyla cihazınızın konumu (yalnızca izin verdiğinizde)
+Cihaz ve bildirim: randevu hatırlatması ve bildirim göndermek için cihazınıza ait bildirim anahtarı (Firebase Cloud Messaging token).
 
-2. VERİLERİN KULLANIM AMACI
+Uygulama kararlılığı ve kullanım istatistikleri: uygulama çöktüğünde cihaz modeli, işletim sistemi sürümü ve hata ayrıntısı (Firebase Crashlytics); kayıt, randevu oluşturma ve iptal gibi temel olaylar (Firebase Analytics). Bu veriler adınız, e-postanız veya telefonunuzla eşleştirilmez; reklam kimliği toplanmaz.
 
-Toplanan veriler aşağıdaki amaçlarla kullanılmaktadır:
-• Randevu oluşturma ve yönetme
-• Kullanıcı hesabı oluşturma ve doğrulama
-• Hizmet kalitesinin artırılması
-• Bildirim gönderme (randevu hatırlatma vb.)
-• Konum bazlı berber önerme
+Destek talepleri: “Bize Ulaşın” ile gönderdiğiniz e-posta, mesaj ve ekler.
 
-3. VERİ GÜVENLİĞİ
+2. VERİLERİ HANGİ AMAÇLA İŞLİYORUZ
 
-Kişisel verileriniz, endüstri standardı güvenlik önlemleriyle korunmaktadır:
-• SSL/TLS şifreleme
-• Firebase Authentication ile güvenli kimlik doğrulama
-• Düzenli güvenlik denetimleri
+• Hesabınızı oluşturmak ve oturumunuzu doğrulamak
+• Randevu almanızı, iptal etmenizi ve randevularınızı görüntülemenizi sağlamak
+• Randevu onayı, hatırlatma, iptal ve değerlendirme bildirimleri göndermek
+• Seçtiğiniz salonun randevunuzu yönetebilmesi
+• Uygulama hatalarını tespit edip düzeltmek, hizmet kalitesini ölçmek
+• Yasal yükümlülükleri yerine getirmek
 
-4. VERİ PAYLAŞIMI
+Ticari elektronik ileti (kampanya bildirimi) yalnızca kayıt sırasında ayrıca onay verirseniz gönderilir; bu onayı istediğiniz zaman geri alabilirsiniz.
 
-Kişisel verileriniz üçüncü taraflarla paylaşılmaz. Yalnızca:
-• Yasal zorunluluk durumlarında yetkili makamlarla
-• Hizmet sağlayıcılarımızla (Firebase, sunucu hizmetleri) teknik gereksinimler doğrultusunda paylaşılır.
+3. SALONLARLA PAYLAŞIM VE GÜVEN SKORU
 
-5. KULLANICI HAKLARI
+Randevu aldığınızda adınız, telefon numaranız, randevu ayrıntılarınız ve notlarınız, seçtiğiniz salonla paylaşılır. Bu paylaşım randevunun yerine getirilebilmesi için gereklidir ve sizin talebinizle yapılır.
 
-Kullanıcılar aşağıdaki haklara sahiptir:
-• Verilerine erişim talep etme
-• Verilerinin düzeltilmesini isteme
-• Verilerinin silinmesini talep etme
-• Veri işlenmesine itiraz etme
+Salonlar, randevuları planlayabilmek için müşterinin geçmiş randevularından otomatik hesaplanan bir güven skorunu (tamamlanan, gelinmeyen ve randevuya kısa süre kala iptal edilen randevu sayıları) görür. Skor yalnızca randevu aldığınız salonlara gösterilir; sizin hakkınızda başka bir karar verilmesi için kullanılmaz. Gelinmedi olarak işaretlenen bir randevuya itiraz etmek için bizimle iletişime geçebilirsiniz.
 
-6. İLETİŞİM
+4. HİZMET SAĞLAYICILAR (VERİ İŞLEYENLER)
 
-Gizlilik politikamız hakkında sorularınız için:
-E-posta: premiumbarber@gmail.com
+• Google Firebase (Authentication, Cloud Messaging, Crashlytics, Analytics) — kimlik doğrulama, bildirim, hata ve kullanım istatistikleri
+• Render — uygulama sunucusu ve veritabanı (Avrupa Birliği / Frankfurt bölgesi)
+
+Bu sağlayıcılar verileri yalnızca bizim adımıza ve hizmet sunmak amacıyla işler. Verileriniz bunlar dışında hiçbir üçüncü tarafa satılmaz, kiralanmaz veya reklam amacıyla paylaşılmaz. Yasal zorunluluk hâlinde yetkili makamlarla paylaşılabilir.
+
+5. GÜVENLİK
+
+Uygulama ile sunucu arasındaki tüm iletişim HTTPS (TLS) ile şifrelenir. Sunucuya yapılan her istek Firebase oturum anahtarıyla doğrulanır; her kullanıcı yalnızca kendi verisine, her salon yalnızca kendi randevularına erişebilir.
+
+6. SAKLAMA SÜRESİ
+
+Hesabınız aktif olduğu sürece verileriniz saklanır. Hesabınızı sildiğinizde ad, soyad, telefon, bildirim anahtarı ve yorum metinleriniz silinir, gelecekteki randevularınız iptal edilir. Salonların muhasebe kayıtları için geçmiş randevular kimliğinizle ilişkilendirilemeyecek şekilde (anonim) kalır. Sunucu kayıtları en fazla 30 gün tutulur.
+
+7. HESAP VE VERİ SİLME
+
+• Uygulamadan: Profil → Hesap → Hesabımı Sil
+• Uygulamaya erişemiyorsanız: {HESAP_SILME_URL} adresindeki formdan talep gönderebilirsiniz. Talepler en geç 30 gün içinde sonuçlandırılır.
+
+8. HAKLARINIZ
+
+6698 sayılı KVKK'nın 11. maddesi kapsamındaki haklarınız için KVKK Aydınlatma Metni ({KVKK_URL})'ne bakınız. Verilerinize erişim, düzeltme veya silme talepleriniz için bize yazabilirsiniz.
+
+9. ÇOCUKLAR
+
+Uygulama 13 yaşından küçük çocuklara yönelik değildir ve bilerek bu yaştaki çocuklardan veri toplamaz.
+
+10. İLETİŞİM
+
+E-posta: {DESTEK_EPOSTA}
+
+Bu politika değişirse güncel sürüm bu sayfada yayımlanır ve önemli değişiklikler uygulama içinden duyurulur.
 ''';
 
-  // ─── KVKK Aydınlatma Metni ─────────────────
-  static const String _kvkk = '''
-KİŞİSEL VERİLERİN KORUNMASI KANUNU (KVKK) AYDINLATMA METNİ
+  static const String _kvkk = r'''
+Son güncelleme: 10.10.2026
 
-Son Güncelleme: 01.05.2026
-
-6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") kapsamında, Premium Berber olarak kişisel verilerinizin korunmasına büyük önem vermekteyiz.
+6698 sayılı Kişisel Verilerin Korunması Kanunu (“KVKK”) uyarınca, Premium Berber uygulamasında kişisel verilerinizin işlenmesine ilişkin sizi bilgilendiririz.
 
 1. VERİ SORUMLUSU
 
-Premium Berber uygulaması olarak, kişisel verilerinizin işlenmesinde veri sorumlusu sıfatıyla hareket etmekteyiz.
+Premium Berber uygulaması işletmecisi (“Premium Berber”). İletişim: {DESTEK_EPOSTA}
 
-2. KİŞİSEL VERİLERİN İŞLENME AMACI
+2. İŞLENEN KİŞİSEL VERİLER
 
-Kişisel verileriniz aşağıdaki amaçlarla işlenmektedir:
-• Üyelik kaydı oluşturulması ve yönetimi
-• Randevu hizmetlerinin sunulması
-• Müşteri memnuniyetinin ölçülmesi (değerlendirme sistemi)
-• İletişim faaliyetlerinin yürütülmesi
-• Bilgi güvenliği süreçlerinin yönetimi
-• Hukuki yükümlülüklerin yerine getirilmesi
+• Kimlik ve iletişim: ad, soyad, cep telefonu, e-posta
+• Müşteri işlem: randevu, hizmet, ücret, bekleme listesi, favori, puan ve yorum bilgileri; randevu geçmişinden hesaplanan güven skoru
+• İşlem güvenliği: oturum anahtarı, bildirim anahtarı, sunucu erişim kayıtları, uygulama hata kayıtları
+• Konum: yalnızca talep ettiğinizde yaklaşık konum (saklanmaz)
+• Pazarlama: yalnızca açık rızanız varsa ticari elektronik ileti izni
 
-3. KİŞİSEL VERİLERİN AKTARILMASI
+3. İŞLEME AMAÇLARI
 
-Toplanan kişisel verileriniz, KVKK'nın 8. ve 9. maddesinde belirtilen şartlara uygun olarak:
-• İlgili kamu kurum ve kuruluşlarına
-• İş ortaklarımıza (bulut hizmet sağlayıcıları)
-aktarılabilmektedir.
+Üyelik oluşturulması ve yönetimi; randevu hizmetinin sunulması ve seçtiğiniz salonun randevuyu yerine getirebilmesi; randevu hatırlatma ve bilgilendirme bildirimleri; hizmet kalitesinin ölçülmesi (değerlendirme); bilgi güvenliği ve hata tespiti; hukuki yükümlülüklerin yerine getirilmesi; açık rızanız varsa kampanya bildirimleri.
 
-4. KİŞİSEL VERİLERİN TOPLANMA YÖNTEMİ VE HUKUKİ SEBEBİ
+4. HUKUKİ SEBEPLER
 
-Kişisel verileriniz;
-• Mobil uygulama üzerinden elektronik ortamda
-• Açık rıza
-• Sözleşmenin ifası
-• Meşru menfaat
-hukuki sebeplerine dayanılarak toplanmaktadır.
+• Bir sözleşmenin kurulması veya ifası için gerekli olması (KVKK m.5/2-c): hesap ve randevu işlemleri
+• Veri sorumlusunun hukuki yükümlülüğü (m.5/2-ç)
+• Meşru menfaat (m.5/2-f): bilgi güvenliği, hata tespiti, salonun randevuyu planlayabilmesi için güven skoru
+• Açık rıza (m.5/1): ticari elektronik ileti
 
-5. KVKK KAPSAMINDA HAKLARINIZ
+5. AKTARIM
 
-KVKK'nın 11. maddesi uyarınca aşağıdaki haklara sahipsiniz:
-a) Kişisel verilerinizin işlenip işlenmediğini öğrenme
-b) İşlenmişse buna ilişkin bilgi talep etme
-c) İşlenme amacını ve amacına uygun kullanılıp kullanılmadığını öğrenme
-d) Aktarıldığı üçüncü kişileri bilme
-e) Eksik veya yanlış işlenmiş olması hâlinde düzeltilmesini isteme
-f) KVKK'nın 7. maddesinde öngörülen şartlar çerçevesinde silinmesini isteme
-g) Aktarıldığı üçüncü kişilere bildirilmesini isteme
-h) İşlenen verilerin münhasıran otomatik sistemler vasıtasıyla analiz edilmesi suretiyle aleyhinize bir sonucun ortaya çıkmasına itiraz etme
-ı) Kanuna aykırı olarak işlenmesi sebebiyle zarara uğramanız hâlinde zararın giderilmesini talep etme
+Randevu bilgileriniz, talebiniz üzerine seçtiğiniz salona aktarılır. Hizmet sağlayıcılarımız Google Firebase (kimlik doğrulama, bildirim, hata ve kullanım istatistikleri) ve Render (sunucu ve veritabanı) ile, yalnızca hizmetin sunulması amacıyla paylaşılır. Bu sağlayıcıların sunucuları yurt dışında (Avrupa Birliği ve ABD) bulunabileceğinden aktarım KVKK m.9 kapsamında gerçekleştirilir. Yasal zorunluluk hâlinde yetkili kamu kurumlarına aktarılabilir.
 
-6. BAŞVURU
+6. TOPLAMA YÖNTEMİ
 
-Haklarınıza ilişkin taleplerinizi premiumbarber@gmail.com adresine iletebilirsiniz.
+Veriler mobil uygulama üzerinden elektronik ortamda, sizin girdiğiniz bilgilerden ve uygulamayı kullanımınızdan otomatik olarak toplanır.
+
+7. HAKLARINIZ (KVKK M.11)
+
+Kişisel verilerinizin işlenip işlenmediğini öğrenme; işlenmişse bilgi talep etme; işlenme amacını ve amacına uygun kullanılıp kullanılmadığını öğrenme; aktarıldığı üçüncü kişileri bilme; eksik veya yanlış işlenmişse düzeltilmesini, KVKK m.7 çerçevesinde silinmesini ve bu işlemlerin aktarıldığı kişilere bildirilmesini isteme; münhasıran otomatik sistemlerle analiz edilmesi sonucu aleyhinize bir sonuca itiraz etme; kanuna aykırı işleme sebebiyle zarara uğramanız hâlinde zararın giderilmesini talep etme.
+
+8. BAŞVURU
+
+Taleplerinizi {DESTEK_EPOSTA} adresine iletebilirsiniz. Başvurular en geç 30 gün içinde ücretsiz olarak sonuçlandırılır. Hesap silme için uygulamada Profil → Hesabımı Sil adımını veya {HESAP_SILME_URL} formunu kullanabilirsiniz.
 ''';
 
-  // ─── Kullanım Koşulları ────────────────────
-  static const String _kullanim = '''
-KULLANIM KOŞULLARI
+  static const String _kullanim = r'''
+Son güncelleme: 10.10.2026
 
-Son Güncelleme: 01.05.2026
+Premium Berber uygulamasını kullanarak aşağıdaki koşulları kabul etmiş olursunuz.
 
-Premium Berber uygulamasını kullanarak aşağıdaki koşulları kabul etmiş sayılırsınız.
+1. HİZMET
 
-1. HİZMET TANIMI
+Premium Berber; salon keşfetme, online randevu alma, randevu yönetimi, bekleme listesi ve değerlendirme hizmetleri sunan bir aracı platformdur. Berberlik hizmetini salonlar verir; hizmetin kalitesi, fiyatı ve salondaki uygulamalar ilgili salonun sorumluluğundadır.
 
-Premium Berber, kullanıcıların berber salonlarından online randevu almasını sağlayan bir mobil uygulamadır. Uygulama aşağıdaki hizmetleri sunar:
-• Berber salonu keşfetme ve filtreleme
-• Online randevu oluşturma
-• Randevu yönetimi (görüntüleme, iptal)
-• Berber değerlendirme ve puanlama
+2. HESAP
 
-2. HESAP OLUŞTURMA
-
-• Uygulamayı kullanmak için geçerli bir e-posta adresi ile hesap oluşturmanız gerekmektedir.
-• Hesap bilgilerinizin doğruluğundan siz sorumlusunuz.
-• Hesabınızın güvenliğinden siz sorumlusunuz.
+• Hesap oluşturmak için geçerli bir e-posta adresi ve cep telefonu gerekir.
+• Verdiğiniz bilgilerin doğruluğundan ve hesabınızın güvenliğinden siz sorumlusunuz.
+• 13 yaşından küçükler hesap oluşturamaz.
 
 3. RANDEVU KURALLARI
 
-• Randevular en az 30 dakika öncesinden iptal edilmelidir.
-• Randevuya gelmeme durumunda salon tarafından değerlendirme yapılabilir.
-• Randevu saatleri salonun çalışma saatleriyle sınırlıdır.
+• Fiyat ve süre, randevu anında geçerli olan salon menüsüne göre belirlenir ve randevunuzda sabitlenir.
+• Randevular, başlangıcına 30 dakikadan fazla süre varken uygulamadan iptal edilebilir. Daha geç iptaller için salonu arayın.
+• Salonun kapalı olduğu veya personelin izinli olduğu günlerde randevu alınamaz.
+• Gelinmeyen randevular salon tarafından “gelinmedi” olarak işaretlenebilir ve güven skorunu etkiler (bkz. Gizlilik Politikası).
+• Salon, zorunlu durumlarda randevuyu iptal edebilir; bu durumda bildirim alırsınız.
 
-4. DEĞERLENDİRME SİSTEMİ
+4. DEĞERLENDİRMELER
 
-• Tamamlanan randevular için değerlendirme yapabilirsiniz.
-• Değerlendirmeler 1-5 yıldız arasında puanlama ve isteğe bağlı yorum içerir.
-• Hakaret, küfür veya uygunsuz içerik barındıran yorumlar kaldırılabilir.
+Yalnızca tamamlanan randevular bir kez değerlendirilebilir. Hakaret, küfür, kişisel veri veya yanıltıcı içerik barındıran yorumlar kaldırılabilir.
 
-5. YASAK DAVRANIŞLAR
+5. YASAK KULLANIMLAR
 
-Aşağıdaki davranışlar kesinlikle yasaktır:
-• Sahte hesap oluşturma
-• Sistemi manipüle etme girişimleri
-• Sahte randevu oluşturma
-• Diğer kullanıcılara karşı uygunsuz davranış
+Sahte hesap veya sahte randevu oluşturmak; sistemi otomatik araçlarla zorlamak veya kötüye kullanmak; başka kullanıcıların veya salonların verilerine erişmeye çalışmak yasaktır. Bu durumlarda hesap askıya alınabilir.
 
-6. FİKRİ MÜLKİYET
+6. SORUMLULUĞUN SINIRLANDIRILMASI
 
-• Uygulama içeriği, tasarım ve kod Premium Berber'e aittir.
-• İzinsiz kopyalama, dağıtım veya değiştirme yasaktır.
+Planlı bakım veya teknik arızalar nedeniyle hizmet geçici olarak kesintiye uğrayabilir. Premium Berber, salonun sunduğu hizmetten doğan uyuşmazlıklarda taraf değildir; ancak çözüm için iletişim sağlamaya yardımcı olur.
 
-7. SORUMLULUK SINIRLANDIRMASI
+7. DEĞİŞİKLİKLER
 
-• Premium Berber, salon hizmetlerinin kalitesinden doğrudan sorumlu değildir.
-• Teknik arızalardan kaynaklanan geçici hizmet kesintilerinden dolayı sorumluluk kabul edilmez.
+Koşullar güncellenebilir; önemli değişiklikler uygulama içinden duyurulur.
 
-8. DEĞİŞİKLİKLER
+8. İLETİŞİM
 
-Bu kullanım koşulları önceden bildirimde bulunmaksızın güncellenebilir. Güncel koşullar uygulama üzerinden erişilebilir.
-
-9. İLETİŞİM
-
-Sorularınız için: premiumbarber@gmail.com
+{DESTEK_EPOSTA}
 ''';
 }

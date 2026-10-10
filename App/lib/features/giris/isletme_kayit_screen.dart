@@ -92,7 +92,7 @@ class _IsletmeKayitScreenState extends State<IsletmeKayitScreen> {
         metniOku: () => Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (_) => YasalDokumanScreen(baslik: YasalMetinler.kvkk.baslik, icerik: YasalMetinler.kvkk.icerik)),
+              builder: (_) => YasalDokumanScreen.belge(YasalMetinler.kvkk)),
         ),
       ),
       const SizedBox(height: 20),

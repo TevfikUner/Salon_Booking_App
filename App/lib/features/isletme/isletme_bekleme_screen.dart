@@ -8,6 +8,7 @@ import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/widgets/berber_desen.dart';
 import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
 import 'package:berber_app_ui/features/giris/rol_secim_screen.dart';
+import 'package:berber_app_ui/features/isletme/widgets/hesap_menusu.dart';
 
 /// İşletme başvurusu onay beklerken / reddedildiğinde gösterilir.
 class IsletmeBeklemeScreen extends StatefulWidget {
@@ -80,6 +81,8 @@ class _IsletmeBeklemeScreenState extends State<IsletmeBeklemeScreen> {
             ]),
           ),
         ),
+        // En üstte: içerik sütununun altında kalıp dokunuşu kaçırmasın
+        const SafeArea(child: Align(alignment: Alignment.topRight, child: HesapMenusu())),
       ]),
     );
   }

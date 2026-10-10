@@ -112,6 +112,12 @@ class _RandevuEkleSheetState extends State<RandevuEkleSheet> {
       bilgiGoster(context, 'Müşteri adını girin.', hata: true);
       return;
     }
+    final tel = _telCtrl.text.trim();
+    if (tel.isNotEmpty && !(tel.length == 10 && tel.startsWith('5'))) {
+      bilgiGoster(context, 'Telefon 5 ile başlayan 10 rakam olmalı (ör. 532 123 45 67).', hata: true);
+      return;
+    }
+    if (_kaydediliyor) return;
     setState(() => _kaydediliyor = true);
     try {
       await PanelApi.randevuEkle(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:berber_app_ui/core/config.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/widgets/berber_desen.dart';
 import 'package:berber_app_ui/services/yonlendirme.dart';
@@ -37,6 +38,11 @@ class _SplashScreenState extends State<SplashScreen>
 
   Future<void> _navigate() async {
     if (!mounted) return;
+    // Release derleme yanlışlıkla http:// adresle yapılmışsa kişisel veri şifresiz gitmesin
+    if (AppConfig.guvensizAdres) {
+      setState(() => _hata = 'Uygulama güvenli sunucuya bağlanacak şekilde yapılandırılmamış. Lütfen uygulamayı güncelleyin.');
+      return;
+    }
     setState(() => _hata = null);
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {

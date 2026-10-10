@@ -45,7 +45,7 @@ class _ProfilEkraniState extends State<ProfilEkrani> {
 
   void _ac(Widget ekran) => Navigator.push(context, MaterialPageRoute(builder: (_) => ekran));
 
-  void _yasal(YasalMetin m) => _ac(YasalDokumanScreen(baslik: m.baslik, icerik: m.icerik));
+  void _yasal(YasalMetin m) => _ac(YasalDokumanScreen.belge(m));
 
   Future<void> _girisEkraninaDon() async {
     if (!mounted) return;

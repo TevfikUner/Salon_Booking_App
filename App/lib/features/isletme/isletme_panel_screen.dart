@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'package:berber_app_ui/services/auth_service.dart';
-import 'package:berber_app_ui/services/bildirim_servisi.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
-import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
-import 'package:berber_app_ui/features/giris/rol_secim_screen.dart';
 import 'package:berber_app_ui/features/isletme/akis/akis_sekmesi.dart';
 import 'package:berber_app_ui/features/isletme/ekip/ekip_sekmesi.dart';
 import 'package:berber_app_ui/features/isletme/kapali_gunler/kapali_gunler_sekmesi.dart';
 import 'package:berber_app_ui/features/isletme/rapor/rapor_sekmesi.dart';
+import 'package:berber_app_ui/features/isletme/widgets/hesap_menusu.dart';
 
 /// İşletme sahibi (ve personel) paneli.
 /// Personel yalnızca "Akış" sekmesini görür (backend de yalnızca kendi randevularını döner).
@@ -24,15 +21,6 @@ class IsletmePanelScreen extends StatefulWidget {
 
 class _IsletmePanelScreenState extends State<IsletmePanelScreen> {
   int _sekme = 0;
-
-  Future<void> _cikis() async {
-    if (!await onayIste(context, 'Çıkış Yap', 'Panelden çıkış yapılsın mı?', evet: 'Çıkış Yap')) return;
-    await BildirimServisi.durdur();
-    await AuthService.cikisYap();
-    if (!mounted) return;
-    Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const RolSecimScreen()), (_) => false);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +41,7 @@ class _IsletmePanelScreenState extends State<IsletmePanelScreen> {
           Text(widget.personel ? 'Personel Paneli' : 'İşletme Paneli',
               style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 11)),
         ]),
-        actions: [IconButton(tooltip: 'Çıkış yap', icon: const Icon(Icons.logout), onPressed: _cikis)],
+        actions: const [HesapMenusu()],
       ),
       body: IndexedStack(index: _sekme, children: [for (final s in sekmeler) s.$3]),
       bottomNavigationBar: sekmeler.length < 2

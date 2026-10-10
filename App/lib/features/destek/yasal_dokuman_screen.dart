@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 import 'package:berber_app_ui/core/theme/app_theme.dart';
+import 'package:berber_app_ui/data/sabit/yasal_metinler.dart';
 
 /// Yasal dokümanları uygulama içinden gösteren ekran
 class YasalDokumanScreen extends StatelessWidget {
   final String baslik;
   final String icerik;
 
-  const YasalDokumanScreen({super.key, required this.baslik, required this.icerik});
+  /// Aynı belgenin herkese açık web adresi (varsa AppBar'da "tarayıcıda aç").
+  final String? webAdresi;
+
+  const YasalDokumanScreen({super.key, required this.baslik, required this.icerik, this.webAdresi});
+
+  YasalDokumanScreen.belge(YasalMetin m, {Key? key})
+      : this(key: key, baslik: m.baslik, icerik: m.icerik, webAdresi: m.webAdresi);
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +30,18 @@ class YasalDokumanScreen extends StatelessWidget {
                 color: AppTheme.gold,
                 fontSize: 18,
                 fontWeight: FontWeight.bold)),
+        actions: [
+          if (webAdresi != null)
+            IconButton(
+              tooltip: 'Tarayıcıda aç',
+              icon: const Icon(Icons.open_in_new, color: AppTheme.gold),
+              onPressed: () => launchUrl(Uri.parse(webAdresi!), mode: LaunchMode.externalApplication),
+            ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
-        child: Text(
+        child: SelectableText(
           icerik,
           style: GoogleFonts.inter(
             color: Colors.white.withValues(alpha: 0.85),
