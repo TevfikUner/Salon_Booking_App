@@ -3,7 +3,7 @@
 Tek liste: biten iş buradan **silinir**. Ayrıntılı adımlar [BENDEN_GEREKENLER.md](BENDEN_GEREKENLER.md)'de (§ numaraları oraya bakar).
 Neyin hazır olduğu: [YAYIN_KONTROL_LISTESI.md](YAYIN_KONTROL_LISTESI.md) · Son güncelleme: 10 Ekim 2026
 
-Kod güncel hali GitHub `main` dalında (`9cd7b09`).
+Kodun güncel hali GitHub `main` dalında.
 
 ---
 
