@@ -9,9 +9,9 @@ Dal: `feature/v1-hazirlik` · Başlangıç: 2026-10-10 · Kanıtlar: [YAYIN_KONT
 | 1. Android AAB | ✅ | AAB 62,0 MB + release APK 62,8 MB, upload anahtarıyla imzalı. Manifest değişikliği sonrası son AAB tekrar alınacak (Kapı 6) |
 | 2. Canlı backend | ✅ | Compose yığını (gunicorn 2/6 worker + worker süreci + PG16) çalıştı; 70 pytest SQLite + PostgreSQL |
 | 3. Yük ve dayanıklılık | ✅ | YUK_TESTI.md — 1000 kullanıcı/6 worker hedefler içinde, çift randevu 0, kesintide kayıp 0 |
-| 4. Uygulama kalitesi | ⏳ | Kalan: yasal metin senkronu, 360dp/büyük yazı taşma testleri, splash HTTPS kontrolü, entegrasyon testlerini emülatörde koşmak |
-| 5. Play politika & mağaza | ☐ | MAGAZA/ metinleri, veri güvenliği, içerik derecelendirme, ekran görüntüleri, kapalı test rehberi |
-| 6. Son kontrol & teslim | ☐ | YAYIN_KONTROL_LISTESI, BENDEN_GEREKENLER, CANLIYA_ALMA, README, KARARLAR, son AAB |
+| 4. Uygulama kalitesi | ⏳ | Kod + birim/taşma testleri tamam. Kalan: entegrasyon testlerini emülatörde koşmak (sistem imajı iniyor) |
+| 5. Play politika & mağaza | ⏳ | Belgeler tamam. Kalan: ekran görüntüleri (`flutter drive … ekran_goruntusu_test.dart`, emülatör gerekli) |
+| 6. Son kontrol & teslim | ⏳ | Belgeler ve son AAB (62,1 MB) tamam. Kalan: YAYIN_KONTROL_LISTESI'ndeki `__…__` yer tutucuları (emülatör sonuçları), son özet |
 
 ## Ortam notları
 - Android SDK: `%LOCALAPPDATA%\Android\Sdk` (lisanslar kabul edildi). PATH'te ayrıca WinGet adb var → cihaz komutlarında SDK adb'si kullanılmalı.
