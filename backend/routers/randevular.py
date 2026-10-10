@@ -1,8 +1,8 @@
 from datetime import timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, Query, Request
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload, selectinload
 
 import models
 import randevu_servisi as rs
@@ -12,6 +12,8 @@ from auth import (Kimlik, Kullanici, admin_dogrula, aktif_kullanici, kimlik_gere
 from bildirim import bildirim_gonder
 from config import ayarlar
 from database import get_db
+from idempotency import idempotent
+from koruma import SINIR_RANDEVU, limiter
 from routers import musteriler
 from zaman import bugun, simdi
 
@@ -146,17 +148,28 @@ def en_yakin_bos(berber_id: int, hizmet_ids: list[int] = Query(...), adet: int =
 
 # ── 3. Randevu oluşturma ─────────────────────────────────────
 @router.post("/olustur")
+@limiter.limit(SINIR_RANDEVU)
 def randevu_olustur(
+    request: Request,
+    arka_plan: BackgroundTasks,
     berber_id: int,
     saat: str,
     tarih: str,
     hizmet_ids: list[int] = Query(...),
-    ad: str = Query(default=""),
-    soyad: str = Query(default=""),
-    telefon: str = Query(default=""),
+    ad: str = Query(default="", max_length=60),
+    soyad: str = Query(default="", max_length=60),
+    telefon: str = Query(default="", max_length=20),
+    idempotency_key: str | None = Header(default=None),
     kimlik: Kimlik = Depends(kimlik_gerekli),
     db: Session = Depends(get_db),
 ):
+    """Randevu oluşturur. `Idempotency-Key` başlığıyla tekrarlanan istek ikinci randevu oluşturmaz."""
+    return idempotent(idempotency_key, kimlik.uid, lambda: _randevu_olustur(
+        arka_plan, berber_id, saat, tarih, hizmet_ids, ad, soyad, telefon, kimlik, db))
+
+
+def _randevu_olustur(arka_plan: BackgroundTasks, berber_id: int, saat: str, tarih: str, hizmet_ids: list[int],
+                     ad: str, soyad: str, telefon: str, kimlik: Kimlik, db: Session) -> dict:
     musteri = musteri_getir_veya_olustur(db, kimlik, ad.strip(), soyad.strip(), telefon.strip())
     if musteri.silindi:
         raise HTTPException(status_code=403, detail="Bu hesap silinmiş.")
@@ -176,10 +189,10 @@ def randevu_olustur(
     ).delete()
     db.commit()
 
-    if musteri.fcm_token:
-        bildirim_gonder(musteri.fcm_token, "Randevunuz onaylandı 💈",
-                        f"{r.salon.ad} — {tarih} {saat}, {r.berber.ad} {r.berber.soyad}. Toplam: {r.toplam_fiyat:.0f} ₺",
-                        {"type": "randevu", "randevu_id": r.id})
+    if musteri.fcm_token:  # bildirim (ağ çağrısı) yanıtı bekletmesin
+        arka_plan.add_task(bildirim_gonder, musteri.fcm_token, "Randevunuz onaylandı 💈",
+                           f"{r.salon.ad} — {tarih} {saat}, {r.berber.ad} {r.berber.soyad}. "
+                           f"Toplam: {r.toplam_fiyat:.0f} ₺", {"type": "randevu", "randevu_id": r.id})
     return {
         "mesaj": "Randevu başarıyla alındı!",
         "randevu_id": r.id,
@@ -197,7 +210,9 @@ def randevu_olustur(
 @router.get("/benim-randevularim")
 def benim_randevularim(musteri: models.Musteri = Depends(musteri_gerekli), db: Session = Depends(get_db)):
     randevular = db.query(models.Randevu).filter(models.Randevu.musteri_id == musteri.id) \
-        .order_by(models.Randevu.tarih.desc(), models.Randevu.saat.desc()).all()
+        .options(selectinload(models.Randevu.hizmetler), joinedload(models.Randevu.berber),
+                 joinedload(models.Randevu.salon)) \
+        .order_by(models.Randevu.tarih.desc(), models.Randevu.saat.desc()).limit(200).all()
     return [randevu_json(r) for r in randevular]
 
 

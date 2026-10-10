@@ -1,21 +1,24 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.orm import Session
 
 import models
 from auth import Kimlik, admin_dogrula, kimlik_gerekli
 from database import get_db
+from koruma import SINIR_KAYIT, limiter
 from zaman import simdi
 
 router = APIRouter(prefix="/isletmeler", tags=["İşletme Başvurusu"])
 
 
 @router.post("/kayit")
+@limiter.limit(SINIR_KAYIT)
 def isletme_kayit(
-    ad: str,
-    soyad: str,
-    telefon: str,
-    email: str,
-    isletme_adi: str,
+    request: Request,
+    ad: str = Query(min_length=1, max_length=60),
+    soyad: str = Query(min_length=1, max_length=60),
+    telefon: str = Query(min_length=10, max_length=20),
+    email: str = Query(min_length=5, max_length=120),
+    isletme_adi: str = Query(min_length=2, max_length=80),
     kimlik: Kimlik = Depends(kimlik_gerekli),
     db: Session = Depends(get_db),
 ):

@@ -1,0 +1,19 @@
+#!/bin/sh
+# Konteyner girişi. Komut verilmezse web sunucusunu başlatır.
+#   RUN_MIGRATIONS=1 (varsayılan): başlamadan önce `alembic upgrade head`.
+#   Render'da migration preDeployCommand ile bir kez çalışır → RUN_MIGRATIONS=0.
+set -e
+if [ "${RUN_MIGRATIONS:-1}" = "1" ]; then
+  alembic upgrade head
+fi
+if [ "$#" -gt 0 ]; then
+  exec "$@"
+fi
+# WEB_CONCURRENCY: gunicorn worker (süreç) sayısı. Kaba kural: 2 × CPU + 1; 512 MB RAM için 2.
+exec gunicorn main:app \
+  --worker-class uvicorn_worker.UvicornWorker \
+  --workers "${WEB_CONCURRENCY:-2}" \
+  --bind "0.0.0.0:${PORT:-8000}" \
+  --timeout 60 --graceful-timeout 20 --keep-alive 5 \
+  --max-requests 2000 --max-requests-jitter 200 \
+  --forwarded-allow-ips '*'

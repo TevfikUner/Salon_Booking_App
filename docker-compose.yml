@@ -1,6 +1,13 @@
-# Yerel üretim benzeri ortam: PostgreSQL + API
-#   docker compose up --build
-#   (ilk sefer demo verisi için) docker compose exec api python seed.py
+# Yerel üretim benzeri ortam: PostgreSQL + API (gunicorn) + zamanlanmış görev worker'ı
+#   docker compose up --build -d
+#   docker compose exec api python seed_demo.py        # isteğe bağlı demo verisi (TÜM veriyi siler)
+#   API_PORT=8020 docker compose up -d                 # 8000 doluysa
+x-ortak-ortam: &ortak-ortam
+  DATABASE_URL: postgresql://berber:${POSTGRES_PASSWORD:-berber_yerel}@db:5432/berber
+  ORTAM: ${ORTAM:-development}
+  AUTH_MODE: ${AUTH_MODE:-dev}
+  LOG_FORMAT: json
+
 services:
   db:
     image: postgres:16-alpine
@@ -8,6 +15,7 @@ services:
       POSTGRES_USER: berber
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-berber_yerel}
       POSTGRES_DB: berber
+    command: ["postgres", "-c", "max_connections=200"]
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -21,14 +29,31 @@ services:
       - path: ./backend/.env
         required: false
     environment:
-      DATABASE_URL: postgresql://berber:${POSTGRES_PASSWORD:-berber_yerel}@db:5432/berber
+      <<: *ortak-ortam
+      SCHEDULER_ENABLED: "false"     # görevler yalnızca worker'da
+      WEB_CONCURRENCY: ${WEB_CONCURRENCY:-2}
     ports:
-      - "8000:8000"
+      - "${API_PORT:-8000}:8000"
     depends_on:
       db:
         condition: service_healthy
     volumes:
       - uploads:/app/uploads
+
+  worker:
+    build: ./backend
+    command: ["python", "worker.py"]
+    env_file:
+      - path: ./backend/.env
+        required: false
+    environment:
+      <<: *ortak-ortam
+      RUN_MIGRATIONS: "0"            # migration'ı api çalıştırır
+    healthcheck:
+      disable: true                  # HTTP sunucusu yok
+    depends_on:
+      api:
+        condition: service_healthy
 
 volumes:
   pgdata:

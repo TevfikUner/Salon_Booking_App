@@ -1,16 +1,18 @@
 """Oturumdaki kullanıcının rolü ve bağlamı — uygulama girişte buna göre yönlendirir."""
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
 import models
 from auth import Kimlik, kimlik_gerekli, kullanici_cozumle
 from database import get_db
+from koruma import SINIR_GIRIS, limiter
 
 router = APIRouter(tags=["Hesap"])
 
 
 @router.get("/ben")
-def ben(kimlik: Kimlik = Depends(kimlik_gerekli), db: Session = Depends(get_db)):
+@limiter.limit(SINIR_GIRIS)
+def ben(request: Request, kimlik: Kimlik = Depends(kimlik_gerekli), db: Session = Depends(get_db)):
     k = kullanici_cozumle(db, kimlik)
 
     # Personel daveti: işletmenin girdiği e-postayla ilk girişte hesabı berbere bağla.

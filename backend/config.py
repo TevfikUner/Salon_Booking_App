@@ -37,8 +37,37 @@ class Ayarlar(BaseSettings):
     slot_dk: int = 30
     iptal_son_dk: int = 30
 
+    # Zamanlanmış görevler. Production'da web süreçlerinde KAPALI, ayrı worker sürecinde açıktır
+    # (worker.py). Yanlışlıkla iki yerde açılsa bile DB kilidi (gorev_kilitleri) işi tek örnekte çalıştırır.
     scheduler_enabled: bool = True
     uploads_dir: str = "uploads"
+
+    # Veritabanı bağlantı havuzu (PostgreSQL). Toplam bağlantı ≈ worker × (pool_size + max_overflow)
+    db_pool_size: int = 5
+    db_max_overflow: int = 10
+    db_pool_timeout: int = 10
+    db_pool_recycle: int = 1800
+
+    # /docs ve /openapi.json. Boşsa: production'da kapalı, diğer ortamlarda açık.
+    docs_enabled: bool | None = None
+
+    # Hız sınırı (slowapi). Depo: memory:// (worker başına) veya redis://… (tüm worker'larda ortak)
+    rate_limit_enabled: bool = True
+    rate_limit_storage_uri: str = "memory://"
+    rate_limit_varsayilan: str = "300/minute"
+
+    # İstek gövdesi üst sınırı (bayt). Fotoğraf yükleme ucu kendi sınırını uygular.
+    maks_istek_boyutu: int = 1_000_000
+
+    # Gözlemlenebilirlik
+    log_format: str = "json"  # json | metin
+    log_level: str = "INFO"
+    sentry_dsn: str = ""
+    sentry_traces_sample_rate: float = 0.1
+    surum: str = "1.0.0"
+
+    # Yasal sayfalarda ve destek iletişiminde görünen e-posta (gerçek adres env ile verilmeli)
+    destek_eposta: str = "destek@premiumberber.app"
 
     @property
     def admin_uid_listesi(self) -> set[str]:
@@ -51,6 +80,10 @@ class Ayarlar(BaseSettings):
     @property
     def uretim_mi(self) -> bool:
         return self.ortam == "production"
+
+    @property
+    def dokumanlar_acik(self) -> bool:
+        return (not self.uretim_mi) if self.docs_enabled is None else self.docs_enabled
 
 
 @lru_cache

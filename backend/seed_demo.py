@@ -1,6 +1,8 @@
-"""Demo verisi yükler. ÖNCE: `alembic upgrade head`.
+"""DEMO verisi yükler (kurgusal salonlar, müşteriler, randevular). ÖNCE: `alembic upgrade head`.
 
-    python seed.py
+PRODUCTION VERİTABANINA ÇALIŞTIRMAYIN: tüm tabloları siler. Production ortamında (ORTAM=production) çalışmayı reddeder.
+
+    python seed_demo.py
 
 Tüm tabloları temizler ve yeniden doldurur (yalnızca geliştirme/demo için!).
 Kendi Firebase hesaplarınızla demo yapmak için UID'leri ortam değişkeniyle verin:

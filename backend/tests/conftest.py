@@ -7,15 +7,19 @@ import sys
 import tempfile
 from datetime import datetime
 
-_DB = os.path.join(tempfile.mkdtemp(prefix="berber_test_"), "test.db")
+# Varsayılan: geçici SQLite. PostgreSQL ile çalıştırmak için:
+#   TEST_DATABASE_URL=postgresql://berber:berber_yerel@127.0.0.1:55432/berber_test pytest
+_DB = os.environ.get("TEST_DATABASE_URL") or "sqlite:///" + os.path.join(tempfile.mkdtemp(prefix="berber_test_"), "test.db")
 os.environ.update({
     "ORTAM": "test",
-    "DATABASE_URL": f"sqlite:///{_DB}",
+    "DATABASE_URL": _DB,
     "AUTH_MODE": "dev",
     "SCHEDULER_ENABLED": "false",
     "ADMIN_UIDS": "admin-uid",
     "ADMIN_SECRET": "",
     "REZERVASYON_UFKU_GUN": "30",
+    "RATE_LIMIT_ENABLED": "false",  # hız sınırı ayrı testte açılarak denenir
+    "LOG_FORMAT": "metin",
 })
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 

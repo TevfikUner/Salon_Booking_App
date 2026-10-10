@@ -1,6 +1,29 @@
 # Render Blueprint — https://render.com/docs/blueprint-spec
-# Gizli değerler (FIREBASE_CREDENTIALS_JSON, ADMIN_UIDS) panelden girilir (sync: false).
-# Kurulum: Render → New → Blueprint → bu repo → dal: main.
+# Kurulum: Render → New → Blueprint → bu repo → dal: main. Gizli değerler (sync: false) panelden girilir.
+#
+# Mimari: web (gunicorn, N worker) + ayrı zamanlanmış görev süreci (worker) + yönetilen PostgreSQL.
+# Görevler yalnızca worker'da çalışır; yine de DB kilidi (gorev_kilitleri) çift çalışmayı engeller.
+# Ücretsiz plan uykuya geçtiği ve worker desteklemediği için önerilmez (bkz. KARARLAR.md).
+envVarGroups:
+  - name: premium-berber-ortak
+    envVars:
+      - key: ORTAM
+        value: production
+      - key: AUTH_MODE
+        value: firebase
+      - key: ZAMAN_DILIMI
+        value: Europe/Istanbul
+      - key: LOG_FORMAT
+        value: json
+      - key: FIREBASE_CREDENTIALS_JSON
+        sync: false
+      - key: ADMIN_UIDS
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
+      - key: DESTEK_EPOSTA
+        sync: false
+
 services:
   - type: web
     name: premium-berber-api
@@ -9,24 +32,39 @@ services:
     dockerContext: ./backend
     plan: starter
     region: frankfurt
-    healthCheckPath: /saglik
+    healthCheckPath: /health
+    preDeployCommand: alembic upgrade head
     envVars:
-      - key: ORTAM
-        value: production
-      - key: AUTH_MODE
-        value: firebase
+      - fromGroup: premium-berber-ortak
       - key: DATABASE_URL
         fromDatabase:
           name: premium-berber-db
           property: connectionString
-      - key: FIREBASE_CREDENTIALS_JSON
-        sync: false
-      - key: ADMIN_UIDS
-        sync: false
+      - key: RUN_MIGRATIONS
+        value: "0"
+      - key: SCHEDULER_ENABLED
+        value: "false"
+      - key: WEB_CONCURRENCY
+        value: "2"
       - key: CORS_ORIGINS
         value: https://premiumberber.app
-      - key: ZAMAN_DILIMI
-        value: Europe/Istanbul
+
+  - type: worker
+    name: premium-berber-gorevler
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    dockerCommand: python worker.py
+    plan: starter
+    region: frankfurt
+    envVars:
+      - fromGroup: premium-berber-ortak
+      - key: DATABASE_URL
+        fromDatabase:
+          name: premium-berber-db
+          property: connectionString
+      - key: RUN_MIGRATIONS
+        value: "0"
 
 databases:
   - name: premium-berber-db

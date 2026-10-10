@@ -5,7 +5,7 @@ Yetki: onaylı işletme sahibi (kendi salonu), admin (?salon_id=), personel (yal
 from collections import Counter
 from urllib.parse import quote
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
 
@@ -14,6 +14,8 @@ import randevu_servisi as rs
 import slot_servisi as ss
 from auth import PanelBaglami, panel_baglami, panel_yonetici
 from database import get_db
+from idempotency import idempotent
+from koruma import SINIR_PANEL_YAZMA, limiter
 from zaman import bugun, saat_dk, simdi
 
 router = APIRouter(prefix="/panel", tags=["İşletme Paneli"])
@@ -166,9 +168,14 @@ class PanelRandevuIstegi(BaseModel):
 
 
 @router.post("/randevular")
-def panel_randevu_ekle(veri: PanelRandevuIstegi, p: PanelBaglami = Depends(panel_baglami),
-                       db: Session = Depends(get_db)):
-    """Telefonla/kapıdan gelen müşteri için randevu (takvim tek kaynak kalsın)."""
+@limiter.limit(SINIR_PANEL_YAZMA)
+def panel_randevu_ekle(request: Request, veri: PanelRandevuIstegi, p: PanelBaglami = Depends(panel_baglami),
+                       idempotency_key: str | None = Header(default=None), db: Session = Depends(get_db)):
+    """Telefonla/kapıdan gelen müşteri için randevu (takvim tek kaynak kalsın). Idempotency-Key destekler."""
+    return idempotent(idempotency_key, f"panel:{p.salon_id}", lambda: _panel_randevu_ekle(veri, p, db))
+
+
+def _panel_randevu_ekle(veri: PanelRandevuIstegi, p: PanelBaglami, db: Session) -> dict:
     berber, _ = ss.berber_ve_salon(db, veri.berber_id)
     if berber.salon_id != p.salon_id or (p.berber_id is not None and p.berber_id != berber.id):
         raise HTTPException(status_code=403, detail="Bu personel için randevu ekleyemezsiniz.")

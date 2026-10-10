@@ -93,11 +93,16 @@ def kimlik_istege_bagli(authorization: str | None = Header(default=None)) -> Kim
     return kimlik_gerekli(authorization)
 
 
+def yonetici_mi(db: Session, uid: str) -> bool:
+    """Admin: ADMIN_UIDS ortam değişkeninde veya `yoneticiler` tablosunda (araclar.py admin-ekle)."""
+    return uid in ayarlar().admin_uid_listesi or db.get(models.Yonetici, uid) is not None
+
+
 def kullanici_cozumle(db: Session, kimlik: Kimlik) -> Kullanici:
     musteri = db.query(models.Musteri).filter(models.Musteri.firebase_uid == kimlik.uid).first()
     isletme = db.query(models.Isletme).filter(models.Isletme.firebase_uid == kimlik.uid).first()
     berber = db.query(models.Berber).filter(models.Berber.firebase_uid == kimlik.uid, models.Berber.aktif.is_(True)).first()
-    if kimlik.uid in ayarlar().admin_uid_listesi:
+    if yonetici_mi(db, kimlik.uid):
         rol = "admin"
     elif isletme:
         rol = "isletme"
@@ -141,13 +146,16 @@ def admin_dogrula(
     authorization: str | None = Header(default=None),
     x_admin_secret: str | None = Header(default=None),
 ) -> None:
-    """Admin: ADMIN_UIDS'deki Firebase kullanıcısı veya (yapılandırılmışsa) X-Admin-Secret."""
+    """Admin: ADMIN_UIDS / yoneticiler tablosundaki Firebase kullanıcısı veya (yapılandırılmışsa) X-Admin-Secret."""
     if _admin_secret_gecerli(x_admin_secret):
         return
     if authorization and authorization.lower().startswith("bearer "):
         kimlik = token_coz(authorization.split(" ", 1)[1].strip())
-        if kimlik.uid in ayarlar().admin_uid_listesi:
-            return
+        from database import SessionLocal
+
+        with SessionLocal() as db:
+            if yonetici_mi(db, kimlik.uid):
+                return
     raise HTTPException(status_code=403, detail="Bu işlem için yönetici yetkisi gerekiyor.")
 
 

@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 import models
-import randevu_servisi as rs
 from auth import Kimlik, kimlik_gerekli, musteri_gerekli, musteri_getir_veya_olustur
 from database import get_db
+from hesap_servisi import hesabi_anonimlestir
+from koruma import SINIR_HASSAS, SINIR_KAYIT, limiter
 from zaman import simdi
 
 router = APIRouter(prefix="/musteriler", tags=["Müşteri"])
@@ -20,7 +21,9 @@ class KayitVerisi(BaseModel):
 
 
 @router.post("/kayit")
-def musteri_kayit(veri: KayitVerisi, kimlik: Kimlik = Depends(kimlik_gerekli), db: Session = Depends(get_db)):
+@limiter.limit(SINIR_KAYIT)
+def musteri_kayit(request: Request, veri: KayitVerisi, kimlik: Kimlik = Depends(kimlik_gerekli),
+                  db: Session = Depends(get_db)):
     """Uygulamada hesap oluşturulduktan sonra çağrılır. KVKK aydınlatma onayı zorunludur."""
     if not veri.kvkk_onay:
         raise HTTPException(status_code=400, detail="Devam etmek için KVKK Aydınlatma Metni'ni onaylamalısınız.")
@@ -132,32 +135,12 @@ router.add_api_route("/favoriler", favori_listele, methods=["GET"])
 
 
 @router.delete("/hesabim")
-def hesap_sil(kimlik: Kimlik = Depends(kimlik_gerekli), db: Session = Depends(get_db)):
+@limiter.limit(SINIR_HASSAS)
+def hesap_sil(request: Request, kimlik: Kimlik = Depends(kimlik_gerekli), db: Session = Depends(get_db)):
     """KVKK / mağaza gereği hesap silme.
 
     Kişisel veriler anonimleştirilir; gelecek randevular iptal edilir. İşletmenin muhasebe
     kayıtları için geçmiş randevular kimliksiz olarak kalır. Firebase kullanıcısı istemcide silinir.
     """
-    m = db.query(models.Musteri).filter(models.Musteri.firebase_uid == kimlik.uid).first()
-    if m:
-        an = simdi()
-        aktifler = db.query(models.Randevu).filter(models.Randevu.musteri_id == m.id,
-                                                   models.Randevu.durum == "onaylandi").all()
-        for r in aktifler:
-            if (r.tarih, r.saat) >= (an.date().isoformat(), an.strftime("%H:%M")):
-                rs._iptal_et(db, r, "musteri")
-        m.ad, m.soyad, m.telefon = "Silinmiş", "Kullanıcı", ""
-        m.firebase_uid = None
-        m.fcm_token = None
-        m.ticari_ileti_izni = False
-        m.silindi = True
-        m.favori_berberler.clear()
-        db.query(models.BeklemeListesi).filter(models.BeklemeListesi.musteri_id == m.id).delete()
-        db.query(models.Degerlendirme).filter(models.Degerlendirme.musteri_id == m.id).update({"yorum": None})
-    isletme = db.query(models.Isletme).filter(models.Isletme.firebase_uid == kimlik.uid).first()
-    if isletme:
-        isletme.firebase_uid = None
-        isletme.ad, isletme.soyad, isletme.telefon, isletme.email = "Silinmiş", "Kullanıcı", "", ""
-        isletme.durum = "reddedildi"
-    db.commit()
+    hesabi_anonimlestir(db, kimlik.uid)
     return {"mesaj": "Hesabınız ve kişisel verileriniz silindi."}

@@ -1,6 +1,11 @@
 """Yönetim komutları.
 
-    python araclar.py uid <e-posta>              Firebase kullanıcısının UID'sini yazar (ADMIN_UIDS için)
+    python araclar.py uid <e-posta>              Firebase kullanıcısının UID'sini yazar
+    python araclar.py admin-ekle <e-posta>       İlk/yeni admin: Firebase hesabını yoneticiler tablosuna ekler
+    python araclar.py admin-ekle --uid <uid>     (Firebase anahtarı yoksa UID ile)
+    python araclar.py admin-listele
+    python araclar.py silme-talepleri             Web formundan gelen bekleyen hesap silme talepleri
+    python araclar.py silme-uygula <talep_id>     Talebi uygular: verileri anonimleştirir, Firebase hesabını siler
     python araclar.py basvurular                  Bekleyen işletme başvurularını listeler
     python araclar.py onayla <isletme_id> [--salon <id>] [--sehir Konya --ilce Selçuklu]
     python araclar.py reddet <isletme_id>
@@ -32,6 +37,85 @@ def uid(eposta: str) -> int:
         return 1
     print(k.uid)
     print(f"\nAdmin yapmak için ortam değişkenine ekleyin:  ADMIN_UIDS={k.uid}", file=sys.stderr)
+    return 0
+
+
+def _firebase_kullanici(eposta: str):
+    from firebase_admin import auth
+
+    from firebase_app import firebase_hazir
+
+    if not firebase_hazir():
+        raise SystemExit("Firebase servis hesabı yapılandırılmamış (FIREBASE_CREDENTIALS_JSON / serviceAccountKey.json).")
+    try:
+        return auth.get_user_by_email(eposta)
+    except auth.UserNotFoundError:
+        raise SystemExit(f"{eposta} ile kayıtlı Firebase kullanıcısı yok. Önce uygulamadan hesap açın.") from None
+
+
+def admin_ekle(eposta: str | None, uid_: str | None) -> int:
+    """Admin yetkisi DB'de tutulur: yeniden deploy veya env değişikliği gerektirmez.
+    E-postayla eklemek, kimin admin olduğunu Firebase'den doğrular (UID yazım hatasına karşı)."""
+    import models
+    from database import SessionLocal
+    from zaman import simdi
+
+    if eposta:
+        k = _firebase_kullanici(eposta)
+        uid_, eposta = k.uid, k.email
+    with SessionLocal() as db:
+        if db.get(models.Yonetici, uid_):
+            print(f"Zaten admin: {uid_}")
+            return 0
+        db.add(models.Yonetici(firebase_uid=uid_, email=eposta, olusturma=simdi().isoformat(timespec="seconds")))
+        db.commit()
+    print(f"Admin eklendi: {eposta or ''} ({uid_})")
+    return 0
+
+
+def admin_listele() -> int:
+    import models
+    from config import ayarlar
+    from database import SessionLocal
+
+    with SessionLocal() as db:
+        for y in db.query(models.Yonetici).all():
+            print(f"DB   {y.firebase_uid}  {y.email or ''}  ({y.olusturma})")
+    for u in ayarlar().admin_uid_listesi:
+        print(f"ENV  {u}")
+    return 0
+
+
+def silme_talepleri() -> int:
+    import models
+    from database import SessionLocal
+
+    with SessionLocal() as db:
+        liste = db.query(models.HesapSilmeTalebi).filter_by(durum="bekliyor").order_by(models.HesapSilmeTalebi.id).all()
+        if not liste:
+            print("Bekleyen silme talebi yok.")
+        for t in liste:
+            print(f"#{t.id:<4} {t.email:<35} {t.olusturma}  {t.aciklama or ''}")
+    return 0
+
+
+def silme_uygula(talep_id: int) -> int:
+    import models
+    from database import SessionLocal
+    from hesap_servisi import hesabi_anonimlestir, silme_talebini_tamamla
+
+    with SessionLocal() as db:
+        talep = db.get(models.HesapSilmeTalebi, talep_id)
+        if not talep or talep.durum != "bekliyor":
+            print("Bekleyen böyle bir talep yok.")
+            return 1
+        k = _firebase_kullanici(talep.email)
+        bulundu = hesabi_anonimlestir(db, k.uid)
+        from firebase_admin import auth
+        auth.delete_user(k.uid)
+        silme_talebini_tamamla(db, talep)
+    print(f"Tamamlandı: {talep.email} (sunucu verisi: {'anonimleştirildi' if bulundu else 'yoktu'}, Firebase hesabı silindi)."
+          f" Kullanıcıya e-postayla bilgi verin.")
     return 0
 
 
@@ -81,7 +165,10 @@ def saglik() -> int:
     print(f"DB            : OK ({a.database_url.split('@')[-1]})")
     print(f"AUTH_MODE     : {a.auth_mode}")
     print(f"Firebase      : {'OK' if firebase_hazir() else 'YAPILANDIRILMAMIŞ'}")
-    print(f"ADMIN_UIDS    : {len(a.admin_uid_listesi)} kullanıcı")
+    with SessionLocal() as db:
+        import models
+        db_admin = db.query(models.Yonetici).count()
+    print(f"Admin         : {len(a.admin_uid_listesi)} (env) + {db_admin} (DB)")
     print(f"ADMIN_SECRET  : {'tanımlı' if a.admin_secret else 'kapalı'}")
     if a.uretim_mi and not firebase_hazir():
         print("\nUYARI: Production'da Firebase olmadan kimse giriş yapamaz.")
@@ -100,11 +187,27 @@ def main() -> int:
     o.add_argument("--sehir")
     o.add_argument("--ilce")
     alt.add_parser("reddet").add_argument("isletme_id", type=int)
+    ae = alt.add_parser("admin-ekle")
+    ae.add_argument("eposta", nargs="?")
+    ae.add_argument("--uid")
+    alt.add_parser("admin-listele")
+    alt.add_parser("silme-talepleri")
+    alt.add_parser("silme-uygula").add_argument("talep_id", type=int)
     alt.add_parser("gizli")
     alt.add_parser("saglik")
     a = p.parse_args()
     if a.komut == "uid":
         return uid(a.eposta)
+    if a.komut == "admin-ekle":
+        if not (a.eposta or a.uid):
+            p.error("admin-ekle için e-posta veya --uid gerekli")
+        return admin_ekle(a.eposta, a.uid)
+    if a.komut == "admin-listele":
+        return admin_listele()
+    if a.komut == "silme-talepleri":
+        return silme_talepleri()
+    if a.komut == "silme-uygula":
+        return silme_uygula(a.talep_id)
     if a.komut == "basvurular":
         return basvurular()
     if a.komut == "onayla":

@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Float, ForeignKey, Integer, String, Table, Text, UniqueConstraint
+from sqlalchemy import Boolean, Column, Float, ForeignKey, Index, Integer, String, Table, Text, UniqueConstraint, text
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -120,6 +120,18 @@ class Dukkan(Base):
 
 class Randevu(Base):
     __tablename__ = "randevular"
+    __table_args__ = (
+        # Slot sorgusu: berberin o günkü aktif randevuları
+        Index("ix_randevu_berber_tarih_durum", "berber_id", "tarih", "durum"),
+        # İşletme paneli (günün akışı, rapor)
+        Index("ix_randevu_salon_tarih", "salon_id", "tarih"),
+        # Müşterinin randevuları
+        Index("ix_randevu_musteri_tarih", "musteri_id", "tarih"),
+        # Son savunma hattı: aynı berbere aynı başlangıç saatinde iki aktif randevu olamaz
+        # (asıl koruma slot_servisi'ndeki satır kilidi; bu indeks kilit atlansa bile çift kaydı DB'de engeller)
+        Index("uq_randevu_aktif_slot", "berber_id", "tarih", "saat", unique=True,
+              postgresql_where=text("durum = 'onaylandi'"), sqlite_where=text("durum = 'onaylandi'")),
+    )
     id = Column(Integer, primary_key=True, index=True)
     musteri_id = Column(Integer, ForeignKey("musteriler.id"), index=True)
     berber_id = Column(Integer, ForeignKey("berberler.id"), index=True)
@@ -223,3 +235,38 @@ class BeklemeListesi(Base):
 
     musteri = relationship("Musteri")
     berber = relationship("Berber")
+
+
+class Yonetici(Base):
+    """Admin hesapları (ADMIN_UIDS ortam değişkenine ek). `python araclar.py admin-ekle <e-posta>` ile eklenir."""
+    __tablename__ = "yoneticiler"
+    firebase_uid = Column(String, primary_key=True)
+    email = Column(String, nullable=True)
+    olusturma = Column(String, nullable=True)
+
+
+class GorevKilidi(Base):
+    """Zamanlanmış görevlerin aynı anda yalnızca bir süreçte çalışmasını sağlayan kiralama (lease) kaydı."""
+    __tablename__ = "gorev_kilitleri"
+    ad = Column(String, primary_key=True)
+    sahip = Column(String, nullable=True)
+    bitis = Column(String, nullable=True)  # ISO zaman; geçmişteyse kilit boştur
+
+
+class IdempotencyAnahtari(Base):
+    """Aynı isteğin (çift tıklama, ağ tekrarı) ikinci kez işlenmemesi için: anahtar → ilk yanıt."""
+    __tablename__ = "idempotency_anahtarlari"
+    anahtar = Column(String, primary_key=True)
+    kullanici = Column(String, nullable=False)
+    yanit = Column(Text, nullable=False)
+    olusturma = Column(String, nullable=False, index=True)
+
+
+class HesapSilmeTalebi(Base):
+    """Uygulamaya erişemeyen kullanıcının web formundan ilettiği hesap silme talebi (Google Play şartı)."""
+    __tablename__ = "hesap_silme_talepleri"
+    id = Column(Integer, primary_key=True)
+    email = Column(String, nullable=False, index=True)
+    aciklama = Column(String, nullable=True)
+    olusturma = Column(String, nullable=False)
+    durum = Column(String, default="bekliyor", nullable=False)  # bekliyor | tamamlandi

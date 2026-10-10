@@ -143,7 +143,7 @@ def test_admin_secret_varsayilani_yok(client, veri):
 
 
 def test_isletme_basvuru_ve_onay(client, veri):
-    params = {"ad": "A", "soyad": "B", "telefon": "0530", "email": "a@b.c", "isletme_adi": "Yeni Salon"}
+    params = {"ad": "A", "soyad": "B", "telefon": "05301112233", "email": "a@b.co", "isletme_adi": "Yeni Salon"}
     assert client.post("/isletmeler/kayit", params=params).status_code == 401
     assert client.post("/isletmeler/kayit", params=params, headers=auth("yeni-isletme")).status_code == 200
     assert client.post("/isletmeler/kayit", params=params, headers=auth("yeni-isletme")).status_code == 400
