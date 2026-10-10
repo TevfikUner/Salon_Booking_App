@@ -1,10 +1,17 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- "Konumuma yakın salonlar" için yaklaşık konum yeterli (hassas konum istenmez) -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <!-- Android 13+ push bildirim izni -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Uygulamada reklam yok: Firebase Analytics'in eklediği reklam kimliği izinleri kaldırılır
+         (Play Console "Reklam kimliği kullanıyor mu?" → Hayır; MAGAZA/veri_guvenligi.md ile tutarlı) -->
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" tools:node="remove" />
+    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_AD_ID" tools:node="remove" />
+    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_ATTRIBUTION" tools:node="remove" />
 
     <!-- Android 11+ : dış uygulamaları (tel, mail, harita, Instagram) açabilmek için -->
     <queries>
@@ -68,6 +75,10 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <!-- Analytics: reklam kimliği ve kişiselleştirilmiş reklam sinyalleri toplanmaz -->
+        <meta-data android:name="google_analytics_adid_collection_enabled" android:value="false" />
+        <meta-data android:name="google_analytics_default_allow_ad_personalization_signals" android:value="false" />
 
         <meta-data
             android:name="flutterEmbedding"
