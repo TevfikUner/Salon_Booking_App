@@ -16,6 +16,6 @@ Dal: `feature/v1-hazirlik` · Başlangıç: 2026-10-10 · Kanıtlar: [YAYIN_KONT
 ## Ortam notları
 - Android SDK: `%LOCALAPPDATA%\Android\Sdk` (lisanslar kabul edildi). PATH'te ayrıca WinGet adb var → cihaz komutlarında SDK adb'si kullanılmalı.
 - 127.0.0.1:8000 WSL'deki başka bir servise ait; yerel backend **8010**'da, docker yığını **8020**'de (`API_PORT=8020 docker compose -p premium-berber up -d`).
-- Emülatör: AVD `berber_test` (android-35, google_apis_playstore, x86_64) — sistem imajı yavaş iniyor.
+- Emülatör: indirme 10.10.2026 iptal edildi (kullanıcı isteği); kalan işler YAPILACAKLAR.md bölüm C.
 - Entegrasyon testi: `bash backend/yuk/yigin.sh entegrasyon` → `flutter test integration_test/<dosya> --dart-define=API_URL=http://10.0.2.2:8020`
 - Git Bash'ten WSL'e yol verirken `MSYS_NO_PATHCONV=1` gerekli.
