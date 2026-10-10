@@ -31,7 +31,7 @@ Kod GitHub'da `main` dalında hazır, `render.yaml` blueprint'i API + PostgreSQL
    python araclar.py onayla 3 --sehir Konya --ilce Selçuklu
    ```
 5. (İsteğe bağlı) Özel alan adı: Render → Settings → Custom Domain (HTTPS otomatik). `render.yaml`'daki `CORS_ORIGINS`'i güncelleyin.
-6. Production DB boş başlar. Demo verisi isterseniz yalnızca ilk kurulumda: `SEED_ZORLA=1 python seed.py` (**tüm verileri siler**).
+6. Production DB boş başlar. Demo verisi isterseniz yalnızca ilk kurulumda: `SEED_ZORLA=1 python seed_demo.py` (**tüm verileri siler**).
 
 ## 3. Paket adı ve mağaza (≈20 dk)
 

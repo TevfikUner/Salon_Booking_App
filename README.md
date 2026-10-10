@@ -25,7 +25,7 @@ python -m venv .venv
 pip install -r requirements-dev.txt
 cp .env.example .env                 # AUTH_MODE=dev ile gelir
 alembic upgrade head                 # şemayı oluşturur (SQLite: berber_yeni.db)
-python seed.py                       # demo verisi (TÜM tabloları temizler!)
+python seed_demo.py                       # demo verisi (TÜM tabloları temizler!)
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
@@ -105,7 +105,7 @@ Yerelde production benzeri ortam (Docker gerekir):
 
 ```bash
 docker compose up --build
-docker compose exec api python seed.py     # isteğe bağlı demo verisi
+docker compose exec api python seed_demo.py     # isteğe bağlı demo verisi
 ```
 
 **Yedekleme:** Render PostgreSQL günlük yedek alır. Elle yedek: `./scripts/yedekle.sh "$DATABASE_URL"` (geri yükleme komutu betiğin içinde).

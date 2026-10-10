@@ -11,10 +11,10 @@ günün akışını telefonundan yönetiyor ve gelmeyen müşteriler yüzünden 
    cd backend
    # .env içinde: AUTH_MODE=dev
    alembic upgrade head
-   SEED_MUSTERI_UID=<musteri uid>  SEED_ISLETME_UID=<isletme uid>  python seed.py
+   SEED_MUSTERI_UID=<musteri uid>  SEED_ISLETME_UID=<isletme uid>  python seed_demo.py
    uvicorn main:app --host 0.0.0.0 --port 8000
    ```
-   (Windows PowerShell: `$env:SEED_MUSTERI_UID="..."; $env:SEED_ISLETME_UID="..."; python seed.py`)
+   (Windows PowerShell: `$env:SEED_MUSTERI_UID="..."; $env:SEED_ISLETME_UID="..."; python seed_demo.py`)
 3. İki cihaz/emülatör: birinde müşteri, diğerinde işletme hesabıyla giriş yapın
    (`flutter run --dart-define=API_BASE_URL=http://<bilgisayar-ip>:8000`).
 4. Seed demo için şunları hazırlar: Ahmet'in Ali Usta ile 4 geçmiş randevusu (→ "Her Zamanki"), Tolga'nın 2 kez gelmemesi
