@@ -25,8 +25,9 @@ class RandevuApi {
     String ad = '',
     String soyad = '',
     String telefon = '',
+    String? idempotencyKey,
   }) async =>
-      await ApiClient.post('/randevular/olustur', params: {
+      await ApiClient.post('/randevular/olustur', idempotencyKey: idempotencyKey, params: {
         'berber_id': berberId,
         'saat': saat,
         'tarih': tarih,

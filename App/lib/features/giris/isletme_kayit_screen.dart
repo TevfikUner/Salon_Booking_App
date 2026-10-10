@@ -6,6 +6,7 @@ import 'package:berber_app_ui/data/sabit/yasal_metinler.dart';
 import 'package:berber_app_ui/features/destek/yasal_dokuman_screen.dart';
 import 'package:berber_app_ui/features/giris/giris_screen.dart';
 import 'package:berber_app_ui/features/giris/widgets/giris_bilesenleri.dart';
+import 'package:berber_app_ui/services/analitik.dart';
 import 'package:berber_app_ui/services/auth_service.dart';
 import 'package:berber_app_ui/services/yonlendirme.dart';
 
@@ -51,6 +52,7 @@ class _IsletmeKayitScreenState extends State<IsletmeKayitScreen> {
         telefon: '0${_telefon.text.trim()}',
         isletmeAdi: _isletmeAdi.text.trim(),
       );
+      Analitik.kayit(rol: 'isletme');
       if (mounted) await Yonlendirme.git(context); // → onay bekleme ekranı
     } catch (e) {
       if (mounted) bilgiGoster(context, 'Başvuru gönderilemedi: ${AuthService.hataMesaji(e)}', hata: true);

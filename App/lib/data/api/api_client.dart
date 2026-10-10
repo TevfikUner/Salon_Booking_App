@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
@@ -26,10 +27,30 @@ typedef Json = Map<String, dynamic>;
 class ApiClient {
   ApiClient._();
 
-  static Future<dynamic> get(String path, {Map<String, dynamic>? params}) => _istek('GET', path, params: params);
+  /// Okuma istekleri geçici hatalarda (ağ kopması, 502/503/504) 2 kez daha denenir.
+  static Future<dynamic> get(String path, {Map<String, dynamic>? params}) async {
+    const bekleme = [Duration(milliseconds: 400), Duration(milliseconds: 1200)];
+    for (var deneme = 0;; deneme++) {
+      try {
+        return await _istek('GET', path, params: params);
+      } on ApiHata catch (e) {
+        final gecici = e.kod == null || e.kod == 502 || e.kod == 503 || e.kod == 504;
+        if (!gecici || deneme >= bekleme.length) rethrow;
+        await Future.delayed(bekleme[deneme]);
+      }
+    }
+  }
 
-  static Future<dynamic> post(String path, {Map<String, dynamic>? params, Object? govde}) =>
-      _istek('POST', path, params: params, govde: govde);
+  /// [idempotencyKey]: aynı eylemin tekrarı (çift tıklama, zaman aşımı sonrası yeniden deneme) sunucuda
+  /// ikinci kayıt oluşturmasın diye eylem başına bir kez üretilip tekrarlarda aynen gönderilir.
+  static Future<dynamic> post(String path, {Map<String, dynamic>? params, Object? govde, String? idempotencyKey}) =>
+      _istek('POST', path, params: params, govde: govde, idempotencyKey: idempotencyKey);
+
+  static final _rastgele = Random.secure();
+
+  /// Eylem başına benzersiz anahtar (UUID benzeri, 32 hex).
+  static String yeniAnahtar() =>
+      List.generate(16, (_) => _rastgele.nextInt(256).toRadixString(16).padLeft(2, '0')).join();
 
   static Future<dynamic> put(String path, {Object? govde}) => _istek('PUT', path, govde: govde);
 
@@ -65,9 +86,11 @@ class ApiClient {
     return h;
   }
 
-  static Future<dynamic> _istek(String metod, String path, {Map<String, dynamic>? params, Object? govde}) async {
+  static Future<dynamic> _istek(String metod, String path,
+      {Map<String, dynamic>? params, Object? govde, String? idempotencyKey}) async {
     final adres = uri(path, params);
     final h = await _basliklar(json: govde != null);
+    if (idempotencyKey != null) h['Idempotency-Key'] = idempotencyKey;
     final body = govde != null ? json.encode(govde) : null;
     final http.Response res;
     try {
@@ -82,8 +105,10 @@ class ApiClient {
       res = await istek.timeout(AppConfig.timeout);
     } on TimeoutException {
       throw const ApiHata('Sunucu yanıt vermiyor. İnternet bağlantınızı kontrol edip tekrar deneyin.');
+    } on HandshakeException {
+      throw const ApiHata('Güvenli bağlantı kurulamadı. Lütfen tekrar deneyin.');
     } on IOException {
-      // SocketException, HandshakeException (TLS) vb.
+      // SocketException vb.
       throw const ApiHata('Sunucuya ulaşılamadı. İnternet bağlantınızı kontrol edin.');
     } on http.ClientException {
       throw const ApiHata('Sunucuya ulaşılamadı. İnternet bağlantınızı kontrol edin.');
@@ -112,6 +137,8 @@ class ApiClient {
       );
     }
     if (detay is List && detay.isNotEmpty) return ApiHata('Girilen bilgileri kontrol edin.', kod: kod);
+    if (kod == 429) return ApiHata('Çok fazla deneme yaptınız. Lütfen biraz bekleyin.', kod: kod);
+    if (kod == 503) return ApiHata('Hizmet geçici olarak kullanılamıyor. Lütfen birazdan tekrar deneyin.', kod: kod);
     return switch (kod) {
       401 => ApiHata('Oturumunuzun süresi doldu. Lütfen tekrar giriş yapın.', kod: kod),
       403 => ApiHata('Bu işlem için yetkiniz yok.', kod: kod),

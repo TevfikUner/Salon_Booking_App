@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
+import 'package:berber_app_ui/features/kesfet/salon_detay_screen.dart';
 import 'package:berber_app_ui/features/musteri/degerlendirme/degerlendirme_screen.dart';
+import 'package:berber_app_ui/features/musteri/main_screen.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/data/api/hesap_api.dart';
 
@@ -49,23 +51,36 @@ class BildirimServisi {
           if (n.body != null) Text(n.body!, style: const TextStyle(color: Colors.white)),
         ],
       ),
-      action: m.data['type'] == 'degerlendirme'
-          ? SnackBarAction(label: 'Puanla', textColor: AppTheme.gold, onPressed: () => _ac(m.data))
-          : null,
+      action: switch (m.data['type']) {
+        'degerlendirme' => SnackBarAction(label: 'Puanla', textColor: AppTheme.gold, onPressed: () => _ac(m.data)),
+        'randevu' || 'bekleme' => SnackBarAction(label: 'Aç', textColor: AppTheme.gold, onPressed: () => _ac(m.data)),
+        _ => null,
+      },
     ));
   }
 
+  /// Bildirime dokunulunca ilgili ekranı açar: randevu → Randevularım, bekleme → salon, değerlendirme → puanlama.
   static void _ac(Map<String, dynamic> data) {
-    if (data['type'] != 'degerlendirme') return;
-    final id = int.tryParse(data['randevu_id']?.toString() ?? '');
-    if (id == null) return;
-    navigatorKey.currentState?.push(MaterialPageRoute(
-      builder: (_) => DegerlendirmeEkrani(
-        randevuId: id,
-        berberAdi: data['berber_adi']?.toString() ?? 'Berber',
-        berberFotoUrl: data['berber_foto_url']?.toString(),
-      ),
-    ));
+    final nav = navigatorKey.currentState;
+    if (nav == null) return;
+    switch (data['type']) {
+      case 'randevu':
+        nav.pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const MainScreen(baslangicSekmesi: 1)), (_) => false);
+      case 'bekleme':
+        final salonId = int.tryParse(data['salon_id']?.toString() ?? '');
+        if (salonId != null) nav.push(MaterialPageRoute(builder: (_) => SalonDetayScreen(salonId: salonId)));
+      case 'degerlendirme':
+        final id = int.tryParse(data['randevu_id']?.toString() ?? '');
+        if (id == null) return;
+        nav.push(MaterialPageRoute(
+          builder: (_) => DegerlendirmeEkrani(
+            randevuId: id,
+            berberAdi: data['berber_adi']?.toString() ?? 'Berber',
+            berberFotoUrl: data['berber_foto_url']?.toString(),
+          ),
+        ));
+    }
   }
 
   static Future<void> durdur() async {

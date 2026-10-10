@@ -47,9 +47,14 @@ dependencies:
   share_plus: ^10.1.4
   geolocator: ^13.0.2
   file_picker: ^8.1.7
+  firebase_crashlytics: ^5.4.0
+  firebase_analytics: ^12.6.0
+  connectivity_plus: ^7.3.2
 
 dev_dependencies:
   flutter_test:
+    sdk: flutter
+  integration_test:
     sdk: flutter
 
   # The "flutter_lints" package below contains a set of recommended lints to
@@ -59,6 +64,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.8
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -73,6 +79,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/google_fonts/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -99,9 +106,22 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
-flutter_launcher_icons: 
+flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/images/logo.png" # Buraya logonun tam adını yaz (logo.png mi Logo.png mi kontrol et!)
-  adaptive_icon_background: "#000000" # Arka planı siyah yaptık
-  adaptive_icon_foreground: "assets/images/logo.png" # Ön planda senin logon
+  remove_alpha_ios: true
+  image_path: "assets/images/logo.png"
+  min_sdk_android: 24
+  adaptive_icon_background: "#141414"
+  adaptive_icon_foreground: "assets/images/ikon_on_plan.png"
+  adaptive_icon_monochrome: "assets/images/ikon_on_plan.png"
+
+flutter_native_splash:
+  color: "#141414"
+  image: "assets/images/splash_logo.png"
+  android_12:
+    color: "#141414"
+    image: "assets/images/ikon_on_plan.png"
+    icon_background_color: "#141414"
+  fullscreen: false
+  web: false

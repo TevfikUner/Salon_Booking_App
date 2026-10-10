@@ -5,6 +5,7 @@ import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
 import 'package:berber_app_ui/data/sabit/yasal_metinler.dart';
 import 'package:berber_app_ui/features/destek/yasal_dokuman_screen.dart';
 import 'package:berber_app_ui/features/giris/widgets/giris_bilesenleri.dart';
+import 'package:berber_app_ui/services/analitik.dart';
 import 'package:berber_app_ui/services/auth_service.dart';
 import 'package:berber_app_ui/services/yonlendirme.dart';
 
@@ -49,6 +50,7 @@ class _KayitScreenState extends State<KayitScreen> {
         kvkkOnay: _kvkk,
         ticariIletiIzni: _ticari,
       );
+      Analitik.kayit(rol: 'musteri');
       if (mounted) await Yonlendirme.git(context);
     } catch (e) {
       if (mounted) bilgiGoster(context, 'Kayıt başarısız: ${AuthService.hataMesaji(e)}', hata: true);

@@ -31,6 +31,7 @@ class _RandevuEkleSheetState extends State<RandevuEkleSheet> {
   bool _yukleniyor = true;
   bool _saatYukleniyor = false;
   bool _kaydediliyor = false;
+  final String _anahtar = ApiClient.yeniAnahtar();
   final _adCtrl = TextEditingController();
   final _telCtrl = TextEditingController();
   final _notCtrl = TextEditingController();
@@ -121,6 +122,7 @@ class _RandevuEkleSheetState extends State<RandevuEkleSheet> {
         musteriAd: _adCtrl.text.trim(),
         musteriTelefon: _telCtrl.text.trim().isEmpty ? '' : '0${_telCtrl.text.trim()}',
         notlar: _notCtrl.text.trim().isEmpty ? null : _notCtrl.text.trim(),
+        idempotencyKey: _anahtar,
       );
       if (!mounted) return;
       Navigator.pop(context, true);

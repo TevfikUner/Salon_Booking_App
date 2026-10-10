@@ -9,6 +9,7 @@ import 'package:berber_app_ui/data/api/randevu_api.dart';
 import 'package:berber_app_ui/data/models/randevu.dart';
 import 'package:berber_app_ui/features/musteri/degerlendirme/degerlendirme_screen.dart';
 import 'package:berber_app_ui/features/musteri/randevularim/widgets/randevu_karti.dart';
+import 'package:berber_app_ui/services/analitik.dart';
 
 /// Yaklaşan ve geçmiş randevular; iptal ve değerlendirme.
 class RandevularimScreen extends StatefulWidget {
@@ -51,6 +52,7 @@ class RandevularimScreenState extends State<RandevularimScreen> {
     if (!onay) return;
     try {
       await RandevuApi.iptal(r.id);
+      Analitik.randevuIptal();
       if (mounted) bilgiGoster(context, 'Randevunuz iptal edildi.');
       yenile();
     } on ApiHata catch (e) {

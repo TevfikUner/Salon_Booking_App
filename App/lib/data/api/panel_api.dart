@@ -18,8 +18,9 @@ class PanelApi {
     required String musteriAd,
     String musteriTelefon = '',
     String? notlar,
+    String? idempotencyKey,
   }) async =>
-      await ApiClient.post('/panel/randevular', govde: {
+      await ApiClient.post('/panel/randevular', idempotencyKey: idempotencyKey, govde: {
         'berber_id': berberId,
         'tarih': tarih,
         'saat': saat,

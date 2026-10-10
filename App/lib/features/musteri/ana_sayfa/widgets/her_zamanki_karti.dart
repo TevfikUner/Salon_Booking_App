@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:berber_app_ui/features/randevu_al/onay_screen.dart';
 import 'package:berber_app_ui/data/api/api_client.dart';
 import 'package:berber_app_ui/data/api/randevu_api.dart';
+import 'package:berber_app_ui/services/analitik.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
@@ -21,6 +22,7 @@ class HerZamankiKarti extends StatefulWidget {
 
 class _HerZamankiKartiState extends State<HerZamankiKarti> {
   String? _gonderilen;
+  final Map<String, String> _anahtarlar = {}; // slot → idempotency anahtarı
 
   Future<void> _al(Map<String, dynamic> slot) async {
     final v = widget.veri;
@@ -36,6 +38,7 @@ class _HerZamankiKartiState extends State<HerZamankiKarti> {
     );
     if (!onay || !mounted) return;
     final anahtar = '${slot['tarih']} ${slot['saat']}';
+    if (_gonderilen != null) return;
     setState(() => _gonderilen = anahtar);
     try {
       final sonuc = await RandevuApi.olustur(
@@ -43,7 +46,10 @@ class _HerZamankiKartiState extends State<HerZamankiKarti> {
         saat: slot['saat'],
         tarih: slot['tarih'],
         hizmetIds: hizmetler.map<int>((h) => h['id'] as int).toList(),
+        idempotencyKey: _anahtarlar.putIfAbsent(anahtar, ApiClient.yeniAnahtar),
       );
+      Analitik.randevuOlusturuldu(
+          tutar: sonuc['toplam_fiyat'] as num? ?? 0, hizmetSayisi: hizmetler.length, kaynak: 'her_zamanki');
       if (!mounted) return;
       Navigator.of(context).push(MaterialPageRoute(
         builder: (_) => OnaySayfasi(

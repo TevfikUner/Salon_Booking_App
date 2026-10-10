@@ -14,6 +14,7 @@ import 'package:berber_app_ui/data/api/randevu_api.dart';
 import 'package:berber_app_ui/features/randevu_al/onay_screen.dart';
 import 'package:berber_app_ui/features/randevu_al/randevu_provider.dart';
 import 'package:berber_app_ui/features/randevu_al/widgets/randevu_ozeti.dart';
+import 'package:berber_app_ui/services/analitik.dart';
 
 /// Son adım: özet + iletişim bilgileri (profilden önceden doldurulur) → randevuyu oluştur.
 class Adim5Form extends StatefulWidget {
@@ -30,6 +31,8 @@ class _Adim5FormState extends State<Adim5Form> {
   final _telefon = TextEditingController();
   bool _gonderiliyor = false;
   bool _profilYukleniyor = true;
+  // Bu ekrandaki onay eylemi için tek anahtar: zaman aşımı sonrası tekrar basılırsa sunucu ikinci randevu açmaz
+  final String _anahtar = ApiClient.yeniAnahtar();
 
   @override
   void initState() {
@@ -60,6 +63,7 @@ class _Adim5FormState extends State<Adim5Form> {
   }
 
   Future<void> _olustur() async {
+    if (_gonderiliyor) return; // çift dokunma
     if (!_form.currentState!.validate()) return;
     final p = context.read<RandevuProvider>();
     final berber = p.seciliBerber, tarih = p.seciliTarih, saat = p.seciliSaat;
@@ -76,7 +80,10 @@ class _Adim5FormState extends State<Adim5Form> {
         ad: _ad.text.trim(),
         soyad: _soyad.text.trim(),
         telefon: '0${_telefon.text.trim()}',
+        idempotencyKey: _anahtar,
       );
+      Analitik.randevuOlusturuldu(
+          tutar: sonuc['toplam_fiyat'] as num? ?? p.toplamFiyat, hizmetSayisi: p.seciliHizmetler.length, kaynak: 'akis');
       final onay = OnaySayfasi(
         tarih: tarihStr(tarih),
         saat: saat,
