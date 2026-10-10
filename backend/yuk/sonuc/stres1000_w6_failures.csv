@@ -1,0 +1,2 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+POST,/randevular/[id]/iptal,CatchResponseError('0'),4,2026-10-10T19:10:44Z,2026-10-10T19:11:51Z

@@ -10,6 +10,8 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from sqlalchemy import text  # noqa: E402
+
 import models  # noqa: E402
 from config import ayarlar  # noqa: E402
 from database import SessionLocal, engine  # noqa: E402
@@ -24,9 +26,13 @@ MENU = [("Saç Kesimi", 300, 30), ("Sakal", 150, 15), ("Saç & Sakal", 450, 45),
 
 def main(salon_sayisi: int = 50, berber: int = 4, musteri: int = 1000) -> None:
     random.seed(42)
+    tablolar = [t for t in reversed(models.Base.metadata.sorted_tables) if t.name != "alembic_version"]
     with engine.begin() as c:
-        for t in reversed(models.Base.metadata.sorted_tables):
-            if t.name not in ("alembic_version",):
+        if engine.dialect.name == "postgresql":
+            # ID sayaçları da sıfırlanmalı: locustfile salon 1..50 / berber 1..200 varsayar
+            c.execute(text("TRUNCATE " + ", ".join(t.name for t in tablolar) + " RESTART IDENTITY CASCADE"))
+        else:
+            for t in tablolar:
                 c.execute(t.delete())
     db = SessionLocal()
     for i in range(salon_sayisi):
