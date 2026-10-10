@@ -66,6 +66,7 @@ class _Adim2PersonelState extends State<Adim2Personel> {
           selected: secili,
           label: '${b.tamAd}, ${b.uzmanlik}, puan ${b.puan.toStringAsFixed(1)}',
           child: GestureDetector(
+            key: ValueKey('berber_${b.id}'),
             onTap: () => provider.berberSec(b),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),

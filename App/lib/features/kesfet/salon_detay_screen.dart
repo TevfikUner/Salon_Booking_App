@@ -83,7 +83,7 @@ class _SalonDetayScreenState extends State<SalonDetayScreen> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 55)),
                 onPressed: _randevuAl,
-                child: const Text('RANDEVU AL'),
+                child: const Text('Randevu Al'),
               ),
             ),
       body: AsenkronGorunum(

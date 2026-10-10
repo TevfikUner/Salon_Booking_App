@@ -13,6 +13,7 @@ import 'package:berber_app_ui/features/randevu_al/adimlar/adim5_form.dart';
 
 class RandevuFlow extends StatefulWidget {
   final int? salonId;
+
   /// Favori berber ile hızlı randevu alırken berber bilgisi geçirilir
   /// Personel seçimi adımı atlanır
   final Berber? favoriBerber;
@@ -59,41 +60,46 @@ class _RandevuFlowState extends State<RandevuFlow> {
     if (_berberAtla) {
       // 4 adımlı akış: Hizmet → Tarih → Saat → Form
       if (_currentStep == 0 && !provider.adim1Tamam) {
-        _snack('Lütfen en az bir hizmet seçin'); return;
+        _snack('Lütfen en az bir hizmet seçin');
+        return;
       }
       if (_currentStep == 1 && !provider.adim3Tamam) {
-        _snack('Lütfen bir tarih seçin'); return;
+        _snack('Lütfen bir tarih seçin');
+        return;
       }
       if (_currentStep == 2 && !provider.adim4Tamam) {
-        _snack('Lütfen bir saat seçin'); return;
+        _snack('Lütfen bir saat seçin');
+        return;
       }
     } else {
       // 5 adımlı akış: Hizmet → Personel → Tarih → Saat → Form
       if (_currentStep == 0 && !provider.adim1Tamam) {
-        _snack('Lütfen en az bir hizmet seçin'); return;
+        _snack('Lütfen en az bir hizmet seçin');
+        return;
       }
       if (_currentStep == 1 && !provider.adim2Tamam) {
-        _snack('Lütfen bir personel seçin'); return;
+        _snack('Lütfen bir personel seçin');
+        return;
       }
       if (_currentStep == 2 && !provider.adim3Tamam) {
-        _snack('Lütfen bir tarih seçin'); return;
+        _snack('Lütfen bir tarih seçin');
+        return;
       }
       if (_currentStep == 3 && !provider.adim4Tamam) {
-        _snack('Lütfen bir saat seçin'); return;
+        _snack('Lütfen bir saat seçin');
+        return;
       }
     }
 
     if (_currentStep < _totalSteps - 1) {
-      _pageCtrl.nextPage(
-          duration: const Duration(milliseconds: 350), curve: Curves.easeInOut);
+      _pageCtrl.nextPage(duration: const Duration(milliseconds: 350), curve: Curves.easeInOut);
       setState(() => _currentStep++);
     }
   }
 
   void _geri() {
     if (_currentStep > 0) {
-      _pageCtrl.previousPage(
-          duration: const Duration(milliseconds: 350), curve: Curves.easeInOut);
+      _pageCtrl.previousPage(duration: const Duration(milliseconds: 350), curve: Curves.easeInOut);
       setState(() => _currentStep--);
     } else {
       Navigator.pop(context);
@@ -101,8 +107,7 @@ class _RandevuFlowState extends State<RandevuFlow> {
   }
 
   void _snack(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg), backgroundColor: AppTheme.error));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg), backgroundColor: AppTheme.error));
   }
 
   @override
@@ -113,50 +118,56 @@ class _RandevuFlowState extends State<RandevuFlow> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.black,
-      appBar: AppBar(
+    // Android geri tuşu/hareketi akıştan çıkmak yerine bir önceki adıma döner (ilk adımda çıkar)
+    return PopScope(
+      canPop: _currentStep == 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _geri();
+      },
+      child: Scaffold(
         backgroundColor: AppTheme.black,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppTheme.gold),
-          onPressed: _geri,
+        appBar: AppBar(
+          backgroundColor: AppTheme.black,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios, color: AppTheme.gold),
+            onPressed: _geri,
+          ),
+          title: Column(
+            children: [
+              Text(
+                _stepBasliklari[_currentStep],
+                style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                'Adım ${_currentStep + 1} / $_totalSteps',
+                style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 11),
+              ),
+            ],
+          ),
         ),
-        title: Column(
+        body: Column(
           children: [
-            Text(_stepBasliklari[_currentStep],
-                style: GoogleFonts.playfairDisplay(
-                    color: AppTheme.gold,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold)),
-            Text('Adım ${_currentStep + 1} / $_totalSteps',
-                style: GoogleFonts.inter(
-                    color: AppTheme.textSecondary, fontSize: 11)),
+            // Step indicator
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: StepIndicator(currentStep: _currentStep, totalSteps: _totalSteps),
+            ),
+            // Sayfa içeriği
+            Expanded(
+              child: PageView(
+                controller: _pageCtrl,
+                physics: const NeverScrollableScrollPhysics(),
+                children: _sayfalar,
+              ),
+            ),
+            // Alt bar — son adımda Adim5 kendi butonunu yönetir
+            if (_currentStep < _totalSteps - 1)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                child: AltinButon(text: 'İleri →', onPressed: _ileri),
+              ),
           ],
         ),
-      ),
-      body: Column(
-        children: [
-          // Step indicator
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: StepIndicator(
-                currentStep: _currentStep, totalSteps: _totalSteps),
-          ),
-          // Sayfa içeriği
-          Expanded(
-            child: PageView(
-              controller: _pageCtrl,
-              physics: const NeverScrollableScrollPhysics(),
-              children: _sayfalar,
-            ),
-          ),
-          // Alt bar — son adımda Adim5 kendi butonunu yönetir
-          if (_currentStep < _totalSteps - 1)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-              child: AltinButon(text: 'İleri →', onPressed: _ileri),
-            ),
-        ],
       ),
     );
   }

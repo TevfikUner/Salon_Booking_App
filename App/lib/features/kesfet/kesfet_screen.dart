@@ -126,6 +126,7 @@ class _KesfetScreenState extends State<KesfetScreen> {
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
                       itemCount: _salonlar.length,
                       itemBuilder: (_, i) => SalonKarti(
+                        key: ValueKey('salon_${_salonlar[i].id}'),
                         salon: _salonlar[i],
                         onTap: () => Navigator.push(context,
                             MaterialPageRoute(builder: (_) => SalonDetayScreen(salonId: _salonlar[i].id))),

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:berber_app_ui/core/config.dart';
@@ -73,11 +74,16 @@ class ApiClient {
     return Uri.parse(parcalar.isEmpty ? '$base$path' : '$base$path?${parcalar.join('&')}');
   }
 
+  /// Entegrasyon testi, gerçek Firebase hesabı açmadan backend'in dev modunda (`dev:<uid>`) çalışsın diye.
+  /// Uygulama kodunda ATANMAZ; release derlemede null kalır.
+  @visibleForTesting
+  static Future<String?> Function()? testJetonu;
+
   static Future<Map<String, String>> _basliklar({required bool json}) async {
     final h = <String, String>{};
     if (json) h['Content-Type'] = 'application/json';
     try {
-      final token = await FirebaseAuth.instance.currentUser?.getIdToken();
+      final token = await (testJetonu ?? () async => FirebaseAuth.instance.currentUser?.getIdToken())();
       if (token != null) h['Authorization'] = 'Bearer $token';
     } on FirebaseAuthException {
       // Token yenilenemedi (ağ yok / oturum geçersiz): ekran sonsuz yüklemede kalmasın

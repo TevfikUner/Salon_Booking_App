@@ -61,6 +61,7 @@ class _Adim1HizmetState extends State<Adim1Hizmet> {
               final h = _hizmetler![i];
               final secili = provider.isHizmetSecili(h);
               return GestureDetector(
+                key: ValueKey('hizmet_${h.id}'),
                 onTap: () => provider.hizmetToggle(h),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
