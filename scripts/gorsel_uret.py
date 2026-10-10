@@ -62,7 +62,7 @@ def main() -> None:
     # Play ikonu: 512x512, köşesiz (Play kendisi yuvarlar), opak
     ikon = Image.new("RGBA", (512, 512), ZEMIN + (255,))
     ikon.alpha_composite(ortala(logo, 512, 0.78))
-    ikon.convert("RGB").save(KOK / "MAGAZA/gorseller/ikon_512.png")
+    ikon.convert("RGBA").save(KOK / "MAGAZA/gorseller/ikon_512.png")  # Play: 32-bit PNG
 
     # Öne çıkan görsel 1024x500
     fg = Image.new("RGB", (1024, 500), (10, 10, 10))

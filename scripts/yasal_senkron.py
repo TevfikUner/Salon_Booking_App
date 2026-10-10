@@ -74,7 +74,8 @@ def uret() -> str:
 if __name__ == "__main__":
     yeni = uret()
     if "--kontrol" in sys.argv:
-        guncel = HEDEF.exists() and HEDEF.read_text(encoding="utf-8") == yeni
+        # Windows'ta git CRLF'e çevirebilir; satır sonu farkı "güncel değil" sayılmaz
+        guncel = HEDEF.exists() and HEDEF.read_text(encoding="utf-8").replace("\r\n", "\n") == yeni
         print("güncel" if guncel else "GÜNCEL DEĞİL: python scripts/yasal_senkron.py çalıştırın")
         sys.exit(0 if guncel else 1)
     HEDEF.write_text(yeni, encoding="utf-8", newline="\n")

@@ -1,5 +1,6 @@
 # Render Blueprint — https://render.com/docs/blueprint-spec
-# Kurulum: Render → New → Blueprint → bu repo → dal: main. Gizli değerler (sync: false) panelden girilir.
+# Kurulum: Render → New → Blueprint → bu repo → dal: main (feature/v1-hazirlik birleştirildikten sonra).
+# Gizli değerler (sync: false) panelden girilir. Adım adım: CANLIYA_ALMA.md
 #
 # Mimari: web (gunicorn, N worker) + ayrı zamanlanmış görev süreci (worker) + yönetilen PostgreSQL.
 # Görevler yalnızca worker'da çalışır; yine de DB kilidi (gorev_kilitleri) çift çalışmayı engeller.
