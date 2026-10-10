@@ -51,6 +51,20 @@ def test_db_kesintisinde_turkce_503(client, veri, monkeypatch):
     assert r.headers["retry-after"] == "5"
 
 
+def test_havuz_doluysa_500_degil_503(client, veri, monkeypatch):
+    """Aşırı yükte bağlantı havuzu zaman aşımı (yük testinde görüldü) kullanıcıya 'tekrar deneyin' olarak döner."""
+    from sqlalchemy.exc import TimeoutError as HavuzZamanAsimi
+
+    import slot_servisi as ss
+
+    def dolu(*_a, **_k):
+        raise HavuzZamanAsimi("QueuePool limit of size 5 overflow 10 reached")
+
+    monkeypatch.setattr(ss, "gun_musaitligi", dolu)
+    r = client.get(f"/randevular/musait-saatler/{veri['ali']}", params=[("tarih", YARIN), ("hizmet_ids", veri["kesim"])])
+    assert r.status_code == 503 and r.headers["retry-after"] == "5"
+
+
 def test_beklenmeyen_hata_ham_istisna_sizdirmaz(veri, monkeypatch):
     import slot_servisi as ss
     monkeypatch.setattr(ss, "gun_musaitligi", lambda *a, **k: 1 / 0)

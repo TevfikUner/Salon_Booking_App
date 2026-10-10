@@ -12,6 +12,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from sqlalchemy import text
 from sqlalchemy.exc import DBAPIError, OperationalError
+from sqlalchemy.exc import TimeoutError as HavuzZamanAsimi
 
 from config import ayarlar
 from database import SessionLocal
@@ -68,8 +69,12 @@ app.add_middleware(IstekLoguAraKatmani)
 # (beklenmeyen istisnalar IstekLoguAraKatmani'nda istek kodlu 500'e çevrilir)
 @app.exception_handler(OperationalError)
 @app.exception_handler(DBAPIError)
+@app.exception_handler(HavuzZamanAsimi)  # aşırı yük: bağlantı havuzunda boş yer çıkmadı
 async def veritabani_hatasi(_: Request, exc: Exception):
-    log.error("Veritabanı hatası: %s", exc.__class__.__name__, exc_info=exc)
+    if isinstance(exc, HavuzZamanAsimi):
+        log.warning("Bağlantı havuzu dolu (aşırı yük) → 503")
+    else:
+        log.error("Veritabanı hatası: %s", exc.__class__.__name__, exc_info=exc)
     return JSONResponse(status_code=503, headers={"Retry-After": "5"},
                         content={"detail": "Hizmet geçici olarak kullanılamıyor. Lütfen birazdan tekrar deneyin."})
 

@@ -45,7 +45,7 @@ class Ayarlar(BaseSettings):
     # Veritabanı bağlantı havuzu (PostgreSQL). Toplam bağlantı ≈ worker × (pool_size + max_overflow)
     db_pool_size: int = 5
     db_max_overflow: int = 10
-    db_pool_timeout: int = 10
+    db_pool_timeout: int = 5  # aşırı yükte istek uzun asılı kalmasın → hızlı 503 + Retry-After
     db_pool_recycle: int = 1800
 
     # /docs ve /openapi.json. Boşsa: production'da kapalı, diğer ortamlarda açık.

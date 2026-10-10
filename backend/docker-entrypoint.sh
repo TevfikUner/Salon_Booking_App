@@ -15,5 +15,5 @@ exec gunicorn main:app \
   --workers "${WEB_CONCURRENCY:-2}" \
   --bind "0.0.0.0:${PORT:-8000}" \
   --timeout 60 --graceful-timeout 20 --keep-alive 5 \
-  --max-requests 2000 --max-requests-jitter 200 \
+  --max-requests 10000 --max-requests-jitter 1000 \
   --forwarded-allow-ips '*'

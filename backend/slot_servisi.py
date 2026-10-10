@@ -92,26 +92,41 @@ def tarih_dogrula(tarih_str: str) -> date:
 
 def kapali_neden(db: Session, salon: models.Salon, berber_id: int | None, gun: date) -> str | None:
     """Gün randevuya kapalıysa kullanıcıya gösterilecek nedeni döner."""
-    if gun < bugun():
-        return "Geçmiş bir tarihe randevu alınamaz."
-    if gun > bugun() + timedelta(days=ayarlar().rezervasyon_ufku_gun):
-        return f"En fazla {ayarlar().rezervasyon_ufku_gun} gün sonrasına randevu alınabilir."
-    if gun_mesaisi(salon, gun) is None:
-        return "Salon bu gün kapalı."
-    tarih_str = gun.isoformat()
-    tatil = db.query(models.TatilGunu).filter(
-        models.TatilGunu.tarih == tarih_str,
-        or_(models.TatilGunu.salon_id == salon.id, models.TatilGunu.salon_id.is_(None)),
-    ).first()
-    if tatil:
-        return f"Salon bu gün kapalı{f' ({tatil.aciklama})' if tatil.aciklama else ''}."
+    return kapali_nedenler(db, salon, berber_id, [gun])[gun]
+
+
+def kapali_nedenler(db: Session, salon: models.Salon, berber_id: int | None,
+                    gunler: list[date]) -> dict[date, str | None]:
+    """Birden çok gün için kapalılık nedeni — tatil ve izinler tek sorguda (takvimde gün başına sorgu atılmasın)."""
+    ufuk = ayarlar().rezervasyon_ufku_gun
+    tarihler = [g.isoformat() for g in gunler]
+    tatiller = {
+        t.tarih: t for t in db.query(models.TatilGunu).filter(
+            models.TatilGunu.tarih.in_(tarihler),
+            or_(models.TatilGunu.salon_id == salon.id, models.TatilGunu.salon_id.is_(None)),
+        )
+    }
+    izinler: set[str] = set()
     if berber_id is not None:
-        izin = db.query(models.BerberIzin).filter(
-            models.BerberIzin.berber_id == berber_id, models.BerberIzin.tarih == tarih_str
-        ).first()
-        if izin:
-            return "Seçilen personel bu gün izinli."
-    return None
+        izinler = {t for (t,) in db.query(models.BerberIzin.tarih).filter(
+            models.BerberIzin.berber_id == berber_id, models.BerberIzin.tarih.in_(tarihler))}
+    sonuc: dict[date, str | None] = {}
+    for gun in gunler:
+        tarih_str = gun.isoformat()
+        tatil = tatiller.get(tarih_str)
+        if gun < bugun():
+            sonuc[gun] = "Geçmiş bir tarihe randevu alınamaz."
+        elif gun > bugun() + timedelta(days=ufuk):
+            sonuc[gun] = f"En fazla {ufuk} gün sonrasına randevu alınabilir."
+        elif gun_mesaisi(salon, gun) is None:
+            sonuc[gun] = "Salon bu gün kapalı."
+        elif tatil:
+            sonuc[gun] = f"Salon bu gün kapalı{f' ({tatil.aciklama})' if tatil.aciklama else ''}."
+        elif tarih_str in izinler:
+            sonuc[gun] = "Seçilen personel bu gün izinli."
+        else:
+            sonuc[gun] = None
+    return sonuc
 
 
 def dolu_araliklar(db: Session, berber_id: int, tarih_str: str) -> list[tuple[int, int]]:

@@ -64,9 +64,10 @@ def musait_takvim_getir(berber_id: int | None = None, salon_id: int | None = Non
     """Rezervasyon ufku içindeki açık günler. Tatil, kapalı gün ve (berber verilmişse) izin günleri hariç."""
     salon = _salon_bul(db, berber_id, salon_id)
     gunler = []
-    for i in range(ayarlar().rezervasyon_ufku_gun + 1):
-        gun = bugun() + timedelta(days=i)
-        if ss.kapali_neden(db, salon, berber_id, gun):
+    aday = [bugun() + timedelta(days=i) for i in range(ayarlar().rezervasyon_ufku_gun + 1)]
+    nedenler = ss.kapali_nedenler(db, salon, berber_id, aday)
+    for gun in aday:
+        if nedenler[gun]:
             continue
         acilis, kapanis = ss.gun_mesaisi(salon, gun)
         if gun == bugun() and simdi().hour * 60 + simdi().minute >= kapanis - ss.blok_dk(1):
