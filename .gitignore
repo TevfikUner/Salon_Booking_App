@@ -20,3 +20,8 @@ backend/uploads/
 desktop.ini
 .DS_Store
 Thumbs.db
+
+# Android imza anahtarı ve parolaları (repo dışında tutulur)
+key.properties
+*.jks
+*.keystore

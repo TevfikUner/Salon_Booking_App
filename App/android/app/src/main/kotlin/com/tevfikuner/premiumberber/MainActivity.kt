@@ -1,4 +1,4 @@
-package com.example.berber_app_ui
+package com.tevfikuner.premiumberber
 
 import io.flutter.embedding.android.FlutterActivity
 

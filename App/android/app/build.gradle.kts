@@ -1,14 +1,17 @@
 import java.io.FileInputStream
 import java.util.Properties
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.application")
     id("kotlin-android")
-    id("dev.flutter.flutter-gradle-plugin") // Flutter plugin'i bunlardan sonra gelmeli
-    id("com.google.gms.google-services")    // Firebase'i en sona koyabilirsin
+    id("dev.flutter.flutter-gradle-plugin") // Flutter eklentisi Android/Kotlin eklentilerinden sonra gelmeli
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
-// Release imzası: android/key.properties (git'e eklenmez). Yoksa debug anahtarıyla imzalanır.
+// Release imzası: android/key.properties (git'e eklenmez; anahtar deposu repo dışında).
+// Dosya yoksa (ör. CI veya başka bir geliştirici) release debug anahtarıyla imzalanır — mağazaya yüklenemez.
 val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
 if (keystorePropertiesFile.exists()) {
@@ -16,26 +19,22 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.example.berber_app_ui"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    namespace = "com.tevfikuner.premiumberber"
+    compileSdk = 36
+    ndkVersion = flutter.ndkVersion  // 28.2 — kök build.gradle.kts tüm eklentilere de uygular
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
-    }
-
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.berber_app_ui"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        applicationId = "com.tevfikuner.premiumberber"
+        // Firebase alt sınırı 23; Flutter 24 altında uyarı verir → 24 (Android 7.0, cihazların ~%99'u)
+        minSdk = 24
+        // Google Play 2026 zorunluluğu
+        targetSdk = 36
+        // pubspec.yaml → version: 1.0.0+1
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
@@ -56,17 +55,21 @@ android {
             signingConfig = if (keystorePropertiesFile.exists()) {
                 signingConfigs.getByName("release")
             } else {
-                signingConfigs.getByName("debug") // yalnızca yerel deneme; mağazaya yüklenemez
+                signingConfigs.getByName("debug")
             }
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
     }
 }
 
 flutter {
     source = "../.."
-}
-dependencies {
-    // Buraya Firebase BOM ekleyeceğiz
-    implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
-    implementation("com.google.firebase:firebase-analytics")
 }
