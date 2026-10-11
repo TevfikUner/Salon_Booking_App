@@ -241,7 +241,7 @@ Sıra bağımlılığa göre düzenlendi (#1 bildirimi #2 kullanıyor; #4'teki m
 | Sıra | Madde | Efor | "Bitti" tanımı | Durum |
 |---|---|---|---|---|
 | 1 | **#1** İşletmeye/personele anlık bildirim | S | Uygulamadan yeni randevu, müşteri iptali ve erteleme işletme sahibine ve ilgili berbere push gönderiyor; panel kaydı göndermiyor; bildirime dokununca panel Akış o tarihle açılıyor; pytest (3+ yeni test) ve `flutter analyze` 0 | ✅ |
-| 2 | **#3** Yorumlar ve berber istatistikleri | S | Salon detayında yorum özeti + son 3 yorum + "Tümünü gör"; berberlerde puan ve tıraş sayısı; boş/hata durumları; sayfalı uç N+1'siz; testler yeşil | ⬜ |
+| 2 | **#3** Yorumlar ve berber istatistikleri | S | Salon detayında yorum özeti + son 3 yorum + "Tümünü gör"; berberlerde puan ve tıraş sayısı; boş/hata durumları; sayfalı uç N+1'siz; testler yeşil | ✅ |
 | 3 | **#4** Haftalık izin günü + öğle arası + saatlik bloke | M | Migration ileri/geri çalışıyor; alanlar boşken mevcut 70 test değişmeden yeşil; mola, haftalık izin ve kısmi bloke hem müşteri slotlarını hem panel kaydını kapatıyor; panelden üçü de yönetilebiliyor | ⬜ |
 | 4 | **#2** Randevu erteleme | M | Randevularım'da "Ertele" çalışıyor; limit, 30 dk kuralı, çakışmada 409 + öneriler, eşzamanlılık, eski gün için bekleme listesi bildirimi ve işletme bildirimi testli; iptal diyaloğu ertelemeyi öneriyor; idempotent | ✅ |
 | 5 | **#5** Müşteri kartı + kalıcı not | M | Akıştan müşteri kartı açılıyor (geçmiş, harcama, skor, not); salonlar arası izolasyon ve hesap silmede not silme testli; KVKK metni maddesi BENDEN_GEREKENLER'de | ⬜ |

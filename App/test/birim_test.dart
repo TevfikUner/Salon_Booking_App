@@ -57,6 +57,10 @@ void main() {
     test('Berber.fromJson boş soyad ve null puan', () {
       final b = Berber.fromJson({'id': 1, 'ad': 'Zeki', 'soyad': null, 'puan': null});
       expect(b.tamAd, 'Zeki');
+      expect((b.tamamlanan, b.degerlendirmeSayisi), (0, 0));
+      final s = Berber.fromJson({'id': 2, 'ad': 'Ali', 'tamamlanan': 120, 'degerlendirme_sayisi': 9});
+      expect((s.tamamlanan, s.degerlendirmeSayisi), (120, 9));
+      expect(s.copyWith(favori: true).tamamlanan, 120);
       expect(b.puan, 0);
     });
   });

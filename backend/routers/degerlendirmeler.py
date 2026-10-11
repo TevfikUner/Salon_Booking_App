@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import func
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import case, func, or_
+from sqlalchemy.orm import Session, joinedload
 
 import models
 from auth import Kimlik, kimlik_gerekli
@@ -60,11 +60,57 @@ def degerlendirme_ekle(
 def berber_degerlendirmeleri(berber_id: int, db: Session = Depends(get_db)):
     liste = db.query(models.Degerlendirme).filter(models.Degerlendirme.berber_id == berber_id) \
         .order_by(models.Degerlendirme.id.desc()).all()
+    tamamlanan = tamamlanan_sayilari(db, [berber_id]).get(berber_id, 0)
     if not liste:
-        return {"ortalama_puan": None, "toplam": 0, "yorumlar": []}
+        return {"ortalama_puan": None, "toplam": 0, "tamamlanan": tamamlanan, "yorumlar": []}
     return {
         "ortalama_puan": round(sum(d.puan for d in liste) / len(liste), 2),
         "toplam": len(liste),
+        "tamamlanan": tamamlanan,
         "yorumlar": [{"puan": d.puan, "yorum": d.yorum, "tarih": d.tarih, "musteri": _kisa_ad(d.musteri)}
                      for d in liste[:50]],
+    }
+
+
+def tamamlanan_sayilari(db: Session, berber_idler: list[int]) -> dict[int, int]:
+    """Berber başına tamamlanan randevu sayısı ("120 tıraş") — tek gruplu sorgu."""
+    if not berber_idler:
+        return {}
+    return dict(db.query(models.Randevu.berber_id, func.count(models.Randevu.id)).filter(
+        models.Randevu.berber_id.in_(berber_idler), models.Randevu.durum == "tamamlandi",
+    ).group_by(models.Randevu.berber_id).all())
+
+
+def degerlendirme_sayilari(db: Session, berber_idler: list[int]) -> dict[int, int]:
+    if not berber_idler:
+        return {}
+    return dict(db.query(models.Degerlendirme.berber_id, func.count(models.Degerlendirme.id)).filter(
+        models.Degerlendirme.berber_id.in_(berber_idler)).group_by(models.Degerlendirme.berber_id).all())
+
+
+@router.get("/salon/{salon_id}")
+def salon_degerlendirmeleri(salon_id: int, sayfa: int = Query(1, ge=1), adet: int = Query(20, ge=1, le=50),
+                            db: Session = Depends(get_db)):
+    """Salonun değerlendirmeleri: ortalama, 1–5 dağılımı ve sayfalı liste (yorum yazılanlar önce, yeniden eskiye)."""
+    dagilim = {str(p): 0 for p in range(5, 0, -1)}
+    for puan, sayi in db.query(models.Degerlendirme.puan, func.count(models.Degerlendirme.id)).filter(
+            models.Degerlendirme.salon_id == salon_id).group_by(models.Degerlendirme.puan):
+        if puan is not None and 1 <= puan <= 5:
+            dagilim[str(puan)] = sayi
+    toplam = sum(dagilim.values())
+    ortalama = round(sum(int(p) * s for p, s in dagilim.items()) / toplam, 2) if toplam else None
+    yorumsuz = or_(models.Degerlendirme.yorum.is_(None), models.Degerlendirme.yorum == "")
+    satirlar = db.query(models.Degerlendirme).filter(models.Degerlendirme.salon_id == salon_id) \
+        .options(joinedload(models.Degerlendirme.musteri), joinedload(models.Degerlendirme.berber)) \
+        .order_by(case((yorumsuz, 1), else_=0), models.Degerlendirme.id.desc()) \
+        .offset((sayfa - 1) * adet).limit(adet + 1).all()
+    return {
+        "ortalama_puan": ortalama,
+        "toplam": toplam,
+        "dagilim": dagilim,
+        "sayfa": sayfa,
+        "sonraki_var": len(satirlar) > adet,
+        "yorumlar": [{"puan": d.puan, "yorum": d.yorum, "tarih": d.tarih, "musteri": _kisa_ad(d.musteri),
+                      "berber": f"{d.berber.ad} {d.berber.soyad}".strip() if d.berber else ""}
+                     for d in satirlar[:adet]],
     }

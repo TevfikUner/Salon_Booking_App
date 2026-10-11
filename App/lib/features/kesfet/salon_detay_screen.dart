@@ -11,9 +11,10 @@ import 'package:berber_app_ui/data/models/salon.dart';
 import 'package:berber_app_ui/features/kesfet/widgets/ekip_listesi.dart';
 import 'package:berber_app_ui/features/kesfet/widgets/iletisim_butonlari.dart';
 import 'package:berber_app_ui/features/kesfet/widgets/salon_bilgi_kartlari.dart';
+import 'package:berber_app_ui/features/kesfet/widgets/yorumlar_bolumu.dart';
 import 'package:berber_app_ui/features/randevu_al/randevu_flow.dart';
 
-/// Salon detayı: iletişim, ekip (favori + doğrudan randevu), bugünkü durum, çalışma saatleri.
+/// Salon detayı: iletişim, ekip (favori + doğrudan randevu), değerlendirmeler, bugünkü durum, çalışma saatleri.
 class SalonDetayScreen extends StatefulWidget {
   final int salonId;
   const SalonDetayScreen({super.key, required this.salonId});
@@ -26,11 +27,25 @@ class _SalonDetayScreenState extends State<SalonDetayScreen> {
   Salon? _salon;
   Map<String, dynamic> _istatistik = const {};
   String? _hata;
+  Json? _yorumlar;
+  bool _yorumHata = false;
 
   @override
   void initState() {
     super.initState();
     _yukle();
+    _yorumlariYukle();
+  }
+
+  /// Yorumlar ayrı yüklenir; hata verirse yalnızca kendi bölümü "Tekrar" gösterir.
+  Future<void> _yorumlariYukle() async {
+    setState(() => _yorumHata = false);
+    try {
+      final v = await SalonApi.yorumlar(widget.salonId, adet: 3);
+      if (mounted) setState(() => _yorumlar = v);
+    } on ApiHata {
+      if (mounted) setState(() => _yorumHata = true);
+    }
   }
 
   Future<void> _yukle() async {
@@ -91,7 +106,7 @@ class _SalonDetayScreenState extends State<SalonDetayScreen> {
         hata: _hata,
         onTekrar: _yukle,
         builder: (_) => RefreshIndicator(
-          onRefresh: _yukle,
+          onRefresh: () => Future.wait([_yukle(), _yorumlariYukle()]),
           child: ListView(padding: const EdgeInsets.only(bottom: 110), children: [
             SalonBaslikKarti(salon: salon!),
             IletisimButonlari(salon: salon),
@@ -103,6 +118,14 @@ class _SalonDetayScreenState extends State<SalonDetayScreen> {
                 onRandevu: (b) => _randevuAl(berber: b),
               ),
             ],
+            const BolumBasligi(baslik: 'Değerlendirmeler', ikon: Icons.reviews_outlined),
+            YorumlarBolumu(
+              salonId: widget.salonId,
+              salonAd: salon.ad,
+              veri: _yorumlar,
+              hata: _yorumHata,
+              onTekrar: _yorumlariYukle,
+            ),
             const BolumBasligi(baslik: 'Bugünkü Durum', ikon: Icons.event_available),
             BugunDurumuKarti(istatistik: _istatistik),
             const BolumBasligi(baslik: 'Çalışma Saatleri', ikon: Icons.schedule),

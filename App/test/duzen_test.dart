@@ -11,7 +11,11 @@ import 'package:berber_app_ui/features/giris/giris_screen.dart';
 import 'package:berber_app_ui/features/giris/isletme_kayit_screen.dart';
 import 'package:berber_app_ui/features/giris/kayit_screen.dart';
 import 'package:berber_app_ui/features/isletme/akis/widgets/akis_randevu_karti.dart';
+import 'package:berber_app_ui/data/models/berber.dart';
+import 'package:berber_app_ui/features/kesfet/widgets/ekip_listesi.dart';
 import 'package:berber_app_ui/features/kesfet/widgets/salon_karti.dart';
+import 'package:berber_app_ui/features/kesfet/widgets/yorum_bilesenleri.dart';
+import 'package:berber_app_ui/features/kesfet/widgets/yorumlar_bolumu.dart';
 import 'package:berber_app_ui/features/musteri/randevularim/widgets/randevu_karti.dart';
 import 'package:berber_app_ui/features/randevu_al/onay_screen.dart';
 
@@ -73,6 +77,22 @@ void main() {
     'whatsapp_link': 'https://wa.me/905329999999',
   };
 
+  final yorumVeri = {
+    'ortalama_puan': 4.67, 'toplam': 1234, 'dagilim': {'5': 1000, '4': 200, '3': 30, '2': 3, '1': 1},
+    'sayfa': 1, 'sonraki_var': true,
+    'yorumlar': [
+      {'puan': 5, 'tarih': '2026-09-30', 'musteri': 'Muhammed Mustafa K.', 'berber': 'Abdurrahman Çağlayanoğlu',
+       'yorum': 'Çok titiz çalışıyor, sakal şekillendirmesi mükemmeldi. Bekleme olmadan tam saatinde aldılar, '
+           'kesinlikle tekrar geleceğim ve herkese tavsiye ederim.'},
+      {'puan': 3, 'tarih': '2026-09-29', 'musteri': 'Anonim', 'berber': '', 'yorum': null},
+    ],
+  };
+  final berberler = [
+    Berber.fromJson({'id': 1, 'ad': 'Abdurrahman', 'soyad': 'Çağlayanoğlu', 'uzmanlik': 'Saç & Sakal Tasarım Uzmanı',
+        'puan': 4.83, 'tamamlanan': 12345, 'degerlendirme_sayisi': 1234}),
+    Berber.fromJson({'id': 2, 'ad': 'Zeki', 'soyad': '', 'uzmanlik': '', 'puan': 5}),
+  ];
+
   for (final olcek in [1.0, 1.3]) {
     group('360 dp, yazı ölçeği $olcek', () {
       testWidgets('giriş', (t) => ciz(t, const GirisScreen(), olcek: olcek));
@@ -94,6 +114,16 @@ void main() {
             AkisRandevuKarti(randevu: akis, islemde: false, onDurum: (_) {}, onWhatsapp: () {}, onAra: () {}),
             AkisRandevuKarti(
                 randevu: {...akis, 'durum': 'tamamlandi'}, islemde: false, onDurum: (_) {}, onWhatsapp: () {}, onAra: () {}),
+          ]),
+          olcek: olcek));
+      testWidgets('salon değerlendirmeleri ve ekip', (t) => ciz(
+          t,
+          liste([
+            EkipListesi(berberler: berberler, onFavori: (_) {}, onRandevu: (_) {}),
+            YorumlarBolumu(salonId: 1, salonAd: 'Salon', veri: yorumVeri, hata: false, onTekrar: () {}),
+            YorumlarBolumu(salonId: 1, salonAd: 'Salon', veri: const {'toplam': 0}, hata: false, onTekrar: () {}),
+            YorumlarBolumu(salonId: 1, salonAd: 'Salon', veri: null, hata: true, onTekrar: () {}),
+            YorumKarti(yorum: (yorumVeri['yorumlar'] as List).first),
           ]),
           olcek: olcek));
       testWidgets('randevu onay ekranı', (t) => ciz(

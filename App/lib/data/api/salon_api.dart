@@ -23,6 +23,10 @@ class SalonApi {
     }
   }
 
+  /// Salon değerlendirmeleri: ortalama, 1–5 dağılımı, sayfalı yorumlar (yorum yazılanlar önce).
+  static Future<Json> yorumlar(int salonId, {int sayfa = 1, int adet = 20}) async =>
+      await ApiClient.get('/degerlendirmeler/salon/$salonId', params: {'sayfa': sayfa, 'adet': adet});
+
   static Future<List<Hizmet>> hizmetler(int? salonId) async =>
       ApiClient.liste(await ApiClient.get('/hizmetler/', params: {'salon_id': salonId})).map(Hizmet.fromJson).toList();
 

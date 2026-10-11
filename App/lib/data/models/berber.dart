@@ -11,6 +11,10 @@ class Berber {
   /// Oturumdaki müşterinin favorisi mi (yalnızca salon detayı / favoriler yanıtında anlamlı)
   final bool favori;
 
+  /// Tamamlanan randevu ("tıraş") ve değerlendirme sayısı (salon detayında gelir)
+  final int tamamlanan;
+  final int degerlendirmeSayisi;
+
   const Berber({
     required this.id,
     required this.ad,
@@ -21,6 +25,8 @@ class Berber {
     this.salonId,
     this.salonAd,
     this.favori = false,
+    this.tamamlanan = 0,
+    this.degerlendirmeSayisi = 0,
   });
 
   String get tamAd => '$ad $soyad'.trim();
@@ -36,6 +42,8 @@ class Berber {
         salonId: j['salon_id'],
         salonAd: j['salon_ad'],
         favori: j['favori'] == true || j.containsKey('berber_id'),
+        tamamlanan: j['tamamlanan'] ?? 0,
+        degerlendirmeSayisi: j['degerlendirme_sayisi'] ?? 0,
       );
 
   Berber copyWith({bool? favori}) => Berber(
@@ -48,5 +56,7 @@ class Berber {
         salonId: salonId,
         salonAd: salonAd,
         favori: favori ?? this.favori,
+        tamamlanan: tamamlanan,
+        degerlendirmeSayisi: degerlendirmeSayisi,
       );
 }

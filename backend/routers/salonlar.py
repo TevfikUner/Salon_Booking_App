@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 import models
 from auth import Kimlik, kimlik_istege_bagli
 from database import get_db
+from routers.degerlendirmeler import degerlendirme_sayilari, tamamlanan_sayilari
 
 router = APIRouter(prefix="/salonlar", tags=["Keşfet"])
 
@@ -95,6 +96,9 @@ def salon_detay(salon_id: int, kimlik: Kimlik | None = Depends(kimlik_istege_bag
         .order_by(models.SalonFotograf.sira).all()
     berberler = db.query(models.Berber).filter(models.Berber.salon_id == salon_id, models.Berber.aktif.is_(True)) \
         .order_by(models.Berber.id).all()
+    idler = [b.id for b in berberler]
+    tamamlanan = tamamlanan_sayilari(db, idler)
+    degerlendirme = degerlendirme_sayilari(db, idler)
     favori_idler: set[int] = set()
     if kimlik:
         m = db.query(models.Musteri).filter(models.Musteri.firebase_uid == kimlik.uid).first()
@@ -107,5 +111,7 @@ def salon_detay(salon_id: int, kimlik: Kimlik | None = Depends(kimlik_istege_bag
         "konum": {"lat": salon.konum_lat, "lng": salon.konum_long},
         "fotograflar": [{"id": f.id, "foto_url": f.foto_url, "sira": f.sira} for f in fotograflar],
         "berberler": [{"id": b.id, "ad": b.ad, "soyad": b.soyad, "uzmanlik": b.uzmanlik, "puan": b.puan,
-                       "foto_url": b.foto_url, "favori": b.id in favori_idler} for b in berberler],
+                       "foto_url": b.foto_url, "favori": b.id in favori_idler,
+                       "tamamlanan": tamamlanan.get(b.id, 0), "degerlendirme_sayisi": degerlendirme.get(b.id, 0)}
+                      for b in berberler],
     }

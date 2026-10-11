@@ -58,7 +58,14 @@ class _BerberSatiri extends StatelessWidget {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(b.tamAd, style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w700)),
-            Text('${b.uzmanlik} · ★ ${b.puan.toStringAsFixed(1)}',
+            Text(
+                [
+                  if (b.uzmanlik.isNotEmpty) b.uzmanlik,
+                  b.degerlendirmeSayisi > 0
+                      ? '★ ${b.puan.toStringAsFixed(1)} (${b.degerlendirmeSayisi})'
+                      : 'Yeni',
+                  if (b.tamamlanan > 0) '${b.tamamlanan} tıraş',
+                ].join(' · '),
                 style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
           ]),
         ),
