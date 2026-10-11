@@ -51,8 +51,10 @@ void main() {
     final berberId = int.parse((tester.widget(berberKarti.first).key as ValueKey<String>).value.split('_').last);
     await dokun(tester, find.text('İleri →'));
 
-    // 4) Tarih: backend'in açık dediği ilk gün
-    final ilkGun = DateTime.parse((await RandevuApi.musaitTakvim(berberId: berberId)).first['tarih'] as String);
+    // 4) Tarih: backend'in açık dediği ikinci gün. İlk gün bugünse ve saat geçse tek boş slot
+    // ızgaranın en altında kalır; GridView.builder onu çizmediği için bulunamaz.
+    final acikGunler = await RandevuApi.musaitTakvim(berberId: berberId);
+    final ilkGun = DateTime.parse(acikGunler[acikGunler.length > 1 ? 1 : 0]['tarih'] as String);
     await bekle(tester, _takvim);
     if (ilkGun.month != DateTime.now().month) await dokun(tester, find.byIcon(Icons.chevron_right));
     final gunler = find.descendant(of: _takvim, matching: find.text('${ilkGun.day}'));
@@ -63,9 +65,11 @@ void main() {
     await dokun(tester, find.byWidgetPredicate((w) => w is SaatSlotWidget && w.durum == SlotDurumu.musait));
     await dokun(tester, find.text('İleri →'));
 
-    // 6) Bilgiler (profilden dolu gelir) → onay
-    await bekle(tester, find.text('Randevumu Onayla'));
-    await tester.pump(const Duration(seconds: 1)); // profil yüklemesi
+    // 6) Bilgiler → onay. Firebase oturumu olmadığı için profil önceden doldurulmaz; elle girilir.
+    await bekle(tester, find.widgetWithText(TextFormField, 'Cep Telefonu'));
+    await tester.enterText(find.widgetWithText(TextFormField, 'Ad'), 'Entegrasyon');
+    await tester.enterText(find.widgetWithText(TextFormField, 'Cep Telefonu'), '5551112233');
+    await tester.pump();
     await dokun(tester, find.text('Randevumu Onayla'));
     await bekle(tester, find.text('Randevunuz Onaylandı!'));
 

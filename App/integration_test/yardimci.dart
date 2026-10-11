@@ -14,7 +14,9 @@ Future<void> hazirla(String uid) async {
   await initializeDateFormatting('tr_TR', null);
 }
 
+/// Önce boş ağaç: global navigatorKey yüzünden Navigator durumuyla taşınır, önceki sayfa yığını üstte kalırdı.
 Future<void> uygulamayiAc(WidgetTester tester, Widget ilkEkran) async {
+  await tester.pumpWidget(const SizedBox.shrink());
   await tester.pumpWidget(BerberApp(ilkEkran: ilkEkran));
   await tester.pump();
 }

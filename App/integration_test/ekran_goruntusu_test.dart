@@ -18,10 +18,15 @@ import 'yardimci.dart';
 ///     --dart-define=API_URL=http://10.0.2.2:8020
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  var yuzeyCevrildi = false; // convertFlutterSurfaceToImage test başına yalnızca bir kez çağrılabilir
+  setUp(() => yuzeyCevrildi = false);
 
   Future<void> cek(WidgetTester tester, String ad) async {
     await tester.pump(const Duration(seconds: 2)); // görseller ve animasyonlar otursun
-    if (Platform.isAndroid) await binding.convertFlutterSurfaceToImage();
+    if (Platform.isAndroid && !yuzeyCevrildi) {
+      await binding.convertFlutterSurfaceToImage();
+      yuzeyCevrildi = true;
+    }
     await tester.pump();
     await binding.takeScreenshot(ad);
   }
