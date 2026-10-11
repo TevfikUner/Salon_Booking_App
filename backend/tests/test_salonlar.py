@@ -43,3 +43,26 @@ def test_salon_detay_favori_isareti(client, veri):
     fav = client.get("/musteriler/favoriler", headers=auth("musteri-1")).json()
     assert fav[0]["ad"] == "Ali" and fav[0]["soyad"] == "Usta"
     assert client.get("/salonlar/9999").status_code == 404
+
+
+def test_arama_salon_adi_ilce_ve_hizmet(client, db):
+    a = models.Salon(ad="Makas Kuaför", sehir="İstanbul", ilce="Kadıköy", puan=4.8)
+    b = models.Salon(ad="Usta Berber", sehir="Ankara", ilce="Çankaya", puan=4.1)
+    c = models.Salon(ad="Pasif Salon", sehir="İstanbul", aktif=False)
+    db.add_all([a, b, c])
+    db.flush()
+    db.add_all([models.Hizmet(salon_id=b.id, ad="Sakal Tıraşı", fiyat=200, sure=30),
+                models.Hizmet(salon_id=b.id, ad="Sakal Şekillendirme", fiyat=250, sure=30),
+                models.Hizmet(salon_id=a.id, ad="Eski Sakal", fiyat=1, sure=30, aktif=False)])
+    db.commit()
+    ara = lambda **p: [(s["ad"], s["eslesen_hizmetler"]) for s in client.get("/salonlar", params=p).json()]  # noqa: E731
+    assert ara(q="MAKAS") == [("Makas Kuaför", [])]
+    assert ara(q="kuafor") == [("Makas Kuaför", [])]  # aksan duyarsız
+    assert ara(q="kadikoy") == [("Makas Kuaför", [])]  # ilçe
+    assert ara(q="ŞEKİL") == [("Usta Berber", ["Sakal Şekillendirme"])]
+    assert ara(q="sakal") == [("Usta Berber", ["Sakal Tıraşı", "Sakal Şekillendirme"])]  # pasif hizmet sayılmaz
+    assert ara(q="istanbul", min_puan=4.5) == [("Makas Kuaför", [])]  # pasif salon dönmez
+    assert ara(min_puan=4.5) == [("Makas Kuaför", [])]
+    assert ara(q="  ") == [("Makas Kuaför", []), ("Usta Berber", [])]
+    assert ara(q="yok-boyle-bir-sey") == []
+    assert client.get("/salonlar", params={"min_puan": 6}).status_code == 422

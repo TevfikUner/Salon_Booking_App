@@ -15,6 +15,8 @@ import 'package:berber_app_ui/features/isletme/akis/widgets/akis_randevu_karti.d
 import 'package:berber_app_ui/features/isletme/kapali_gunler/widgets/mola_karti.dart';
 import 'package:berber_app_ui/data/models/berber.dart';
 import 'package:berber_app_ui/features/kesfet/widgets/ekip_listesi.dart';
+import 'package:berber_app_ui/features/kesfet/widgets/kesfet_filtre_paneli.dart';
+import 'package:berber_app_ui/features/kesfet/widgets/salon_arama_kutusu.dart';
 import 'package:berber_app_ui/features/kesfet/widgets/salon_karti.dart';
 import 'package:berber_app_ui/features/kesfet/widgets/yorum_bilesenleri.dart';
 import 'package:berber_app_ui/features/kesfet/widgets/yorumlar_bolumu.dart';
@@ -57,6 +59,7 @@ void main() {
     'id': 51, 'ad': 'Kuaför Mehmet Ali & Oğulları Erkek Kuaförü', 'sehir': 'Afyonkarahisar', 'ilce': 'Sandıklı',
     'adres': 'Atatürk Bulvarı No: 125/3 Hükümet Konağı Karşısı', 'puan': 4.7, 'acilis_saati': '09:00',
     'kapanis_saati': '21:00', 'kapali_gunler': '6', 'mesafe_km': 12.4,
+    'eslesen_hizmetler': ['Sakal Tıraşı ve Şekillendirme', 'Sakal Boyama', 'Sıcak Havlu Sakal Bakımı'],
   });
 
   Randevu randevu(String durum, {String? iptalEden}) => Randevu.fromJson({
@@ -146,6 +149,18 @@ void main() {
                'hizmetler': ['Kesim'], 'toplam_fiyat': 300},
             ],
           })),
+          olcek: olcek));
+      testWidgets('keşfet arama ve filtre paneli', (t) => ciz(
+          t,
+          Scaffold(
+            body: KesfetFiltrePaneli(
+              sehir: 'Afyonkarahisar', ilce: 'Sandıklı', konumModu: false, konumAliniyor: false, ekFiltre: true,
+              onSehirSec: () {}, onIlceSec: () {}, onTemizle: () {}, onKonum: () {},
+              ust: SalonAramaKutusu(
+                controller: TextEditingController(text: 'sakal tıraşı ve şekillendirme'),
+                onDegisti: (_) {}, onTemizle: () {}, yuksekPuan: true, onYuksekPuan: (_) {}),
+            ),
+          ),
           olcek: olcek));
       testWidgets('takvim doluluk bilgisi ve lejant', (t) => ciz(
           t,

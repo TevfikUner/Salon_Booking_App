@@ -80,6 +80,11 @@ void main() {
       expect(s.calismaSaati(DateTime.sunday), isNull);
       expect(s.calismaSaati(DateTime.monday), '09:00 – 21:00');
     });
+    test('aramada eşleşen hizmetler okunur, yoksa boş', () {
+      expect(Salon.fromJson({'id': 1, 'eslesen_hizmetler': ['Sakal']}).eslesenHizmetler, ['Sakal']);
+      expect(Salon.fromJson({'id': 1}).eslesenHizmetler, isEmpty);
+      expect(Salon.fromJson({'id': 1, 'eslesen_hizmetler': ['Sakal']}).copyWith().eslesenHizmetler, ['Sakal']);
+    });
     test('Pazar açıksa Pazar saatleri kullanılır; mesafe ve konum okunur', () {
       final s = Salon.fromJson({'id': 1, 'ad': 'A', 'mesafe_km': 2.4, 'konum': {'lat': 37.8, 'lng': 32.4}});
       expect(s.calismaSaati(DateTime.sunday), '10:00 – 17:00');

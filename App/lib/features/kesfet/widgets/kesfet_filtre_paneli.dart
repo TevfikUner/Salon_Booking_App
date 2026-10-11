@@ -14,6 +14,12 @@ class KesfetFiltrePaneli extends StatelessWidget {
   final VoidCallback onTemizle;
   final VoidCallback onKonum;
 
+  /// Panelin en üstünde gösterilecek arama satırı
+  final Widget? ust;
+
+  /// Arama/puan filtresi de etkin mi (temizle düğmesi görünsün)
+  final bool ekFiltre;
+
   const KesfetFiltrePaneli({
     super.key,
     required this.sehir,
@@ -24,9 +30,11 @@ class KesfetFiltrePaneli extends StatelessWidget {
     required this.onIlceSec,
     required this.onTemizle,
     required this.onKonum,
+    this.ust,
+    this.ekFiltre = false,
   });
 
-  bool get _filtreVar => sehir != null || konumModu;
+  bool get _filtreVar => sehir != null || konumModu || ekFiltre;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +45,7 @@ class KesfetFiltrePaneli extends StatelessWidget {
         border: Border(bottom: BorderSide(color: AppTheme.gold.withValues(alpha: 0.1))),
       ),
       child: Column(children: [
+        ?ust,
         Row(children: [
           Expanded(
             child: _Secici(

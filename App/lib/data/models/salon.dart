@@ -24,6 +24,9 @@ class Salon {
   final double? mesafeKm;
   final List<Berber> berberler;
 
+  /// Aramada hizmet adından eşleştiyse eşleşen hizmetler (ör. "Sakal Tıraşı")
+  final List<String> eslesenHizmetler;
+
   const Salon({
     required this.id,
     required this.ad,
@@ -44,6 +47,7 @@ class Salon {
     this.lng,
     this.mesafeKm,
     this.berberler = const [],
+    this.eslesenHizmetler = const [],
   });
 
   factory Salon.fromJson(Map<String, dynamic> j) {
@@ -74,6 +78,7 @@ class Salon {
       lng: (konum?['lng'] as num?)?.toDouble(),
       mesafeKm: (j['mesafe_km'] as num?)?.toDouble(),
       berberler: (j['berberler'] as List? ?? const []).cast<Map<String, dynamic>>().map(Berber.fromJson).toList(),
+      eslesenHizmetler: List<String>.from(j['eslesen_hizmetler'] ?? const []),
     );
   }
 
@@ -107,5 +112,6 @@ class Salon {
         lng: lng,
         mesafeKm: mesafeKm,
         berberler: berberler ?? this.berberler,
+        eslesenHizmetler: eslesenHizmetler,
       );
 }

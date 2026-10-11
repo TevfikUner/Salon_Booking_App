@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:berber_app_ui/core/theme/app_theme.dart';
@@ -11,9 +13,10 @@ import 'package:berber_app_ui/data/sabit/turkiye_lokasyon.dart';
 import 'package:berber_app_ui/features/kesfet/konum_servisi.dart';
 import 'package:berber_app_ui/features/kesfet/salon_detay_screen.dart';
 import 'package:berber_app_ui/features/kesfet/widgets/kesfet_filtre_paneli.dart';
+import 'package:berber_app_ui/features/kesfet/widgets/salon_arama_kutusu.dart';
 import 'package:berber_app_ui/features/kesfet/widgets/salon_karti.dart';
 
-/// Keşfet sekmesi: il/ilçe filtresi veya konuma göre (yakından uzağa) salon listesi.
+/// Keşfet sekmesi: salon/hizmet araması, il/ilçe ve puan filtresi veya konuma göre (yakından uzağa) salon listesi.
 class KesfetScreen extends StatefulWidget {
   const KesfetScreen({super.key});
 
@@ -29,6 +32,10 @@ class _KesfetScreenState extends State<KesfetScreen> {
   String? _ilce;
   ({double lat, double lng})? _konum;
   bool _konumAliniyor = false;
+  final _arama = TextEditingController();
+  bool _yuksekPuan = false;
+  Timer? _gecikme;
+  int _istekNo = 0;
 
   @override
   void initState() {
@@ -36,18 +43,34 @@ class _KesfetScreenState extends State<KesfetScreen> {
     _yukle();
   }
 
+  @override
+  void dispose() {
+    _gecikme?.cancel();
+    _arama.dispose();
+    super.dispose();
+  }
+
+  /// Yazarken her harfte istek atılmasın: 300 ms durunca ara.
+  void _aramaDegisti(String _) {
+    _gecikme?.cancel();
+    _gecikme = Timer(const Duration(milliseconds: 300), _yukle);
+  }
+
   Future<void> _yukle() async {
+    final no = ++_istekNo; // geç dönen eski arama yanıtı yenisinin üzerine yazmasın
     setState(() {
       _yukleniyor = true;
       _hata = null;
     });
     try {
-      final liste = await SalonApi.salonlar(sehir: _sehir, ilce: _ilce, lat: _konum?.lat, lng: _konum?.lng);
-      if (mounted) setState(() => _salonlar = liste);
+      final liste = await SalonApi.salonlar(
+          sehir: _sehir, ilce: _ilce, lat: _konum?.lat, lng: _konum?.lng, q: _arama.text,
+          minPuan: _yuksekPuan ? 4.5 : null);
+      if (mounted && no == _istekNo) setState(() => _salonlar = liste);
     } on ApiHata catch (e) {
-      if (mounted) setState(() => _hata = e.mesaj);
+      if (mounted && no == _istekNo) setState(() => _hata = e.mesaj);
     } finally {
-      if (mounted) setState(() => _yukleniyor = false);
+      if (mounted && no == _istekNo) setState(() => _yukleniyor = false);
     }
   }
 
@@ -72,10 +95,13 @@ class _KesfetScreenState extends State<KesfetScreen> {
   }
 
   void _temizle() {
+    _gecikme?.cancel();
+    _arama.clear();
     setState(() {
       _sehir = null;
       _ilce = null;
       _konum = null;
+      _yuksekPuan = false;
     });
     _yukle();
   }
@@ -94,6 +120,21 @@ class _KesfetScreenState extends State<KesfetScreen> {
     }
   }
 
+  Widget _bosSonuc() {
+    final aranan = _arama.text.trim();
+    return ListView(children: [
+      const SizedBox(height: 60),
+      BosGorunum(
+          ikon: Icons.store_outlined,
+          mesaj: aranan.isEmpty ? 'Salon bulunamadı' : '"$aranan" için sonuç yok',
+          altMesaj: 'Farklı bir kelime deneyin veya filtreleri temizleyin.'),
+      Center(
+        child: TextButton.icon(
+            onPressed: _temizle, icon: const Icon(Icons.filter_alt_off), label: const Text('Filtreleri temizle')),
+      ),
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -108,6 +149,20 @@ class _KesfetScreenState extends State<KesfetScreen> {
           onIlceSec: _ilceSec,
           onTemizle: _temizle,
           onKonum: _konumaGore,
+          ekFiltre: _arama.text.trim().isNotEmpty || _yuksekPuan,
+          ust: SalonAramaKutusu(
+            controller: _arama,
+            onDegisti: _aramaDegisti,
+            onTemizle: () {
+              _arama.clear();
+              _yukle();
+            },
+            yuksekPuan: _yuksekPuan,
+            onYuksekPuan: (v) {
+              setState(() => _yuksekPuan = v);
+              _yukle();
+            },
+          ),
         ),
         Expanded(
           child: AsenkronGorunum(
@@ -115,14 +170,12 @@ class _KesfetScreenState extends State<KesfetScreen> {
             hata: _hata,
             onTekrar: _yukle,
             builder: (_) => _salonlar.isEmpty
-                ? const BosGorunum(
-                    ikon: Icons.store_outlined,
-                    mesaj: 'Salon bulunamadı',
-                    altMesaj: 'Filtrelerinizi değiştirmeyi deneyin')
+                ? _bosSonuc()
                 : RefreshIndicator(
                     color: AppTheme.gold,
                     onRefresh: _yukle,
                     child: ListView.builder(
+                      key: const Key('salon_listesi'),
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
                       itemCount: _salonlar.length,
                       itemBuilder: (_, i) => SalonKarti(

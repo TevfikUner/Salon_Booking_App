@@ -8,10 +8,17 @@ class SalonApi {
   SalonApi._();
 
   /// Şehir/ilçe filtresi harf duyarsızdır; konum verilirse yakından uzağa sıralanır.
-  static Future<List<Salon>> salonlar({String? sehir, String? ilce, double? lat, double? lng}) async =>
-      ApiClient.liste(await ApiClient.get('/salonlar', params: {'sehir': sehir, 'ilce': ilce, 'lat': lat, 'lng': lng}))
-          .map(Salon.fromJson)
-          .toList();
+  /// [q]: salon adı, ilçe veya hizmet adında arar; [minPuan]: en düşük salon puanı.
+  static Future<List<Salon>> salonlar(
+          {String? sehir, String? ilce, double? lat, double? lng, String? q, double? minPuan}) async =>
+      ApiClient.liste(await ApiClient.get('/salonlar', params: {
+        'sehir': sehir,
+        'ilce': ilce,
+        'lat': lat,
+        'lng': lng,
+        'q': (q?.trim().isEmpty ?? true) ? null : q!.trim(),
+        'min_puan': minPuan,
+      })).map(Salon.fromJson).toList();
 
   static Future<Salon> detay(int salonId) async => Salon.fromJson(await ApiClient.get('/salonlar/$salonId'));
 

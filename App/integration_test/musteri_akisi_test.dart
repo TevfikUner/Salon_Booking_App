@@ -6,7 +6,6 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:berber_app_ui/data/api/hesap_api.dart';
 import 'package:berber_app_ui/data/api/randevu_api.dart';
 import 'package:berber_app_ui/data/api/salon_api.dart';
-import 'package:berber_app_ui/features/kesfet/kesfet_screen.dart';
 import 'package:berber_app_ui/features/musteri/main_screen.dart';
 import 'package:berber_app_ui/features/randevu_al/widgets/saat_slot.dart';
 
@@ -37,7 +36,8 @@ void main() {
     // 2) Keşfet → salon
     await uygulamayiAc(tester, const MainScreen(baslangicSekmesi: 2));
     final salonKarti = find.byKey(ValueKey('salon_${salon.id}'));
-    final liste = find.descendant(of: find.byType(KesfetScreen), matching: find.byType(Scrollable)).first;
+    // Arama kutusu (TextField) da bir Scrollable içerir; listeyi anahtarıyla bul
+    final liste = find.descendant(of: find.byKey(const Key('salon_listesi')), matching: find.byType(Scrollable)).first;
     await bekle(tester, anahtarOneki('salon_'));
     await tester.scrollUntilVisible(salonKarti, 300, scrollable: liste, maxScrolls: 100);
     await dokun(tester, salonKarti);

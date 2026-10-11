@@ -55,6 +55,10 @@ class SalonKarti extends StatelessWidget {
                   if (salon.mesafeKm != null) _Etiket(ikon: Icons.near_me, metin: mesafeMetni(salon.mesafeKm!)),
                   _Satir(ikon: Icons.access_time, metin: bugunSaat == null ? 'Bugün kapalı' : 'Bugün $bugunSaat'),
                 ]),
+                if (salon.eslesenHizmetler.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  _Satir(ikon: Icons.content_cut, metin: salon.eslesenHizmetler.join(' · ')),
+                ],
               ]),
             ),
             Icon(Icons.arrow_forward_ios, color: AppTheme.gold.withValues(alpha: 0.4), size: 16),

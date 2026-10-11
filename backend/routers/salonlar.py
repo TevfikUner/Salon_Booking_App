@@ -2,6 +2,7 @@
 import math
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 import models
@@ -30,7 +31,7 @@ def mesafe_km(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
     return 2 * r * math.asin(math.sqrt(a))
 
 
-def _salon_ozet(s: models.Salon, mesafe: float | None = None) -> dict:
+def _salon_ozet(s: models.Salon, mesafe: float | None = None, eslesen: list[str] | None = None) -> dict:
     return {
         "id": s.id,
         "ad": s.ad,
@@ -46,6 +47,7 @@ def _salon_ozet(s: models.Salon, mesafe: float | None = None) -> dict:
         "pazar_kapanis_saati": s.pazar_kapanis_saati,
         "kapali_gunler": s.kapali_gunler,
         "mesafe_km": round(mesafe, 1) if mesafe is not None else None,
+        "eslesen_hizmetler": eslesen or [],
     }
 
 
@@ -55,22 +57,52 @@ def salonlari_listele(
     ilce: str | None = None,
     lat: float | None = Query(default=None, ge=-90, le=90),
     lng: float | None = Query(default=None, ge=-180, le=180),
+    q: str | None = Query(default=None, max_length=60),
+    min_puan: float | None = Query(default=None, ge=0, le=5),
     db: Session = Depends(get_db),
 ):
-    """Aktif salonlar. Şehir/ilçe filtresi harf duyarsızdır. Konum verilirse yakından uzağa sıralanır."""
+    """Aktif salonlar. Şehir/ilçe filtresi harf duyarsızdır. Konum verilirse yakından uzağa sıralanır.
+    `q`: salon adı, şehir/ilçe veya hizmet adında arar (Türkçe harf ve aksan duyarsız); hizmetten eşleşen
+    salonlarda eşleşen hizmetler `eslesen_hizmetler` alanında döner."""
     salonlar = db.query(models.Salon).filter(models.Salon.aktif.is_(True)).all()
     if sehir:
         salonlar = [s for s in salonlar if normalize(s.sehir) == normalize(sehir)]
     if ilce:
         salonlar = [s for s in salonlar if normalize(s.ilce) == normalize(ilce)]
+    if min_puan is not None:
+        salonlar = [s for s in salonlar if (s.puan or 0) >= min_puan]
+    eslesen: dict[int, list[str]] = {}
+    if q and (aranan := normalize(q)):
+        eslesen = _hizmet_eslesmeleri(db, [s.id for s in salonlar], aranan)
+        salonlar = [s for s in salonlar
+                    if s.id in eslesen or any(aranan in normalize(x) for x in (s.ad, s.ilce, s.sehir))]
     if lat is not None and lng is not None:
         konumlu = [(s, mesafe_km(lat, lng, s.konum_lat, s.konum_long))
                    for s in salonlar if s.konum_lat is not None and s.konum_long is not None]
         konumsuz = [s for s in salonlar if s.konum_lat is None or s.konum_long is None]
         konumlu.sort(key=lambda x: x[1])
-        return [_salon_ozet(s, m) for s, m in konumlu] + [_salon_ozet(s) for s in konumsuz]
+        return [_salon_ozet(s, m, eslesen.get(s.id)) for s, m in konumlu] + \
+            [_salon_ozet(s, eslesen=eslesen.get(s.id)) for s in konumsuz]
     salonlar.sort(key=lambda s: (-(s.puan or 0), s.ad))
-    return [_salon_ozet(s) for s in salonlar]
+    return [_salon_ozet(s, eslesen=eslesen.get(s.id)) for s in salonlar]
+
+
+def _hizmet_eslesmeleri(db: Session, salon_idler: list[int], aranan: str) -> dict[int, list[str]]:
+    """Adında aranan geçen aktif hizmetler, salon başına (en fazla 3). Tüm salonların ortak hizmetleri
+    (salon_id NULL) her salona sayılır. Tek sorgu."""
+    if not salon_idler:
+        return {}
+    sonuc: dict[int, list[str]] = {}
+    ortak: list[str] = []
+    for h in db.query(models.Hizmet).filter(models.Hizmet.aktif.is_(True),
+                                            or_(models.Hizmet.salon_id.in_(salon_idler),
+                                                models.Hizmet.salon_id.is_(None))):
+        if aranan in normalize(h.ad):
+            (ortak if h.salon_id is None else sonuc.setdefault(h.salon_id, [])).append(h.ad)
+    if ortak:
+        for sid in salon_idler:
+            sonuc.setdefault(sid, []).extend(ortak)
+    return {sid: list(dict.fromkeys(adlar))[:3] for sid, adlar in sonuc.items()}
 
 
 @router.get("/filtreler")
