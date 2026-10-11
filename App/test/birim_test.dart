@@ -5,6 +5,7 @@ import 'package:berber_app_ui/data/models/randevu.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/features/musteri/randevularim/widgets/randevu_karti.dart';
 import 'package:berber_app_ui/features/randevu_al/widgets/saat_slot.dart';
+import 'package:berber_app_ui/features/randevu_al/widgets/takvim_bilesenleri.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -133,6 +134,18 @@ void main() {
       expect(tiklandi, 0);
       await tester.tap(find.text('10:30'));
       expect(tiklandi, 1);
+    });
+
+    testWidgets('Dolu/az yer bilgisi yalnızca eşiğin altında görünür', (tester) async {
+      Future<void> ciz(int? bos) => tester.pumpWidget(MaterialApp(home: Scaffold(body: GunDolulukBilgisi(bos: bos))));
+      await ciz(0);
+      expect(find.textContaining('Bu gün dolu'), findsOneWidget);
+      await ciz(2);
+      expect(find.textContaining('yalnızca 2 uygun saat'), findsOneWidget);
+      await ciz(5);
+      expect(find.byType(Text), findsNothing);
+      await ciz(null);
+      expect(find.byType(Text), findsNothing);
     });
 
     testWidgets('Randevu kartı: erteleme hakkı varsa Ertele düğmesi çalışır, yoksa görünmez', (tester) async {

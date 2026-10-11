@@ -61,18 +61,22 @@ def _sure_hesapla(db: Session, salon_id: int, hizmet_ids: list[int]) -> int:
 
 # ── 1. Müsait takvim ─────────────────────────────────────────
 @router.get("/musait-takvim")
-def musait_takvim_getir(berber_id: int | None = None, salon_id: int | None = None, db: Session = Depends(get_db)):
-    """Rezervasyon ufku içindeki açık günler. Tatil, kapalı gün ve (berber verilmişse) izin günleri hariç."""
+def musait_takvim_getir(berber_id: int | None = None, salon_id: int | None = None,
+                        hizmet_ids: list[int] | None = Query(default=None), db: Session = Depends(get_db)):
+    """Rezervasyon ufku içindeki açık günler. Tatil, kapalı gün ve (berber verilmişse) izin günleri hariç.
+    Berber ve hizmetler verilirse her güne `bos_slot` (hizmetin sığdığı başlangıç sayısı) ve `dolu` eklenir."""
     salon = _salon_bul(db, berber_id, salon_id)
     gunler = []
     aday = [bugun() + timedelta(days=i) for i in range(ayarlar().rezervasyon_ufku_gun + 1)]
     nedenler = ss.kapali_nedenler(db, salon, berber_id, aday)
+    acik = []
     for gun in aday:
         if nedenler[gun]:
             continue
         acilis, kapanis = ss.gun_mesaisi(salon, gun)
         if gun == bugun() and simdi().hour * 60 + simdi().minute >= kapanis - ss.blok_dk(1):
             continue
+        acik.append(gun)
         gunler.append({
             "tarih": gun.isoformat(),
             "acilis": ss.dk_saat(acilis),
@@ -81,6 +85,11 @@ def musait_takvim_getir(berber_id: int | None = None, salon_id: int | None = Non
             "tatil": False,
             "berber_izin": False,
         })
+    if berber_id is not None and hizmet_ids:
+        sayilar = ss.gunluk_bos_sayilari(db, salon, berber_id, acik, _sure_hesapla(db, salon.id, hizmet_ids))
+        for g, kayit in zip(acik, gunler, strict=True):
+            kayit["bos_slot"] = sayilar[g]
+            kayit["dolu"] = sayilar[g] == 0
     return gunler
 
 

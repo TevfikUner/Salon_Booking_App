@@ -6,8 +6,10 @@ class RandevuApi {
   RandevuApi._();
 
   /// Rezervasyon ufku içindeki açık günler (tatil, kapalı gün, berber izni hariç).
-  static Future<List<Json>> musaitTakvim({int? berberId, int? salonId}) async => ApiClient.liste(
-      await ApiClient.get('/randevular/musait-takvim', params: {'berber_id': berberId, 'salon_id': salonId}));
+  /// Berber ve hizmetler verilirse her günde `bos_slot` (hizmetin sığdığı saat sayısı) ve `dolu` gelir.
+  static Future<List<Json>> musaitTakvim({int? berberId, int? salonId, List<int>? hizmetIds}) async =>
+      ApiClient.liste(await ApiClient.get('/randevular/musait-takvim',
+          params: {'berber_id': berberId, 'salon_id': salonId, 'hizmet_ids': hizmetIds}));
 
   /// Seçilen gün + hizmetler için backend'in hesapladığı saatler (tek doğruluk kaynağı).
   /// [ertelenenId]: ertelenen kendi randevusu; eski yeri dolu sayılmaz.

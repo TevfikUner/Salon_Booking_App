@@ -157,15 +157,15 @@ def dolu_araliklar(db: Session, berber_id: int, tarih_str: str, haric_id: int | 
     )
     if haric_id is not None:
         q = q.filter(models.Randevu.id != haric_id)
-    randevular = q.all()
-    araliklar = []
-    for r in randevular:
-        try:
-            bas = saat_dk(r.saat)
-        except (ValueError, TypeError):
-            continue
-        araliklar.append((bas, bas + blok_dk(r.sure_dk or 30)))
-    return araliklar
+    return [a for r in q.all() if (a := _randevu_araligi(r))]
+
+
+def _randevu_araligi(r: models.Randevu) -> tuple[int, int] | None:
+    try:
+        bas = saat_dk(r.saat)
+    except (ValueError, TypeError):
+        return None
+    return bas, bas + blok_dk(r.sure_dk or 30)
 
 
 def bloke_araliklari(db: Session, salon: models.Salon, berber_id: int, tarih_str: str) -> list[tuple[int, int]]:
@@ -181,6 +181,34 @@ def bloke_araliklari(db: Session, salon: models.Salon, berber_id: int, tarih_str
         except (ValueError, TypeError):
             continue
     return araliklar
+
+
+def gunluk_bos_sayilari(db: Session, salon: models.Salon, berber_id: int, gunler: list[date],
+                        sure_dk: int) -> dict[date, int]:
+    """Takvim için: her gün bu süredeki hizmetin kaç başlangıç saati boş. Gün sayısından bağımsız 2 sorgu."""
+    tarihler = [g.isoformat() for g in gunler]
+    dolu: dict[str, list[tuple[int, int]]] = {t: [] for t in tarihler}
+    for r in db.query(models.Randevu).filter(models.Randevu.berber_id == berber_id,
+                                             models.Randevu.tarih.in_(tarihler),
+                                             models.Randevu.durum.in_(models.AKTIF_DURUMLAR)):
+        if a := _randevu_araligi(r):
+            dolu[r.tarih].append(a)
+    for b in db.query(models.SaatBloke).filter(models.SaatBloke.berber_id == berber_id,
+                                               models.SaatBloke.tarih.in_(tarihler)):
+        try:
+            dolu[b.tarih].append((saat_dk(b.bas_saat), saat_dk(b.bit_saat)))
+        except (ValueError, TypeError):
+            continue
+    mola = mola_araligi(salon)
+    sonuc = {}
+    for gun in gunler:
+        mesai = gun_mesaisi(salon, gun)
+        if not mesai:
+            sonuc[gun] = 0
+            continue
+        araliklar = dolu[gun.isoformat()] + ([mola] if mola else [])
+        sonuc[gun] = len(musait_baslangiclar(mesai[0], mesai[1], sure_dk, araliklar, _en_erken(gun)))
+    return sonuc
 
 
 def _en_erken(gun: date) -> int | None:

@@ -3,9 +3,11 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
+import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/data/api/api_client.dart';
 import 'package:berber_app_ui/data/api/randevu_api.dart';
 import 'package:berber_app_ui/features/randevu_al/randevu_provider.dart';
+import 'package:berber_app_ui/features/randevu_al/widgets/takvim_bilesenleri.dart';
 
 class Adim3Tarih extends StatefulWidget {
   const Adim3Tarih({super.key});
@@ -16,6 +18,9 @@ class Adim3Tarih extends StatefulWidget {
 
 class _Adim3TarihState extends State<Adim3Tarih> {
   Set<String> _musaitTarihler = {};
+
+  /// tarih → boş başlangıç sayısı (yalnızca berber seçiliyse gelir; dolu gün = 0)
+  Map<String, int> _bosSlot = {};
   bool _yukleniyor = true;
   DateTime _focusedDay = DateTime.now();
 
@@ -29,10 +34,14 @@ class _Adim3TarihState extends State<Adim3Tarih> {
     final provider = context.read<RandevuProvider>();
     final berberId = provider.seciliBerber?.id;
     try {
-      final data = await RandevuApi.musaitTakvim(berberId: berberId, salonId: provider.salonId);
+      final data = await RandevuApi.musaitTakvim(
+          berberId: berberId,
+          salonId: provider.salonId,
+          hizmetIds: berberId == null ? null : provider.seciliHizmetler.map((h) => h.id).toList());
       if (mounted) {
         setState(() {
           _musaitTarihler = data.map((e) => e['tarih'] as String).toSet();
+          _bosSlot = {for (final e in data) if (e['bos_slot'] is int) e['tarih'] as String: e['bos_slot'] as int};
           _yukleniyor = false;
         });
       }
@@ -44,10 +53,16 @@ class _Adim3TarihState extends State<Adim3Tarih> {
     }
   }
 
-  bool _isDayEnabled(DateTime day) {
-    final str =
-        '${day.year}-${day.month.toString().padLeft(2, '0')}-${day.day.toString().padLeft(2, '0')}';
-    return _musaitTarihler.contains(str);
+  bool _isDayEnabled(DateTime day) => _musaitTarihler.contains(tarihStr(day));
+
+  /// Takvim işareti rengi: altın = müsait, turuncu = az yer, kırmızı = dolu (bekleme listesine yazılabilir)
+  Color? _isaretRengi(DateTime day) {
+    final str = tarihStr(day);
+    if (!_musaitTarihler.contains(str)) return null;
+    final bos = _bosSlot[str];
+    if (bos == 0) return AppTheme.error;
+    if (bos != null && bos <= azYerEsigi) return Colors.orange;
+    return AppTheme.gold;
   }
 
   String _tarihFormatla(DateTime t) {
@@ -165,15 +180,23 @@ class _Adim3TarihState extends State<Adim3Tarih> {
                     fontSize: 12,
                     fontWeight: FontWeight.w600),
               ),
-              // Müsait günleri işaretle
-              eventLoader: (day) {
-                final str =
-                    '${day.year}-${day.month.toString().padLeft(2, '0')}-${day.day.toString().padLeft(2, '0')}';
-                return _musaitTarihler.contains(str) ? ['musait'] : [];
-              },
+              // Müsait / az yer / dolu günleri renkli noktayla işaretle
+              eventLoader: (day) => _musaitTarihler.contains(tarihStr(day)) ? const ['gun'] : const [],
+              calendarBuilders: CalendarBuilders(
+                markerBuilder: (context, day, _) {
+                  final renk = _isaretRengi(day);
+                  if (renk == null) return null;
+                  return Positioned(
+                    bottom: 6,
+                    child: Container(
+                        width: 6, height: 6, decoration: BoxDecoration(color: renk, shape: BoxShape.circle)),
+                  );
+                },
+              ),
             ),
           ),
           const SizedBox(height: 16),
+          if (provider.seciliTarih != null) GunDolulukBilgisi(bos: _bosSlot[tarihStr(provider.seciliTarih!)]),
 
           // ── Seçilen gün gösterimi ─────────────────────────
           if (provider.seciliTarih != null)
@@ -204,15 +227,7 @@ class _Adim3TarihState extends State<Adim3Tarih> {
           const SizedBox(height: 12),
 
           // ── Lejant ────────────────────────────────────────
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _LejantItem(renk: AppTheme.gold, label: 'Müsait gün'),
-              const SizedBox(width: 20),
-              _LejantItem(
-                  renk: Colors.white.withValues(alpha: 0.18), label: 'Kapalı gün'),
-            ],
-          ),
+          TakvimLejanti(doluluk: _bosSlot.isNotEmpty),
           const SizedBox(height: 8),
           Text(
             'Salonun kapalı olduğu günler ve personel izinleri otomatik olarak kapalıdır.',
@@ -225,25 +240,5 @@ class _Adim3TarihState extends State<Adim3Tarih> {
         ],
       ),
     );
-  }
-}
-
-class _LejantItem extends StatelessWidget {
-  final Color renk;
-  final String label;
-  const _LejantItem({required this.renk, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(children: [
-      Container(
-          width: 10,
-          height: 10,
-          decoration: BoxDecoration(color: renk, shape: BoxShape.circle)),
-      const SizedBox(width: 6),
-      Text(label,
-          style: GoogleFonts.inter(
-              color: AppTheme.textSecondary, fontSize: 11)),
-    ]);
   }
 }

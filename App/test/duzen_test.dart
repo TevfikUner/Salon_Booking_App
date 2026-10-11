@@ -20,6 +20,7 @@ import 'package:berber_app_ui/features/kesfet/widgets/yorum_bilesenleri.dart';
 import 'package:berber_app_ui/features/kesfet/widgets/yorumlar_bolumu.dart';
 import 'package:berber_app_ui/features/musteri/randevularim/widgets/randevu_karti.dart';
 import 'package:berber_app_ui/features/randevu_al/onay_screen.dart';
+import 'package:berber_app_ui/features/randevu_al/widgets/takvim_bilesenleri.dart';
 
 /// Taşma (overflow) testleri: en dar yaygın telefon genişliği (360 dp) ve uygulamanın izin verdiği en büyük
 /// yazı ölçeği (1,3×, bkz. main.dart) ile ekran/kartlar çizilir; "RenderFlex overflowed" hatası testi düşürür.
@@ -145,6 +146,14 @@ void main() {
                'hizmetler': ['Kesim'], 'toplam_fiyat': 300},
             ],
           })),
+          olcek: olcek));
+      testWidgets('takvim doluluk bilgisi ve lejant', (t) => ciz(
+          t,
+          liste(const [
+            GunDolulukBilgisi(bos: 0),
+            GunDolulukBilgisi(bos: 2),
+            TakvimLejanti(doluluk: true),
+          ]),
           olcek: olcek));
       testWidgets('öğle arası kartı', (t) => ciz(
           t,

@@ -245,7 +245,7 @@ Sıra bağımlılığa göre düzenlendi (#1 bildirimi #2 kullanıyor; #4'teki m
 | 3 | **#4** Haftalık izin günü + öğle arası + saatlik bloke | M | Migration ileri/geri çalışıyor; alanlar boşken mevcut 70 test değişmeden yeşil; mola, haftalık izin ve kısmi bloke hem müşteri slotlarını hem panel kaydını kapatıyor; panelden üçü de yönetilebiliyor | ✅ |
 | 4 | **#2** Randevu erteleme | M | Randevularım'da "Ertele" çalışıyor; limit, 30 dk kuralı, çakışmada 409 + öneriler, eşzamanlılık, eski gün için bekleme listesi bildirimi ve işletme bildirimi testli; iptal diyaloğu ertelemeyi öneriyor; idempotent | ✅ |
 | 5 | **#5** Müşteri kartı + kalıcı not | M | Akıştan müşteri kartı açılıyor (geçmiş, harcama, skor, not); salonlar arası izolasyon ve hesap silmede not silme testli; KVKK metni maddesi BENDEN_GEREKENLER'de | ✅ |
-| 6 | **#6** Takvimde dolu günler | S | Dolu gün gri + "Dolu" etiketli, dokununca bekleme listesi öneriliyor; uç tek sorguyla hesaplıyor (testli); eski istemciyle geriye uyumlu | ⬜ |
+| 6 | **#6** Takvimde dolu günler | S | Dolu gün gri + "Dolu" etiketli, dokununca bekleme listesi öneriliyor; uç tek sorguyla hesaplıyor (testli); eski istemciyle geriye uyumlu | ✅ |
 | 7 | **#7** Salon ve hizmet araması | S | Keşfet'te arama kutusu; Türkçe harf duyarsız ad/ilçe/hizmet eşleşmesi ve `min_puan` testli; boş durum var | ⬜ |
 | 8 | **#8** Takvime ekle (.ics) | S | Onay ekranı ve randevu kartından .ics paylaşılıyor, Google Takvim'de doğru saat ve dilimde açılıyor; uç yalnızca sahibine açık (testli) | ⬜ |
 | 9 | **#9** Bildirim izni ön ekranı | S | İzin ilk randevu onayında bağlamlı kartla isteniyor; "Şimdi değil" bir daha rahatsız etmiyor; reddedilmişse ayarlar bağlantısı; widget testi | ⬜ |
