@@ -1,9 +1,9 @@
 # Yapılacaklar
 
 Tek liste: biten iş buradan **silinir**. Ayrıntılı adımlar [BENDEN_GEREKENLER.md](BENDEN_GEREKENLER.md)'de (§ numaraları oraya bakar).
-Neyin hazır olduğu: [YAYIN_KONTROL_LISTESI.md](YAYIN_KONTROL_LISTESI.md) · Son güncelleme: 11 Ekim 2026
+Neyin hazır olduğu: [YAYIN_KONTROL_LISTESI.md](YAYIN_KONTROL_LISTESI.md) · Son güncelleme: 12 Ekim 2026
 
-Kodun güncel hali GitHub `main` dalında.
+Kodun güncel hali GitHub `main` dalında; Tur 4 özellikleri `feature/ilham-ozellikler` dalında (birleştirilmedi).
 
 ---
 
@@ -33,7 +33,15 @@ Kodun güncel hali GitHub `main` dalında.
 9. Yasal metinlere veri sorumlusu unvanı/adresi (hukukçu) → `python scripts/yasal_senkron.py` (§9)
 10. Eski admin şifresi `***KALDIRILDI***` başka bir yerde kullanıldıysa değiştirin
 
+11. **Tur 4 (ilham özellikleri) dalını değerlendirin:** `feature/ilham-ozellikler` — 9 yeni özellik, main'e birleştirilmedi.
+    Özet: [ILHAM_ANALIZI.md](ILHAM_ANALIZI.md) §4 · demo: [DEMO.md](DEMO.md) "Yeni özellikler". Birleşirse Render
+    migration 0003–0005'i dağıtımda kendisi çalıştırır; AAB'yi (madde 4) birleştirmeden sonra derleyin.
+12. Müşteri notu için gizlilik metnine bir cümle (hukukçu onayı; taslak hazır) → BENDEN_GEREKENLER §9
+
 ## C. Benim yapacaklarım
 
-Kalmadı. 1. madde bitince 4. maddeyi (AAB derleme) ben de yapabilirim.
+1. (İsteğe bağlı, siz isterseniz) Mağaza ekran görüntülerini yenileme: Keşfet'te arama kutusu, salon detayında
+   yorumlar ve onay ekranında "Takvime Ekle" yeni. Komut: YAYIN_KONTROL_LISTESI Kapı 5 "Telefon ekran görüntüleri".
+
+1. madde (Firebase) bitince A-4. maddeyi (AAB derleme) ben de yapabilirim.
 Emülatör hazır: `emulator -avd berber_test` (testlerden önce saat dilimi: `adb shell cmd alarm set-timezone Europe/Istanbul`).

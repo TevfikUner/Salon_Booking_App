@@ -2,7 +2,7 @@
 
 Dal: `feature/ilham-ozellikler` (`feature/v1-hazirlik`'ten) · Başlangıç: 2026-10-12 · Plan ve gerekçeler: [ILHAM_ANALIZI.md](ILHAM_ANALIZI.md)
 
-"Devam et" denirse: aşağıdaki ilk ⬜ maddeden sürdür. Sıra kullanıcı isteğiyle **önem sırası**.
+**Tur tamamlandı.** "Devam et" denirse: aşağıdaki ilk ⬜ maddeden sürdür. Sıra kullanıcı isteğiyle **önem sırası**.
 
 | # | Özellik | Durum | Not |
 |---|---|---|---|
@@ -15,7 +15,7 @@ Dal: `feature/ilham-ozellikler` (`feature/v1-hazirlik`'ten) · Başlangıç: 202
 | 7 | Salon ve hizmet araması | ✅ | `/salonlar?q=&min_puan=` (+`eslesen_hizmetler`), Keşfet'te arama kutusu + ★4.5+; entegrasyon testi liste anahtarına bağlandı |
 | 8 | Takvime ekle (.ics) | ✅ | `GET /randevular/{id}/takvim.ics` (`takvim_dosyasi.py`), onay ekranı + randevu kartı: Google Takvim bağlantısı veya .ics paylaş |
 | 9 | Bildirim izni ön ekranı | ✅ | müşteriye izin girişte değil onay ekranında `BildirimIzniKarti` ile; `shared_preferences` eklendi |
-| — | Son: DEMO.md, KARARLAR.md, README test sayıları, özet | ⬜ | |
+| — | Son: DEMO.md, KARARLAR.md, README, YAPILACAKLAR, PostgreSQL + emülatör doğrulaması | ✅ | pytest 108 (SQLite + PG16), flutter test 49, entegrasyon 2/2 (emülatör) |
 
 Her maddeden sonra: `pytest` + `ruff check .` (backend), `flutter analyze` + `flutter test` (App), migration varsa boş SQLite'ta `alembic upgrade head` / `check` / `downgrade`.
 

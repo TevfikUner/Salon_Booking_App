@@ -80,33 +80,33 @@ Klonlanamayan repo yok (26/26). Atlananlar (konu dışı): `DietrichGebert/ponyt
 
 ## 2. Özellik Karşılaştırma Matrisi
 
-| Özellik | Bizde | Kanıt (bizim kod) | Hangi repolarda |
+| Özellik | Bizde (Aşama 1 → Aşama 2) | Kanıt (bizim kod, Aşama 1) | Hangi repolarda |
 |---|---|---|---|
-| Randevu erteleme | ❌ | Yalnızca `POST /randevular/{id}/iptal`; erteleme ucu yok | django-appointment (sınır + geçmiş + neden), Doctor-Hunt (transaction), calma (acil erteleme), vfix |
+| Randevu erteleme | ❌ → ✅ #2 | Yalnızca `POST /randevular/{id}/iptal`; erteleme ucu yok | django-appointment (sınır + geçmiş + neden), Doctor-Hunt (transaction), calma (acil erteleme), vfix |
 | İptal politikası | ✅ | Son 30 dk kuralı (`iptal_son_dk`), soft iptal, geç iptal güven skorunda −10 | Çoğunda yalnızca iptal düğmesi var, zaman kuralı yok. İptal nedeni: calma. Atomik iptal: Doctor-Hunt |
 | Tekrarlayan randevu | 🟡 | Yok; "Her Zamanki" tek dokunuşla tekrar almayı sağlıyor | Hiçbirinde yok (Doctor-Hunt'taki "recurring", randevu değil haftalık slot şablonu) |
 | Takvim görünümü (gün/hafta) | 🟡 | İşletme: tarih seçilebilen günlük akış listesi + berber doluluğu; hafta/ızgara yok | planner (gün/hafta/ay + personel satırları + sürükle-bırak), vfix, CRM-laravel (tüm şubelerin günlük programı), Gerato25, Sarah358 |
-| Personel çalışma saatleri | 🟡 | Salon saati (hafta içi + Pazar) + gün bazlı berber izni; berbere özel haftalık düzen yok | django (WorkingHours), vfix (gün → aralıklar), rafaelmachadobr (work_days/hours), thunderbird (Availability), Gerato25 |
-| Mola / öğle arası | ❌ | `gun_mesaisi` tek aralık döndürüyor | Gerato25 (2 vardiya), vfix (çoklu aralık + break_duration), django (Unavailability), rafaelmachadobr |
+| Personel çalışma saatleri | 🟡 → 🟡 #4 (haftalık izin günü + saatlik kapatma; berbere özel saat aralığı yok) | Salon saati (hafta içi + Pazar) + gün bazlı berber izni; berbere özel haftalık düzen yok | django (WorkingHours), vfix (gün → aralıklar), rafaelmachadobr (work_days/hours), thunderbird (Availability), Gerato25 |
+| Mola / öğle arası | ❌ → ✅ #4 | `gun_mesaisi` tek aralık döndürüyor | Gerato25 (2 vardiya), vfix (çoklu aralık + break_duration), django (Unavailability), rafaelmachadobr |
 | Hizmet süresi ve fiyat varyasyonları | 🟡 | Salon bazlı fiyat/süre, randevuda mühürleniyor; berbere göre fiyat yok, her berber her hizmeti yapıyor | Gerato25 (dükkan × hizmet fiyatı), vfix ve django (personel ↔ hizmet eşleşmesi), Snipped (kategori/cinsiyet), CRM-laravel (kategori, bakım ipuçları) |
 | Paket / kampanya | ❌ | — | Sohna (Deals), CRM-laravel (indirim % + tarih aralığı), Gerato25 (Promotion), Snipped (kupon), Doctor-Hunt (promo kodu) |
 | Ödeme / kapora | ❌ | ANALIZ_RAPORU F7 → SONRAYA | DebankurMandal (Stripe ⚠️), himanshugoyal77 (Stripe, kapalı), calma (Razorpay/nakit), django (tam/kapora), vfix ("Ödeme bekliyor") |
 | Sadakat puanı | ❌ | — (Güven Skoru sadakat değil, risk göstergesi) | Gerçek sadakat hiçbirinde yok; en yakını kupon/promo (Snipped, Doctor-Hunt) |
-| Yorum ve fotoğraflı değerlendirme | 🟡 | Puan + yorum yazılıyor, berber/salon ortalaması güncelleniyor; **uygulamada yorumlar okunmuyor**, fotoğraf yok | dalpat98, Sohna, Gerato25, Doctor-Hunt, antoni-codes (puan + tıraş sayısı), Sarah358. Fotoğraflı yorum hiçbirinde yok |
+| Yorum ve fotoğraflı değerlendirme | 🟡 → 🟡 #3 (yorumlar görünür; fotoğraf ⏭️ #11) | Puan + yorum yazılıyor, berber/salon ortalaması güncelleniyor; **uygulamada yorumlar okunmuyor**, fotoğraf yok | dalpat98, Sohna, Gerato25, Doctor-Hunt, antoni-codes (puan + tıraş sayısı), Sarah358. Fotoğraflı yorum hiçbirinde yok |
 | Galeri / portföy | 🟡 | `SalonFotograf` tablosu var, `/salonlar/{id}` dönüyor; yükleme ucu ve gösterim yok | dalpat98, Sarah358 (portfolio), antoni-codes (stil galerisi), himanshugoyal77 (past work) |
 | Favoriler | ✅ | `favori_berberler`, salon detayında ♥, Favoriler ekranı | Sarah358, himanshugoyal77, calma, Doctor-Hunt |
 | Harita ve yakınlık sıralaması | ✅ | Haversine ile sıralama, harita uygulamasına yönlendirme (uygulama içi harita yok) | dalpat98, himanshugoyal77, calma (4 km), Sarah358, Gerato25 |
-| Arama ve filtre | 🟡 | İl/ilçe (harf duyarsız) + konum; ad veya hizmetle arama yok | himanshugoyal77 (ad + hizmet + puan), Doctor-Hunt (canlı arama), calma, dalpat98, jjxmonster |
+| Arama ve filtre | 🟡 → ✅ #7 | İl/ilçe (harf duyarsız) + konum; ad veya hizmetle arama yok | himanshugoyal77 (ad + hizmet + puan), Doctor-Hunt (canlı arama), calma, dalpat98, jjxmonster |
 | Chat / mesajlaşma | ❌ | Bilinçli: WhatsApp + telefon derin bağlantısı | sailesh307 (Firebase RTDB), masifdevs, Sarah358 ve Telecare (sahte veri) |
-| Bildirim türleri | 🟡 | Müşteriye: 1 saat kala hatırlatma, işletme iptali, değerlendirme, bekleme listesi. **İşletmeye/personele: hiçbiri** | vfix (3 rol × oluştur/güncelle), thunderbird (yeni/bekleyen/iptal/red), django (onay + 24 saat + erteleme), CRM-laravel, Gerato25 (FCM) |
+| Bildirim türleri | 🟡 → ✅ #1 | Müşteriye: 1 saat kala hatırlatma, işletme iptali, değerlendirme, bekleme listesi. **İşletmeye/personele: hiçbiri** | vfix (3 rol × oluştur/güncelle), thunderbird (yeni/bekleyen/iptal/red), django (onay + 24 saat + erteleme), CRM-laravel, Gerato25 (FCM) |
 | SMS / WhatsApp hatırlatma | 🟡 | İşletmenin elle gönderdiği `wa.me` onay bağlantısı (ücretsiz) | SMS/WhatsApp hiçbirinde yok; e-posta hatırlatma: django (24 saat), vfix |
 | İşletme raporları | ✅ | Aylık: ciro, berber cirosu, gelmeme oranı, ortalama sepet, popüler hizmet, kaynak | CRM-laravel (görüntüleme → randevu analitiği), vfix (dashboard) |
-| Müşteri notları (CRM) | 🟡 | Randevu notu (yalnızca panel kaydında) + güven skoru; kalıcı müşteri notu ve geçmiş kartı yok | CRM-laravel (müşteri yönetimi, askıya alma), edoc (hasta detayı), masifdevs (geçmiş), django (`additional_info`) |
+| Müşteri notları (CRM) | 🟡 → ✅ #5 | Randevu notu (yalnızca panel kaydında) + güven skoru; kalıcı müşteri notu ve geçmiş kartı yok | CRM-laravel (müşteri yönetimi, askıya alma), edoc (hasta detayı), masifdevs (geçmiş), django (`additional_info`) |
 | Çoklu dil | ❌ | `supportedLocales: [tr_TR]`, metinler kodda Türkçe | TareqAlKushari (easy_localization), thunderbird (Fluent en/de), django (gettext), masifdevs (en/ur) |
 | Karanlık / aydınlık tema | 🟡 | Yalnızca siyah-altın koyu tema (marka kararı) | Sarah358, thunderbird (açık/koyu/sistem), planner |
-| Onboarding | 🟡 | Karşılama = rol seçimi; tanıtım ve izin ön ekranı yok, bildirim izni doğrudan sistem diyaloğuyla isteniyor | Sarah358 (walkthrough + konum/bildirim ön ekranı), DebankurMandal, himanshugoyal77, TareqAlKushari, Doctor-Hunt, thunderbird (`ftue_level`) |
-| *Ek:* Takvime ekle (ICS) | ❌ | — | django (ICS eki), thunderbird (icalendar) |
-| *Ek:* Dolu günün takvimde gösterimi | 🟡 | Kapalı/tatil/izinli günler gizleniyor; **tamamen dolu gün açık görünüyor** | Doctor-Hunt (gün başına boş slot sayısı), Sarah358 ve CRM-laravel (dolu slot gri) |
+| Onboarding | 🟡 → 🟡 #9 (bağlamlı bildirim izni) | Karşılama = rol seçimi; tanıtım ve izin ön ekranı yok, bildirim izni doğrudan sistem diyaloğuyla isteniyor | Sarah358 (walkthrough + konum/bildirim ön ekranı), DebankurMandal, himanshugoyal77, TareqAlKushari, Doctor-Hunt, thunderbird (`ftue_level`) |
+| *Ek:* Takvime ekle (ICS) | ❌ → ✅ #8 | — | django (ICS eki), thunderbird (icalendar) |
+| *Ek:* Dolu günün takvimde gösterimi | 🟡 → ✅ #6 | Kapalı/tatil/izinli günler gizleniyor; **tamamen dolu gün açık görünüyor** | Doctor-Hunt (gün başına boş slot sayısı), Sarah358 ve CRM-laravel (dolu slot gri) |
 | *Ek:* Bekleme listesi | ✅ | Boşalınca süresi sığan bekleyenlere push | Hiçbirinde yok |
 | *Ek:* Çift randevu koruması | ✅ | Kilit + kısmi tekil indeks + idempotency | Doctor-Hunt (transaction + deterministik anahtar), django (çakışma kontrolü) |
 
@@ -235,6 +235,13 @@ Klonlanamayan repo yok (26/26). Atlananlar (konu dışı): `DietrichGebert/ponyt
 ---
 
 ## 4. Önerilen Uygulama Planı
+
+> **Uygulama sonucu (2026-10-12, dal `feature/ilham-ozellikler`):** 9 maddenin 9'u ✅. Doğrulama: `pytest` 108/108
+> (SQLite ve PostgreSQL 16), `ruff` temiz, migration 0003–0005 boş ve dolu veritabanında ileri/geri + `alembic check`
+> temiz, `flutter analyze` 0 sorun, `flutter test` 49/49, emülatörde entegrasyon testleri 2/2 (müşteri: arayüzden
+> erteleme + üç seçenekli iptal; işletme: tamamlandı + müşteri kartı notu). Kod hiçbir repodan kopyalanmadı
+> (KAYNAKLAR.md gerekmedi). Kararlar: KARARLAR.md "Tur 4" · Kullanıcıdan gereken: BENDEN_GEREKENLER.md §9 (müşteri
+> notu için gizlilik metni cümlesi).
 
 Sıra bağımlılığa göre düzenlendi (#1 bildirimi #2 kullanıyor; #4'teki mola ve bloke hesabı #6'yı etkiliyor). **Uygulamada kullanıcı isteğiyle önem sırası izlendi: #1 → #2 → #3 → … → #9.** Toplam tahmin: ~7–9 iş günü.
 

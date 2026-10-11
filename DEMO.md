@@ -52,6 +52,23 @@ günün akışını telefonundan yönetiyor ve gelmeyen müşteriler yüzünden 
 | 4:35 | **Kapalı Günler** | Yarını kapat → "Bu günde X aktif randevu var" uyarısı. |
 | 4:45 | **Rapor** | Aylık ciro, ortalama sepet, gelmeme oranı, personel bazlı ciro, popüler hizmetler. |
 
+## Yeni özellikler (Tur 4) — isteğe bağlı +3 dk
+
+Hazırlık aynı (`seed_demo.py` artık birkaç yorum ve Kerem için bir işletme notu da yükler). İşletme cihazında bildirim
+izni açık olsun.
+
+| Süre | Taraf · Ekran | Ne gösterilir / söylenir |
+|---|---|---|
+| +0:00 | Müşteri · Keşfet | Arama kutusuna **"sakal"** yazın → yalnızca sakal hizmeti olan salonlar, kartta eşleşen hizmetler ("Sakal Tıraşı"). **★ 4.5+** çipi düşük puanlıları gizler. |
+| +0:15 | Müşteri · Salon detayı | **Değerlendirmeler:** ortalama, 5→1 yıldız dağılımı, son yorumlar, "Tümünü gör". Ekipte "★ 5.0 (3) · 4 tıraş"; hiç yorumu olmayan berberde "Yeni". |
+| +0:35 | Müşteri · Randevu al → takvim | Dolu gün **kırmızı**, az yer kalan gün **turuncu** nokta; dolu güne dokununca "bekleme listesine yazılabilirsiniz" bilgisi. |
+| +0:50 | Müşteri · Onay ekranı | **Takvime Ekle** (Google Takvim veya .ics) ve ilk randevuda **"1 saat kala hatırlatalım mı?"** kartı (sistem izni ancak burada sorulur). |
+| +1:05 | İşletme cihazı | Müşteri randevuyu aldığı anda **"Yeni randevu 💈"** bildirimi; dokununca panel o günün akışıyla açılır. *"Berber paneli açmadan haberdar."* |
+| +1:20 | Müşteri · Randevularım → **Ertele** | Aynı berberde başka gün/saat seçilir (süre ve fiyat değişmez, en fazla 2 kez). İşletmeye "Randevu ertelendi (önceki: …)" bildirimi. **İptal Et**'e basınca diyalog önce ertelemeyi önerir. |
+| +1:45 | İşletme · Akış → Kerem'in adına dokun | **Müşteri kartı:** 2 ziyaret, toplam harcama, genelde Eren · Saç Kesimi, 📝 "Yanlar 1 numara, üstü makas. Ense düz." Not düzenlenip kaydedilir. *"Yeni gelen kalfa da müdavimi tanır."* |
+| +2:10 | İşletme · Kapalı Günler | **Öğle arası** 13:00–14:00 kaydedin → müşteri tarafında 13:00 ve 13:30 kapanır. **Saatlik kapatma:** "Ali, yarın 14:00–16:00 dışarıda" → sadece o saatler kapanır, etkilenen randevu sayısı uyarısı. |
+| +2:40 | İşletme · Ekip & Menü → personele dokun | **Çalışma günleri:** Pazartesi'yi kaldırın → müşteri takviminde o berber için Pazartesiler kapanır (her hafta izin girmeye gerek yok). |
+
 ## Kapanış cümlesi (15 sn)
 
 *"Müşteri için 3 saniyede randevu, işletme için gelmeyen müşteriyi önceden gören ve WhatsApp'tan tek dokunuşla teyit

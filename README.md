@@ -15,7 +15,7 @@ işletme sahibi günün akışını, ekibini, menüsünü ve kapalı günlerini 
 
 **Yayın durumu:** [YAYIN_KONTROL_LISTESI.md](YAYIN_KONTROL_LISTESI.md) · **Sizden gerekenler:** [BENDEN_GEREKENLER.md](BENDEN_GEREKENLER.md) · **Dağıtım:** [CANLIYA_ALMA.md](CANLIYA_ALMA.md)
 
-Diğer belgeler: [KARARLAR.md](KARARLAR.md) · [YUK_TESTI.md](YUK_TESTI.md) · [ANALIZ_RAPORU.md](ANALIZ_RAPORU.md) · [DEMO.md](DEMO.md) · [YAPILACAKLAR.md](YAPILACAKLAR.md)
+Diğer belgeler: [KARARLAR.md](KARARLAR.md) · [YUK_TESTI.md](YUK_TESTI.md) · [ANALIZ_RAPORU.md](ANALIZ_RAPORU.md) · [ILHAM_ANALIZI.md](ILHAM_ANALIZI.md) · [DEMO.md](DEMO.md) · [YAPILACAKLAR.md](YAPILACAKLAR.md)
 
 ---
 
@@ -36,7 +36,7 @@ python worker.py                     # (ayrı terminal, isteğe bağlı) hatırl
 ```
 
 - API belgesi: http://localhost:8010/docs (production'da kapalı) · sağlık: http://localhost:8010/health
-- Testler: `pytest` (70 test: slot/çakışma/eşzamanlılık/idempotency/hız sınırı/DB kesintisi/zamanlayıcı kilidi/yasal sayfalar/panel yetkileri/KVKK). PostgreSQL'e karşı: `TEST_DATABASE_URL=postgresql://... pytest` · Lint: `ruff check .`
+- Testler: `pytest` (108 test: slot/çakışma/eşzamanlılık/idempotency/hız sınırı/DB kesintisi/zamanlayıcı kilidi/yasal sayfalar/panel yetkileri/KVKK, erteleme, öğle arası/saatlik kapatma, yorumlar, müşteri kartı, arama, takvim dosyası). PostgreSQL'e karşı: `TEST_DATABASE_URL=postgresql://... pytest` · Lint: `ruff check .`
 - Yönetim: `python araclar.py --help` (admin ekleme, işletme onay/red, hesap silme talepleri, sağlık kontrolü)
 
 ### Kimlik doğrulama
@@ -73,7 +73,7 @@ flutter run --dart-define=API_URL=http://192.168.1.20:8010
 flutter build appbundle --release --dart-define=API_URL=https://premium-berber-api.onrender.com
 ```
 
-- `flutter analyze` → temiz · `flutter test` → 30 test (birim, widget, 360 dp + 1,3× yazı taşma testleri)
+- `flutter analyze` → temiz · `flutter test` → 49 test (birim, widget, 360 dp + 1,3× yazı taşma testleri)
 - Uçtan uca: `bash backend/yuk/yigin.sh entegrasyon` → `flutter test integration_test/musteri_akisi_test.dart --dart-define=API_URL=http://10.0.2.2:8020` (ve `isletme_akisi_test.dart`)
 
 ### Kod yapısı
@@ -123,18 +123,23 @@ docker compose -p premium-berber exec api python seed_demo.py   # isteğe bağl�
 |---|---|
 | `GET /health` | Sağlık (DB dahil; DB yoksa 503) |
 | `GET /ben` | Oturumdaki kullanıcının rolü ve bağlamı |
-| `GET /salonlar?sehir=&ilce=&lat=&lng=`, `/salonlar/{id}` | Keşfet (harf duyarsız filtre, konuma göre sıralama, favori işareti) |
+| `GET /salonlar?sehir=&ilce=&lat=&lng=&q=&min_puan=`, `/salonlar/{id}` | Keşfet (harf duyarsız filtre ve arama — salon/ilçe/hizmet adı, konuma göre sıralama, favori işareti, berber tıraş/yorum sayısı) |
 | `GET /hizmetler/?salon_id=` | Salonun menüsü |
-| `GET /randevular/musait-takvim?berber_id=` | Açık günler (tatil/izin/kapalı gün hariç) |
+| `GET /randevular/musait-takvim?berber_id=&hizmet_ids=` | Açık günler (tatil/izin/kapalı gün/berberin haftalık izni hariç); hizmet verilirse gün başına boş saat sayısı ve `dolu` |
+| `GET /degerlendirmeler/salon/{id}?sayfa=` | Salon yorumları: ortalama, 1–5 dağılımı, sayfalı liste |
 | `GET /randevular/musait-saatler/{berber_id}?tarih=&hizmet_ids=` | Tek doğruluk kaynağı: müsait saatler |
 | `POST /randevular/olustur` | Randevu (çakışmada 409 + öneriler; `Idempotency-Key` başlığı ile tekrar güvenli) |
-| `POST /randevular/{id}/iptal` | Müşteri iptali (son 30 dk hariç) |
+| `POST /randevular/{id}/iptal` | Müşteri iptali (son 30 dk hariç); işletmeye ve berbere push |
+| `POST /randevular/{id}/ertele` | Müşteri ertelemesi: aynı berber, süre/fiyat mühürlü, en fazla 2 kez, son 30 dk hariç (`Idempotency-Key`) |
+| `GET /randevular/{id}/takvim.ics` | Randevunun iCalendar dosyası (yalnızca sahibine) |
 | `GET /randevular/her-zamanki` | ⭐ "Her Zamanki" + en yakın boş slotlar |
 | `POST /randevular/bekleme-listesi` | Yer açılırsa haber ver |
 | `GET /panel/akis?tarih=` | ⭐ Bugünün Akışı (özet, güven skoru, WhatsApp linki) |
 | `PATCH /panel/randevular/{id}/durum` | tamamlandi / gelmedi / iptal |
 | `POST /panel/randevular` | Telefonla/kapıdan gelen müşteri |
-| `/panel/personel`, `/panel/hizmetler`, `/panel/tatil`, `/panel/izin`, `/panel/rapor`, `/panel/salon` | İşletme yönetimi |
+| `GET /panel/musteriler/{id}`, `PUT /panel/musteriler/{id}/not` | Müşteri kartı (bu salondaki geçmiş, harcama, güven skoru) ve kalıcı işletme notu |
+| `POST /panel/bloke`, `DELETE /panel/bloke/{id}` | Berberi bir günün belirli saatlerinde kapatma |
+| `/panel/personel`, `/panel/hizmetler`, `/panel/tatil`, `/panel/izin`, `/panel/rapor`, `/panel/salon` | İşletme yönetimi (personelin haftalık izin günleri, salonun öğle arası dahil) |
 | `POST /isletmeler/kayit`, `POST /isletmeler/{id}/onayla` | İşletme başvurusu ve admin onayı |
 | `DELETE /musteriler/hesabim` | Hesap silme (müşteri, işletme, personel — anonimleştirme) |
 | `GET /yasal/{gizlilik,kvkk,kullanim}` | Herkese açık yasal sayfalar (Play gizlilik URL'si) |

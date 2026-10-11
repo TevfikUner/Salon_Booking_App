@@ -21,7 +21,7 @@ final _takvim = find.byWidgetPredicate((w) => w is TableCalendar);
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('müşteri: kayıt → randevu → Randevularım → iptal', (tester) async {
+  testWidgets('müşteri: kayıt → randevu → Randevularım → erteleme → iptal', (tester) async {
     await hazirla('entegrasyon-musteri');
 
     // 1) Kayıt (Firebase hesabı yerine dev kimliği; backend kaydı uygulamanın kullandığı API ile)
