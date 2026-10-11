@@ -8,6 +8,7 @@ import 'package:berber_app_ui/features/musteri/degerlendirme/degerlendirme_scree
 import 'package:berber_app_ui/features/musteri/main_screen.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/data/api/hesap_api.dart';
+import 'package:berber_app_ui/services/yonlendirme.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
@@ -53,17 +54,20 @@ class BildirimServisi {
       ),
       action: switch (m.data['type']) {
         'degerlendirme' => SnackBarAction(label: 'Puanla', textColor: AppTheme.gold, onPressed: () => _ac(m.data)),
-        'randevu' || 'bekleme' => SnackBarAction(label: 'Aç', textColor: AppTheme.gold, onPressed: () => _ac(m.data)),
+        'randevu' || 'bekleme' || 'panel_randevu' => SnackBarAction(label: 'Aç', textColor: AppTheme.gold, onPressed: () => _ac(m.data)),
         _ => null,
       },
     ));
   }
 
-  /// Bildirime dokunulunca ilgili ekranı açar: randevu → Randevularım, bekleme → salon, değerlendirme → puanlama.
+  /// Bildirime dokunulunca ilgili ekranı açar: randevu → Randevularım, bekleme → salon, değerlendirme → puanlama,
+  /// panel_randevu (işletme/personel) → panel Akış sekmesi o günle.
   static void _ac(Map<String, dynamic> data) {
     final nav = navigatorKey.currentState;
     if (nav == null) return;
     switch (data['type']) {
+      case 'panel_randevu':
+        _panelAc(DateTime.tryParse(data['tarih']?.toString() ?? ''));
       case 'randevu':
         nav.pushAndRemoveUntil(
             MaterialPageRoute(builder: (_) => const MainScreen(baslangicSekmesi: 1)), (_) => false);
@@ -80,6 +84,16 @@ class BildirimServisi {
             berberFotoUrl: data['berber_foto_url']?.toString(),
           ),
         ));
+    }
+  }
+
+  static Future<void> _panelAc(DateTime? tarih) async {
+    try {
+      final ekran = await Yonlendirme.girisSonrasi(akisTarihi: tarih);
+      navigatorKey.currentState
+          ?.pushAndRemoveUntil(MaterialPageRoute(builder: (_) => ekran), (_) => false);
+    } catch (e) {
+      debugPrint('Panel açılamadı: $e');
     }
   }
 

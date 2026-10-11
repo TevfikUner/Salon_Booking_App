@@ -15,14 +15,17 @@ import 'package:berber_app_ui/features/isletme/akis/widgets/akis_randevu_karti.d
 /// güven skoru ve tek dokunuş WhatsApp onay mesajı.
 class AkisSekmesi extends StatefulWidget {
   final bool personel;
-  const AkisSekmesi({super.key, this.personel = false});
+
+  /// Bildirimden açılınca gösterilecek gün (varsayılan bugün).
+  final DateTime? baslangicTarihi;
+  const AkisSekmesi({super.key, this.personel = false, this.baslangicTarihi});
 
   @override
   State<AkisSekmesi> createState() => _AkisSekmesiState();
 }
 
 class _AkisSekmesiState extends State<AkisSekmesi> {
-  DateTime _gun = DateTime.now();
+  late DateTime _gun = widget.baslangicTarihi ?? DateTime.now();
   Map<String, dynamic>? _veri;
   String? _hata;
   final Set<int> _islemde = {};

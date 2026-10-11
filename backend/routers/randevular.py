@@ -194,6 +194,7 @@ def _randevu_olustur(arka_plan: BackgroundTasks, berber_id: int, saat: str, tari
         arka_plan.add_task(bildirim_gonder, musteri.fcm_token, "Randevunuz onaylandı 💈",
                            f"{r.salon.ad} — {tarih} {saat}, {r.berber.ad} {r.berber.soyad}. "
                            f"Toplam: {r.toplam_fiyat:.0f} ₺", {"type": "randevu", "randevu_id": r.id})
+    rs.salona_bildir(db, r, "Yeni randevu 💈", ", ".join(h.ad for h in r.hizmetler), arka_plan)
     return {
         "mesaj": "Randevu başarıyla alındı!",
         "randevu_id": r.id,

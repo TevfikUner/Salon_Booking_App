@@ -8,19 +8,21 @@ import 'package:berber_app_ui/services/bildirim_servisi.dart';
 
 /// Girişten sonra kullanıcının rolüne göre açılacak ekranı belirler.
 class Yonlendirme {
-  static Future<Widget> girisSonrasi() async {
+  /// [akisTarihi]: işletme/personel paneli Akış sekmesinde açılacak gün (bildirimden gelindiğinde).
+  static Future<Widget> girisSonrasi({DateTime? akisTarihi}) async {
     final ben = await HesapApi.ben();
     BildirimServisi.baslat(); // beklemeden arka planda
     final rol = ben['rol'] as String? ?? 'musteri';
     final isletme = ben['isletme'] as Map<String, dynamic>?;
     if (rol == 'isletme') {
       if (isletme?['durum'] == 'onaylandi' && isletme?['salon_id'] != null) {
-        return IsletmePanelScreen(salonAd: ben['salon']?['ad'] ?? isletme?['isletme_adi'] ?? '');
+        return IsletmePanelScreen(
+            salonAd: ben['salon']?['ad'] ?? isletme?['isletme_adi'] ?? '', akisTarihi: akisTarihi);
       }
       return IsletmeBeklemeScreen(durum: isletme?['durum'] ?? 'beklemede', isletmeAdi: isletme?['isletme_adi'] ?? '');
     }
     if (rol == 'personel') {
-      return IsletmePanelScreen(salonAd: ben['salon']?['ad'] ?? '', personel: true);
+      return IsletmePanelScreen(salonAd: ben['salon']?['ad'] ?? '', personel: true, akisTarihi: akisTarihi);
     }
     return const MainScreen();
   }

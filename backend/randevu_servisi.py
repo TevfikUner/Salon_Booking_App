@@ -17,6 +17,39 @@ def _tarih_tr(tarih: str) -> str:
     return f"{g}.{a}.{y}"
 
 
+# ─────────────────────────── İşletmeye bildirim ───────────────────────────
+
+def salon_bildirim_tokenlari(db: Session, r: models.Randevu) -> list[str]:
+    """Randevudan haberdar olması gerekenlerin cihazları: salonun onaylı işletme sahibi ve randevunun berberi.
+    İşletme/personel token'ları da `musteriler` tablosunda tutulur (bkz. /musteriler/fcm-token-guncelle)."""
+    uidler = {uid for (uid,) in db.query(models.Isletme.firebase_uid).filter(
+        models.Isletme.salon_id == r.salon_id, models.Isletme.durum == "onaylandi")}
+    if r.berber and r.berber.firebase_uid:
+        uidler.add(r.berber.firebase_uid)
+    if r.musteri and r.musteri.firebase_uid:
+        uidler.discard(r.musteri.firebase_uid)  # kendi işlemini yapan kişiye bildirim gitmesin
+    uidler.discard(None)
+    if not uidler:
+        return []
+    return [t for (t,) in db.query(models.Musteri.fcm_token).filter(
+        models.Musteri.firebase_uid.in_(uidler), models.Musteri.fcm_token.isnot(None))]
+
+
+def salona_bildir(db: Session, r: models.Randevu, baslik: str, olay: str, arka_plan=None) -> int:
+    """İşletme sahibine ve berbere push gönderir. `arka_plan` (BackgroundTasks) verilirse yanıtı bekletmez."""
+    musteri = f"{r.musteri.ad} {r.musteri.soyad}".strip() if r.musteri else "Müşteri"
+    berber = f"{r.berber.ad} {r.berber.soyad}".strip() if r.berber else ""
+    mesaj = f"{musteri} · {_tarih_tr(r.tarih)} {r.saat} · {berber} — {olay}"
+    veri = {"type": "panel_randevu", "randevu_id": r.id, "tarih": r.tarih}
+    tokenlar = salon_bildirim_tokenlari(db, r)
+    for t in tokenlar:
+        if arka_plan is not None:
+            arka_plan.add_task(bildirim_gonder, t, baslik, mesaj, veri)
+        else:
+            bildirim_gonder(t, baslik, mesaj, veri)
+    return len(tokenlar)
+
+
 # ─────────────────────────── İptal & durum ───────────────────────────
 
 def musteri_iptal(db: Session, r: models.Randevu) -> None:
@@ -31,6 +64,7 @@ def musteri_iptal(db: Session, r: models.Randevu) -> None:
             detail=f"Randevuya {ayarlar().iptal_son_dk} dakikadan az kaldığı için iptal edilemez. Lütfen salonu arayın.",
         )
     _iptal_et(db, r, "musteri")
+    salona_bildir(db, r, "Randevu iptal edildi", "müşteri iptal etti, saat artık boş.")
 
 
 def isletme_iptal(db: Session, r: models.Randevu) -> None:

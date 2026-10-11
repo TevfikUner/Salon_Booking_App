@@ -13,7 +13,8 @@ import 'package:berber_app_ui/features/isletme/widgets/hesap_menusu.dart';
 class IsletmePanelScreen extends StatefulWidget {
   final String salonAd;
   final bool personel;
-  const IsletmePanelScreen({super.key, required this.salonAd, this.personel = false});
+  final DateTime? akisTarihi;
+  const IsletmePanelScreen({super.key, required this.salonAd, this.personel = false, this.akisTarihi});
 
   @override
   State<IsletmePanelScreen> createState() => _IsletmePanelScreenState();
@@ -25,7 +26,7 @@ class _IsletmePanelScreenState extends State<IsletmePanelScreen> {
   @override
   Widget build(BuildContext context) {
     final sekmeler = <(IconData, String, Widget)>[
-      (Icons.view_timeline_outlined, 'Akış', AkisSekmesi(personel: widget.personel)),
+      (Icons.view_timeline_outlined, 'Akış', AkisSekmesi(personel: widget.personel, baslangicTarihi: widget.akisTarihi)),
       if (!widget.personel) ...[
         (Icons.groups_outlined, 'Ekip & Menü', const EkipSekmesi()),
         (Icons.event_busy_outlined, 'Kapalı Günler', const KapaliGunlerSekmesi()),
