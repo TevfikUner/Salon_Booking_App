@@ -32,9 +32,9 @@ db = SessionLocal()
 # Temizlik (FK sırasıyla)
 for tablo in (models.randevu_hizmetleri, models.favori_berberler):
     db.execute(tablo.delete())
-for model in (models.Degerlendirme, models.BeklemeListesi, models.Randevu, models.BerberIzin, models.SaatBloke,
-              models.TatilGunu, models.Isletme, models.Musteri, models.SalonFotograf, models.Hizmet, models.Berber,
-              models.Salon, models.Dukkan):
+for model in (models.Degerlendirme, models.BeklemeListesi, models.MusteriNotu, models.Randevu, models.BerberIzin,
+              models.SaatBloke, models.TatilGunu, models.Isletme, models.Musteri, models.SalonFotograf, models.Hizmet,
+              models.Berber, models.Salon, models.Dukkan):
     db.query(model).delete()
 db.commit()
 
@@ -175,10 +175,25 @@ for r in db.query(models.Randevu).filter(models.Randevu.durum == "tamamlandi", m
     r.puan, r.yorum = 5, "Her zamanki gibi harika."
     db.add(models.Degerlendirme(musteri_id=r.musteri_id, berber_id=r.berber_id, salon_id=r.salon_id,
                                 randevu_id=r.id, puan=5, yorum=r.yorum, tarih=r.tarih))
+diger_yorumlar = {diger[0].id: (5, "Ense düz, yanlar tam istediğim gibi. Randevu saatinde alındım."),
+                  diger[1].id: (3, None)}
+for r in db.query(models.Randevu).filter(models.Randevu.durum == "tamamlandi",
+                                         models.Randevu.musteri_id.in_(diger_yorumlar)):
+    r.puan, r.yorum = diger_yorumlar[r.musteri_id]
+    db.add(models.Degerlendirme(musteri_id=r.musteri_id, berber_id=r.berber_id, salon_id=r.salon_id,
+                                randevu_id=r.id, puan=r.puan, yorum=r.yorum, tarih=r.tarih))
 db.flush()
 for b in berberler:
     puanlar = [d.puan for d in db.query(models.Degerlendirme).filter_by(berber_id=b.id)]
     b.puan = round(sum(puanlar) / len(puanlar), 2) if puanlar else 5.0
+for s in salonlar:
+    puanlar = [d.puan for d in db.query(models.Degerlendirme).filter_by(salon_id=s.id)]
+    if puanlar:
+        s.puan = round(sum(puanlar) / len(puanlar), 2)
+
+# Müşteri kartı: Kerem için işletmenin kalıcı notu (akışta 📝 görünür)
+db.add(models.MusteriNotu(salon_id=salonlar[0].id, musteri_id=diger[0].id, metin="Yanlar 1 numara, üstü makas. Ense düz.",
+                          guncelleme=f"{g.isoformat()}T09:00", guncelleyen="İşletme"))
 
 # Kapalı gün örneği: 10 gün sonrası salon 1'de tadilat
 db.add(models.TatilGunu(salon_id=salonlar[0].id, tarih=(g + timedelta(days=10)).isoformat(), aciklama="Tadilat"))

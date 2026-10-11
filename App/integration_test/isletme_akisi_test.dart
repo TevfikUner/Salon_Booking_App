@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -6,7 +7,7 @@ import 'package:berber_app_ui/features/isletme/isletme_panel_screen.dart';
 
 import 'yardimci.dart';
 
-/// İşletme akışı: giriş → Bugünün Akışı → saati gelmiş randevuyu "Tamamlandı" işaretle.
+/// İşletme akışı: giriş → Bugünün Akışı → saati gelmiş randevuyu "Tamamlandı" işaretle → müşteri kartına not yaz.
 ///
 ///   bash backend/yuk/yigin.sh entegrasyon
 ///   flutter test integration_test/isletme_akisi_test.dart --dart-define=API_URL=http://10.0.2.2:8020
@@ -35,5 +36,17 @@ void main() {
       if (durum == 'tamamlandi') break;
     }
     expect(durum, 'tamamlandi');
+
+    // Müşteri kartı: adına dokun → kalıcı not yaz → kaydet → akışta "not var" işareti
+    final musteriId = hedef['musteri']['id'] as int;
+    await dokun(tester, find.text(hedef['musteri']['ad'] as String));
+    await bekle(tester, find.text('İşletme notu'));
+    await tester.enterText(find.byType(TextField), 'Yanlar 1 numara, üstü makas');
+    await tester.pump();
+    await dokun(tester, find.text('Kaydet'));
+    await bekle(tester, find.text('Not kaydedildi.'));
+    final kart = await PanelApi.musteriKarti(musteriId);
+    expect(kart['not']['metin'], 'Yanlar 1 numara, üstü makas');
+    expect(kart['ozet']['ziyaret'], greaterThanOrEqualTo(1));
   });
 }

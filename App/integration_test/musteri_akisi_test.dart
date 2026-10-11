@@ -7,13 +7,14 @@ import 'package:berber_app_ui/data/api/hesap_api.dart';
 import 'package:berber_app_ui/data/api/randevu_api.dart';
 import 'package:berber_app_ui/data/api/salon_api.dart';
 import 'package:berber_app_ui/features/musteri/main_screen.dart';
+import 'package:berber_app_ui/features/musteri/randevularim/erteleme_sheet.dart';
 import 'package:berber_app_ui/features/randevu_al/widgets/saat_slot.dart';
 
 import 'yardimci.dart';
 
 final _takvim = find.byWidgetPredicate((w) => w is TableCalendar);
 
-/// Müşteri ana akışı: kayıt → salon → hizmet → berber → tarih → saat → onay → Randevularım → iptal.
+/// Müşteri ana akışı: kayıt → salon → hizmet → berber → tarih → saat → onay → Randevularım → ertele → iptal.
 ///
 ///   bash backend/yuk/yigin.sh entegrasyon
 ///   flutter test integration_test/musteri_akisi_test.dart --dart-define=API_URL=http://10.0.2.2:8020
@@ -73,10 +74,22 @@ void main() {
     await dokun(tester, find.text('Randevumu Onayla'));
     await bekle(tester, find.text('Randevunuz Onaylandı!'));
 
-    // 7) Randevularım → iptal
+    // 7) Randevularım → ertele (aynı gün başka saat)
     await dokun(tester, find.text('Randevularımı Gör'));
-    await dokun(tester, find.text('Randevuyu İptal Et'));
+    final once = (await RandevuApi.randevularim()).single;
+    await dokun(tester, find.text('Ertele'));
+    await dokun(tester, find.descendant(
+        of: find.byType(ErtelemeSheet),
+        matching: find.byWidgetPredicate((w) => w is SaatSlotWidget && w.durum == SlotDurumu.musait)));
+    await dokun(tester, find.textContaining('olarak ertele'));
+    await bekle(tester, find.text('Randevunuz ertelendi.'));
+    final sonra = (await RandevuApi.randevularim()).single;
+    expect(sonra.saat, isNot(once.saat), reason: 'randevu yeni saate taşınmalı');
+    expect(sonra.ertelemeHakki, once.ertelemeHakki - 1);
+
+    // 8) İptal: diyalog önce ertelemeyi önerir, "İptal Et" seçilir
     await dokun(tester, find.text('İptal Et'));
+    await dokun(tester, find.descendant(of: find.byType(AlertDialog), matching: find.text('İptal Et')));
     await bekle(tester, find.text('Randevunuz iptal edildi.'));
 
     final randevular = await RandevuApi.randevularim();
