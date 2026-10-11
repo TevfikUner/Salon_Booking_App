@@ -258,6 +258,18 @@ class BeklemeListesi(Base):
     berber = relationship("Berber")
 
 
+class MusteriNotu(Base):
+    """İşletmenin bir müşteri hakkındaki kalıcı notu ("yanlar 1 numara, üstü makas"). Salon başına bir not."""
+    __tablename__ = "musteri_notlari"
+    __table_args__ = (UniqueConstraint("salon_id", "musteri_id", name="uq_musteri_notu"),)
+    id = Column(Integer, primary_key=True)
+    salon_id = Column(Integer, ForeignKey("salonlar.id"), nullable=False)
+    musteri_id = Column(Integer, ForeignKey("musteriler.id", ondelete="CASCADE"), nullable=False, index=True)
+    metin = Column(Text, nullable=False)
+    guncelleme = Column(String, nullable=False)
+    guncelleyen = Column(String, nullable=True)  # "İşletme" veya personelin adı
+
+
 class Yonetici(Base):
     """Admin hesapları (ADMIN_UIDS ortam değişkenine ek). `python araclar.py admin-ekle <e-posta>` ile eklenir."""
     __tablename__ = "yoneticiler"

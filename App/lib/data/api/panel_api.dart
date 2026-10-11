@@ -34,6 +34,13 @@ class PanelApi {
       await ApiClient.get('/panel/musait-saatler',
           params: {'berber_id': berberId, 'tarih': tarih, 'hizmet_ids': hizmetIds});
 
+  // ── Müşteri kartı ──
+  static Future<Json> musteriKarti(int musteriId) async => await ApiClient.get('/panel/musteriler/$musteriId');
+
+  /// Boş metin notu siler.
+  static Future<Json> musteriNotuKaydet(int musteriId, String metin) async =>
+      await ApiClient.put('/panel/musteriler/$musteriId/not', govde: {'metin': metin.trim()});
+
   // ── Ekip & menü ──
   static Future<List<Json>> personel() async => ApiClient.liste(await ApiClient.get('/panel/personel'));
 

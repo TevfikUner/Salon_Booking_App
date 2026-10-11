@@ -116,6 +116,13 @@ onay bildirimi gelir mi → bildirime dokununca Randevularım açılıyor mu →
 
 - **Gizlilik, KVKK, kullanım koşulları** (`backend/yasal/*.md`, uygulama aynı metni gösterir): veri sorumlusunun unvanı,
   adresi ve VERBİS durumu hukukçu kontrolüyle eklenmeli. Değiştirince: `python scripts/yasal_senkron.py` ve yeniden dağıtım.
+- **Müşteri notu (yeni, Tur 4):** İşletmeler artık müşteri kartına kalıcı not yazabiliyor ("yanlar 1 numara, üstü makas").
+  Not yalnızca o salonda görünür, en fazla 500 karakterdir, müşteri hesabını silince silinir. Gizlilik metnine bir cümle
+  eklenmesi önerilir; hukukçu onayından sonra `backend/yasal/gizlilik.md` 34. satırın ardına ekleyip
+  `python scripts/yasal_senkron.py` çalıştırın. Taslak:
+  > Randevu aldığınız salon, size daha iyi hizmet verebilmek için sizinle ilgili kısa hizmet notları (ör. tercih
+  > ettiğiniz kesim) tutabilir. Bu notlar yalnızca o salon tarafından görülür ve hesabınızı sildiğinizde silinir.
+  Ayrıca işletmelere "notlara sağlık bilgisi gibi özel nitelikli veri yazmayın" uyarısı (ör. işletme sözleşmesinde) eklenmeli.
 - **Ticari ileti:** kampanya mesajı gönderecekseniz İYS kaydı gerekir (uygulama izni ayrı ve isteğe bağlı topluyor).
 - **iOS** isterseniz: Apple Developer (99 $/yıl), `GoogleService-Info.plist`, APNs anahtarı.
 

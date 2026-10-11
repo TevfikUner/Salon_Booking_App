@@ -26,6 +26,7 @@ def hesabi_anonimlestir(db: Session, uid: str) -> bool:
         m.silindi = True
         m.favori_berberler.clear()
         db.query(models.BeklemeListesi).filter(models.BeklemeListesi.musteri_id == m.id).delete()
+        db.query(models.MusteriNotu).filter(models.MusteriNotu.musteri_id == m.id).delete()
         db.query(models.Degerlendirme).filter(models.Degerlendirme.musteri_id == m.id).update({"yorum": None})
         # Yorumun randevu kaydındaki kopyası ve müşterinin randevuya bıraktığı notlar
         db.query(models.Randevu).filter(models.Randevu.musteri_id == m.id).update({"yorum": None, "notlar": None})

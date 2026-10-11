@@ -10,7 +10,7 @@ Dal: `feature/ilham-ozellikler` (`feature/v1-hazirlik`'ten) · Başlangıç: 202
 | 2 | Randevu erteleme | ✅ | `POST /randevular/{id}/ertele`, migration 0003, `ErtelemeSheet` |
 | 3 | Yorumlar ve berber istatistikleri | ✅ | `GET /degerlendirmeler/salon/{id}`, salon detayında bölüm + `YorumlarScreen`, ekipte puan(sayı) · tıraş |
 | 4 | Haftalık izin günü + öğle arası + saatlik bloke | ✅ | migration 0004 (`saat_blokeleri` ayrı tablo), `/panel/bloke`, Kapalı Günler'de mola kartı, Ekip'te çalışma günleri |
-| 5 | Müşteri kartı + kalıcı not | ⬜ | KVKK metni → BENDEN_GEREKENLER |
+| 5 | Müşteri kartı + kalıcı not | ✅ | migration 0005, `/panel/musteriler/{id}` + `/not`, akışta müşteri adına dokun; KVKK cümlesi BENDEN_GEREKENLER §9 |
 | 6 | Takvimde dolu günler | ⬜ | |
 | 7 | Salon ve hizmet araması | ⬜ | |
 | 8 | Takvime ekle (.ics) | ⬜ | |

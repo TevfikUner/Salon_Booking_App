@@ -125,6 +125,12 @@ def gunun_akisi(tarih: str | None = None, p: PanelBaglami = Depends(panel_baglam
         doluluk.append({"berber_id": b.id, "ad": f"{b.ad} {b.soyad}".strip(), "bos_slot": len(m.musait),
                         "toplam_slot": len(m.tum), "dolu_dk": dolu_dk, "kapali_neden": m.kapali_neden})
 
+    notlu = {mid for (mid,) in db.query(models.MusteriNotu.musteri_id).filter(
+        models.MusteriNotu.salon_id == salon.id,
+        models.MusteriNotu.musteri_id.in_({r.musteri_id for r in randevular}))}
+    for x in liste:
+        x["not_var"] = x["musteri"]["id"] in notlu
+
     return {
         "tarih": hedef,
         "salon": {"id": salon.id, "ad": salon.ad},
@@ -207,6 +213,80 @@ def panel_musait(berber_id: int, tarih: str, hizmet_ids: list[int] = Query(...),
     sure = sum(h.sure for h in ss.hizmetleri_coz(db, salon.id, hizmet_ids))
     m = ss.gun_musaitligi(db, salon, berber.id, tarih, sure)
     return {"musait_saatler": m.musait, "kapali_neden": m.kapali_neden, "toplam_sure_dk": sure}
+
+
+# ─────────────────────────── Müşteri kartı (mini CRM) ───────────────────────────
+
+def _musteri_randevulari(db: Session, musteri_id: int, p: PanelBaglami) -> list[models.Randevu]:
+    """Müşterinin bu salondaki randevuları (personel yalnızca kendisininkileri görür). Hiç yoksa 404:
+    işletme, salonuna hiç gelmemiş bir müşterinin bilgisine erişemez."""
+    q = db.query(models.Randevu).filter(models.Randevu.musteri_id == musteri_id,
+                                        models.Randevu.salon_id == p.salon_id)
+    if p.berber_id is not None:
+        q = q.filter(models.Randevu.berber_id == p.berber_id)
+    randevular = q.order_by(models.Randevu.tarih.desc(), models.Randevu.saat.desc()).all()
+    if not randevular:
+        raise HTTPException(status_code=404, detail="Müşteri bulunamadı.")
+    return randevular
+
+
+@router.get("/musteriler/{musteri_id}")
+def musteri_karti(musteri_id: int, p: PanelBaglami = Depends(panel_baglami), db: Session = Depends(get_db)):
+    """Müşterinin bu salondaki geçmişi, harcaması, en sık berber/hizmeti, güven skoru ve işletme notu."""
+    randevular = _musteri_randevulari(db, musteri_id, p)
+    m = db.get(models.Musteri, musteri_id)
+    tamam = [r for r in randevular if r.durum == "tamamlandi"]
+    berberler = Counter(f"{r.berber.ad} {r.berber.soyad}".strip() for r in tamam if r.berber)
+    hizmetler = Counter(h.ad for r in tamam for h in r.hizmetler)
+    notu = db.query(models.MusteriNotu).filter_by(salon_id=p.salon_id, musteri_id=musteri_id).first()
+    return {
+        "musteri": {"id": m.id, "ad": f"{m.ad} {m.soyad}".strip(), "telefon": "" if m.silindi else m.telefon,
+                    "uygulama_kullanicisi": bool(m.firebase_uid)},
+        "ozet": {
+            "ziyaret": len(tamam),
+            "son_ziyaret": tamam[0].tarih if tamam else None,
+            "toplam_harcama": round(sum(r.toplam_fiyat or 0 for r in tamam), 2),
+            "gelmedi": sum(1 for r in randevular if r.durum == "gelmedi"),
+            "iptal": sum(1 for r in randevular if r.durum == "iptal"),
+            "en_sik_berber": berberler.most_common(1)[0][0] if berberler else None,
+            "en_sik_hizmetler": [ad for ad, _ in hizmetler.most_common(3)],
+        },
+        "guven": rs.guven_skoru(db, musteri_id),
+        "not": {"metin": notu.metin, "guncelleme": notu.guncelleme, "guncelleyen": notu.guncelleyen} if notu else None,
+        "son_randevular": [{"id": r.id, "tarih": r.tarih, "saat": r.saat, "durum": r.durum,
+                            "berber": f"{r.berber.ad} {r.berber.soyad}".strip() if r.berber else "",
+                            "hizmetler": [h.ad for h in r.hizmetler], "toplam_fiyat": r.toplam_fiyat}
+                           for r in randevular[:10]],
+    }
+
+
+class NotVerisi(BaseModel):
+    metin: str = Field(max_length=500)
+
+
+@router.put("/musteriler/{musteri_id}/not")
+def musteri_notu_kaydet(musteri_id: int, veri: NotVerisi, p: PanelBaglami = Depends(panel_baglami),
+                        db: Session = Depends(get_db)):
+    """Salonun müşteri notunu yazar; boş metin notu siler. İşletme ve personel (kendi müşterisi için) yazabilir."""
+    _musteri_randevulari(db, musteri_id, p)
+    notu = db.query(models.MusteriNotu).filter_by(salon_id=p.salon_id, musteri_id=musteri_id).first()
+    metin = veri.metin.strip()
+    if not metin:
+        if notu:
+            db.delete(notu)
+            db.commit()
+        return {"mesaj": "Not silindi.", "not": None}
+    yazan = "İşletme"
+    if p.berber_id is not None:
+        b = db.get(models.Berber, p.berber_id)
+        yazan = f"{b.ad} {b.soyad}".strip() if b else "Personel"
+    if not notu:
+        notu = models.MusteriNotu(salon_id=p.salon_id, musteri_id=musteri_id, metin=metin)
+        db.add(notu)
+    notu.metin, notu.guncelleme, notu.guncelleyen = metin, simdi().isoformat(timespec="minutes"), yazan
+    db.commit()
+    return {"mesaj": "Not kaydedildi.",
+            "not": {"metin": notu.metin, "guncelleme": notu.guncelleme, "guncelleyen": notu.guncelleyen}}
 
 
 # ─────────────────────────── Personel ───────────────────────────

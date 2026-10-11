@@ -10,6 +10,7 @@ import 'package:berber_app_ui/data/models/salon.dart';
 import 'package:berber_app_ui/features/giris/giris_screen.dart';
 import 'package:berber_app_ui/features/giris/isletme_kayit_screen.dart';
 import 'package:berber_app_ui/features/giris/kayit_screen.dart';
+import 'package:berber_app_ui/features/isletme/akis/musteri_karti_sheet.dart';
 import 'package:berber_app_ui/features/isletme/akis/widgets/akis_randevu_karti.dart';
 import 'package:berber_app_ui/features/isletme/kapali_gunler/widgets/mola_karti.dart';
 import 'package:berber_app_ui/data/models/berber.dart';
@@ -112,7 +113,8 @@ void main() {
       testWidgets('işletme akış kartı', (t) => ciz(
           t,
           liste([
-            AkisRandevuKarti(randevu: akis, islemde: false, onDurum: (_) {}, onWhatsapp: () {}, onAra: () {}),
+            AkisRandevuKarti(randevu: {...akis, 'not_var': true}, islemde: false, onDurum: (_) {}, onWhatsapp: () {},
+                onAra: () {}, onMusteri: () {}),
             AkisRandevuKarti(
                 randevu: {...akis, 'durum': 'tamamlandi'}, islemde: false, onDurum: (_) {}, onWhatsapp: () {}, onAra: () {}),
           ]),
@@ -126,6 +128,23 @@ void main() {
             YorumlarBolumu(salonId: 1, salonAd: 'Salon', veri: null, hata: true, onTekrar: () {}),
             YorumKarti(yorum: (yorumVeri['yorumlar'] as List).first),
           ]),
+          olcek: olcek));
+      testWidgets('müşteri kartı', (t) => ciz(
+          t,
+          Scaffold(body: MusteriKartiSheet(musteriId: 1, testVerisi: {
+            'musteri': {'id': 1, 'ad': 'Muhammed Mustafa Karaosmanoğlu', 'telefon': '05329999999'},
+            'ozet': {'ziyaret': 128, 'son_ziyaret': '2026-09-30', 'toplam_harcama': 123450, 'gelmedi': 12,
+                'en_sik_berber': 'Abdurrahman Çağlayanoğlu',
+                'en_sik_hizmetler': ['Saç Kesimi', 'Sakal Tıraşı ve Şekillendirme', 'Keratin Bakımı']},
+            'guven': akis['guven'],
+            'not': {'metin': 'Yanlar 1 numara, üstü makas.', 'guncelleme': '2026-10-01T14:05', 'guncelleyen': 'İşletme'},
+            'son_randevular': [
+              {'id': 1, 'tarih': '2026-09-30', 'saat': '09:00', 'durum': 'tamamlandi', 'berber': 'Abdurrahman Çağlayanoğlu',
+               'hizmetler': ['Saç Kesimi', 'Sakal Tıraşı ve Şekillendirme'], 'toplam_fiyat': 450},
+              {'id': 2, 'tarih': '2026-09-02', 'saat': '18:30', 'durum': 'gelmedi', 'berber': 'Veli',
+               'hizmetler': ['Kesim'], 'toplam_fiyat': 300},
+            ],
+          })),
           olcek: olcek));
       testWidgets('öğle arası kartı', (t) => ciz(
           t,

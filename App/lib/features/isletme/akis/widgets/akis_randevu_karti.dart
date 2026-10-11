@@ -13,6 +13,9 @@ class AkisRandevuKarti extends StatelessWidget {
   final VoidCallback onWhatsapp;
   final VoidCallback onAra;
 
+  /// Müşteri adına dokununca müşteri kartı (geçmiş + işletme notu)
+  final VoidCallback? onMusteri;
+
   const AkisRandevuKarti({
     super.key,
     required this.randevu,
@@ -20,6 +23,7 @@ class AkisRandevuKarti extends StatelessWidget {
     required this.onDurum,
     required this.onWhatsapp,
     required this.onAra,
+    this.onMusteri,
   });
 
   @override
@@ -47,7 +51,7 @@ class AkisRandevuKarti extends StatelessWidget {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             _SaatSutunu(randevu: r),
-            Expanded(child: _Detay(randevu: r, hizmetler: hizmetler)),
+            Expanded(child: _Detay(randevu: r, hizmetler: hizmetler, onMusteri: onMusteri)),
           ]),
           Divider(color: AppTheme.gold.withValues(alpha: 0.1), height: 20),
           Row(children: [
@@ -101,22 +105,32 @@ class _SaatSutunu extends StatelessWidget {
 class _Detay extends StatelessWidget {
   final Map<String, dynamic> randevu;
   final List<Map<String, dynamic>> hizmetler;
-  const _Detay({required this.randevu, required this.hizmetler});
+  final VoidCallback? onMusteri;
+  const _Detay({required this.randevu, required this.hizmetler, this.onMusteri});
 
   @override
   Widget build(BuildContext context) {
     final r = randevu;
     final notlar = r['notlar'] as String?;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(children: [
-        Flexible(
-          child: Text(r['musteri']['ad'],
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
-        ),
-        const SizedBox(width: 6),
-        GuvenRozeti(guven: r['guven']),
-      ]),
+      InkWell(
+        onTap: onMusteri,
+        borderRadius: BorderRadius.circular(6),
+        child: Row(children: [
+          Flexible(
+            child: Text(r['musteri']['ad'],
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
+          ),
+          if (r['not_var'] == true) ...[
+            const SizedBox(width: 4),
+            const Tooltip(message: 'Müşteri notu var', child: Icon(Icons.sticky_note_2, color: AppTheme.gold, size: 16)),
+          ],
+          const SizedBox(width: 6),
+          GuvenRozeti(guven: r['guven']),
+          if (onMusteri != null) const Icon(Icons.chevron_right, color: AppTheme.textSecondary, size: 18),
+        ]),
+      ),
       const SizedBox(height: 2),
       Text('${r['berber']['ad']}${r['kaynak'] == 'panel' ? ' · panelden eklendi' : ''}',
           style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),

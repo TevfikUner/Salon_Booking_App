@@ -7,6 +7,7 @@ import 'package:berber_app_ui/core/widgets/durum_gorunumleri.dart';
 import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
 import 'package:berber_app_ui/data/api/api_client.dart';
 import 'package:berber_app_ui/data/api/panel_api.dart';
+import 'package:berber_app_ui/features/isletme/akis/musteri_karti_sheet.dart';
 import 'package:berber_app_ui/features/isletme/akis/randevu_ekle_sheet.dart';
 import 'package:berber_app_ui/features/isletme/akis/widgets/akis_ozeti.dart';
 import 'package:berber_app_ui/features/isletme/akis/widgets/akis_randevu_karti.dart';
@@ -88,6 +89,18 @@ class _AkisSekmesiState extends State<AkisSekmesi> {
     if (eklendi == true) _yukle();
   }
 
+  Future<void> _musteriKarti(Map<String, dynamic> r) async {
+    var degisti = false;
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppTheme.surface,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (_) => MusteriKartiSheet(musteriId: r['musteri']['id'], onNotDegisti: () => degisti = true),
+    );
+    if (degisti) _yukle();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -135,6 +148,7 @@ class _AkisSekmesiState extends State<AkisSekmesi> {
               onDurum: (d) => _durum(r, d),
               onWhatsapp: () => _harici(Harici.ac(Uri.parse(r['whatsapp_link']))),
               onAra: () => _harici(Harici.ara(r['musteri']['telefon'])),
+              onMusteri: () => _musteriKarti(r),
             ),
       ]),
     );
