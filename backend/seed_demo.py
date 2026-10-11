@@ -32,9 +32,9 @@ db = SessionLocal()
 # Temizlik (FK sırasıyla)
 for tablo in (models.randevu_hizmetleri, models.favori_berberler):
     db.execute(tablo.delete())
-for model in (models.Degerlendirme, models.BeklemeListesi, models.Randevu, models.BerberIzin, models.TatilGunu,
-              models.Isletme, models.Musteri, models.SalonFotograf, models.Hizmet, models.Berber, models.Salon,
-              models.Dukkan):
+for model in (models.Degerlendirme, models.BeklemeListesi, models.Randevu, models.BerberIzin, models.SaatBloke,
+              models.TatilGunu, models.Isletme, models.Musteri, models.SalonFotograf, models.Hizmet, models.Berber,
+              models.Salon, models.Dukkan):
     db.query(model).delete()
 db.commit()
 

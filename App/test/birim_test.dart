@@ -10,6 +10,12 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Yardımcılar', () {
+    test('haftalık gün listesi ayrıştırma ve yazma', () {
+      expect(gunListesi('3, 0,9,x,,6'), {0, 3, 6});
+      expect(gunListesi(null), isEmpty);
+      expect(gunListesiMetni({6, 0, 3}), '0,3,6');
+      expect(gunKisaAdlari[gunListesi('4').single], 'Cum');
+    });
     test('tarihStr sıfır doldurur', () {
       expect(tarihStr(DateTime(2026, 3, 7)), '2026-03-07');
     });

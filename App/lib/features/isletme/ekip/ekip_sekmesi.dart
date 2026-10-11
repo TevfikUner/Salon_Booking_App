@@ -8,8 +8,9 @@ import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
 import 'package:berber_app_ui/core/widgets/durum_gorunumleri.dart';
+import 'package:berber_app_ui/features/isletme/ekip/widgets/calisma_gunleri_sheet.dart';
 
-/// Personel ve hizmet menüsü yönetimi.
+/// Personel (çalışma günleri dahil) ve hizmet menüsü yönetimi.
 class EkipSekmesi extends StatefulWidget {
   const EkipSekmesi({super.key});
 
@@ -20,6 +21,7 @@ class EkipSekmesi extends StatefulWidget {
 class _EkipSekmesiState extends State<EkipSekmesi> {
   List<Map<String, dynamic>> _personel = [];
   List<Map<String, dynamic>> _hizmetler = [];
+  Set<int> _salonKapali = {};
   bool _yukleniyor = true;
   String? _hata;
 
@@ -33,10 +35,12 @@ class _EkipSekmesiState extends State<EkipSekmesi> {
     setState(() => _hata = null);
     try {
       final s = await Future.wait([PanelApi.personel(), PanelApi.hizmetler()]);
+      final salon = await PanelApi.salon();
       if (mounted) {
         setState(() {
           _personel = s[0];
           _hizmetler = s[1];
+          _salonKapali = gunListesi(salon['kapali_gunler']);
         });
       }
     } on ApiHata catch (e) {
@@ -79,6 +83,22 @@ class _EkipSekmesiState extends State<EkipSekmesi> {
               'email': email.text.trim().isEmpty ? null : email.text.trim(),
             }),
         'Personel eklendi.');
+  }
+
+  Future<void> _calismaGunleri(Map<String, dynamic> p) async {
+    final ad = '${p['ad']} ${p['soyad']}'.trim();
+    final izinli = await calismaGunleriSec(context,
+        ad: ad, izinli: gunListesi(p['kapali_gunler']), salonKapali: _salonKapali);
+    if (izinli == null) return;
+    await _calistir(
+        () => PanelApi.personelGuncelle(p['id'], {
+              'ad': p['ad'],
+              'soyad': p['soyad'] ?? '',
+              'uzmanlik': p['uzmanlik'] ?? 'Berber',
+              'email': p['email'],
+              'kapali_gunler': gunListesiMetni(izinli),
+            }),
+        '$ad için çalışma günleri kaydedildi.');
   }
 
   Future<void> _personelCikar(Map<String, dynamic> p) async {
@@ -162,15 +182,22 @@ class _EkipSekmesiState extends State<EkipSekmesi> {
       onRefresh: _yukle,
       child: ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 32), children: [
         _bolum('Personel', 'Ekle', _personelEkle),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: Text('Çalışma günlerini düzenlemek için personele dokunun.',
+              style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
+        ),
         if (_personel.isEmpty) const BosGorunum(ikon: Icons.groups_outlined, mesaj: 'Henüz personel yok.'),
         for (final p in _personel)
           Card(
             child: ListTile(
+              onTap: () => _calismaGunleri(p),
               leading: const CircleAvatar(backgroundColor: AppTheme.card, child: Icon(Icons.person, color: AppTheme.gold)),
               title: Text('${p['ad']} ${p['soyad']}'.trim(), style: const TextStyle(color: Colors.white)),
               subtitle: Text(
                   '${p['uzmanlik']} · ★ ${(p['puan'] as num).toStringAsFixed(1)}'
-                  '${p['hesap_bagli'] == true ? ' · hesabı bağlı' : (p['email'] != null ? ' · davet: ${p['email']}' : '')}',
+                  '${p['hesap_bagli'] == true ? ' · hesabı bağlı' : (p['email'] != null ? ' · davet: ${p['email']}' : '')}'
+                  '${_izinMetni(p)}',
                   style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
               trailing: IconButton(
                   tooltip: 'Kadrodan çıkar',
@@ -199,6 +226,11 @@ class _EkipSekmesiState extends State<EkipSekmesi> {
           ),
       ]),
     );
+  }
+
+  String _izinMetni(Map<String, dynamic> p) {
+    final g = gunListesi(p['kapali_gunler']).difference(_salonKapali);
+    return g.isEmpty ? '' : '\nHaftalık izin: ${(g.toList()..sort()).map((x) => gunKisaAdlari[x]).join(', ')}';
   }
 
   Widget _bolum(String baslik, String buton, VoidCallback onTap) => Padding(

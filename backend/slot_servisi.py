@@ -2,7 +2,8 @@
 
 Kurallar:
 - Salonun o güne ait mesaisi (hafta içi / Pazar / haftalık kapalı gün) dışına taşan randevu alınamaz.
-- Tatil günü (salona özel veya genel) ve berber izin günü kapalıdır.
+- Tatil günü (salona özel veya genel), berber izin günü ve berberin haftalık izin günü kapalıdır.
+- Salonun öğle arası ve berberin saatlik blokeleri, randevu gibi dolu aralık sayılır.
 - Geçmiş tarih/saat ve rezervasyon ufkunun ötesi alınamaz.
 - Bir randevu, süresi SLOT_DK'ya yukarı yuvarlanmış aralığı kaplar (40 dk → 60 dk).
 - Başlangıç saatleri açılıştan itibaren SLOT_DK adımlı ızgaradadır.
@@ -62,9 +63,22 @@ def izgara(acilis_dk: int, kapanis_dk: int, slot: int | None = None) -> list[int
     return list(range(acilis_dk, kapanis_dk, slot))
 
 
+def gun_listesi(metin: str | None) -> set[int]:
+    """"0,6" → {0, 6} (0=Pazartesi … 6=Pazar); bozuk parçalar yok sayılır."""
+    return {int(x) for x in (metin or "").split(",") if x.strip().isdigit() and 0 <= int(x) <= 6}
+
+
+def mola_araligi(salon: models.Salon) -> tuple[int, int] | None:
+    try:
+        a, b = saat_dk(salon.mola_baslangic), saat_dk(salon.mola_bitis)
+    except (ValueError, TypeError, AttributeError):
+        return None
+    return (a, b) if b > a else None
+
+
 def gun_mesaisi(salon: models.Salon, gun: date) -> tuple[int, int] | None:
     """(açılış_dk, kapanış_dk) veya o gün haftalık kapalıysa None."""
-    kapali = {int(x) for x in (salon.kapali_gunler or "").split(",") if x.strip().isdigit()}
+    kapali = gun_listesi(salon.kapali_gunler)
     if gun.weekday() in kapali:
         return None
     if gun.weekday() == 6:
@@ -107,9 +121,12 @@ def kapali_nedenler(db: Session, salon: models.Salon, berber_id: int | None,
         )
     }
     izinler: set[str] = set()
+    berber_haftalik: set[int] = set()
     if berber_id is not None:
         izinler = {t for (t,) in db.query(models.BerberIzin.tarih).filter(
             models.BerberIzin.berber_id == berber_id, models.BerberIzin.tarih.in_(tarihler))}
+        berber = db.get(models.Berber, berber_id)
+        berber_haftalik = gun_listesi(berber.kapali_gunler if berber else "")
     sonuc: dict[date, str | None] = {}
     for gun in gunler:
         tarih_str = gun.isoformat()
@@ -124,6 +141,8 @@ def kapali_nedenler(db: Session, salon: models.Salon, berber_id: int | None,
             sonuc[gun] = f"Salon bu gün kapalı{f' ({tatil.aciklama})' if tatil.aciklama else ''}."
         elif tarih_str in izinler:
             sonuc[gun] = "Seçilen personel bu gün izinli."
+        elif gun.weekday() in berber_haftalik:
+            sonuc[gun] = "Seçilen personel bu gün çalışmıyor."
         else:
             sonuc[gun] = None
     return sonuc
@@ -146,6 +165,21 @@ def dolu_araliklar(db: Session, berber_id: int, tarih_str: str, haric_id: int | 
         except (ValueError, TypeError):
             continue
         araliklar.append((bas, bas + blok_dk(r.sure_dk or 30)))
+    return araliklar
+
+
+def bloke_araliklari(db: Session, salon: models.Salon, berber_id: int, tarih_str: str) -> list[tuple[int, int]]:
+    """Randevu alınamayan ama randevu olmayan aralıklar: salonun öğle arası + berberin saatlik blokeleri."""
+    araliklar = []
+    mola = mola_araligi(salon)
+    if mola:
+        araliklar.append(mola)
+    for b in db.query(models.SaatBloke).filter(models.SaatBloke.berber_id == berber_id,
+                                               models.SaatBloke.tarih == tarih_str):
+        try:
+            araliklar.append((saat_dk(b.bas_saat), saat_dk(b.bit_saat)))
+        except (ValueError, TypeError):
+            continue
     return araliklar
 
 
@@ -172,8 +206,8 @@ def gun_musaitligi(db: Session, salon: models.Salon, berber_id: int, tarih_str: 
     tum = [dk_saat(d) for d in izgara(*mesai)] if mesai else []
     if neden:
         return GunMusaitligi(tarih_str, neden, [], tum)
-    bas = musait_baslangiclar(mesai[0], mesai[1], sure_dk, dolu_araliklar(db, berber_id, tarih_str, haric_id),
-                              _en_erken(gun))
+    dolu = dolu_araliklar(db, berber_id, tarih_str, haric_id) + bloke_araliklari(db, salon, berber_id, tarih_str)
+    bas = musait_baslangiclar(mesai[0], mesai[1], sure_dk, dolu, _en_erken(gun))
     return GunMusaitligi(tarih_str, None, [dk_saat(d) for d in bas], tum)
 
 

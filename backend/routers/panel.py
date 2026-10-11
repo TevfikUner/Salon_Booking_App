@@ -6,7 +6,7 @@ from collections import Counter
 from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 from sqlalchemy.orm import Session
 
 import models
@@ -211,17 +211,35 @@ def panel_musait(berber_id: int, tarih: str, hizmet_ids: list[int] = Query(...),
 
 # ─────────────────────────── Personel ───────────────────────────
 
+def gun_listesi_dogrula(v: str | None) -> str | None:
+    """Haftalık gün listesi: "0,6" (0=Pzt … 6=Paz). Sıralı ve tekrarsız saklanır."""
+    if v is None:
+        return None
+    parcalar = [x.strip() for x in v.split(",") if x.strip()]
+    if any(not x.isdigit() or not 0 <= int(x) <= 6 for x in parcalar):
+        raise ValueError("Günler 0 (Pazartesi) ile 6 (Pazar) arasında olmalı")
+    return ",".join(str(g) for g in sorted({int(x) for x in parcalar}))
+
+
 class PersonelVerisi(BaseModel):
     ad: str = Field(min_length=1, max_length=60)
     soyad: str = Field(default="", max_length=60)
     uzmanlik: str = Field(default="Berber", max_length=40)
     email: str | None = Field(default=None, max_length=120)
     whatsapp_no: str | None = None
+    # Haftalık izin günleri; gönderilmezse (None) mevcut değer korunur
+    kapali_gunler: str | None = Field(default=None, max_length=20)
+
+    @field_validator("kapali_gunler")
+    @classmethod
+    def _gunler(cls, v: str | None) -> str | None:
+        return gun_listesi_dogrula(v)
 
 
 def _personel_json(b: models.Berber) -> dict:
     return {"id": b.id, "ad": b.ad, "soyad": b.soyad, "uzmanlik": b.uzmanlik, "puan": b.puan,
-            "foto_url": b.foto_url, "email": b.email, "hesap_bagli": bool(b.firebase_uid), "aktif": b.aktif}
+            "foto_url": b.foto_url, "email": b.email, "hesap_bagli": bool(b.firebase_uid), "aktif": b.aktif,
+            "kapali_gunler": b.kapali_gunler or ""}
 
 
 @router.get("/personel")
@@ -233,7 +251,8 @@ def personel_listele(p: PanelBaglami = Depends(panel_baglami), db: Session = Dep
 @router.post("/personel")
 def personel_ekle(veri: PersonelVerisi, p: PanelBaglami = Depends(panel_yonetici), db: Session = Depends(get_db)):
     b = models.Berber(salon_id=p.salon_id, ad=veri.ad.strip(), soyad=veri.soyad.strip(), uzmanlik=veri.uzmanlik,
-                      email=(veri.email or "").strip().lower() or None, whatsapp_no=veri.whatsapp_no, puan=5.0)
+                      email=(veri.email or "").strip().lower() or None, whatsapp_no=veri.whatsapp_no, puan=5.0,
+                      kapali_gunler=veri.kapali_gunler or "")
     db.add(b)
     db.commit()
     return _personel_json(b)
@@ -248,6 +267,8 @@ def personel_guncelle(berber_id: int, veri: PersonelVerisi, p: PanelBaglami = De
     b.ad, b.soyad, b.uzmanlik = veri.ad.strip(), veri.soyad.strip(), veri.uzmanlik
     b.email = (veri.email or "").strip().lower() or None
     b.whatsapp_no = veri.whatsapp_no
+    if veri.kapali_gunler is not None:
+        b.kapali_gunler = veri.kapali_gunler
     db.commit()
     return _personel_json(b)
 
@@ -346,10 +367,16 @@ def tatil_listele(p: PanelBaglami = Depends(panel_baglami), db: Session = Depend
     izinler = db.query(models.BerberIzin).join(models.Berber).filter(
         models.Berber.salon_id == p.salon_id, models.BerberIzin.tarih >= bugun().isoformat()
     ).order_by(models.BerberIzin.tarih).all()
+    blokeler = db.query(models.SaatBloke).join(models.Berber).filter(
+        models.Berber.salon_id == p.salon_id, models.SaatBloke.tarih >= bugun().isoformat()
+    ).order_by(models.SaatBloke.tarih, models.SaatBloke.bas_saat).all()
     return {
         "tatiller": [{"id": t.id, "tarih": t.tarih, "aciklama": t.aciklama} for t in tatiller],
         "izinler": [{"id": i.id, "tarih": i.tarih, "aciklama": i.aciklama, "berber_id": i.berber_id,
                      "berber": f"{i.berber.ad} {i.berber.soyad}".strip()} for i in izinler],
+        "blokeler": [{"id": b.id, "tarih": b.tarih, "bas_saat": b.bas_saat, "bit_saat": b.bit_saat,
+                      "aciklama": b.aciklama, "berber_id": b.berber_id,
+                      "berber": f"{b.berber.ad} {b.berber.soyad}".strip()} for b in blokeler],
     }
 
 
@@ -402,6 +429,53 @@ def izin_sil(izin_id: int, p: PanelBaglami = Depends(panel_yonetici), db: Sessio
     return {"mesaj": "İzin kaldırıldı."}
 
 
+class BlokeVerisi(GunVerisi):
+    berber_id: int
+    bas_saat: str
+    bit_saat: str
+
+    @field_validator("bas_saat", "bit_saat")
+    @classmethod
+    def _saat(cls, v: str) -> str:
+        try:
+            saat_dk(v)
+        except (ValueError, TypeError):
+            raise ValueError("Saat HH:MM biçiminde olmalı") from None
+        return v
+
+
+@router.post("/bloke")
+def bloke_ekle(veri: BlokeVerisi, p: PanelBaglami = Depends(panel_yonetici), db: Session = Depends(get_db)):
+    """Berberi belirli bir günün belirli saatlerinde randevuya kapatır. Mevcut randevular silinmez, sayısı döner."""
+    b = db.get(models.Berber, veri.berber_id)
+    if not b or b.salon_id != p.salon_id or not b.aktif:
+        raise HTTPException(status_code=404, detail="Personel bulunamadı.")
+    bas, bit = saat_dk(veri.bas_saat), saat_dk(veri.bit_saat)
+    if bit <= bas:
+        raise HTTPException(status_code=400, detail="Bitiş saati başlangıçtan sonra olmalı.")
+    if veri.tarih < bugun().isoformat():
+        raise HTTPException(status_code=400, detail="Geçmiş bir güne bloke eklenemez.")
+    db.add(models.SaatBloke(berber_id=b.id, tarih=veri.tarih, bas_saat=veri.bas_saat, bit_saat=veri.bit_saat,
+                            aciklama=veri.aciklama))
+    db.commit()
+    randevular = db.query(models.Randevu).filter(models.Randevu.berber_id == b.id, models.Randevu.tarih == veri.tarih,
+                                                 models.Randevu.durum == "onaylandi").all()
+    etkilenen = sum(1 for r in randevular if ss.cakisiyor(bas, bit, saat_dk(r.saat), saat_dk(r.saat) + (r.sure_dk or 30)))
+    return {"mesaj": f"{b.ad} için {veri.bas_saat}–{veri.bit_saat} kapatıldı.", "etkilenen_randevu": etkilenen}
+
+
+@router.delete("/bloke/{bloke_id}")
+def bloke_sil(bloke_id: int, p: PanelBaglami = Depends(panel_yonetici), db: Session = Depends(get_db)):
+    k = db.get(models.SaatBloke, bloke_id)
+    if not k or not k.berber or k.berber.salon_id != p.salon_id:
+        raise HTTPException(status_code=404, detail="Kayıt bulunamadı.")
+    tarih, berber_id = k.tarih, k.berber_id
+    db.delete(k)
+    db.commit()
+    rs.bekleme_listesine_haber_ver(db, berber_id, tarih)
+    return {"mesaj": "Bloke kaldırıldı."}
+
+
 # ─────────────────────────── Rapor ───────────────────────────
 
 @router.get("/rapor")
@@ -450,21 +524,41 @@ class SalonVerisi(BaseModel):
     pazar_acilis_saati: str
     pazar_kapanis_saati: str
     kapali_gunler: str = ""
+    # Öğle arası: ikisi birlikte verilir; ikisi de null → mola yok. Gönderilmezse mevcut değer korunur.
+    mola_baslangic: str | None = None
+    mola_bitis: str | None = None
 
-    @field_validator("acilis_saati", "kapanis_saati", "pazar_acilis_saati", "pazar_kapanis_saati")
+    @field_validator("acilis_saati", "kapanis_saati", "pazar_acilis_saati", "pazar_kapanis_saati",
+                     "mola_baslangic", "mola_bitis")
     @classmethod
-    def _saat(cls, v: str) -> str:
+    def _saat(cls, v: str | None) -> str | None:
+        if v is None:
+            return v
         try:
             saat_dk(v)
         except ValueError:
             raise ValueError("Saat HH:MM biçiminde olmalı") from None
         return v
 
+    @field_validator("kapali_gunler")
+    @classmethod
+    def _gunler(cls, v: str) -> str:
+        return gun_listesi_dogrula(v)
+
+    @model_validator(mode="after")
+    def _mola(self):
+        a, b = self.mola_baslangic, self.mola_bitis
+        if (a is None) != (b is None):
+            raise ValueError("Öğle arasının başlangıç ve bitişi birlikte girilmeli")
+        if a is not None and saat_dk(b) <= saat_dk(a):
+            raise ValueError("Öğle arası bitişi başlangıçtan sonra olmalı")
+        return self
+
 
 def _salon_json(s: models.Salon) -> dict:
     return {k: getattr(s, k) for k in ("id", "ad", "adres", "telefon", "whatsapp", "instagram_url", "sehir", "ilce",
                                        "acilis_saati", "kapanis_saati", "pazar_acilis_saati", "pazar_kapanis_saati",
-                                       "kapali_gunler", "puan")}
+                                       "kapali_gunler", "puan", "mola_baslangic", "mola_bitis")}
 
 
 @router.get("/salon")
@@ -475,7 +569,7 @@ def salon_getir(p: PanelBaglami = Depends(panel_baglami), db: Session = Depends(
 @router.put("/salon")
 def salon_guncelle(veri: SalonVerisi, p: PanelBaglami = Depends(panel_yonetici), db: Session = Depends(get_db)):
     s = _salon(db, p)
-    for k, v in veri.model_dump().items():
+    for k, v in veri.model_dump(exclude_unset=True).items():  # eski istemci mola alanlarını göndermezse korunur
         setattr(s, k, v)
     db.commit()
     return _salon_json(s)

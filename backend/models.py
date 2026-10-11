@@ -46,6 +46,9 @@ class Salon(Base):
     pazar_kapanis_saati = Column(String, default="17:00", nullable=False)
     # Haftalık kapalı günler: virgülle ayrılmış weekday indeksleri (0=Pzt … 6=Paz). Örn: "6"
     kapali_gunler = Column(String, default="", nullable=False)
+    # Günlük öğle arası (tüm personel için, "HH:MM"); ikisi de boşsa mola yok
+    mola_baslangic = Column(String, nullable=True)
+    mola_bitis = Column(String, nullable=True)
     puan = Column(Float, default=5.0)
     aktif = Column(Boolean, default=True, nullable=False)
 
@@ -70,6 +73,8 @@ class Berber(Base):
     email = Column(String, nullable=True, index=True)
     firebase_uid = Column(String, unique=True, nullable=True, index=True)
     aktif = Column(Boolean, default=True, nullable=False)
+    # Berberin haftalık izin günleri (salonunki gibi: "0"=Pzt … "6"=Paz, virgülle). Salon açık olsa da çalışmaz.
+    kapali_gunler = Column(String, default="", nullable=False, server_default="")
 
     salon = relationship("Salon", back_populates="berberler")
 
@@ -190,6 +195,20 @@ class BerberIzin(Base):
     id = Column(Integer, primary_key=True, index=True)
     berber_id = Column(Integer, ForeignKey("berberler.id"), index=True)
     tarih = Column(String, nullable=False)
+    aciklama = Column(String, nullable=True)
+
+    berber = relationship("Berber")
+
+
+class SaatBloke(Base):
+    """Berberin belirli bir gündeki kısmi kapalılığı ("14:00–16:00 dışarıdayım"). Tam gün için BerberIzin kullanılır."""
+    __tablename__ = "saat_blokeleri"
+    __table_args__ = (Index("ix_bloke_berber_tarih", "berber_id", "tarih"),)
+    id = Column(Integer, primary_key=True, index=True)
+    berber_id = Column(Integer, ForeignKey("berberler.id"), nullable=False)
+    tarih = Column(String, nullable=False)
+    bas_saat = Column(String, nullable=False)
+    bit_saat = Column(String, nullable=False)
     aciklama = Column(String, nullable=True)
 
     berber = relationship("Berber")

@@ -11,6 +11,7 @@ import 'package:berber_app_ui/features/giris/giris_screen.dart';
 import 'package:berber_app_ui/features/giris/isletme_kayit_screen.dart';
 import 'package:berber_app_ui/features/giris/kayit_screen.dart';
 import 'package:berber_app_ui/features/isletme/akis/widgets/akis_randevu_karti.dart';
+import 'package:berber_app_ui/features/isletme/kapali_gunler/widgets/mola_karti.dart';
 import 'package:berber_app_ui/data/models/berber.dart';
 import 'package:berber_app_ui/features/kesfet/widgets/ekip_listesi.dart';
 import 'package:berber_app_ui/features/kesfet/widgets/salon_karti.dart';
@@ -124,6 +125,13 @@ void main() {
             YorumlarBolumu(salonId: 1, salonAd: 'Salon', veri: const {'toplam': 0}, hata: false, onTekrar: () {}),
             YorumlarBolumu(salonId: 1, salonAd: 'Salon', veri: null, hata: true, onTekrar: () {}),
             YorumKarti(yorum: (yorumVeri['yorumlar'] as List).first),
+          ]),
+          olcek: olcek));
+      testWidgets('öğle arası kartı', (t) => ciz(
+          t,
+          liste([
+            MolaKarti(salon: const {'mola_baslangic': '12:30', 'mola_bitis': '13:45'}, onDegisti: (_) {}),
+            MolaKarti(salon: const {}, onDegisti: (_) {}),
           ]),
           olcek: olcek));
       testWidgets('randevu onay ekranı', (t) => ciz(

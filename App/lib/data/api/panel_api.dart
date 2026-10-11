@@ -41,6 +41,14 @@ class PanelApi {
 
   static Future<void> personelCikar(int id) => ApiClient.delete('/panel/personel/$id');
 
+  /// Tüm alanlar gönderilir; `kapali_gunler` ("0,6") verilmezse backend mevcut değeri korur.
+  static Future<void> personelGuncelle(int id, Json veri) => ApiClient.put('/panel/personel/$id', govde: veri);
+
+  // ── Salon ayarları (çalışma saatleri, öğle arası) ──
+  static Future<Json> salon() async => await ApiClient.get('/panel/salon');
+
+  static Future<Json> salonGuncelle(Json veri) async => await ApiClient.put('/panel/salon', govde: veri);
+
   static Future<List<Json>> hizmetler() async => ApiClient.liste(await ApiClient.get('/panel/hizmetler'));
 
   static Future<void> hizmetKaydet(Json veri, {int? id}) =>
@@ -60,6 +68,19 @@ class PanelApi {
       await ApiClient.post('/panel/izin', govde: {'berber_id': berberId, 'tarih': tarih, 'aciklama': aciklama});
 
   static Future<void> izinSil(int id) => ApiClient.delete('/panel/izin/$id');
+
+  /// Berberi bir günün belirli saatlerinde randevuya kapatır; yanıtta çakışan randevu sayısı döner.
+  static Future<Json> blokeEkle(
+          {required int berberId, required String tarih, required String bas, required String bit, String? aciklama}) async =>
+      await ApiClient.post('/panel/bloke', govde: {
+        'berber_id': berberId,
+        'tarih': tarih,
+        'bas_saat': bas,
+        'bit_saat': bit,
+        'aciklama': aciklama,
+      });
+
+  static Future<void> blokeSil(int id) => ApiClient.delete('/panel/bloke/$id');
 
   // ── Rapor ──
   static Future<Json> rapor({int? yil, int? ay}) async =>

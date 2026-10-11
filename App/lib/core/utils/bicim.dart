@@ -5,6 +5,18 @@ const _aylar = ['', 'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Tem
   'Kasım', 'Aralık'];
 const gunAdlari = ['', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
 
+/// Backend gün indeksi (0=Pzt … 6=Paz) → kısa ad
+const gunKisaAdlari = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
+
+/// Backend'in "0,3" biçimindeki haftalık gün listesi → {0, 3}
+Set<int> gunListesi(String? metin) => {
+      for (final p in (metin ?? '').split(','))
+        if (int.tryParse(p.trim()) case final g? when g >= 0 && g <= 6) g
+    };
+
+/// {3, 0} → "0,3"
+String gunListesiMetni(Set<int> gunler) => (gunler.toList()..sort()).join(',');
+
 /// DateTime → "YYYY-MM-DD"
 String tarihStr(DateTime d) =>
     '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
