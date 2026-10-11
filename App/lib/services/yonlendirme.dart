@@ -11,8 +11,9 @@ class Yonlendirme {
   /// [akisTarihi]: işletme/personel paneli Akış sekmesinde açılacak gün (bildirimden gelindiğinde).
   static Future<Widget> girisSonrasi({DateTime? akisTarihi}) async {
     final ben = await HesapApi.ben();
-    BildirimServisi.baslat(); // beklemeden arka planda
     final rol = ben['rol'] as String? ?? 'musteri';
+    // Beklemeden arka planda. Müşteriye izin burada değil, ilk randevu onayında sorulur.
+    BildirimServisi.baslat(izinIste: rol != 'musteri');
     final isletme = ben['isletme'] as Map<String, dynamic>?;
     if (rol == 'isletme') {
       if (isletme?['durum'] == 'onaylandi' && isletme?['salon_id'] != null) {

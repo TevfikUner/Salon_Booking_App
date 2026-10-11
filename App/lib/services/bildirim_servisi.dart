@@ -10,6 +10,9 @@ import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/data/api/hesap_api.dart';
 import 'package:berber_app_ui/services/yonlendirme.dart';
 
+/// Bildirim izninin durumu (Android 13+ ve iOS'ta kullanıcı sorulur; eski Android'de hep verilmiştir).
+enum BildirimIzni { verildi, reddedildi, sorulmadi }
+
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
@@ -19,10 +22,12 @@ class BildirimServisi {
   static bool _dinleyicilerKuruldu = false;
 
   /// Girişten sonra çağrılır. Hata uygulamayı durdurmaz (bildirim opsiyonel bir kanaldır).
-  static Future<void> baslat() async {
+  /// [izinIste]: işletme/personel için girişte izin istenir; müşteriye bağlamsız sorulmaz, izin ilk randevu
+  /// onayında açıklamalı kartla istenir (bkz. BildirimIzniKarti). Token her durumda kaydedilir.
+  static Future<void> baslat({bool izinIste = true}) async {
     try {
       final fm = FirebaseMessaging.instance;
-      await fm.requestPermission();
+      if (izinIste) await fm.requestPermission();
       final token = await fm.getToken();
       if (token != null) await HesapApi.fcmTokenKaydet(token);
       _tokenAboneligi ??= fm.onTokenRefresh.listen((t) => HesapApi.fcmTokenKaydet(t).catchError((_) {}));
@@ -36,6 +41,31 @@ class BildirimServisi {
     FirebaseMessaging.onMessageOpenedApp.listen((m) => _ac(m.data));
     final ilk = await FirebaseMessaging.instance.getInitialMessage();
     if (ilk != null) _ac(ilk.data);
+  }
+
+  /// İzin durumu; Firebase hazır değilse (test, yapılandırma hatası) null.
+  static Future<BildirimIzni?> izinDurumu() async {
+    try {
+      final ayar = await FirebaseMessaging.instance.getNotificationSettings();
+      return switch (ayar.authorizationStatus) {
+        AuthorizationStatus.authorized || AuthorizationStatus.provisional => BildirimIzni.verildi,
+        AuthorizationStatus.denied || AuthorizationStatus.deniedPermanently => BildirimIzni.reddedildi,
+        AuthorizationStatus.notDetermined => BildirimIzni.sorulmadi,
+      };
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Sistem izin penceresini açar; verilirse true.
+  static Future<bool> izinIste() async {
+    try {
+      final ayar = await FirebaseMessaging.instance.requestPermission();
+      return ayar.authorizationStatus == AuthorizationStatus.authorized ||
+          ayar.authorizationStatus == AuthorizationStatus.provisional;
+    } catch (_) {
+      return false;
+    }
   }
 
   static void _onPlanda(RemoteMessage m) {

@@ -14,7 +14,7 @@ Dal: `feature/ilham-ozellikler` (`feature/v1-hazirlik`'ten) · Başlangıç: 202
 | 6 | Takvimde dolu günler | ✅ | `musait-takvim?hizmet_ids=` → `bos_slot`/`dolu` (2 sorgu), takvimde altın/turuncu/kırmızı nokta |
 | 7 | Salon ve hizmet araması | ✅ | `/salonlar?q=&min_puan=` (+`eslesen_hizmetler`), Keşfet'te arama kutusu + ★4.5+; entegrasyon testi liste anahtarına bağlandı |
 | 8 | Takvime ekle (.ics) | ✅ | `GET /randevular/{id}/takvim.ics` (`takvim_dosyasi.py`), onay ekranı + randevu kartı: Google Takvim bağlantısı veya .ics paylaş |
-| 9 | Bildirim izni ön ekranı | ⬜ | |
+| 9 | Bildirim izni ön ekranı | ✅ | müşteriye izin girişte değil onay ekranında `BildirimIzniKarti` ile; `shared_preferences` eklendi |
 | — | Son: DEMO.md, KARARLAR.md, README test sayıları, özet | ⬜ | |
 
 Her maddeden sonra: `pytest` + `ruff check .` (backend), `flutter analyze` + `flutter test` (App), migration varsa boş SQLite'ta `alembic upgrade head` / `check` / `downgrade`.
