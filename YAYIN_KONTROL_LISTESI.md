@@ -1,6 +1,6 @@
 # Yayın Kontrol Listesi — Premium Berber v1.0.0
 
-Dal: `feature/v1-hazirlik` · Tarih: 2026-10-10 · Her madde kanıtıyla (komut çıktısı / test / dosya). ❌ olanların engeli ve çözümü yazılı.
+Dal: `feature/v1-hazirlik` · Tarih: 2026-10-11 · Her madde kanıtıyla (komut çıktısı / test / dosya). ❌ olanların engeli ve çözümü yazılı.
 
 ## Özet
 
@@ -9,7 +9,7 @@ Dal: `feature/v1-hazirlik` · Tarih: 2026-10-10 · Her madde kanıtıyla (komut 
 | 1. Android AAB | ✅ (koşullu) | Firebase'de yeni uygulama kaydı + gerçek `google-services.json` → BENDEN_GEREKENLER §1 |
 | 2. Canlı backend | ✅ (yerel production yığını) | Render hesabı + gizli değerler → BENDEN_GEREKENLER §4 |
 | 3. Yük ve dayanıklılık | ✅ | — |
-| 4. Uygulama kalitesi | __KAPI4__ | __KAPI4_NOT__ |
+| 4. Uygulama kalitesi | ✅ | — (gerçek telefonda Firebase giriş/bildirim kontrolü → BENDEN_GEREKENLER §8) |
 | 5. Play politika & mağaza | ✅ (belgeler hazır) | Play Console girişi, 12 testçi × 14 gün → BENDEN_GEREKENLER §6 |
 | 6. Son kontrol & teslim | ✅ | — |
 
@@ -32,7 +32,7 @@ Dal: `feature/v1-hazirlik` · Tarih: 2026-10-10 · Her madde kanıtıyla (komut 
 | Uyarlanabilir ikon + açılış ekranı | ✅ | `flutter_launcher_icons` (adaptive arka plan #141414, ön plan + monochrome), `flutter_native_splash` (Android 12 API dahil); kaynak `scripts/gorsel_uret.py` |
 | `flutter build appbundle --release --dart-define=API_URL=https://...` | ✅ | `√ Built build\app\outputs\bundle\release\app-release.aab (62.1MB)` · SHA-256 `6a7bcf4b9fa3a92479d249924ce07f5fd1b0b63ba447b05c13e87312e4656b5f` |
 | Release APK | ✅ | `√ Built build\app\outputs\flutter-apk\app-release.apk (62.8MB)` |
-| Emülatör/cihazda kurulum ve açılış | __CIHAZ__ | __CIHAZ_KANIT__ |
+| Emülatör/cihazda kurulum ve açılış | ✅ | Emülatör `berber_test` (Android 15 / API 35, Google Play imajı, Pixel 7): `flutter build apk --release --dart-define=API_URL=https://premium-berber-api.onrender.com` → `adb install` → `Success`; `am start -W` → `Status: ok, LaunchState: COLD, TotalTime: 2304` ms; 8 sn sonra süreç ayakta, `topResumedActivity=…premiumberber/.MainActivity`, logcat'te FATAL/AndroidRuntime yok; karşılama ekranı (Müşteri / İşletme Sahibi) açıldı. `apksigner verify --print-certs` → `CN=Tevfik Uner, OU=Premium Berber`, SHA-256 `533fbc5e…27849f` (11 Ekim 2026) |
 
 ## Kapı 2 — Canlı backend
 
@@ -82,8 +82,8 @@ Dal: `feature/v1-hazirlik` · Tarih: 2026-10-10 · Her madde kanıtıyla (komut 
 | Android 13+ bildirim izni, bildirime dokununca doğru ekran | ✅ | `POST_NOTIFICATIONS` + `FirebaseMessaging.requestPermission()`; `BildirimServisi._ac`: randevu → Randevularım, bekleme → salon, değerlendirme → puanlama |
 | `flutter analyze` 0 | ✅ | `No issues found!` |
 | Tüm testler yeşil | ✅ | `flutter test` → `All tests passed!` (30) |
-| integration_test: müşteri akışı | __ENT_M__ | __ENT_M_KANIT__ |
-| integration_test: işletme akışı | __ENT_I__ | __ENT_I_KANIT__ |
+| integration_test: müşteri akışı | ✅ | `flutter test integration_test/musteri_akisi_test.dart -d emulator-5554 --dart-define=API_URL=http://10.0.2.2:8020` → `00:25 +1: All tests passed!`; backend logu: `POST /randevular/olustur 200`, `POST /randevular/2/iptal 200`. Backend: SQLite + `AUTH_MODE=dev`, veri `yuk/entegrasyon_veri.py`. Emülatör saat dilimi Europe/Istanbul olmalı (`adb shell cmd alarm set-timezone Europe/Istanbul`) |
+| integration_test: işletme akışı | ✅ | `flutter test integration_test/isletme_akisi_test.dart …` → `00:06 +1: All tests passed!`; backend logu: `PATCH /panel/randevular/1/durum 200` (tamamlandı) |
 
 ## Kapı 5 — Play politikası ve mağaza
 
@@ -95,7 +95,7 @@ Dal: `feature/v1-hazirlik` · Tarih: 2026-10-10 · Her madde kanıtıyla (komut 
 | Veri güvenliği yanıtları kodla tutarlı | ✅ | `MAGAZA/veri_guvenligi.md` (her satırda kaynak dosya) |
 | İçerik derecelendirme yanıtları | ✅ | `MAGAZA/icerik_derecelendirme.md` |
 | 512×512 ikon, 1024×500 öne çıkan grafik | ✅ | `magaza_kontrol.py` → `ikon_512.png: 512x512 RGBA`, `one_cikan_1024x500.png: 1024x500 RGB` |
-| Telefon ekran görüntüleri | __SS__ | __SS_KANIT__ |
+| Telefon ekran görüntüleri | ✅ | `flutter drive --driver=test_driver/ekran_goruntusu.dart --target=integration_test/ekran_goruntusu_test.dart` (demo verisi, `wm size 1080x1920`) → `All tests passed`; `MAGAZA/ekran_goruntuleri/` 7 PNG, hepsi 1080×1920 (9:16): ana sayfa, keşfet, salon detay, hizmet seçimi, randevularım, işletme akışı, işletme raporu |
 | Kapalı test rehberi (12 testçi, 14 gün, mesaj) | ✅ | `MAGAZA/kapali_test_rehberi.md` |
 
 ## Kapı 6 — Teslim

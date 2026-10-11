@@ -1,7 +1,7 @@
 # Yapılacaklar
 
 Tek liste: biten iş buradan **silinir**. Ayrıntılı adımlar [BENDEN_GEREKENLER.md](BENDEN_GEREKENLER.md)'de (§ numaraları oraya bakar).
-Neyin hazır olduğu: [YAYIN_KONTROL_LISTESI.md](YAYIN_KONTROL_LISTESI.md) · Son güncelleme: 10 Ekim 2026
+Neyin hazır olduğu: [YAYIN_KONTROL_LISTESI.md](YAYIN_KONTROL_LISTESI.md) · Son güncelleme: 11 Ekim 2026
 
 Kodun güncel hali GitHub `main` dalında.
 
@@ -33,15 +33,7 @@ Kodun güncel hali GitHub `main` dalında.
 9. Yasal metinlere veri sorumlusu unvanı/adresi (hukukçu) → `python scripts/yasal_senkron.py` (§9)
 10. Eski admin şifresi `***KALDIRILDI***` başka bir yerde kullanıldıysa değiştirin
 
-## C. Benim yapacaklarım — "devam et" dediğinizde
+## C. Benim yapacaklarım
 
-11. **Emülatör sistem imajını indir** (iptal edildi, ~1,76 GB; yarım dosyalar silindi, baştan iner)
-    ```bash
-    sdkmanager "emulator" "system-images;android-35;google_apis_playstore;x86_64"
-    avdmanager create avd -n berber_test -k "system-images;android-35;google_apis_playstore;x86_64" -d pixel_7
-    ```
-    Hızlı alternatif: USB ile gerçek telefon bağlamak (Geliştirici seçenekleri → USB hata ayıklama) — indirme gerekmez.
-12. Entegrasyon testlerini koş (`integration_test/musteri_akisi_test.dart`, `isletme_akisi_test.dart`), sonucu YAYIN_KONTROL_LISTESI'ne yaz
-13. Play Store ekran görüntülerini çek (`flutter drive … ekran_goruntusu_test.dart`) → `MAGAZA/ekran_goruntuleri/`
-14. Release APK'yı cihaza kurup açılışı doğrula (Kapı 1 son kanıtı)
-15. YAYIN_KONTROL_LISTESI'ndeki `__…__` yer tutucularını doldur
+Kalmadı. 1. madde bitince 4. maddeyi (AAB derleme) ben de yapabilirim.
+Emülatör hazır: `emulator -avd berber_test` (testlerden önce saat dilimi: `adb shell cmd alarm set-timezone Europe/Istanbul`).
