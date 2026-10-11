@@ -10,8 +10,10 @@ class RandevuApi {
       await ApiClient.get('/randevular/musait-takvim', params: {'berber_id': berberId, 'salon_id': salonId}));
 
   /// Seçilen gün + hizmetler için backend'in hesapladığı saatler (tek doğruluk kaynağı).
-  static Future<Json> musaitSaatler(int berberId, String tarih, List<int> hizmetIds) async =>
-      await ApiClient.get('/randevular/musait-saatler/$berberId', params: {'tarih': tarih, 'hizmet_ids': hizmetIds});
+  /// [ertelenenId]: ertelenen kendi randevusu; eski yeri dolu sayılmaz.
+  static Future<Json> musaitSaatler(int berberId, String tarih, List<int> hizmetIds, {int? ertelenenId}) async =>
+      await ApiClient.get('/randevular/musait-saatler/$berberId',
+          params: {'tarih': tarih, 'hizmet_ids': hizmetIds, 'ertelenen_id': ertelenenId});
 
   static Future<List<Json>> enYakinSlotlar(int berberId, List<int> hizmetIds, {int adet = 3}) async =>
       ApiClient.liste((await ApiClient.get('/randevular/en-yakin/$berberId',
@@ -61,6 +63,11 @@ class RandevuApi {
   }
 
   static Future<void> iptal(int randevuId) => ApiClient.post('/randevular/$randevuId/iptal');
+
+  /// Aynı berberde başka gün/saate taşır (süre ve fiyat değişmez). Çakışmada ApiHata (409 + öneriler).
+  static Future<Json> ertele(int randevuId, {required String tarih, required String saat, String? idempotencyKey}) async =>
+      await ApiClient.post('/randevular/$randevuId/ertele',
+          govde: {'tarih': tarih, 'saat': saat}, idempotencyKey: idempotencyKey);
 
   static Future<void> degerlendir({required int randevuId, required int puan, String? yorum}) =>
       ApiClient.post('/degerlendirmeler/ekle', params: {

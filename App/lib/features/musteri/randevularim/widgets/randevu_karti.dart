@@ -9,9 +9,10 @@ import 'package:berber_app_ui/data/models/randevu.dart';
 class RandevuKarti extends StatelessWidget {
   final Randevu randevu;
   final VoidCallback? onIptal;
+  final VoidCallback? onErtele;
   final VoidCallback? onDegerlendir;
 
-  const RandevuKarti({super.key, required this.randevu, this.onIptal, this.onDegerlendir});
+  const RandevuKarti({super.key, required this.randevu, this.onIptal, this.onErtele, this.onDegerlendir});
 
   static (String, Color) durumBilgisi(String durum) => switch (durum) {
         'onaylandi' => ('✓ Onaylandı', AppTheme.success),
@@ -59,19 +60,34 @@ class RandevuKarti extends StatelessWidget {
             padding: const EdgeInsets.only(top: 6),
             child: Text('Salon tarafından iptal edildi.', style: GoogleFonts.inter(color: AppTheme.error, fontSize: 12)),
           ),
-        if (onIptal != null) ...[
+        if (onIptal != null || onErtele != null) ...[
           const SizedBox(height: 14),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppTheme.error,
-                side: BorderSide(color: AppTheme.error.withValues(alpha: 0.5)),
+          Row(children: [
+            if (onErtele != null)
+              Expanded(
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppTheme.gold,
+                    side: BorderSide(color: AppTheme.gold.withValues(alpha: 0.6)),
+                  ),
+                  onPressed: onErtele,
+                  icon: const Icon(Icons.update, size: 18),
+                  label: const Text('Ertele'),
+                ),
               ),
-              onPressed: onIptal,
-              child: const Text('Randevuyu İptal Et'),
-            ),
-          ),
+            if (onErtele != null && onIptal != null) const SizedBox(width: 10),
+            if (onIptal != null)
+              Expanded(
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppTheme.error,
+                    side: BorderSide(color: AppTheme.error.withValues(alpha: 0.5)),
+                  ),
+                  onPressed: onIptal,
+                  child: const Text('İptal Et'),
+                ),
+              ),
+          ]),
         ],
         if (r.durum == 'tamamlandi') ...[
           const SizedBox(height: 14),

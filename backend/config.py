@@ -36,6 +36,7 @@ class Ayarlar(BaseSettings):
     rezervasyon_ufku_gun: int = 30
     slot_dk: int = 30
     iptal_son_dk: int = 30
+    erteleme_limiti: int = 2  # müşteri bir randevuyu en fazla kaç kez erteleyebilir
 
     # Zamanlanmış görevler. Production'da web süreçlerinde KAPALI, ayrı worker sürecinde açıktır
     # (worker.py). Yanlışlıkla iki yerde açılsa bile DB kilidi (gorev_kilitleri) işi tek örnekte çalıştırır.

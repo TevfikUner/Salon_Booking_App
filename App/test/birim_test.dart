@@ -3,6 +3,7 @@ import 'package:berber_app_ui/data/models/berber.dart';
 import 'package:berber_app_ui/data/models/salon.dart';
 import 'package:berber_app_ui/data/models/randevu.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
+import 'package:berber_app_ui/features/musteri/randevularim/widgets/randevu_karti.dart';
 import 'package:berber_app_ui/features/randevu_al/widgets/saat_slot.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -47,6 +48,8 @@ void main() {
       expect(r.toplamFiyat, 450.0);
       expect(r.bitis, '10:45');
       expect(r.yaklasan, isTrue);
+      expect(r.ertelemeHakki, 0);
+      expect(Randevu.fromJson({'id': 2, 'erteleme_hakki': 2}).ertelemeHakki, 2);
       final eksik = Randevu.fromJson({'id': 1, 'toplam_fiyat': null});
       expect(eksik.toplamFiyat, 0);
       expect(eksik.hizmetler, isEmpty);
@@ -120,6 +123,22 @@ void main() {
       expect(tiklandi, 0);
       await tester.tap(find.text('10:30'));
       expect(tiklandi, 1);
+    });
+
+    testWidgets('Randevu kartı: erteleme hakkı varsa Ertele düğmesi çalışır, yoksa görünmez', (tester) async {
+      var ertele = 0;
+      final r = Randevu.fromJson({'id': 1, 'tarih': '2099-01-01', 'saat': '10:00', 'durum': 'onaylandi',
+          'toplam_fiyat': 300, 'erteleme_hakki': 1, 'hizmetler': ['Kesim']});
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(body: ListView(children: [
+          RandevuKarti(randevu: r, onIptal: () {}, onErtele: () => ertele++),
+          RandevuKarti(randevu: r, onIptal: () {}),
+        ])),
+      ));
+      expect(find.text('Ertele'), findsOneWidget);
+      expect(find.text('İptal Et'), findsNWidgets(2));
+      await tester.tap(find.text('Ertele'));
+      expect(ertele, 1);
     });
   });
 }

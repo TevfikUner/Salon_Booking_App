@@ -17,6 +17,9 @@ class Randevu {
   final String? yorum;
   final String? iptalEden;
 
+  /// Kalan erteleme hakkı (backend sınırı, varsayılan 2).
+  final int ertelemeHakki;
+
   const Randevu({
     required this.id,
     required this.berberId,
@@ -35,6 +38,7 @@ class Randevu {
     this.puan,
     this.yorum,
     this.iptalEden,
+    this.ertelemeHakki = 0,
   });
 
   factory Randevu.fromJson(Map<String, dynamic> j) => Randevu(
@@ -55,6 +59,7 @@ class Randevu {
         puan: j['puan'],
         yorum: j['yorum'],
         iptalEden: j['iptal_eden'],
+        ertelemeHakki: j['erteleme_hakki'] ?? 0,
       );
 
   DateTime get baslangic => DateTime.parse('${tarih}T$saat:00');

@@ -129,12 +129,16 @@ def kapali_nedenler(db: Session, salon: models.Salon, berber_id: int | None,
     return sonuc
 
 
-def dolu_araliklar(db: Session, berber_id: int, tarih_str: str) -> list[tuple[int, int]]:
-    randevular = db.query(models.Randevu).filter(
+def dolu_araliklar(db: Session, berber_id: int, tarih_str: str, haric_id: int | None = None) -> list[tuple[int, int]]:
+    """Berberin o günkü dolu aralıkları. `haric_id`: ertelenen randevu kendi yerini dolu saymasın."""
+    q = db.query(models.Randevu).filter(
         models.Randevu.berber_id == berber_id,
         models.Randevu.tarih == tarih_str,
         models.Randevu.durum.in_(models.AKTIF_DURUMLAR),
-    ).all()
+    )
+    if haric_id is not None:
+        q = q.filter(models.Randevu.id != haric_id)
+    randevular = q.all()
     araliklar = []
     for r in randevular:
         try:
@@ -160,14 +164,16 @@ class GunMusaitligi:
     tum: list[str]  # ızgaradaki tüm saatler (UI'da dolu/boş göstermek için)
 
 
-def gun_musaitligi(db: Session, salon: models.Salon, berber_id: int, tarih_str: str, sure_dk: int) -> GunMusaitligi:
+def gun_musaitligi(db: Session, salon: models.Salon, berber_id: int, tarih_str: str, sure_dk: int,
+                   haric_id: int | None = None) -> GunMusaitligi:
     gun = tarih_dogrula(tarih_str)
     neden = kapali_neden(db, salon, berber_id, gun)
     mesai = gun_mesaisi(salon, gun)
     tum = [dk_saat(d) for d in izgara(*mesai)] if mesai else []
     if neden:
         return GunMusaitligi(tarih_str, neden, [], tum)
-    bas = musait_baslangiclar(mesai[0], mesai[1], sure_dk, dolu_araliklar(db, berber_id, tarih_str), _en_erken(gun))
+    bas = musait_baslangiclar(mesai[0], mesai[1], sure_dk, dolu_araliklar(db, berber_id, tarih_str, haric_id),
+                              _en_erken(gun))
     return GunMusaitligi(tarih_str, None, [dk_saat(d) for d in bas], tum)
 
 
@@ -259,6 +265,32 @@ def randevu_olustur(
         db.commit()
     db.refresh(r)
     return r
+
+
+def randevu_tasi(db: Session, r: models.Randevu, tarih_str: str, saat: str) -> None:
+    """Randevuyu aynı berberde yeni güne/saate taşır (süre ve fiyat mühürlü kalır). Kilit altında, randevunun
+    kendi eski aralığı dolu sayılmadan yeniden müsaitlik hesaplanır; çakışmada 409 + öneriler."""
+    try:
+        saat_dk(saat)
+    except (ValueError, TypeError):
+        raise is_kurali_hatasi("Geçersiz saat formatı. Örnek: 14:30") from None
+    berber, salon = berber_ve_salon(db, r.berber_id)
+    sure = r.sure_dk or 30
+    with _rezervasyon_kilidi:
+        db.query(models.Berber).filter(models.Berber.id == berber.id).with_for_update().first()
+        m = gun_musaitligi(db, salon, berber.id, tarih_str, sure, haric_id=r.id)
+        if m.kapali_neden:
+            raise is_kurali_hatasi(m.kapali_neden)
+        if saat not in m.musait:
+            oneriler = m.musait[:5] or [
+                f"{x['tarih']} {x['saat']}" for x in en_yakin_slotlar(db, salon, berber.id, sure, 3)
+            ]
+            raise is_kurali_hatasi(f"Seçtiğiniz saat ({saat}) uygun değil. Hizmet {sure} dk sürüyor.", 409,
+                                   oneriler=oneriler)
+        r.tarih, r.saat = tarih_str, saat
+        r.hatirlatma_gonderildi = False
+        r.erteleme_sayisi = (r.erteleme_sayisi or 0) + 1
+        db.commit()
 
 
 def bitis_saati(r: models.Randevu) -> str:

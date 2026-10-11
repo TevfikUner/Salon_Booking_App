@@ -150,6 +150,8 @@ class Randevu(Base):
     iptal_eden = Column(String, nullable=True)  # musteri | isletme
     iptal_zamani = Column(String, nullable=True)
     kaynak = Column(String, default="uygulama")  # uygulama | panel
+    # Müşterinin kaç kez ertelediği (sınır: ERTELEME_LIMITI)
+    erteleme_sayisi = Column(Integer, default=0, nullable=False, server_default="0")
     notlar = Column(String, nullable=True)
 
     musteri = relationship("Musteri")

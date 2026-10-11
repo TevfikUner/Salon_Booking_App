@@ -50,20 +50,44 @@ def salona_bildir(db: Session, r: models.Randevu, baslik: str, olay: str, arka_p
     return len(tokenlar)
 
 
-# ─────────────────────────── İptal & durum ───────────────────────────
+# ─────────────────────────── İptal, erteleme & durum ───────────────────────────
 
-def musteri_iptal(db: Session, r: models.Randevu) -> None:
+def _musteri_degistirebilir(r: models.Randevu, eylem: str) -> None:
+    """Müşteri iptali ve ertelemesi için ortak kural: aktif, geçmemiş ve son N dakikaya girmemiş randevu."""
     if r.durum != "onaylandi":
         raise HTTPException(status_code=400, detail="Bu randevu zaten aktif değil.")
     kalan_dk = (ss.randevu_baslangic(r) - simdi()).total_seconds() / 60
     if kalan_dk <= 0:
-        raise HTTPException(status_code=400, detail="Geçmiş bir randevu iptal edilemez.")
+        raise HTTPException(status_code=400, detail=f"Geçmiş bir randevu {eylem}.")
     if kalan_dk < ayarlar().iptal_son_dk:
         raise HTTPException(
             status_code=400,
-            detail=f"Randevuya {ayarlar().iptal_son_dk} dakikadan az kaldığı için iptal edilemez. Lütfen salonu arayın.",
+            detail=f"Randevuya {ayarlar().iptal_son_dk} dakikadan az kaldığı için {eylem}. Lütfen salonu arayın.",
         )
+
+
+def erteleme_hakki(r: models.Randevu) -> int:
+    return max(0, ayarlar().erteleme_limiti - (r.erteleme_sayisi or 0))
+
+
+def musteri_iptal(db: Session, r: models.Randevu) -> None:
+    _musteri_degistirebilir(r, "iptal edilemez")
     _iptal_et(db, r, "musteri")
+    salona_bildir(db, r, "Randevu iptal edildi", "müşteri iptal etti, saat artık boş.")
+
+
+def musteri_ertele(db: Session, r: models.Randevu, tarih: str, saat: str) -> None:
+    """Aynı berber, aynı hizmetler ve mühürlü süreyle yeni güne/saate taşır. Eski gün bekleme listesine açılır."""
+    _musteri_degistirebilir(r, "ertelenemez")
+    if erteleme_hakki(r) <= 0:
+        raise HTTPException(status_code=400, detail=f"Bir randevu en fazla {ayarlar().erteleme_limiti} kez "
+                                                    "ertelenebilir. İptal edip yeni randevu alabilirsiniz.")
+    if (r.tarih, r.saat) == (tarih, saat):
+        raise HTTPException(status_code=400, detail="Randevunuz zaten bu gün ve saatte.")
+    eski_tarih, eski_saat = r.tarih, r.saat
+    ss.randevu_tasi(db, r, tarih, saat)
+    bekleme_listesine_haber_ver(db, r.berber_id, eski_tarih)
+    salona_bildir(db, r, "Randevu ertelendi", f"önceki: {_tarih_tr(eski_tarih)} {eski_saat}")
     salona_bildir(db, r, "Randevu iptal edildi", "müşteri iptal etti, saat artık boş.")
 
 

@@ -7,8 +7,8 @@ from sqlalchemy.orm import Session, joinedload, selectinload
 import models
 import randevu_servisi as rs
 import slot_servisi as ss
-from auth import (Kimlik, Kullanici, admin_dogrula, aktif_kullanici, kimlik_gerekli, musteri_gerekli,
-                  musteri_getir_veya_olustur, panel_yetkisi)
+from auth import (Kimlik, Kullanici, admin_dogrula, aktif_kullanici, kimlik_gerekli, kimlik_istege_bagli,
+                  musteri_gerekli, musteri_getir_veya_olustur, panel_yetkisi)
 from bildirim import bildirim_gonder
 from config import ayarlar
 from database import get_db
@@ -41,6 +41,7 @@ def randevu_json(r: models.Randevu) -> dict:
         "puan": r.puan,
         "yorum": r.yorum,
         "iptal_eden": r.iptal_eden,
+        "erteleme_hakki": rs.erteleme_hakki(r),
     }
 
 
@@ -112,11 +113,21 @@ def istatistik_getir(salon_id: int | None = None, db: Session = Depends(get_db))
 # ── 2. Müsait saatler (tek doğruluk kaynağı) ─────────────────
 @router.get("/musait-saatler/{berber_id}")
 def musait_saatleri_getir(
-    berber_id: int, tarih: str, hizmet_ids: list[int] = Query(...), db: Session = Depends(get_db)
+    berber_id: int, tarih: str, hizmet_ids: list[int] = Query(...), ertelenen_id: int | None = None,
+    kimlik: Kimlik | None = Depends(kimlik_istege_bagli), db: Session = Depends(get_db),
 ):
+    """`ertelenen_id`: müşterinin ertelediği kendi randevusu; onun eski yeri dolu sayılmaz (yalnızca sahibine)."""
     _, salon = ss.berber_ve_salon(db, berber_id)
     sure = _sure_hesapla(db, salon.id, hizmet_ids)
-    m = ss.gun_musaitligi(db, salon, berber_id, tarih, sure)
+    haric = None
+    if ertelenen_id is not None:
+        if kimlik is None:
+            raise HTTPException(status_code=401, detail="Oturum gerekli.")
+        r = _musteri_randevusu(db, ertelenen_id, kimlik)
+        if r.berber_id != berber_id:
+            raise HTTPException(status_code=400, detail="Randevu bu personele ait değil.")
+        haric, sure = r.id, r.sure_dk or sure
+    m = ss.gun_musaitligi(db, salon, berber_id, tarih, sure, haric_id=haric)
     musait = set(m.musait)
     return {
         "tarih": tarih,
@@ -239,6 +250,24 @@ def randevu_iptal(randevu_id: int, kimlik: Kimlik = Depends(kimlik_gerekli), db:
     r = _musteri_randevusu(db, randevu_id, kimlik)
     rs.musteri_iptal(db, r)
     return {"mesaj": "Randevunuz iptal edildi.", "randevu": randevu_json(r)}
+
+
+class ErtelemeIstegi(BaseModel):
+    tarih: str
+    saat: str
+
+
+@router.post("/{randevu_id}/ertele")
+@limiter.limit(SINIR_RANDEVU)
+def randevu_ertele(request: Request, randevu_id: int, veri: ErtelemeIstegi,
+                   idempotency_key: str | None = Header(default=None),
+                   kimlik: Kimlik = Depends(kimlik_gerekli), db: Session = Depends(get_db)):
+    """Müşterinin kendi randevusunu aynı berberde başka güne/saate taşıması. Çakışmada 409 + öneriler."""
+    def _ertele() -> dict:
+        r = _musteri_randevusu(db, randevu_id, kimlik)
+        rs.musteri_ertele(db, r, veri.tarih, veri.saat)
+        return {"mesaj": "Randevunuz ertelendi.", "randevu": randevu_json(r)}
+    return idempotent(idempotency_key, kimlik.uid, _ertele)
 
 
 @router.delete("/sil/{randevu_id}", deprecated=True)
