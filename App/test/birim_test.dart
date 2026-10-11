@@ -80,6 +80,13 @@ void main() {
       expect(s.calismaSaati(DateTime.sunday), isNull);
       expect(s.calismaSaati(DateTime.monday), '09:00 – 21:00');
     });
+    test('değerlendirmesi olmayan salon ve berber "Yeni" gösterilir', () {
+      expect(Salon.fromJson({'id': 1, 'puan': 5.0}).puanMetni, 'Yeni');
+      expect(Salon.fromJson({'id': 1, 'puan': 4.75, 'degerlendirme_sayisi': 8}).puanMetni, '4.8');
+      expect(Salon.fromJson({'id': 1, 'puan': 4.75, 'degerlendirme_sayisi': 8}).copyWith().degerlendirmeSayisi, 8);
+      expect(Berber.fromJson({'id': 1, 'ad': 'A', 'puan': 5}).puanMetni, 'Yeni');
+      expect(Berber.fromJson({'id': 1, 'ad': 'A', 'puan': 4.5, 'degerlendirme_sayisi': 2}).puanMetni, '4.5');
+    });
     test('aramada eşleşen hizmetler okunur, yoksa boş', () {
       expect(Salon.fromJson({'id': 1, 'eslesen_hizmetler': ['Sakal']}).eslesenHizmetler, ['Sakal']);
       expect(Salon.fromJson({'id': 1}).eslesenHizmetler, isEmpty);

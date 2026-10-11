@@ -12,6 +12,9 @@ class Salon {
   final String? sehir;
   final String? ilce;
   final double puan;
+
+  /// 0 ise salon henüz değerlendirilmemiştir; puan yerine "Yeni" gösterilir.
+  final int degerlendirmeSayisi;
   final String acilisSaati;
   final String kapanisSaati;
   final String pazarAcilisSaati;
@@ -38,6 +41,7 @@ class Salon {
     this.sehir,
     this.ilce,
     this.puan = 0,
+    this.degerlendirmeSayisi = 0,
     this.acilisSaati = '09:00',
     this.kapanisSaati = '20:00',
     this.pazarAcilisSaati = '10:00',
@@ -63,6 +67,7 @@ class Salon {
       sehir: j['sehir'],
       ilce: j['ilce'],
       puan: (j['puan'] as num?)?.toDouble() ?? 0,
+      degerlendirmeSayisi: j['degerlendirme_sayisi'] ?? 0,
       acilisSaati: j['acilis_saati'] ?? '09:00',
       kapanisSaati: j['kapanis_saati'] ?? '20:00',
       pazarAcilisSaati: j['pazar_acilis_saati'] ?? '10:00',
@@ -86,6 +91,9 @@ class Salon {
 
   bool get konumVar => lat != null && lng != null;
 
+  /// "4.8" ya da henüz değerlendirme yoksa "Yeni"
+  String get puanMetni => degerlendirmeSayisi > 0 ? puan.toStringAsFixed(1) : 'Yeni';
+
   /// Verilen gün (DateTime.weekday) için "09:00 – 21:00" veya null (kapalı).
   String? calismaSaati(int weekday) {
     if (kapaliGunler.contains(weekday)) return null;
@@ -103,6 +111,7 @@ class Salon {
         sehir: sehir,
         ilce: ilce,
         puan: puan,
+        degerlendirmeSayisi: degerlendirmeSayisi,
         acilisSaati: acilisSaati,
         kapanisSaati: kapanisSaati,
         pazarAcilisSaati: pazarAcilisSaati,

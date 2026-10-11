@@ -51,6 +51,11 @@ def test_arama_salon_adi_ilce_ve_hizmet(client, db):
     c = models.Salon(ad="Pasif Salon", sehir="İstanbul", aktif=False)
     db.add_all([a, b, c])
     db.flush()
+    m = models.Musteri(firebase_uid="yorumcu")
+    db.add(m)
+    db.flush()
+    db.add_all([models.Degerlendirme(musteri_id=m.id, salon_id=a.id, puan=5),
+                models.Degerlendirme(musteri_id=m.id, salon_id=b.id, puan=4)])
     db.add_all([models.Hizmet(salon_id=b.id, ad="Sakal Tıraşı", fiyat=200, sure=30),
                 models.Hizmet(salon_id=b.id, ad="Sakal Şekillendirme", fiyat=250, sure=30),
                 models.Hizmet(salon_id=a.id, ad="Eski Sakal", fiyat=1, sure=30, aktif=False)])
@@ -66,3 +71,19 @@ def test_arama_salon_adi_ilce_ve_hizmet(client, db):
     assert ara(q="  ") == [("Makas Kuaför", []), ("Usta Berber", [])]
     assert ara(q="yok-boyle-bir-sey") == []
     assert client.get("/salonlar", params={"min_puan": 6}).status_code == 422
+
+
+def test_degerlendirmesiz_salon_yeni_sayilir_puan_filtresine_girmez(client, db):
+    eski = models.Salon(ad="Eski Salon", puan=4.6)
+    yeni = models.Salon(ad="Yeni Salon")  # varsayılan puan 5.0, hiç değerlendirme yok
+    db.add_all([eski, yeni])
+    db.flush()
+    m = models.Musteri(firebase_uid="yorumcu")
+    db.add(m)
+    db.flush()
+    db.add(models.Degerlendirme(musteri_id=m.id, salon_id=eski.id, puan=5))
+    db.commit()
+    liste = client.get("/salonlar").json()
+    assert [(s["ad"], s["degerlendirme_sayisi"]) for s in liste] == [("Eski Salon", 1), ("Yeni Salon", 0)]
+    assert [s["ad"] for s in client.get("/salonlar", params={"min_puan": 4.5}).json()] == ["Eski Salon"]
+    assert client.get(f"/salonlar/{yeni.id}").json()["degerlendirme_sayisi"] == 0

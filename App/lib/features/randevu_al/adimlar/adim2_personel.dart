@@ -64,7 +64,7 @@ class _Adim2PersonelState extends State<Adim2Personel> {
         return Semantics(
           button: true,
           selected: secili,
-          label: '${b.tamAd}, ${b.uzmanlik}, puan ${b.puan.toStringAsFixed(1)}',
+          label: '${b.tamAd}, ${b.uzmanlik}, puan ${b.puanMetni}',
           child: GestureDetector(
             key: ValueKey('berber_${b.id}'),
             onTap: () => provider.berberSec(b),
@@ -134,7 +134,7 @@ class _Adim2PersonelState extends State<Adim2Personel> {
                   ),
                   Column(children: [
                     const Icon(Icons.star, color: AppTheme.gold, size: 18),
-                    Text(b.puan.toStringAsFixed(1),
+                    Text(b.puanMetni,
                         style: GoogleFonts.inter(color: AppTheme.gold, fontWeight: FontWeight.bold, fontSize: 14)),
                   ]),
                 ],

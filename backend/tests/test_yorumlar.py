@@ -54,6 +54,8 @@ def test_salon_detayinda_berber_tiras_ve_degerlendirme_sayisi(client, veri, db):
     assert (berberler["Ali"]["tamamlanan"], berberler["Ali"]["degerlendirme_sayisi"]) == (2, 1)
     assert (berberler["Veli"]["tamamlanan"], berberler["Veli"]["degerlendirme_sayisi"]) == (0, 0)
     assert client.get(f"/degerlendirmeler/berber/{veri['ali']}").json()["tamamlanan"] == 2
+    liste = {b["ad"]: b for b in client.get("/berberler/", params={"salon_id": veri["a"]}).json()}
+    assert (liste["Ali"]["degerlendirme_sayisi"], liste["Veli"]["degerlendirme_sayisi"]) == (1, 0)
 
 
 def test_salon_detayi_berber_sayisindan_bagimsiz_sorgu(client, veri, db):

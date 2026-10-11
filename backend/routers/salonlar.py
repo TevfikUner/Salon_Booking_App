@@ -2,7 +2,7 @@
 import math
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import or_
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
 import models
@@ -31,7 +31,17 @@ def mesafe_km(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
     return 2 * r * math.asin(math.sqrt(a))
 
 
-def _salon_ozet(s: models.Salon, mesafe: float | None = None, eslesen: list[str] | None = None) -> dict:
+def _salon_degerlendirme_sayilari(db: Session, salon_idler: list[int]) -> dict[int, int]:
+    """Salon başına değerlendirme sayısı — tek gruplu sorgu. Hiç değerlendirmesi olmayan salonun `puan`ı
+    varsayılan 5.0'dır; istemci bunu "Yeni" gösterir, puan filtresi ve sıralama bu salonları öne almaz."""
+    if not salon_idler:
+        return {}
+    return dict(db.query(models.Degerlendirme.salon_id, func.count(models.Degerlendirme.id)).filter(
+        models.Degerlendirme.salon_id.in_(salon_idler)).group_by(models.Degerlendirme.salon_id).all())
+
+
+def _salon_ozet(s: models.Salon, mesafe: float | None = None, eslesen: list[str] | None = None,
+                degerlendirme: int = 0) -> dict:
     return {
         "id": s.id,
         "ad": s.ad,
@@ -41,6 +51,7 @@ def _salon_ozet(s: models.Salon, mesafe: float | None = None, eslesen: list[str]
         "sehir": s.sehir,
         "ilce": s.ilce,
         "puan": s.puan,
+        "degerlendirme_sayisi": degerlendirme,
         "acilis_saati": s.acilis_saati,
         "kapanis_saati": s.kapanis_saati,
         "pazar_acilis_saati": s.pazar_acilis_saati,
@@ -69,8 +80,9 @@ def salonlari_listele(
         salonlar = [s for s in salonlar if normalize(s.sehir) == normalize(sehir)]
     if ilce:
         salonlar = [s for s in salonlar if normalize(s.ilce) == normalize(ilce)]
-    if min_puan is not None:
-        salonlar = [s for s in salonlar if (s.puan or 0) >= min_puan]
+    sayilar = _salon_degerlendirme_sayilari(db, [s.id for s in salonlar])
+    if min_puan is not None:  # değerlendirmesi olmayan salonun varsayılan 5.0 puanı sayılmaz
+        salonlar = [s for s in salonlar if sayilar.get(s.id) and (s.puan or 0) >= min_puan]
     eslesen: dict[int, list[str]] = {}
     if q and (aranan := normalize(q)):
         eslesen = _hizmet_eslesmeleri(db, [s.id for s in salonlar], aranan)
@@ -81,10 +93,11 @@ def salonlari_listele(
                    for s in salonlar if s.konum_lat is not None and s.konum_long is not None]
         konumsuz = [s for s in salonlar if s.konum_lat is None or s.konum_long is None]
         konumlu.sort(key=lambda x: x[1])
-        return [_salon_ozet(s, m, eslesen.get(s.id)) for s, m in konumlu] + \
-            [_salon_ozet(s, eslesen=eslesen.get(s.id)) for s in konumsuz]
-    salonlar.sort(key=lambda s: (-(s.puan or 0), s.ad))
-    return [_salon_ozet(s, eslesen=eslesen.get(s.id)) for s in salonlar]
+        return [_salon_ozet(s, m, eslesen.get(s.id), sayilar.get(s.id, 0)) for s, m in konumlu] + \
+            [_salon_ozet(s, eslesen=eslesen.get(s.id), degerlendirme=sayilar.get(s.id, 0)) for s in konumsuz]
+    # Değerlendirilmiş salonlar puana göre önde; henüz değerlendirmesi olmayanlar ("Yeni") sonra
+    salonlar.sort(key=lambda s: (0 if sayilar.get(s.id) else 1, -(s.puan or 0), s.ad))
+    return [_salon_ozet(s, eslesen=eslesen.get(s.id), degerlendirme=sayilar.get(s.id, 0)) for s in salonlar]
 
 
 def _hizmet_eslesmeleri(db: Session, salon_idler: list[int], aranan: str) -> dict[int, list[str]]:
@@ -137,7 +150,7 @@ def salon_detay(salon_id: int, kimlik: Kimlik | None = Depends(kimlik_istege_bag
         if m:
             favori_idler = {b.id for b in m.favori_berberler}
     return {
-        **_salon_ozet(salon),
+        **_salon_ozet(salon, degerlendirme=_salon_degerlendirme_sayilari(db, [salon.id]).get(salon.id, 0)),
         "instagram": salon.instagram_url,
         "whatsapp": salon.whatsapp,
         "konum": {"lat": salon.konum_lat, "lng": salon.konum_long},

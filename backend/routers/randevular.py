@@ -128,7 +128,6 @@ def musait_saatleri_getir(
 ):
     """`ertelenen_id`: müşterinin ertelediği kendi randevusu; onun eski yeri dolu sayılmaz (yalnızca sahibine)."""
     _, salon = ss.berber_ve_salon(db, berber_id)
-    sure = _sure_hesapla(db, salon.id, hizmet_ids)
     haric = None
     if ertelenen_id is not None:
         if kimlik is None:
@@ -136,7 +135,10 @@ def musait_saatleri_getir(
         r = _musteri_randevusu(db, ertelenen_id, kimlik)
         if r.berber_id != berber_id:
             raise HTTPException(status_code=400, detail="Randevu bu personele ait değil.")
-        haric, sure = r.id, r.sure_dk or sure
+        # Süre randevuda mühürlü: hizmet sonradan menüden kaldırılmış olsa da erteleme engellenmesin
+        haric, sure = r.id, r.sure_dk or ayarlar().slot_dk
+    else:
+        sure = _sure_hesapla(db, salon.id, hizmet_ids)
     m = ss.gun_musaitligi(db, salon, berber_id, tarih, sure, haric_id=haric)
     musait = set(m.musait)
     return {

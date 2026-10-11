@@ -27,7 +27,7 @@ class SalonBaslikKarti extends StatelessWidget {
         Row(mainAxisSize: MainAxisSize.min, children: [
           const Icon(Icons.star, color: AppTheme.gold, size: 16),
           const SizedBox(width: 4),
-          Text(salon.puan.toStringAsFixed(1), style: GoogleFonts.inter(color: AppTheme.gold, fontWeight: FontWeight.w700)),
+          Text(salon.puanMetni, style: GoogleFonts.inter(color: AppTheme.gold, fontWeight: FontWeight.w700)),
         ]),
         if ((salon.adres ?? '').isNotEmpty) ...[
           const SizedBox(height: 8),

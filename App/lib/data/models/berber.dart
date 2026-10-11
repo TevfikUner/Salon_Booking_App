@@ -31,6 +31,9 @@ class Berber {
 
   String get tamAd => '$ad $soyad'.trim();
 
+  /// "4.8" ya da henüz değerlendirme yoksa "Yeni"
+  String get puanMetni => degerlendirmeSayisi > 0 ? puan.toStringAsFixed(1) : 'Yeni';
+
   factory Berber.fromJson(Map<String, dynamic> j) => Berber(
         // /musteriler/favoriler yanıtı "berber_id" kullanır
         id: j['id'] ?? j['berber_id'],

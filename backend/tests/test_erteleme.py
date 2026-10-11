@@ -102,3 +102,15 @@ def test_musait_saatler_ertelenen_randevunun_yerini_bos_gosterir(client, veri):
     assert "14:00" in v["musait_saatler"]
     assert client.get(yol, params=params + [("ertelenen_id", rid)], headers=auth("musteri-2")).status_code == 403
     assert client.get(yol, params=params + [("ertelenen_id", rid)]).status_code == 401
+
+
+def test_menuden_kaldirilan_hizmetli_randevu_ertelenebilir(client, veri, db):
+    """Randevudaki hizmet sonradan menüden kaldırılsa da müşteri saatleri görüp erteleyebilmeli (süre mühürlü)."""
+    rid = _al(client, veri, hizmet="sakal")
+    db.get(models.Hizmet, veri["sakal"]).aktif = False
+    db.commit()
+    v = client.get(f"/randevular/musait-saatler/{veri['ali']}", headers=auth("musteri-1"),
+                   params=[("tarih", YARIN), ("hizmet_ids", veri["sakal"]), ("ertelenen_id", rid)])
+    assert v.status_code == 200, v.text
+    assert v.json()["toplam_sure_dk"] == 45 and "14:00" in v.json()["musait_saatler"]
+    assert _ertele(client, rid, YARIN, "16:00").status_code == 200

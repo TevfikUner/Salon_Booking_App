@@ -36,7 +36,7 @@ python worker.py                     # (ayrı terminal, isteğe bağlı) hatırl
 ```
 
 - API belgesi: http://localhost:8010/docs (production'da kapalı) · sağlık: http://localhost:8010/health
-- Testler: `pytest` (108 test: slot/çakışma/eşzamanlılık/idempotency/hız sınırı/DB kesintisi/zamanlayıcı kilidi/yasal sayfalar/panel yetkileri/KVKK, erteleme, öğle arası/saatlik kapatma, yorumlar, müşteri kartı, arama, takvim dosyası). PostgreSQL'e karşı: `TEST_DATABASE_URL=postgresql://... pytest` · Lint: `ruff check .`
+- Testler: `pytest` (110 test: slot/çakışma/eşzamanlılık/idempotency/hız sınırı/DB kesintisi/zamanlayıcı kilidi/yasal sayfalar/panel yetkileri/KVKK, erteleme, öğle arası/saatlik kapatma, yorumlar, müşteri kartı, arama, takvim dosyası). PostgreSQL'e karşı: `TEST_DATABASE_URL=postgresql://... pytest` · Lint: `ruff check .`
 - Yönetim: `python araclar.py --help` (admin ekleme, işletme onay/red, hesap silme talepleri, sağlık kontrolü)
 
 ### Kimlik doğrulama
@@ -73,7 +73,7 @@ flutter run --dart-define=API_URL=http://192.168.1.20:8010
 flutter build appbundle --release --dart-define=API_URL=https://premium-berber-api.onrender.com
 ```
 
-- `flutter analyze` → temiz · `flutter test` → 49 test (birim, widget, 360 dp + 1,3× yazı taşma testleri)
+- `flutter analyze` → temiz · `flutter test` → 50 test (birim, widget, 360 dp + 1,3× yazı taşma testleri)
 - Uçtan uca: `bash backend/yuk/yigin.sh entegrasyon` → `flutter test integration_test/musteri_akisi_test.dart --dart-define=API_URL=http://10.0.2.2:8020` (ve `isletme_akisi_test.dart`)
 
 ### Kod yapısı

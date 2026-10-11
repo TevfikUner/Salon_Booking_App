@@ -16,7 +16,7 @@ class SalonKarti extends StatelessWidget {
     final bugunSaat = salon.calismaSaati(DateTime.now().weekday);
     return Semantics(
       button: true,
-      label: '${salon.ad}, ${salon.konumMetni}, puan ${salon.puan.toStringAsFixed(1)}',
+      label: '${salon.ad}, ${salon.konumMetni}, puan ${salon.puanMetni}',
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(18),
@@ -51,7 +51,7 @@ class SalonKarti extends StatelessWidget {
                 ],
                 const SizedBox(height: 6),
                 Wrap(spacing: 8, runSpacing: 4, crossAxisAlignment: WrapCrossAlignment.center, children: [
-                  _Etiket(ikon: Icons.star, metin: salon.puan.toStringAsFixed(1)),
+                  _Etiket(ikon: Icons.star, metin: salon.puanMetni),
                   if (salon.mesafeKm != null) _Etiket(ikon: Icons.near_me, metin: mesafeMetni(salon.mesafeKm!)),
                   _Satir(ikon: Icons.access_time, metin: bugunSaat == null ? 'Bugün kapalı' : 'Bugün $bugunSaat'),
                 ]),

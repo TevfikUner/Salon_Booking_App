@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 import models
 from config import ayarlar
+from routers.degerlendirmeler import degerlendirme_sayilari
 
 router = APIRouter(prefix="/berberler", tags=["Berber Yönetimi"])
 MAKS_FOTO_BOYUTU = 5 * 1024 * 1024
@@ -40,9 +41,12 @@ def berberleri_listele(salon_id: int | None = None, db: Session = Depends(get_db
     q = db.query(models.Berber).filter(models.Berber.aktif.is_(True))
     if salon_id is not None:
         q = q.filter(models.Berber.salon_id == salon_id)
+    berberler = q.all()
+    sayilar = degerlendirme_sayilari(db, [b.id for b in berberler])
     return [{"id": b.id, "ad": b.ad, "soyad": b.soyad, "uzmanlik": b.uzmanlik, "foto_url": b.foto_url,
-             "puan": b.puan, "salon_id": b.salon_id, "instagram_username": b.instagram_username}
-            for b in q.all()]
+             "puan": b.puan, "salon_id": b.salon_id, "instagram_username": b.instagram_username,
+             "degerlendirme_sayisi": sayilar.get(b.id, 0)}
+            for b in berberler]
 
 @router.put("/guncelle/{berber_id}")
 def berber_guncelle(
