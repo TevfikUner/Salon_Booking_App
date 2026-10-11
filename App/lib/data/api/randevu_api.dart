@@ -66,6 +66,9 @@ class RandevuApi {
 
   static Future<void> iptal(int randevuId) => ApiClient.post('/randevular/$randevuId/iptal');
 
+  /// Randevunun iCalendar (.ics) metni — yalnızca sahibine.
+  static Future<String> takvimDosyasi(int randevuId) => ApiClient.metin('/randevular/$randevuId/takvim.ics');
+
   /// Aynı berberde başka gün/saate taşır (süre ve fiyat değişmez). Çakışmada ApiHata (409 + öneriler).
   static Future<Json> ertele(int randevuId, {required String tarih, required String saat, String? idempotencyKey}) async =>
       await ApiClient.post('/randevular/$randevuId/ertele',

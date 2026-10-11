@@ -1,6 +1,6 @@
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 
-from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, Query, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, Query, Request, Response
 from pydantic import BaseModel
 from sqlalchemy.orm import Session, joinedload, selectinload
 
@@ -15,6 +15,7 @@ from database import get_db
 from idempotency import idempotent
 from koruma import SINIR_RANDEVU, limiter
 from routers import musteriler
+from takvim_dosyasi import randevu_ics
 from zaman import bugun, simdi
 
 router = APIRouter(prefix="/randevular", tags=["Randevu İşlemleri"])
@@ -277,6 +278,14 @@ def randevu_ertele(request: Request, randevu_id: int, veri: ErtelemeIstegi,
         rs.musteri_ertele(db, r, veri.tarih, veri.saat)
         return {"mesaj": "Randevunuz ertelendi.", "randevu": randevu_json(r)}
     return idempotent(idempotency_key, kimlik.uid, _ertele)
+
+
+@router.get("/{randevu_id}/takvim.ics", response_class=Response)
+def randevu_takvim_dosyasi(randevu_id: int, kimlik: Kimlik = Depends(kimlik_gerekli), db: Session = Depends(get_db)):
+    """Randevunun .ics dosyası (Google/Samsung/Apple takvimine eklemek için). Yalnızca randevunun sahibine."""
+    r = _musteri_randevusu(db, randevu_id, kimlik)
+    return Response(content=randevu_ics(r, datetime.now(UTC)), media_type="text/calendar; charset=utf-8",
+                    headers={"Content-Disposition": f'attachment; filename="randevu-{r.id}.ics"'})
 
 
 @router.delete("/sil/{randevu_id}", deprecated=True)

@@ -247,7 +247,7 @@ Sıra bağımlılığa göre düzenlendi (#1 bildirimi #2 kullanıyor; #4'teki m
 | 5 | **#5** Müşteri kartı + kalıcı not | M | Akıştan müşteri kartı açılıyor (geçmiş, harcama, skor, not); salonlar arası izolasyon ve hesap silmede not silme testli; KVKK metni maddesi BENDEN_GEREKENLER'de | ✅ |
 | 6 | **#6** Takvimde dolu günler | S | Dolu gün gri + "Dolu" etiketli, dokununca bekleme listesi öneriliyor; uç tek sorguyla hesaplıyor (testli); eski istemciyle geriye uyumlu | ✅ |
 | 7 | **#7** Salon ve hizmet araması | S | Keşfet'te arama kutusu; Türkçe harf duyarsız ad/ilçe/hizmet eşleşmesi ve `min_puan` testli; boş durum var | ✅ |
-| 8 | **#8** Takvime ekle (.ics) | S | Onay ekranı ve randevu kartından .ics paylaşılıyor, Google Takvim'de doğru saat ve dilimde açılıyor; uç yalnızca sahibine açık (testli) | ⬜ |
+| 8 | **#8** Takvime ekle (.ics) | S | Onay ekranı ve randevu kartından .ics paylaşılıyor, Google Takvim'de doğru saat ve dilimde açılıyor; uç yalnızca sahibine açık (testli) | ✅ |
 | 9 | **#9** Bildirim izni ön ekranı | S | İzin ilk randevu onayında bağlamlı kartla isteniyor; "Şimdi değil" bir daha rahatsız etmiyor; reddedilmişse ayarlar bağlantısı; widget testi | ⬜ |
 
 **Her madde için ortak kapı:** `pytest` (SQLite) yeşil · `ruff check` temiz · `flutter analyze` 0 sorun · ilgili `flutter test` yeşil · 360 dp / 1,3× taşma testi bozulmuyor · siyah-altın tema ile uyumlu · küçük Türkçe commit'ler `feature/ilham-ozellikler` dalında, main'e merge yok.

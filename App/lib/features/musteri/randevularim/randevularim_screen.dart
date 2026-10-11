@@ -11,6 +11,7 @@ import 'package:berber_app_ui/features/musteri/degerlendirme/degerlendirme_scree
 import 'package:berber_app_ui/features/musteri/randevularim/erteleme_sheet.dart';
 import 'package:berber_app_ui/features/musteri/randevularim/widgets/randevu_karti.dart';
 import 'package:berber_app_ui/services/analitik.dart';
+import 'package:berber_app_ui/services/takvim_paylasimi.dart';
 
 /// Yaklaşan ve geçmiş randevular; erteleme, iptal ve değerlendirme.
 class RandevularimScreen extends StatefulWidget {
@@ -162,6 +163,18 @@ class RandevularimScreenState extends State<RandevularimScreen> {
                   randevu: r,
                   onIptal: r.yaklasan ? () => _iptal(r) : null,
                   onErtele: r.yaklasan && r.ertelemeHakki > 0 ? () => _ertele(r) : null,
+                  onTakvim: r.yaklasan
+                      ? () => TakvimPaylasimi.secenekleriGoster(
+                          context,
+                          TakvimEtkinligi(
+                            randevuId: r.id,
+                            tarih: r.tarih,
+                            saat: r.saat,
+                            bitis: r.bitis.isEmpty ? null : r.bitis,
+                            baslik: '${r.salonAd} — ${r.hizmetler.join(', ')}',
+                            aciklama: 'Berber: ${r.berber}\nToplam: ${tl(r.toplamFiyat)}',
+                          ))
+                      : null,
                   onDegerlendir: () => _degerlendir(r),
                 );
               },

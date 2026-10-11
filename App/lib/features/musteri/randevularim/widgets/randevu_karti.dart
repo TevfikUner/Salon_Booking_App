@@ -11,8 +11,10 @@ class RandevuKarti extends StatelessWidget {
   final VoidCallback? onIptal;
   final VoidCallback? onErtele;
   final VoidCallback? onDegerlendir;
+  final VoidCallback? onTakvim;
 
-  const RandevuKarti({super.key, required this.randevu, this.onIptal, this.onErtele, this.onDegerlendir});
+  const RandevuKarti(
+      {super.key, required this.randevu, this.onIptal, this.onErtele, this.onDegerlendir, this.onTakvim});
 
   static (String, Color) durumBilgisi(String durum) => switch (durum) {
         'onaylandi' => ('✓ Onaylandı', AppTheme.success),
@@ -50,8 +52,21 @@ class RandevuKarti extends StatelessWidget {
               style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 18, fontWeight: FontWeight.bold)),
         ]),
         const SizedBox(height: 12),
-        _Satir(Icons.calendar_today, '${tarihGoreli(r.tarih)}  •  ${r.saat}${r.bitis.isNotEmpty ? ' – ${r.bitis}' : ''}',
-            vurgu: true),
+        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(
+            child: _Satir(Icons.calendar_today,
+                '${tarihGoreli(r.tarih)}  •  ${r.saat}${r.bitis.isNotEmpty ? ' – ${r.bitis}' : ''}', vurgu: true),
+          ),
+          if (onTakvim != null)
+            InkWell(
+              onTap: onTakvim,
+              borderRadius: BorderRadius.circular(8),
+              child: const Tooltip(
+                message: 'Takvime ekle',
+                child: Padding(padding: EdgeInsets.all(4), child: Icon(Icons.event_available, color: AppTheme.gold, size: 20)),
+              ),
+            ),
+        ]),
         _Satir(Icons.person, r.berber),
         _Satir(Icons.content_cut, r.hizmetler.join(', ')),
         if (r.salonAd.isNotEmpty) _Satir(Icons.store_outlined, r.salonAd, renk: AppTheme.gold),

@@ -55,6 +55,9 @@ class ApiClient {
 
   static Future<dynamic> put(String path, {Object? govde}) => _istek('PUT', path, govde: govde);
 
+  /// JSON olmayan yanıt (ör. .ics dosyası) için ham metin döner; hata yanıtları yine ApiHata'ya çevrilir.
+  static Future<String> metin(String path) async => await _istek('GET', path, ham: true) as String;
+
   static Future<dynamic> patch(String path, {Map<String, dynamic>? params, Object? govde}) =>
       _istek('PATCH', path, params: params, govde: govde);
 
@@ -93,7 +96,7 @@ class ApiClient {
   }
 
   static Future<dynamic> _istek(String metod, String path,
-      {Map<String, dynamic>? params, Object? govde, String? idempotencyKey}) async {
+      {Map<String, dynamic>? params, Object? govde, String? idempotencyKey, bool ham = false}) async {
     final adres = uri(path, params);
     final h = await _basliklar(json: govde != null);
     if (idempotencyKey != null) h['Idempotency-Key'] = idempotencyKey;
@@ -120,10 +123,11 @@ class ApiClient {
       throw const ApiHata('Sunucuya ulaşılamadı. İnternet bağlantınızı kontrol edin.');
     }
 
+    if (ham && res.statusCode >= 200 && res.statusCode < 300) return utf8.decode(res.bodyBytes);
     dynamic veri;
     try {
-      final ham = utf8.decode(res.bodyBytes);
-      veri = ham.isEmpty ? null : json.decode(ham);
+      final govdeMetni = utf8.decode(res.bodyBytes);
+      veri = govdeMetni.isEmpty ? null : json.decode(govdeMetni);
     } catch (_) {
       veri = null;
     }

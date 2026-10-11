@@ -13,7 +13,7 @@ Dal: `feature/ilham-ozellikler` (`feature/v1-hazirlik`'ten) · Başlangıç: 202
 | 5 | Müşteri kartı + kalıcı not | ✅ | migration 0005, `/panel/musteriler/{id}` + `/not`, akışta müşteri adına dokun; KVKK cümlesi BENDEN_GEREKENLER §9 |
 | 6 | Takvimde dolu günler | ✅ | `musait-takvim?hizmet_ids=` → `bos_slot`/`dolu` (2 sorgu), takvimde altın/turuncu/kırmızı nokta |
 | 7 | Salon ve hizmet araması | ✅ | `/salonlar?q=&min_puan=` (+`eslesen_hizmetler`), Keşfet'te arama kutusu + ★4.5+; entegrasyon testi liste anahtarına bağlandı |
-| 8 | Takvime ekle (.ics) | ⬜ | |
+| 8 | Takvime ekle (.ics) | ✅ | `GET /randevular/{id}/takvim.ics` (`takvim_dosyasi.py`), onay ekranı + randevu kartı: Google Takvim bağlantısı veya .ics paylaş |
 | 9 | Bildirim izni ön ekranı | ⬜ | |
 | — | Son: DEMO.md, KARARLAR.md, README test sayıları, özet | ⬜ | |
 
