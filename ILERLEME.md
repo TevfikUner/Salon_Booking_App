@@ -1,6 +1,6 @@
 # İlerleme — Tur 4: İlham Özellikleri
 
-Dal: `feature/ilham-ozellikler` (`feature/v1-hazirlik`'ten) · Başlangıç: 2026-10-12 · Plan ve gerekçeler: [ILHAM_ANALIZI.md](ILHAM_ANALIZI.md)
+Dal: `feature/ilham-ozellikler` (`feature/v1-hazirlik`'ten; 12.10.2026'da `main`'e birleştirildi) · Başlangıç: 2026-10-12 · Plan ve gerekçeler: [ILHAM_ANALIZI.md](ILHAM_ANALIZI.md)
 
 **Tur tamamlandı.** "Devam et" denirse: aşağıdaki ilk ⬜ maddeden sürdür. Sıra kullanıcı isteğiyle **önem sırası**.
 

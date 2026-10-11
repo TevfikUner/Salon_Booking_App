@@ -236,7 +236,7 @@ Klonlanamayan repo yok (26/26). Atlananlar (konu dışı): `DietrichGebert/ponyt
 
 ## 4. Önerilen Uygulama Planı
 
-> **Uygulama sonucu (2026-10-12, dal `feature/ilham-ozellikler`):** 9 maddenin 9'u ✅. Doğrulama: `pytest` 108/108
+> **Uygulama sonucu (2026-10-12, dal `feature/ilham-ozellikler`, `main`'e birleştirildi):** 9 maddenin 9'u ✅. Doğrulama: `pytest` 108/108
 > (SQLite ve PostgreSQL 16), `ruff` temiz, migration 0003–0005 boş ve dolu veritabanında ileri/geri + `alembic check`
 > temiz, `flutter analyze` 0 sorun, `flutter test` 49/49, emülatörde entegrasyon testleri 2/2 (müşteri: arayüzden
 > erteleme + üç seçenekli iptal; işletme: tamamlandı + müşteri kartı notu). Kod hiçbir repodan kopyalanmadı
