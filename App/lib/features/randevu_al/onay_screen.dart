@@ -19,6 +19,8 @@ class OnaySayfasi extends StatefulWidget {
   final String? salonAd;
   final List<String> hizmetler;
   final double toplamFiyat;
+  final double indirim;
+  final String? indirimAciklama;
   final String randevuId;
 
   const OnaySayfasi({
@@ -31,6 +33,8 @@ class OnaySayfasi extends StatefulWidget {
     required this.randevuId,
     this.bitis,
     this.salonAd,
+    this.indirim = 0,
+    this.indirimAciklama,
   });
 
   @override
@@ -93,6 +97,8 @@ class _OnaySayfasiState extends State<OnaySayfasi> with SingleTickerProviderStat
                     const SizedBox(height: 28),
                     RandevuOzeti(
                       toplam: widget.toplamFiyat,
+                      indirim: widget.indirim,
+                      indirimAciklama: widget.indirimAciklama,
                       satirlar: [
                         if (widget.salonAd != null) (Icons.storefront, 'Salon', widget.salonAd!),
                         (Icons.calendar_today, 'Tarih', tarihUzun(widget.tarih, yil: true)),

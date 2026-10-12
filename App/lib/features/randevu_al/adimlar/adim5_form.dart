@@ -31,6 +31,9 @@ class _Adim5FormState extends State<Adim5Form> {
   final _telefon = TextEditingController();
   bool _gonderiliyor = false;
   bool _profilYukleniyor = true;
+
+  /// Sunucunun hesapladığı tutar (kampanya / sadakat indirimi dahil); gelene kadar yerel toplam gösterilir
+  Json? _teklif;
   // Bu ekrandaki onay eylemi için tek anahtar: zaman aşımı sonrası tekrar basılırsa sunucu ikinci randevu açmaz
   final String _anahtar = ApiClient.yeniAnahtar();
 
@@ -38,6 +41,19 @@ class _Adim5FormState extends State<Adim5Form> {
   void initState() {
     super.initState();
     _profiliDoldur();
+    _fiyatGetir();
+  }
+
+  Future<void> _fiyatGetir() async {
+    final p = context.read<RandevuProvider>();
+    final berber = p.seciliBerber, tarih = p.seciliTarih, saat = p.seciliSaat;
+    if (berber == null || tarih == null || saat == null) return;
+    try {
+      final t = await RandevuApi.fiyatTeklifi(berber.id, tarihStr(tarih), saat, p.seciliHizmetler.map((h) => h.id).toList());
+      if (mounted) setState(() => _teklif = t);
+    } on ApiHata {
+      // Teklif alınamazsa yerel toplam gösterilir; kesin tutar onayda sunucudan gelir
+    }
   }
 
   @override
@@ -92,6 +108,8 @@ class _Adim5FormState extends State<Adim5Form> {
         salonAd: sonuc['salon_ad']?.toString(),
         hizmetler: p.seciliHizmetler.map((h) => h.ad).toList(),
         toplamFiyat: (sonuc['toplam_fiyat'] as num?)?.toDouble() ?? p.toplamFiyat,
+        indirim: (sonuc['indirim_tutari'] as num? ?? 0).toDouble(),
+        indirimAciklama: sonuc['indirim_aciklama'] as String?,
         randevuId: '${sonuc['randevu_id']}',
       );
       p.reset();
@@ -115,7 +133,9 @@ class _Adim5FormState extends State<Adim5Form> {
         key: _form,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           RandevuOzeti(
-            toplam: p.toplamFiyat,
+            toplam: (_teklif?['toplam_fiyat'] as num?) ?? p.toplamFiyat,
+            indirim: (_teklif?['indirim_tutari'] as num?) ?? 0,
+            indirimAciklama: _teklif?['indirim_aciklama'] as String?,
             satirlar: [
               (Icons.person, 'Personel', p.seciliBerber?.tamAd ?? '-'),
               (Icons.calendar_today, 'Tarih', p.seciliTarih == null ? '-' : tarihUzun(tarihStr(p.seciliTarih!), yil: true)),

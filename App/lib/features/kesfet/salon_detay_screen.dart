@@ -10,6 +10,7 @@ import 'package:berber_app_ui/data/models/berber.dart';
 import 'package:berber_app_ui/data/models/salon.dart';
 import 'package:berber_app_ui/features/kesfet/widgets/ekip_listesi.dart';
 import 'package:berber_app_ui/features/kesfet/widgets/iletisim_butonlari.dart';
+import 'package:berber_app_ui/features/kesfet/widgets/kampanya_bilesenleri.dart';
 import 'package:berber_app_ui/features/kesfet/widgets/salon_bilgi_kartlari.dart';
 import 'package:berber_app_ui/features/kesfet/widgets/yorumlar_bolumu.dart';
 import 'package:berber_app_ui/features/randevu_al/randevu_flow.dart';
@@ -110,6 +111,14 @@ class _SalonDetayScreenState extends State<SalonDetayScreen> {
           child: ListView(padding: const EdgeInsets.only(bottom: 110), children: [
             SalonBaslikKarti(salon: salon!),
             IletisimButonlari(salon: salon),
+            if (salon.kampanyalar.isNotEmpty) ...[
+              const BolumBasligi(baslik: 'Kampanyalar', ikon: Icons.local_offer_outlined),
+              KampanyalarKarti(kampanyalar: salon.kampanyalar),
+            ],
+            if (salon.sadakatKarti != null) ...[
+              const BolumBasligi(baslik: 'Sadakat Kartı', ikon: Icons.card_giftcard),
+              SadakatKartiWidget(kart: salon.sadakatKarti!),
+            ],
             if (salon.berberler.isNotEmpty) ...[
               const BolumBasligi(baslik: 'Ekibimiz', ikon: Icons.people_alt_outlined),
               EkipListesi(

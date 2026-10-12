@@ -55,3 +55,14 @@ String telefonBicimli(String tel) {
   if (on.length != 11) return tel;
   return '${on.substring(0, 4)} ${on.substring(4, 7)} ${on.substring(7, 9)} ${on.substring(9)}';
 }
+
+/// Sayının okunuşuna göre yönelme eki: 10 → 'a, 20 → 'ye, 15 → 'e, 6 → 'ya ("%20'ye varan", "%10'a varan").
+String yonelmeEki(int n) {
+  const birler = ["", "'e", "'ye", "'e", "'e", "'e", "'ya", "'ye", "'e", "'a"];
+  const onlar = ["", "'a", "'ye", "'a", "'a", "'ye", "'a", "'e", "'e", "'a"];
+  n = n.abs();
+  if (n == 0) return "'a"; // sıfır
+  if (n % 10 != 0) return birler[n % 10];
+  if (n % 100 != 0) return onlar[(n ~/ 10) % 10];
+  return "'e"; // yüz, bin
+}

@@ -54,6 +54,18 @@ class AkisRandevuKarti extends StatelessWidget {
             Expanded(child: _Detay(randevu: r, hizmetler: hizmetler, onMusteri: onMusteri)),
           ]),
           Divider(color: AppTheme.gold.withValues(alpha: 0.1), height: 20),
+          if ((r['indirim_tutari'] as num? ?? 0) > 0)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Row(children: [
+                const Icon(Icons.local_offer_outlined, color: AppTheme.gold, size: 14),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text('${r['indirim_aciklama'] ?? 'İndirim'} · −${tl(r['indirim_tutari'] as num)}',
+                      style: GoogleFonts.inter(color: AppTheme.gold, fontSize: 12)),
+                ),
+              ]),
+            ),
           Row(children: [
             _DurumEtiketi(durum: durum),
             const Spacer(),

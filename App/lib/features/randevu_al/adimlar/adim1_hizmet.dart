@@ -7,6 +7,7 @@ import 'package:berber_app_ui/core/widgets/durum_gorunumleri.dart';
 import 'package:berber_app_ui/data/api/api_client.dart';
 import 'package:berber_app_ui/data/api/salon_api.dart';
 import 'package:berber_app_ui/features/randevu_al/randevu_provider.dart';
+import 'package:berber_app_ui/features/kesfet/widgets/kampanya_bilesenleri.dart';
 
 class Adim1Hizmet extends StatefulWidget {
   const Adim1Hizmet({super.key});
@@ -103,11 +104,17 @@ class _Adim1HizmetState extends State<Adim1Hizmet> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(h.ad,
-                                  style: GoogleFonts.inter(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 15)),
+                              Row(children: [
+                                Flexible(
+                                  child: Text(h.ad,
+                                      style: GoogleFonts.inter(
+                                          color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15)),
+                                ),
+                                if (h.kampanyaYuzde > 0) ...[
+                                  const SizedBox(width: 8),
+                                  IndirimRozeti(yuzde: h.kampanyaYuzde),
+                                ],
+                              ]),
                               if (h.aciklama != null && h.aciklama!.isNotEmpty) ...[
                                 const SizedBox(height: 4),
                                 Text(h.aciklama!,

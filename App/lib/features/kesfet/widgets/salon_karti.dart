@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/data/models/salon.dart';
+import 'package:berber_app_ui/features/kesfet/widgets/kampanya_bilesenleri.dart';
 
 /// Keşfet listesindeki salon satırı.
 class SalonKarti extends StatelessWidget {
@@ -55,6 +56,14 @@ class SalonKarti extends StatelessWidget {
                   if (salon.mesafeKm != null) _Etiket(ikon: Icons.near_me, metin: mesafeMetni(salon.mesafeKm!)),
                   _Satir(ikon: Icons.access_time, metin: bugunSaat == null ? 'Bugün kapalı' : 'Bugün $bugunSaat'),
                 ]),
+                if (salon.kampanyaYuzde > 0 || salon.sadakatVar) ...[
+                  const SizedBox(height: 6),
+                  Wrap(spacing: 8, runSpacing: 4, children: [
+                    if (salon.kampanyaYuzde > 0) IndirimRozeti(
+                          yuzde: salon.kampanyaYuzde, onEk: '${yonelmeEki(salon.kampanyaYuzde)} varan indirim'),
+                    if (salon.sadakatVar) const _Etiket(ikon: Icons.card_giftcard, metin: 'Sadakat kartı'),
+                  ]),
+                ],
                 if (salon.eslesenHizmetler.isNotEmpty) ...[
                   const SizedBox(height: 6),
                   _Satir(ikon: Icons.content_cut, metin: salon.eslesenHizmetler.join(' · ')),

@@ -26,12 +26,17 @@ class _ErtelemeSheetState extends State<ErtelemeSheet> {
   String? _gun;
   List<String> _tum = [];
   Set<String> _musait = {};
+
+  /// Kampanyalı randevuda indirimin korunduğu saatler (null: kampanyasız randevu, uyarı gerekmez)
+  Set<String>? _korunan;
   String? _saat;
   bool _saatlerYukleniyor = false;
   bool _gonderiliyor = false;
   String? _hata;
 
   Randevu get _r => widget.randevu;
+
+  bool get _indirimKalkar => _saat != null && _korunan != null && !_korunan!.contains(_saat);
 
   @override
   void initState() {
@@ -63,6 +68,8 @@ class _ErtelemeSheetState extends State<ErtelemeSheet> {
       setState(() {
         _tum = List<String>.from(v['tum_saatler']);
         _musait = Set<String>.from(v['musait_saatler']);
+        final k = v['kampanya_korunan_saatler'];
+        _korunan = k == null ? null : Set<String>.from(k);
         if (tarih == _r.tarih) _musait.remove(_r.saat); // mevcut saat seçilemez
       });
     } on ApiHata catch (e) {
@@ -116,6 +123,21 @@ class _ErtelemeSheetState extends State<ErtelemeSheet> {
                   : Column(children: [_gunSecici(), const SizedBox(height: 12), Expanded(child: _saatler())]),
             ),
           ),
+          if (_indirimKalkar)
+            Padding(
+              key: const ValueKey('erteleme_indirim_uyarisi'),
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                const Icon(Icons.info_outline, color: Colors.orange, size: 18),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                      'Bu saat "${_r.indirimAciklama ?? 'kampanya'}" kapsamında değil: indirim kalkar, '
+                      'tutar ${tl(_r.listeFiyati)} olur. İndirimli saatler işaretli.',
+                      style: GoogleFonts.inter(color: Colors.orange, fontSize: 12)),
+                ),
+              ]),
+            ),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
             child: SizedBox(
@@ -171,6 +193,10 @@ class _ErtelemeSheetState extends State<ErtelemeSheet> {
           saat: saat,
           durum: _musait.contains(saat) ? SlotDurumu.musait : SlotDurumu.dolu,
           secili: _saat == saat,
+          // Kampanya bu saatte de geçerliyse indirim korunur; etiketle göster
+          indirimYuzde: (_korunan?.contains(saat) ?? false) && _r.listeFiyati > 0
+              ? (_r.indirimTutari / _r.listeFiyati * 100).round()
+              : 0,
           onTap: () => setState(() => _saat = saat),
         );
       },

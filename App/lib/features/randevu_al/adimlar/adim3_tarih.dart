@@ -21,6 +21,9 @@ class _Adim3TarihState extends State<Adim3Tarih> {
 
   /// tarih → boş başlangıç sayısı (yalnızca berber seçiliyse gelir; dolu gün = 0)
   Map<String, int> _bosSlot = {};
+
+  /// tarih → o gün geçerli en yüksek kampanya indirimi (yüzde; yalnızca berber seçiliyse gelir)
+  Map<String, int> _indirim = {};
   bool _yukleniyor = true;
   DateTime _focusedDay = DateTime.now();
 
@@ -42,6 +45,10 @@ class _Adim3TarihState extends State<Adim3Tarih> {
         setState(() {
           _musaitTarihler = data.map((e) => e['tarih'] as String).toSet();
           _bosSlot = {for (final e in data) if (e['bos_slot'] is int) e['tarih'] as String: e['bos_slot'] as int};
+          _indirim = {
+            for (final e in data)
+              if ((e['indirim_yuzde'] as int? ?? 0) > 0) e['tarih'] as String: e['indirim_yuzde'] as int
+          };
           _yukleniyor = false;
         });
       }
@@ -185,11 +192,25 @@ class _Adim3TarihState extends State<Adim3Tarih> {
               calendarBuilders: CalendarBuilders(
                 markerBuilder: (context, day, _) {
                   final renk = _isaretRengi(day);
-                  if (renk == null) return null;
-                  return Positioned(
-                    bottom: 6,
-                    child: Container(
-                        width: 6, height: 6, decoration: BoxDecoration(color: renk, shape: BoxShape.circle)),
+                  final indirim = _indirim[tarihStr(day)] ?? 0;
+                  if (renk == null && indirim == 0) return null;
+                  return Positioned.fill(
+                    child: Stack(alignment: Alignment.center, children: [
+                      if (renk != null)
+                        Positioned(
+                          bottom: 6,
+                          child: Container(
+                              width: 6, height: 6, decoration: BoxDecoration(color: renk, shape: BoxShape.circle)),
+                        ),
+                      // Kampanyalı gün: sağ üstte "%"
+                      if (indirim > 0)
+                        Positioned(
+                          top: 2,
+                          right: 4,
+                          child: Text('%',
+                              style: GoogleFonts.inter(color: AppTheme.gold, fontSize: 10, fontWeight: FontWeight.w900)),
+                        ),
+                    ]),
                   );
                 },
               ),
@@ -197,6 +218,14 @@ class _Adim3TarihState extends State<Adim3Tarih> {
           ),
           const SizedBox(height: 16),
           if (provider.seciliTarih != null) GunDolulukBilgisi(bos: _bosSlot[tarihStr(provider.seciliTarih!)]),
+          if (provider.seciliTarih != null && (_indirim[tarihStr(provider.seciliTarih!)] ?? 0) > 0)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Text('Bu günde %${_indirim[tarihStr(provider.seciliTarih!)]}'
+                  '${yonelmeEki(_indirim[tarihStr(provider.seciliTarih!)]!)} varan kampanya var; '
+                  'indirimli saatler sonraki adımda işaretli.',
+                  style: GoogleFonts.inter(color: AppTheme.gold, fontSize: 12)),
+            ),
 
           // ── Seçilen gün gösterimi ─────────────────────────
           if (provider.seciliTarih != null)
@@ -227,7 +256,7 @@ class _Adim3TarihState extends State<Adim3Tarih> {
           const SizedBox(height: 12),
 
           // ── Lejant ────────────────────────────────────────
-          TakvimLejanti(doluluk: _bosSlot.isNotEmpty),
+          TakvimLejanti(doluluk: _bosSlot.isNotEmpty, kampanya: _indirim.isNotEmpty),
           const SizedBox(height: 8),
           Text(
             'Salonun kapalı olduğu günler ve personel izinleri otomatik olarak kapalıdır.',

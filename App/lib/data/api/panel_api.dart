@@ -98,6 +98,19 @@ class PanelApi {
 
   static Future<void> blokeSil(int id) => ApiClient.delete('/panel/bloke/$id');
 
+  // ── Kampanya & sadakat ──
+  static Future<List<Json>> kampanyalar() async => ApiClient.liste(await ApiClient.get('/panel/kampanyalar'));
+
+  static Future<void> kampanyaKaydet(Json veri, {int? id}) => id == null
+      ? ApiClient.post('/panel/kampanyalar', govde: veri)
+      : ApiClient.put('/panel/kampanyalar/$id', govde: veri);
+
+  static Future<void> kampanyaSil(int id) => ApiClient.delete('/panel/kampanyalar/$id');
+
+  /// İkisi de null → sadakat kartı kapanır.
+  static Future<void> sadakatAyarla({int? esik, int? yuzde}) =>
+      ApiClient.put('/panel/sadakat', govde: {'esik': esik, 'yuzde': yuzde});
+
   // ── Rapor ──
   static Future<Json> rapor({int? yil, int? ay}) async =>
       await ApiClient.get('/panel/rapor', params: {'yil': yil, 'ay': ay});

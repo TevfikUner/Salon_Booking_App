@@ -49,6 +49,9 @@ class Salon(Base):
     # Günlük öğle arası (tüm personel için, "HH:MM"); ikisi de boşsa mola yok
     mola_baslangic = Column(String, nullable=True)
     mola_bitis = Column(String, nullable=True)
+    # Sadakat kartı: her `sadakat_esik`. ziyarette `sadakat_yuzde` indirim (ikisi de boşsa kapalı)
+    sadakat_esik = Column(Integer, nullable=True)
+    sadakat_yuzde = Column(Integer, nullable=True)
     puan = Column(Float, default=5.0)
     aktif = Column(Boolean, default=True, nullable=False)
 
@@ -120,6 +123,25 @@ class BerberHizmet(Base):
     sure = Column(Integer, nullable=True)
 
 
+class Kampanya(Base):
+    """Salonun yüzde indirim kampanyası (ör. "Salı %20"). Boş alan = kısıt yok: gunler boşsa her gün,
+    saatler boşsa gün boyu, tarihler boşsa süresiz, hizmet_idler boşsa tüm hizmetler.
+    Randevunun başlangıç saati [bas_saat, bit_saat) aralığında olmalı."""
+    __tablename__ = "kampanyalar"
+    id = Column(Integer, primary_key=True)
+    salon_id = Column(Integer, ForeignKey("salonlar.id"), nullable=False, index=True)
+    ad = Column(String, nullable=False)
+    yuzde = Column(Integer, nullable=False)
+    gunler = Column(String, default="", nullable=False)  # "1" = Salı (0=Pzt … 6=Paz)
+    bas_saat = Column(String, nullable=True)
+    bit_saat = Column(String, nullable=True)
+    bas_tarih = Column(String, nullable=True)
+    bit_tarih = Column(String, nullable=True)
+    hizmet_idler = Column(String, default="", nullable=False)  # "3,5"
+    aktif = Column(Boolean, default=True, nullable=False)
+    olusturma = Column(String, nullable=True)
+
+
 class Dukkan(Base):
     """Tek-dükkan dönemi kaydı (geriye uyumluluk). Yeni kod Salon kullanır."""
     __tablename__ = "dukkan_bilgileri"
@@ -157,7 +179,11 @@ class Randevu(Base):
     # Randevu anındaki toplam hizmet süresi (dk). Hizmet süresi sonradan değişse de takvim kaymaz.
     sure_dk = Column(Integer, nullable=False, default=30)
     durum = Column(String, default="onaylandi", nullable=False, index=True)
-    toplam_fiyat = Column(Float)  # randevu anında mühürlenen fiyat
+    toplam_fiyat = Column(Float)  # randevu anında mühürlenen ödenecek tutar (indirim düşülmüş)
+    liste_fiyati = Column(Float, nullable=True)  # indirimsiz tutar (eski kayıtlarda boş = toplam_fiyat)
+    indirim_tutari = Column(Float, default=0, nullable=False, server_default="0")
+    indirim_aciklama = Column(String, nullable=True)  # "Salı İndirimi %20" / "Sadakat: 10. ziyaret %50"
+    kampanya_id = Column(Integer, ForeignKey("kampanyalar.id", ondelete="SET NULL"), nullable=True)
     hatirlatma_gonderildi = Column(Boolean, default=False)
     degerlendirme_bildirimi_gonderildi = Column(Boolean, default=False)
     puan = Column(Integer, nullable=True)

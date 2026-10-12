@@ -9,9 +9,10 @@ import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
 import 'package:berber_app_ui/core/widgets/durum_gorunumleri.dart';
 import 'package:berber_app_ui/features/isletme/ekip/widgets/calisma_gunleri_sheet.dart';
+import 'package:berber_app_ui/features/isletme/ekip/widgets/kampanyalar_bolumu.dart';
 import 'package:berber_app_ui/features/isletme/ekip/widgets/personel_hizmetleri_sheet.dart';
 
-/// Personel (çalışma günleri dahil) ve hizmet menüsü yönetimi.
+/// Personel (çalışma günleri, verdiği hizmetler), hizmet menüsü, kampanyalar ve sadakat kartı yönetimi.
 class EkipSekmesi extends StatefulWidget {
   const EkipSekmesi({super.key});
 
@@ -23,6 +24,7 @@ class _EkipSekmesiState extends State<EkipSekmesi> {
   List<Map<String, dynamic>> _personel = [];
   List<Map<String, dynamic>> _hizmetler = [];
   Set<int> _salonKapali = {};
+  int _yenileme = 0;
   bool _yukleniyor = true;
   String? _hata;
 
@@ -41,6 +43,7 @@ class _EkipSekmesiState extends State<EkipSekmesi> {
         setState(() {
           _personel = s[0];
           _hizmetler = s[1];
+          _yenileme++;
           _salonKapali = gunListesi(salon['kapali_gunler']);
         });
       }
@@ -263,6 +266,9 @@ class _EkipSekmesiState extends State<EkipSekmesi> {
               ]),
             ),
           ),
+        const SizedBox(height: 16),
+        // Sekme her yenilendiğinde kampanyalar da yeniden yüklensin
+        KampanyalarBolumu(key: ValueKey(_yenileme), hizmetler: _hizmetler),
       ]),
     );
   }

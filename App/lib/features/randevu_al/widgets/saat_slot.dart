@@ -8,13 +8,19 @@ class SaatSlotWidget extends StatelessWidget {
   final bool secili;
   final VoidCallback? onTap;
 
+  /// Bu saatte geçerli kampanya indirimi (yüzde); 0 = yok
+  final int indirimYuzde;
+
   const SaatSlotWidget({
     super.key,
     required this.saat,
     required this.durum,
     this.secili = false,
     this.onTap,
+    this.indirimYuzde = 0,
   });
+
+  bool get _indirimli => indirimYuzde > 0 && durum == SlotDurumu.musait;
 
   @override
   Widget build(BuildContext context) {
@@ -50,19 +56,37 @@ class SaatSlotWidget extends StatelessWidget {
       onTap: durum == SlotDurumu.musait ? onTap : null,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: EdgeInsets.symmetric(vertical: _indirimli ? 4 : 12, horizontal: 4),
         decoration: BoxDecoration(
           color: bgColor,
           border: Border.all(color: borderColor, width: secili ? 2 : 1),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Center(
-          child: Text(
-            saat,
-            style: TextStyle(
-              color: textColor,
-              fontWeight: secili ? FontWeight.bold : FontWeight.w500,
-              fontSize: 14,
+          // Büyük yazı ölçeğinde iki satır hücreye sığmazsa küçülür (taşma yok)
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  saat,
+                  style: TextStyle(
+                    color: textColor,
+                    fontWeight: secili ? FontWeight.bold : FontWeight.w500,
+                    fontSize: 14,
+                  ),
+                ),
+                if (_indirimli)
+                  Text(
+                    '%$indirimYuzde indirim',
+                    style: TextStyle(
+                      color: secili ? AppTheme.black : AppTheme.gold,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+              ],
             ),
           ),
         ),

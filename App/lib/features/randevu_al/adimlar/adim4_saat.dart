@@ -23,6 +23,7 @@ class Adim4Saat extends StatefulWidget {
 class _Adim4SaatState extends State<Adim4Saat> {
   List<String> _tum = [];
   Set<String> _musait = {};
+  Map<String, int> _indirimler = {};
   String? _kapaliNeden;
   List<Map<String, dynamic>> _enYakin = [];
   bool _yukleniyor = true;
@@ -60,6 +61,7 @@ class _Adim4SaatState extends State<Adim4Saat> {
       setState(() {
         _tum = List<String>.from(v['tum_saatler']);
         _musait = musait;
+        _indirimler = Map<String, int>.from(v['indirimler'] ?? const {});
         _kapaliNeden = v['kapali_neden'];
         _enYakin = enYakin;
       });
@@ -156,6 +158,7 @@ class _Adim4SaatState extends State<Adim4Saat> {
           saat: saat,
           durum: _musait.contains(saat) ? SlotDurumu.musait : SlotDurumu.dolu,
           secili: provider.seciliSaat == saat,
+          indirimYuzde: _indirimler[saat] ?? 0,
           onTap: () => provider.saatSec(saat),
         );
       },

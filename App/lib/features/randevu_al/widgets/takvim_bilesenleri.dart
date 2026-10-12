@@ -39,7 +39,10 @@ class GunDolulukBilgisi extends StatelessWidget {
 /// Takvim işaretlerinin açıklaması. [doluluk]: berber seçiliyse az yer/dolu da gösterilir.
 class TakvimLejanti extends StatelessWidget {
   final bool doluluk;
-  const TakvimLejanti({super.key, required this.doluluk});
+
+  /// Kampanyalı gün işareti ("%") açıklaması gösterilsin mi
+  final bool kampanya;
+  const TakvimLejanti({super.key, required this.doluluk, this.kampanya = false});
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +53,12 @@ class TakvimLejanti extends StatelessWidget {
         const _Oge(renk: AppTheme.error, etiket: 'Dolu'),
       ],
       _Oge(renk: Colors.white.withValues(alpha: 0.18), etiket: 'Kapalı'),
+      if (kampanya)
+        Row(mainAxisSize: MainAxisSize.min, children: [
+          Text('%', style: GoogleFonts.inter(color: AppTheme.gold, fontSize: 12, fontWeight: FontWeight.w900)),
+          const SizedBox(width: 6),
+          Text('Kampanyalı', style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 11)),
+        ]),
     ]);
   }
 }

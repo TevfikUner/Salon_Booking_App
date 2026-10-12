@@ -80,6 +80,9 @@ class _RaporSekmesiState extends State<RaporSekmesi> {
           _kpi('Ortalama sepet', tl(v['ortalama_sepet']), Icons.shopping_bag_outlined),
           _kpi('Gelmeme oranı', '%${v['gelmeme_orani']}', Icons.person_off_outlined,
               renk: (v['gelmeme_orani'] as num) > 10 ? AppTheme.error : AppTheme.gold),
+          if ((v['indirimli_randevu'] as int? ?? 0) > 0)
+            _kpi('Verilen indirim', '${tl(v['toplam_indirim'])} · ${v['indirimli_randevu']} randevu',
+                Icons.local_offer_outlined),
         ],
       ),
       const SizedBox(height: 20),

@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session, joinedload, selectinload
 
 import models
+import fiyat_servisi as fs
 import randevu_servisi as rs
 import slot_servisi as ss
 from auth import (Kimlik, Kullanici, admin_dogrula, aktif_kullanici, kimlik_gerekli, kimlik_istege_bagli,
@@ -16,7 +17,7 @@ from idempotency import idempotent
 from koruma import SINIR_RANDEVU, limiter
 from routers import musteriler
 from takvim_dosyasi import randevu_ics
-from zaman import bugun, simdi
+from zaman import bugun, saat_dk, simdi
 
 router = APIRouter(prefix="/randevular", tags=["Randevu İşlemleri"])
 
@@ -39,6 +40,10 @@ def randevu_json(r: models.Randevu) -> dict:
         "sure_dk": r.sure_dk,
         "durum": r.durum,
         "toplam_fiyat": r.toplam_fiyat,
+        "liste_fiyati": r.liste_fiyati if r.liste_fiyati is not None else r.toplam_fiyat,
+        "indirim_tutari": r.indirim_tutari or 0,
+        "indirim_aciklama": r.indirim_aciklama,
+        "kampanyali": r.kampanya_id is not None,
         "puan": r.puan,
         "yorum": r.yorum,
         "iptal_eden": r.iptal_eden,
@@ -88,10 +93,16 @@ def musait_takvim_getir(berber_id: int | None = None, salon_id: int | None = Non
             "berber_izin": False,
         })
     if berber_id is not None and hizmet_ids:
-        sayilar = ss.gunluk_bos_sayilari(db, salon, berber_id, acik, _sure_hesapla(db, salon.id, hizmet_ids, berber_id))
+        kalemler = ss.hizmet_kalemleri(db, salon.id, hizmet_ids, berber_id)
+        sayilar = ss.gunluk_bos_sayilari(db, salon, berber_id, acik, sum(k.sure for k in kalemler))
+        kampanyalar = fs.aktif_kampanyalar(db, salon.id)
+        liste = sum(k.fiyat for k in kalemler)
         for g, kayit in zip(acik, gunler, strict=True):
             kayit["bos_slot"] = sayilar[g]
             kayit["dolu"] = sayilar[g] == 0
+            # O günün herhangi bir saatinde geçerli en yüksek kampanya indirimi (takvimde "%" işareti için)
+            tutar, _ = fs.kampanya_indirimi(kampanyalar, kalemler, g, None)
+            kayit["indirim_yuzde"] = round(tutar / liste * 100) if liste and tutar else 0
     return gunler
 
 
@@ -142,6 +153,17 @@ def musait_saatleri_getir(
         sure = _sure_hesapla(db, salon.id, hizmet_ids, berber_id)
     m = ss.gun_musaitligi(db, salon, berber_id, tarih, sure, haric_id=haric)
     musait = set(m.musait)
+    indirimler: dict[str, int] = {}
+    korunan: list[str] | None = None
+    if haric:
+        # Ertelemede yeni indirim kazanılmaz; kampanyalı randevunun indirimi yalnızca bu saatlerde korunur
+        if r.kampanya_id:
+            gun = ss.tarih_dogrula(tarih)
+            korunan = [s for s in m.musait if fs.ertelemede_kampanya_korunur(db, r, gun, s)]
+    elif m.musait:
+        kalemler = ss.hizmet_kalemleri(db, salon.id, hizmet_ids, berber_id)
+        indirimler = fs.slot_yuzdeleri(fs.aktif_kampanyalar(db, salon.id), kalemler, ss.tarih_dogrula(tarih),
+                                       m.musait)
     return {
         "tarih": tarih,
         "berber_id": berber_id,
@@ -151,6 +173,8 @@ def musait_saatleri_getir(
         "musait_saatler": m.musait,
         "tum_saatler": m.tum,
         "dolu_slotlar": [s for s in m.tum if s not in musait],
+        "indirimler": indirimler,  # saat → kampanya indirim yüzdesi (yalnızca indirimli müsait saatler)
+        "kampanya_korunan_saatler": korunan,  # yalnızca kampanyalı randevu ertelenirken
     }
 
 
@@ -228,8 +252,29 @@ def _randevu_olustur(arka_plan: BackgroundTasks, berber_id: int, saat: str, tari
         "salon_ad": r.salon.ad,
         "toplam_sure_dk": r.sure_dk,
         "toplam_fiyat": r.toplam_fiyat,
+        "liste_fiyati": r.liste_fiyati,
+        "indirim_tutari": r.indirim_tutari,
+        "indirim_aciklama": r.indirim_aciklama,
         "detay": f"Toplam {len(r.hizmetler)} hizmet, {r.sure_dk} dakika, {r.toplam_fiyat:.0f} TL",
     }
+
+
+@router.get("/fiyat")
+def fiyat_teklifi(berber_id: int, tarih: str, saat: str, hizmet_ids: list[int] = Query(...),
+                  kimlik: Kimlik | None = Depends(kimlik_istege_bagli), db: Session = Depends(get_db)):
+    """Onay öncesi özet: liste fiyatı, uygulanacak indirim (kampanya veya oturum varsa sadakat) ve toplam.
+    Randevu oluşturulurken aynı hesap kilit altında tekrarlanır."""
+    _, salon = ss.berber_ve_salon(db, berber_id)
+    kalemler = ss.hizmet_kalemleri(db, salon.id, hizmet_ids, berber_id)
+    musteri_id = None
+    if kimlik:
+        m = db.query(models.Musteri).filter(models.Musteri.firebase_uid == kimlik.uid).first()
+        musteri_id = m.id if m else None
+    try:
+        saat_dk(saat)
+    except (ValueError, TypeError):
+        raise HTTPException(status_code=400, detail="Geçersiz saat formatı. Örnek: 14:30") from None
+    return fs.fiyat_hesapla(db, salon, kalemler, ss.tarih_dogrula(tarih), saat, musteri_id).json()
 
 
 # ── 4. Müşterinin randevuları ────────────────────────────────

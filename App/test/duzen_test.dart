@@ -15,6 +15,8 @@ import 'package:berber_app_ui/features/isletme/akis/widgets/akis_randevu_karti.d
 import 'package:berber_app_ui/features/isletme/kapali_gunler/widgets/mola_karti.dart';
 import 'package:berber_app_ui/data/models/berber.dart';
 import 'package:berber_app_ui/features/kesfet/widgets/ekip_listesi.dart';
+import 'package:berber_app_ui/features/kesfet/widgets/kampanya_bilesenleri.dart';
+import 'package:berber_app_ui/features/randevu_al/widgets/saat_slot.dart';
 import 'package:berber_app_ui/features/kesfet/widgets/kesfet_filtre_paneli.dart';
 import 'package:berber_app_ui/features/kesfet/widgets/salon_arama_kutusu.dart';
 import 'package:berber_app_ui/features/kesfet/widgets/salon_karti.dart';
@@ -60,6 +62,7 @@ void main() {
     'adres': 'Atatürk Bulvarı No: 125/3 Hükümet Konağı Karşısı', 'puan': 4.7, 'acilis_saati': '09:00',
     'kapanis_saati': '21:00', 'kapali_gunler': '6', 'mesafe_km': 12.4,
     'eslesen_hizmetler': ['Sakal Tıraşı ve Şekillendirme', 'Sakal Boyama', 'Sıcak Havlu Sakal Bakımı'],
+    'kampanya_yuzde': 50, 'sadakat': true,
   });
 
   Randevu randevu(String durum, {String? iptalEden}) => Randevu.fromJson({
@@ -67,6 +70,7 @@ void main() {
         'salon_ad': 'Kuaför Mehmet Ali & Oğulları Erkek Kuaförü', 'hizmetler': ['Saç Kesimi', 'Sakal Tıraşı', 'Cilt Bakımı'],
         'hizmet_ids': [1, 2, 3], 'tarih': '2099-12-31', 'saat': '09:00', 'bitis': '10:30', 'sure_dk': 90,
         'durum': durum, 'toplam_fiyat': 12450.0, 'iptal_eden': iptalEden,
+        'liste_fiyati': 15560.0, 'indirim_tutari': 3110.0, 'indirim_aciklama': 'Hafta İçi Sabah Kampanyası %20',
       });
 
   final akis = {
@@ -81,6 +85,7 @@ void main() {
     ],
     'guven': {'skor': 40, 'etiket': 'Riskli', 'tamamlanan': 1, 'gelmedi': 3, 'gec_iptal': 2},
     'whatsapp_link': 'https://wa.me/905329999999',
+    'indirim_tutari': 3110.0, 'indirim_aciklama': 'Sadakat kartı: 10. ziyaret %20',
   };
 
   final yorumVeri = {
@@ -170,6 +175,27 @@ void main() {
             TakvimLejanti(doluluk: true),
           ]),
           olcek: olcek));
+      testWidgets('kampanya, sadakat kartı ve indirimli saat', (t) => ciz(
+          t,
+          liste([
+            const KampanyalarKarti(kampanyalar: [
+              Kampanya(id: 1, ad: 'Hafta İçi Sabah Kampanyası Çok Uzun Adıyla', yuzde: 50,
+                  kosul: 'Pazartesi, Salı, Çarşamba · 10:00–14:00 · Saç Kesimi, Sakal Tıraşı ve Şekillendirme'),
+              Kampanya(id: 2, ad: 'Damat', yuzde: 5, kosul: 'Tüm hizmetlerde, her gün'),
+            ]),
+            const SadakatKartiWidget(kart: SadakatKarti(esik: 12, yuzde: 100, ziyaret: 11, siradakiIndirimli: true)),
+            const SadakatKartiWidget(kart: SadakatKarti(esik: 10, yuzde: 50)),
+            SizedBox(
+              height: 60,
+              child: GridView.count(crossAxisCount: 3, childAspectRatio: 2.2, children: const [
+                SaatSlotWidget(saat: '10:00', durum: SlotDurumu.musait, indirimYuzde: 20),
+                SaatSlotWidget(saat: '10:30', durum: SlotDurumu.musait, secili: true, indirimYuzde: 100),
+                SaatSlotWidget(saat: '11:00', durum: SlotDurumu.dolu, indirimYuzde: 20),
+              ]),
+            ),
+            const TakvimLejanti(doluluk: true, kampanya: true),
+          ]),
+          olcek: olcek));
       testWidgets('öğle arası kartı', (t) => ciz(
           t,
           liste([
@@ -183,7 +209,8 @@ void main() {
             tarih: '2099-12-31', saat: '09:00', bitis: '10:30', berber: 'Abdurrahman Çağlayanoğlu',
             salonAd: 'Kuaför Mehmet Ali & Oğulları Erkek Kuaförü',
             hizmetler: ['Saç Kesimi', 'Sakal Tıraşı ve Şekillendirme', 'Keratin Bakımı'],
-            toplamFiyat: 12450, randevuId: '1152',
+            toplamFiyat: 12450, randevuId: '1152', indirim: 3110,
+            indirimAciklama: 'Sadakat kartı: 10. ziyaret %20 — çok uzun açıklama metni',
           ),
           olcek: olcek));
       testWidgets('hata ve boş durum', (t) => ciz(

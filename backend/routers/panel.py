@@ -9,6 +9,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 from pydantic import BaseModel, Field, field_validator, model_validator
 from sqlalchemy.orm import Session
 
+import fiyat_servisi as fs
 import models
 import randevu_servisi as rs
 import slot_servisi as ss
@@ -62,6 +63,8 @@ def _randevu_panel_json(db: Session, r: models.Randevu, skor_cache: dict) -> dic
         "kaynak": r.kaynak,
         "notlar": r.notlar,
         "toplam_fiyat": r.toplam_fiyat,
+        "indirim_tutari": r.indirim_tutari or 0,
+        "indirim_aciklama": r.indirim_aciklama,
         "berber": {"id": r.berber_id, "ad": f"{r.berber.ad} {r.berber.soyad}".strip() if r.berber else ""},
         "musteri": {
             "id": r.musteri_id,
@@ -640,6 +643,136 @@ def bloke_sil(bloke_id: int, p: PanelBaglami = Depends(panel_yonetici), db: Sess
     return {"mesaj": "Bloke kaldırıldı."}
 
 
+# ─────────────────────────── Kampanya & sadakat ───────────────────────────
+
+class KampanyaVerisi(BaseModel):
+    ad: str = Field(min_length=1, max_length=60)
+    yuzde: int = Field(ge=5, le=90)
+    gunler: str = Field(default="", max_length=20)  # "1" = Salı; boş = her gün
+    bas_saat: str | None = None
+    bit_saat: str | None = None
+    bas_tarih: str | None = None
+    bit_tarih: str | None = None
+    hizmet_idler: list[int] = []  # boş = tüm hizmetler
+    aktif: bool = True
+
+    @field_validator("gunler")
+    @classmethod
+    def _gunler(cls, v: str) -> str:
+        return gun_listesi_dogrula(v)
+
+    @field_validator("bas_saat", "bit_saat")
+    @classmethod
+    def _saat(cls, v: str | None) -> str | None:
+        if v is not None:
+            try:
+                saat_dk(v)
+            except (ValueError, TypeError):
+                raise ValueError("Saat HH:MM biçiminde olmalı") from None
+        return v
+
+    @field_validator("bas_tarih", "bit_tarih")
+    @classmethod
+    def _tarih(cls, v: str | None) -> str | None:
+        if v is not None:
+            ss.tarih_dogrula(v)
+        return v
+
+    @model_validator(mode="after")
+    def _araliklar(self):
+        if (self.bas_saat is None) != (self.bit_saat is None):
+            raise ValueError("Saat aralığının başlangıç ve bitişi birlikte girilmeli")
+        if self.bas_saat and saat_dk(self.bit_saat) <= saat_dk(self.bas_saat):
+            raise ValueError("Bitiş saati başlangıçtan sonra olmalı")
+        if self.bas_tarih and self.bit_tarih and self.bit_tarih < self.bas_tarih:
+            raise ValueError("Bitiş tarihi başlangıçtan önce olamaz")
+        return self
+
+
+def _kampanya_json(db: Session, k: models.Kampanya) -> dict:
+    adlar = {h.id: h.ad for h in db.query(models.Hizmet).filter(models.Hizmet.salon_id == k.salon_id)}
+    kullanim = db.query(models.Randevu).filter(models.Randevu.kampanya_id == k.id,
+                                               models.Randevu.durum.in_(("onaylandi", "tamamlandi"))).count()
+    return {"id": k.id, "ad": k.ad, "yuzde": k.yuzde, "gunler": k.gunler, "bas_saat": k.bas_saat,
+            "bit_saat": k.bit_saat, "bas_tarih": k.bas_tarih, "bit_tarih": k.bit_tarih,
+            "hizmet_idler": sorted(fs.id_listesi(k.hizmet_idler)), "aktif": k.aktif,
+            "suresi_doldu": bool(k.bit_tarih and k.bit_tarih < bugun().isoformat()),
+            "kosul": fs.kampanya_ozeti(k, adlar), "randevu_sayisi": kullanim}
+
+
+def _kampanya_yaz(db: Session, k: models.Kampanya, veri: KampanyaVerisi, salon_id: int) -> None:
+    menu = {i for (i,) in db.query(models.Hizmet.id).filter(models.Hizmet.salon_id == salon_id,
+                                                            models.Hizmet.aktif.is_(True))}
+    if any(h not in menu for h in veri.hizmet_idler):
+        raise HTTPException(status_code=404, detail="Seçilen hizmetlerden biri menüde yok.")
+    k.ad, k.yuzde, k.gunler, k.aktif = veri.ad.strip(), veri.yuzde, veri.gunler, veri.aktif
+    k.bas_saat, k.bit_saat, k.bas_tarih, k.bit_tarih = veri.bas_saat, veri.bit_saat, veri.bas_tarih, veri.bit_tarih
+    k.hizmet_idler = ",".join(str(h) for h in sorted(set(veri.hizmet_idler)))
+
+
+@router.get("/kampanyalar")
+def kampanya_listele(p: PanelBaglami = Depends(panel_baglami), db: Session = Depends(get_db)):
+    q = db.query(models.Kampanya).filter(models.Kampanya.salon_id == p.salon_id).order_by(models.Kampanya.id.desc())
+    return [_kampanya_json(db, k) for k in q]
+
+
+@router.post("/kampanyalar")
+def kampanya_ekle(veri: KampanyaVerisi, p: PanelBaglami = Depends(panel_yonetici), db: Session = Depends(get_db)):
+    """Yeni kampanya. Mevcut randevuların fiyatı değişmez; yalnızca bundan sonra alınanlara uygulanır."""
+    k = models.Kampanya(salon_id=p.salon_id, olusturma=simdi().isoformat(timespec="seconds"))
+    _kampanya_yaz(db, k, veri, p.salon_id)
+    db.add(k)
+    db.commit()
+    return _kampanya_json(db, k)
+
+
+def _salon_kampanyasi(db: Session, p: PanelBaglami, kampanya_id: int) -> models.Kampanya:
+    k = db.get(models.Kampanya, kampanya_id)
+    if not k or k.salon_id != p.salon_id:
+        raise HTTPException(status_code=404, detail="Kampanya bulunamadı.")
+    return k
+
+
+@router.put("/kampanyalar/{kampanya_id}")
+def kampanya_guncelle(kampanya_id: int, veri: KampanyaVerisi, p: PanelBaglami = Depends(panel_yonetici),
+                      db: Session = Depends(get_db)):
+    k = _salon_kampanyasi(db, p, kampanya_id)
+    _kampanya_yaz(db, k, veri, p.salon_id)
+    db.commit()
+    return _kampanya_json(db, k)
+
+
+@router.delete("/kampanyalar/{kampanya_id}")
+def kampanya_sil(kampanya_id: int, p: PanelBaglami = Depends(panel_yonetici), db: Session = Depends(get_db)):
+    """Kampanyayı kaldırır. Bu kampanyayla alınmış randevuların indirimi korunur (fiyat mühürlü)."""
+    k = _salon_kampanyasi(db, p, kampanya_id)
+    db.query(models.Randevu).filter(models.Randevu.kampanya_id == k.id).update({"kampanya_id": None})
+    db.delete(k)
+    db.commit()
+    return {"mesaj": f"'{k.ad}' kaldırıldı."}
+
+
+class SadakatVerisi(BaseModel):
+    # İkisi de null → sadakat kartı kapalı
+    esik: int | None = Field(default=None, ge=2, le=50)
+    yuzde: int | None = Field(default=None, ge=5, le=100)
+
+    @model_validator(mode="after")
+    def _birlikte(self):
+        if (self.esik is None) != (self.yuzde is None):
+            raise ValueError("Eşik ve indirim yüzdesi birlikte girilmeli")
+        return self
+
+
+@router.put("/sadakat")
+def sadakat_ayarla(veri: SadakatVerisi, p: PanelBaglami = Depends(panel_yonetici), db: Session = Depends(get_db)):
+    """Sadakat kartı: her `esik`. ziyarette `yuzde` indirim. Sayaç tamamlanan + aktif randevulardır."""
+    s = _salon(db, p)
+    s.sadakat_esik, s.sadakat_yuzde = veri.esik, veri.yuzde
+    db.commit()
+    return {"esik": s.sadakat_esik, "yuzde": s.sadakat_yuzde}
+
+
 # ─────────────────────────── Rapor ───────────────────────────
 
 @router.get("/rapor")
@@ -672,6 +805,8 @@ def aylik_rapor(yil: int | None = None, ay: int | None = Query(default=None, ge=
         "berber_ciro": [{"ad": k, "ciro": round(v, 2)} for k, v in berber_ciro.most_common()],
         "populer_hizmetler": [{"ad": k, "adet": v} for k, v in hizmet_sayac.most_common(5)],
         "uygulamadan_gelen": sum(1 for r in randevular if r.kaynak == "uygulama"),
+        "toplam_indirim": round(sum(r.indirim_tutari or 0 for r in tamam), 2),
+        "indirimli_randevu": sum(1 for r in tamam if r.indirim_tutari),
     }
 
 
@@ -722,7 +857,8 @@ class SalonVerisi(BaseModel):
 def _salon_json(s: models.Salon) -> dict:
     return {k: getattr(s, k) for k in ("id", "ad", "adres", "telefon", "whatsapp", "instagram_url", "sehir", "ilce",
                                        "acilis_saati", "kapanis_saati", "pazar_acilis_saati", "pazar_kapanis_saati",
-                                       "kapali_gunler", "puan", "mola_baslangic", "mola_bitis")}
+                                       "kapali_gunler", "puan", "mola_baslangic", "mola_bitis", "sadakat_esik",
+                                       "sadakat_yuzde")}
 
 
 @router.get("/salon")

@@ -60,6 +60,8 @@ class _HerZamankiKartiState extends State<HerZamankiKarti> {
           salonAd: v['salon']['ad'],
           hizmetler: hizmetler.map<String>((h) => h['ad'] as String).toList(),
           toplamFiyat: (sonuc['toplam_fiyat'] as num).toDouble(),
+          indirim: (sonuc['indirim_tutari'] as num? ?? 0).toDouble(),
+          indirimAciklama: sonuc['indirim_aciklama'] as String?,
           randevuId: sonuc['randevu_id'].toString(),
         ),
       ));

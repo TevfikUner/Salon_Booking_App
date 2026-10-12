@@ -334,11 +334,12 @@ def randevu_olustur(
     except (ValueError, TypeError):
         raise is_kurali_hatasi("Geçersiz saat formatı. Örnek: 14:30") from None
 
+    import fiyat_servisi as fs  # fiyat_servisi bu modülü içe aktarır (Kalem)
+
     berber, salon = berber_ve_salon(db, berber_id)
     kalemler = hizmet_kalemleri(db, salon.id, hizmet_ids, berber.id)
     hizmetler = [k.hizmet for k in kalemler]
     sure = sum(k.sure for k in kalemler)
-    toplam_fiyat = sum(k.fiyat for k in kalemler)
 
     with _rezervasyon_kilidi:
         # PostgreSQL: aynı berbere eşzamanlı yazmaları sıraya sokar (SQLite'ta yok sayılır).
@@ -355,6 +356,7 @@ def randevu_olustur(
                 409,
                 oneriler=oneriler,
             )
+        fiyat = fs.fiyat_hesapla(db, salon, kalemler, tarih_dogrula(tarih_str), saat, musteri.id)
         r = models.Randevu(
             musteri_id=musteri.id,
             berber_id=berber.id,
@@ -364,7 +366,11 @@ def randevu_olustur(
             sure_dk=sure,
             durum="onaylandi",
             hizmetler=hizmetler,
-            toplam_fiyat=toplam_fiyat,
+            toplam_fiyat=fiyat.toplam,
+            liste_fiyati=fiyat.liste,
+            indirim_tutari=fiyat.indirim,
+            indirim_aciklama=fiyat.aciklama,
+            kampanya_id=fiyat.kampanya_id,
             olusturma=simdi().isoformat(timespec="seconds"),
             kaynak=kaynak,
             notlar=notlar,
@@ -377,7 +383,10 @@ def randevu_olustur(
 
 def randevu_tasi(db: Session, r: models.Randevu, tarih_str: str, saat: str) -> None:
     """Randevuyu aynı berberde yeni güne/saate taşır (süre ve fiyat mühürlü kalır). Kilit altında, randevunun
-    kendi eski aralığı dolu sayılmadan yeniden müsaitlik hesaplanır; çakışmada 409 + öneriler."""
+    kendi eski aralığı dolu sayılmadan yeniden müsaitlik hesaplanır; çakışmada 409 + öneriler.
+    Kampanya indirimi yalnızca yeni gün/saat de aynı kampanyaya uyuyorsa korunur (sadakat indirimi korunur)."""
+    import fiyat_servisi as fs
+
     try:
         saat_dk(saat)
     except (ValueError, TypeError):
@@ -395,6 +404,9 @@ def randevu_tasi(db: Session, r: models.Randevu, tarih_str: str, saat: str) -> N
             ]
             raise is_kurali_hatasi(f"Seçtiğiniz saat ({saat}) uygun değil. Hizmet {sure} dk sürüyor.", 409,
                                    oneriler=oneriler)
+        if r.kampanya_id and not fs.ertelemede_kampanya_korunur(db, r, tarih_dogrula(tarih_str), saat):
+            r.toplam_fiyat = r.liste_fiyati if r.liste_fiyati is not None else r.toplam_fiyat
+            r.indirim_tutari, r.indirim_aciklama, r.kampanya_id = 0, None, None
         r.tarih, r.saat = tarih_str, saat
         r.hatirlatma_gonderildi = False
         r.erteleme_sayisi = (r.erteleme_sayisi or 0) + 1

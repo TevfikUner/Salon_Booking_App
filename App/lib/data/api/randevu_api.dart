@@ -21,6 +21,11 @@ class RandevuApi {
       ApiClient.liste((await ApiClient.get('/randevular/en-yakin/$berberId',
           params: {'hizmet_ids': hizmetIds, 'adet': adet}))['slotlar']);
 
+  /// Onay öncesi tutar: liste fiyatı, indirim (kampanya veya oturumdaki müşterinin sadakat kartı) ve toplam.
+  static Future<Json> fiyatTeklifi(int berberId, String tarih, String saat, List<int> hizmetIds) async =>
+      await ApiClient.get('/randevular/fiyat',
+          params: {'berber_id': berberId, 'tarih': tarih, 'saat': saat, 'hizmet_ids': hizmetIds});
+
   static Future<Json> olustur({
     required int berberId,
     required String saat,

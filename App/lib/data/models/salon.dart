@@ -1,5 +1,29 @@
 import 'package:berber_app_ui/data/models/berber.dart';
 
+/// Salonun aktif kampanyası (salon detayında): "Salı İndirimi %20 · Salı · 10:00–14:00"
+class Kampanya {
+  final int id;
+  final String ad;
+  final int yuzde;
+  final String kosul;
+  const Kampanya({required this.id, required this.ad, required this.yuzde, required this.kosul});
+
+  factory Kampanya.fromJson(Map<String, dynamic> j) =>
+      Kampanya(id: j['id'], ad: j['ad'] ?? '', yuzde: j['yuzde'] ?? 0, kosul: j['kosul'] ?? '');
+}
+
+/// Sadakat kartı: her [esik]. ziyaret %[yuzde] indirimli. [ziyaret] oturum yoksa null.
+class SadakatKarti {
+  final int esik;
+  final int yuzde;
+  final int? ziyaret;
+  final bool siradakiIndirimli;
+  const SadakatKarti({required this.esik, required this.yuzde, this.ziyaret, this.siradakiIndirimli = false});
+
+  factory SadakatKarti.fromJson(Map<String, dynamic> j) => SadakatKarti(
+      esik: j['esik'], yuzde: j['yuzde'], ziyaret: j['ziyaret'], siradakiIndirimli: j['siradaki_indirimli'] == true);
+}
+
 /// Salon — Keşfet listesi ve detay sayfası. Detay alanları (iletişim, ekip) yalnızca detay yanıtında dolar.
 class Salon {
   final int id;
@@ -30,6 +54,14 @@ class Salon {
   /// Aramada hizmet adından eşleştiyse eşleşen hizmetler (ör. "Sakal Tıraşı")
   final List<String> eslesenHizmetler;
 
+  /// Aktif kampanyaların en yüksek yüzdesi (0 = kampanya yok) ve sadakat kartı var mı (liste kartı rozetleri)
+  final int kampanyaYuzde;
+  final bool sadakatVar;
+
+  /// Yalnızca detay yanıtında
+  final List<Kampanya> kampanyalar;
+  final SadakatKarti? sadakatKarti;
+
   const Salon({
     required this.id,
     required this.ad,
@@ -52,6 +84,10 @@ class Salon {
     this.mesafeKm,
     this.berberler = const [],
     this.eslesenHizmetler = const [],
+    this.kampanyaYuzde = 0,
+    this.sadakatVar = false,
+    this.kampanyalar = const [],
+    this.sadakatKarti,
   });
 
   factory Salon.fromJson(Map<String, dynamic> j) {
@@ -84,6 +120,10 @@ class Salon {
       mesafeKm: (j['mesafe_km'] as num?)?.toDouble(),
       berberler: (j['berberler'] as List? ?? const []).cast<Map<String, dynamic>>().map(Berber.fromJson).toList(),
       eslesenHizmetler: List<String>.from(j['eslesen_hizmetler'] ?? const []),
+      kampanyaYuzde: j['kampanya_yuzde'] ?? 0,
+      sadakatVar: j['sadakat'] == true,
+      kampanyalar: (j['kampanyalar'] as List? ?? const []).cast<Map<String, dynamic>>().map(Kampanya.fromJson).toList(),
+      sadakatKarti: j['sadakat_karti'] == null ? null : SadakatKarti.fromJson(j['sadakat_karti']),
     );
   }
 
@@ -122,5 +162,9 @@ class Salon {
         mesafeKm: mesafeKm,
         berberler: berberler ?? this.berberler,
         eslesenHizmetler: eslesenHizmetler,
+        kampanyaYuzde: kampanyaYuzde,
+        sadakatVar: sadakatVar,
+        kampanyalar: kampanyalar,
+        sadakatKarti: sadakatKarti,
       );
 }

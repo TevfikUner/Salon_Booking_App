@@ -5,10 +5,12 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
+import fiyat_servisi as fs
 import models
 from auth import Kimlik, kimlik_istege_bagli
 from database import get_db
 from routers.degerlendirmeler import degerlendirme_sayilari, tamamlanan_sayilari
+from zaman import bugun
 
 router = APIRouter(prefix="/salonlar", tags=["Keşfet"])
 
@@ -40,8 +42,21 @@ def _salon_degerlendirme_sayilari(db: Session, salon_idler: list[int]) -> dict[i
         models.Degerlendirme.salon_id.in_(salon_idler)).group_by(models.Degerlendirme.salon_id).all())
 
 
+def _kampanya_yuzdeleri(db: Session, salon_idler: list[int]) -> dict[int, int]:
+    """Salon başına aktif kampanyaların en yüksek indirim yüzdesi (kartta "%20'ye varan indirim"). Tek sorgu."""
+    if not salon_idler:
+        return {}
+    sonuc: dict[int, int] = {}
+    bugun_str = bugun().isoformat()
+    for k in db.query(models.Kampanya).filter(models.Kampanya.salon_id.in_(salon_idler),
+                                              models.Kampanya.aktif.is_(True)):
+        if not k.bit_tarih or k.bit_tarih >= bugun_str:
+            sonuc[k.salon_id] = max(sonuc.get(k.salon_id, 0), k.yuzde)
+    return sonuc
+
+
 def _salon_ozet(s: models.Salon, mesafe: float | None = None, eslesen: list[str] | None = None,
-                degerlendirme: int = 0) -> dict:
+                degerlendirme: int = 0, kampanya: int = 0) -> dict:
     return {
         "id": s.id,
         "ad": s.ad,
@@ -59,6 +74,8 @@ def _salon_ozet(s: models.Salon, mesafe: float | None = None, eslesen: list[str]
         "kapali_gunler": s.kapali_gunler,
         "mesafe_km": round(mesafe, 1) if mesafe is not None else None,
         "eslesen_hizmetler": eslesen or [],
+        "kampanya_yuzde": kampanya,
+        "sadakat": bool(s.sadakat_esik and s.sadakat_yuzde),
     }
 
 
@@ -88,16 +105,20 @@ def salonlari_listele(
         eslesen = _hizmet_eslesmeleri(db, [s.id for s in salonlar], aranan)
         salonlar = [s for s in salonlar
                     if s.id in eslesen or any(aranan in normalize(x) for x in (s.ad, s.ilce, s.sehir))]
+    kampanya = _kampanya_yuzdeleri(db, [s.id for s in salonlar])
+
+    def ozet(s: models.Salon, mesafe: float | None = None) -> dict:
+        return _salon_ozet(s, mesafe, eslesen.get(s.id), sayilar.get(s.id, 0), kampanya.get(s.id, 0))
+
     if lat is not None and lng is not None:
         konumlu = [(s, mesafe_km(lat, lng, s.konum_lat, s.konum_long))
                    for s in salonlar if s.konum_lat is not None and s.konum_long is not None]
         konumsuz = [s for s in salonlar if s.konum_lat is None or s.konum_long is None]
         konumlu.sort(key=lambda x: x[1])
-        return [_salon_ozet(s, m, eslesen.get(s.id), sayilar.get(s.id, 0)) for s, m in konumlu] + \
-            [_salon_ozet(s, eslesen=eslesen.get(s.id), degerlendirme=sayilar.get(s.id, 0)) for s in konumsuz]
+        return [ozet(s, m) for s, m in konumlu] + [ozet(s) for s in konumsuz]
     # Değerlendirilmiş salonlar puana göre önde; henüz değerlendirmesi olmayanlar ("Yeni") sonra
     salonlar.sort(key=lambda s: (0 if sayilar.get(s.id) else 1, -(s.puan or 0), s.ad))
-    return [_salon_ozet(s, eslesen=eslesen.get(s.id), degerlendirme=sayilar.get(s.id, 0)) for s in salonlar]
+    return [ozet(s) for s in salonlar]
 
 
 def _hizmet_eslesmeleri(db: Session, salon_idler: list[int], aranan: str) -> dict[int, list[str]]:
@@ -145,12 +166,20 @@ def salon_detay(salon_id: int, kimlik: Kimlik | None = Depends(kimlik_istege_bag
     tamamlanan = tamamlanan_sayilari(db, idler)
     degerlendirme = degerlendirme_sayilari(db, idler)
     favori_idler: set[int] = set()
+    musteri_id = None
     if kimlik:
         m = db.query(models.Musteri).filter(models.Musteri.firebase_uid == kimlik.uid).first()
         if m:
             favori_idler = {b.id for b in m.favori_berberler}
+            musteri_id = m.id
+    kampanyalar = fs.aktif_kampanyalar(db, salon.id)
+    hizmet_adlari = {h.id: h.ad for h in db.query(models.Hizmet).filter(models.Hizmet.salon_id == salon.id)}
     return {
-        **_salon_ozet(salon, degerlendirme=_salon_degerlendirme_sayilari(db, [salon.id]).get(salon.id, 0)),
+        **_salon_ozet(salon, degerlendirme=_salon_degerlendirme_sayilari(db, [salon.id]).get(salon.id, 0),
+                      kampanya=max((k.yuzde for k in kampanyalar), default=0)),
+        "kampanyalar": [{"id": k.id, "ad": k.ad, "yuzde": k.yuzde, "kosul": fs.kampanya_ozeti(k, hizmet_adlari)}
+                        for k in sorted(kampanyalar, key=lambda k: -k.yuzde)],
+        "sadakat_karti": fs.sadakat_durumu(db, salon, musteri_id),
         "instagram": salon.instagram_url,
         "whatsapp": salon.whatsapp,
         "konum": {"lat": salon.konum_lat, "lng": salon.konum_long},

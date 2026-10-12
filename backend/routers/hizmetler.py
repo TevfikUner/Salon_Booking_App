@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
+import fiyat_servisi as fs
 import models
 import slot_servisi as ss
 from auth import admin_dogrula
@@ -33,9 +34,15 @@ def hizmetleri_listele(salon_id: int | None = None, berber_id: int | None = None
     hizmetler = q.order_by(models.Hizmet.id).all()
     if salon_id is None:
         return [_json(h) for h in hizmetler]
+    kampanyalar = fs.aktif_kampanyalar(db, salon_id)
+
+    def kampanya_yuzde(h: models.Hizmet) -> int:
+        """Bu hizmete uyan aktif kampanyaların en yükseği (gün/saat koşulu salon detayında gösterilir)."""
+        return max((k.yuzde for k in kampanyalar if fs.hizmete_uyar(k, h.id)), default=0)
+
     if berber_id is not None:
         ayar = ss.berber_ayarlari(db, [berber_id])[berber_id]
-        return [{**_json(h), "fiyat": k.fiyat, "sure": k.sure}
+        return [{**_json(h), "fiyat": k.fiyat, "sure": k.sure, "kampanya_yuzde": kampanya_yuzde(h)}
                 for h in hizmetler if (k := ss.kalem(h, ayar.get(h.id)))]
     berber_idler = [b for (b,) in db.query(models.Berber.id).filter(models.Berber.salon_id == salon_id,
                                                                      models.Berber.aktif.is_(True))]
@@ -46,7 +53,7 @@ def hizmetleri_listele(salon_id: int | None = None, berber_id: int | None = None
         if berber_idler and not kalemler:
             continue
         kalemler = kalemler or [ss.Kalem(h, h.fiyat, h.sure)]
-        sonuc.append({**_json(h),
+        sonuc.append({**_json(h), "kampanya_yuzde": kampanya_yuzde(h),
                       "fiyat_min": min(k.fiyat for k in kalemler), "fiyat_max": max(k.fiyat for k in kalemler),
                       "sure_min": min(k.sure for k in kalemler), "sure_max": max(k.sure for k in kalemler)})
     return sonuc

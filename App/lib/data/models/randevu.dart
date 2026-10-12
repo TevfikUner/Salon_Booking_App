@@ -13,6 +13,14 @@ class Randevu {
   final int sureDk;
   final String durum;
   final double toplamFiyat;
+
+  /// İndirimsiz tutar ve mühürlü indirim (kampanya veya sadakat kartı)
+  final double listeFiyati;
+  final double indirimTutari;
+  final String? indirimAciklama;
+
+  /// İndirim bir kampanyadan geliyor (ertelemede kampanya dışı saate geçilirse kalkar)
+  final bool kampanyali;
   final int? puan;
   final String? yorum;
   final String? iptalEden;
@@ -35,11 +43,15 @@ class Randevu {
     this.sureDk = 0,
     required this.durum,
     required this.toplamFiyat,
+    double? listeFiyati,
+    this.indirimTutari = 0,
+    this.indirimAciklama,
+    this.kampanyali = false,
     this.puan,
     this.yorum,
     this.iptalEden,
     this.ertelemeHakki = 0,
-  });
+  }) : listeFiyati = listeFiyati ?? toplamFiyat;
 
   factory Randevu.fromJson(Map<String, dynamic> j) => Randevu(
         id: j['id'],
@@ -56,6 +68,10 @@ class Randevu {
         sureDk: j['sure_dk'] ?? 0,
         durum: j['durum'] ?? '',
         toplamFiyat: (j['toplam_fiyat'] as num? ?? 0).toDouble(),
+        listeFiyati: (j['liste_fiyati'] as num?)?.toDouble(),
+        indirimTutari: (j['indirim_tutari'] as num? ?? 0).toDouble(),
+        indirimAciklama: j['indirim_aciklama'],
+        kampanyali: j['kampanyali'] == true,
         puan: j['puan'],
         yorum: j['yorum'],
         iptalEden: j['iptal_eden'],

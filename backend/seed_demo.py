@@ -33,7 +33,7 @@ db = SessionLocal()
 for tablo in (models.randevu_hizmetleri, models.favori_berberler):
     db.execute(tablo.delete())
 for model in (models.Degerlendirme, models.BeklemeListesi, models.MusteriNotu, models.BerberHizmet, models.Randevu,
-              models.BerberIzin,
+              models.Kampanya, models.BerberIzin,
               models.SaatBloke, models.TatilGunu, models.Isletme, models.Musteri, models.SalonFotograf, models.Hizmet,
               models.Berber, models.Salon, models.Dukkan):
     db.query(model).delete()
@@ -201,6 +201,12 @@ for s in salonlar:
 # Müşteri kartı: Kerem için işletmenin kalıcı notu (akışta 📝 görünür)
 db.add(models.MusteriNotu(salon_id=salonlar[0].id, musteri_id=diger[0].id, metin="Yanlar 1 numara, üstü makas. Ense düz.",
                           guncelleme=f"{g.isoformat()}T09:00", guncelleyen="İşletme"))
+
+# Kampanya ve sadakat kartı: salon 1'de hafta içi sabah saç kesimi %20, her 5. ziyaret %50
+db.add(models.Kampanya(salon_id=salonlar[0].id, ad="Hafta İçi Sabah", yuzde=20, gunler="0,1,2,3,4",
+                       bas_saat="09:00", bit_saat="12:00", hizmet_idler=str(hizmet[(0, "Saç Kesimi")].id),
+                       olusturma=simdi().isoformat(timespec="seconds")))
+salonlar[0].sadakat_esik, salonlar[0].sadakat_yuzde = 5, 50
 
 # Kapalı gün örneği: 10 gün sonrası salon 1'de tadilat
 db.add(models.TatilGunu(salon_id=salonlar[0].id, tarih=(g + timedelta(days=10)).isoformat(), aciklama="Tadilat"))

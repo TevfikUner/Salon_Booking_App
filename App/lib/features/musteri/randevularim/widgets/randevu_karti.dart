@@ -48,8 +48,14 @@ class RandevuKarti extends StatelessWidget {
             child: Text(durumMetni,
                 style: GoogleFonts.inter(color: durumRengi, fontSize: 12, fontWeight: FontWeight.w600)),
           ),
-          Text(tl(r.toplamFiyat),
-              style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 18, fontWeight: FontWeight.bold)),
+          Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+            Text(tl(r.toplamFiyat),
+                style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 18, fontWeight: FontWeight.bold)),
+            if (r.indirimTutari > 0)
+              Text(tl(r.listeFiyati),
+                  style: GoogleFonts.inter(
+                      color: AppTheme.textSecondary, fontSize: 11, decoration: TextDecoration.lineThrough)),
+          ]),
         ]),
         const SizedBox(height: 12),
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -70,6 +76,9 @@ class RandevuKarti extends StatelessWidget {
         _Satir(Icons.person, r.berber),
         _Satir(Icons.content_cut, r.hizmetler.join(', ')),
         if (r.salonAd.isNotEmpty) _Satir(Icons.store_outlined, r.salonAd, renk: AppTheme.gold),
+        if (r.indirimTutari > 0)
+          _Satir(Icons.local_offer_outlined, '${r.indirimAciklama ?? 'İndirim'} · −${tl(r.indirimTutari)}',
+              renk: AppTheme.gold),
         if (r.durum == 'iptal' && r.iptalEden == 'isletme')
           Padding(
             padding: const EdgeInsets.only(top: 6),

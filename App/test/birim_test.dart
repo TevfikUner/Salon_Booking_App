@@ -161,6 +161,29 @@ void main() {
     });
   });
 
+  group('Kampanya ve sadakat', () {
+    test('yonelmeEki sayının okunuşuna uyar', () {
+      expect([for (final n in [10, 20, 30, 40, 50, 15, 25, 6, 9, 100]) yonelmeEki(n)],
+          ["'a", "'ye", "'a", "'a", "'ye", "'e", "'e", "'ya", "'a", "'e"]);
+    });
+    test('Randevu indirim alanları; eski yanıtta liste fiyatı = toplam', () {
+      final eski = Randevu.fromJson({'id': 1, 'durum': 'onaylandi', 'toplam_fiyat': 300});
+      expect((eski.listeFiyati, eski.indirimTutari, eski.kampanyali), (300.0, 0.0, false));
+      final yeni = Randevu.fromJson({'id': 1, 'durum': 'onaylandi', 'toplam_fiyat': 240, 'liste_fiyati': 300,
+        'indirim_tutari': 60, 'indirim_aciklama': 'Salı %20', 'kampanyali': true});
+      expect((yeni.listeFiyati, yeni.indirimTutari, yeni.indirimAciklama, yeni.kampanyali),
+          (300.0, 60.0, 'Salı %20', true));
+    });
+    test('Salon kampanya ve sadakat kartı ayrıştırma', () {
+      final s = Salon.fromJson({'id': 1, 'ad': 'S', 'kampanya_yuzde': 20, 'sadakat': true,
+        'kampanyalar': [{'id': 3, 'ad': 'Salı', 'yuzde': 20, 'kosul': 'Salı'}],
+        'sadakat_karti': {'esik': 10, 'yuzde': 50, 'ziyaret': 9, 'siradaki_indirimli': true}});
+      expect((s.kampanyaYuzde, s.sadakatVar, s.kampanyalar.single.ad), (20, true, 'Salı'));
+      expect((s.sadakatKarti!.ziyaret, s.sadakatKarti!.siradakiIndirimli), (9, true));
+      expect(Salon.fromJson({'id': 1, 'ad': 'S'}).sadakatKarti, isNull);
+    });
+  });
+
   test('telefonBicimli', () {
     expect(telefonBicimli('5321234567'), '0532 123 45 67');
     expect(telefonBicimli('05321234567'), '0532 123 45 67');

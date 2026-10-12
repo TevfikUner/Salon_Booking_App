@@ -9,6 +9,9 @@ class Hizmet {
   final double fiyatMin, fiyatMax;
   final int sureMin, sureMax;
 
+  /// Bu hizmete uyan aktif kampanyaların en yüksek yüzdesi (0 = yok; gün/saat koşulu salon detayında)
+  final int kampanyaYuzde;
+
   const Hizmet({
     required this.id,
     required this.ad,
@@ -19,6 +22,7 @@ class Hizmet {
     double? fiyatMax,
     int? sureMin,
     int? sureMax,
+    this.kampanyaYuzde = 0,
   })  : fiyatMin = fiyatMin ?? fiyat,
         fiyatMax = fiyatMax ?? fiyat,
         sureMin = sureMin ?? sure,
@@ -34,6 +38,7 @@ class Hizmet {
         fiyatMax: (j['fiyat_max'] as num?)?.toDouble(),
         sureMin: j['sure_min'],
         sureMax: j['sure_max'],
+        kampanyaYuzde: j['kampanya_yuzde'] ?? 0,
       );
 
   bool get fiyatDegisken => fiyatMin != fiyatMax;
