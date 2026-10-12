@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/config.dart';
 
 /// Backend'in döndürdüğü, kullanıcıya gösterilebilir hata.
@@ -85,12 +86,13 @@ class ApiClient {
   static Future<Map<String, String>> _basliklar({required bool json}) async {
     final h = <String, String>{};
     if (json) h['Content-Type'] = 'application/json';
+    h['Accept-Language'] = Dil.kod;
     try {
       final token = await (testJetonu ?? () async => FirebaseAuth.instance.currentUser?.getIdToken())();
       if (token != null) h['Authorization'] = 'Bearer $token';
     } on FirebaseAuthException {
       // Token yenilenemedi (ağ yok / oturum geçersiz): ekran sonsuz yüklemede kalmasın
-      throw const ApiHata('Oturum doğrulanamadı. İnternet bağlantınızı kontrol edip tekrar deneyin.');
+      throw ApiHata(Dil.t.hataOturumDogrulanamadi);
     }
     return h;
   }
@@ -113,14 +115,14 @@ class ApiClient {
       };
       res = await istek.timeout(AppConfig.timeout);
     } on TimeoutException {
-      throw const ApiHata('Sunucu yanıt vermiyor. İnternet bağlantınızı kontrol edip tekrar deneyin.');
+      throw ApiHata(Dil.t.hataSunucuYanitVermiyor);
     } on HandshakeException {
-      throw const ApiHata('Güvenli bağlantı kurulamadı. Lütfen tekrar deneyin.');
+      throw ApiHata(Dil.t.hataGuvenliBaglanti);
     } on IOException {
       // SocketException vb.
-      throw const ApiHata('Sunucuya ulaşılamadı. İnternet bağlantınızı kontrol edin.');
+      throw ApiHata(Dil.t.hataSunucuyaUlasilamadi);
     } on http.ClientException {
-      throw const ApiHata('Sunucuya ulaşılamadı. İnternet bağlantınızı kontrol edin.');
+      throw ApiHata(Dil.t.hataSunucuyaUlasilamadi);
     }
 
     if (ham && res.statusCode >= 200 && res.statusCode < 300) return utf8.decode(res.bodyBytes);
@@ -141,19 +143,19 @@ class ApiClient {
     if (detay is String) return ApiHata(detay, kod: kod);
     if (detay is Map) {
       return ApiHata(
-        detay['mesaj']?.toString() ?? 'İşlem tamamlanamadı.',
+        detay['mesaj']?.toString() ?? Dil.t.hataIslemTamamlanamadi,
         kod: kod,
         oneriler: List<String>.from(detay['oneriler'] ?? const []),
       );
     }
-    if (detay is List && detay.isNotEmpty) return ApiHata('Girilen bilgileri kontrol edin.', kod: kod);
-    if (kod == 429) return ApiHata('Çok fazla deneme yaptınız. Lütfen biraz bekleyin.', kod: kod);
-    if (kod == 503) return ApiHata('Hizmet geçici olarak kullanılamıyor. Lütfen birazdan tekrar deneyin.', kod: kod);
+    if (detay is List && detay.isNotEmpty) return ApiHata(Dil.t.hataBilgileriKontrolEdin, kod: kod);
+    if (kod == 429) return ApiHata(Dil.t.hataCokFazlaDeneme, kod: kod);
+    if (kod == 503) return ApiHata(Dil.t.hataHizmetKullanilamiyor, kod: kod);
     return switch (kod) {
-      401 => ApiHata('Oturumunuzun süresi doldu. Lütfen tekrar giriş yapın.', kod: kod),
-      403 => ApiHata('Bu işlem için yetkiniz yok.', kod: kod),
-      404 => ApiHata('Kayıt bulunamadı.', kod: kod),
-      _ => ApiHata('Sunucu hatası ($kod). Lütfen daha sonra tekrar deneyin.', kod: kod),
+      401 => ApiHata(Dil.t.hataOturumSuresiDoldu, kod: kod),
+      403 => ApiHata(Dil.t.hataYetkiYok, kod: kod),
+      404 => ApiHata(Dil.t.hataKayitBulunamadi, kod: kod),
+      _ => ApiHata(Dil.t.hataSunucu(kod), kod: kod),
     };
   }
 }

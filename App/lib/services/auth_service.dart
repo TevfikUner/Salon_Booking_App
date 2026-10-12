@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/data/api/hesap_api.dart';
 
 class AuthService {
@@ -89,17 +90,17 @@ class AuthService {
     }
   }
 
-  /// Firebase hata kodlarını Türkçe mesaja çevirir.
+  /// Firebase hata kodlarını uygulama dilinde mesaja çevirir.
   static String hataMesaji(Object e) {
     if (e is FirebaseAuthException) {
       return switch (e.code) {
-        'invalid-email' => 'E-posta adresi geçersiz.',
-        'user-not-found' || 'wrong-password' || 'invalid-credential' => 'E-posta veya şifre hatalı.',
-        'email-already-in-use' => 'Bu e-posta ile zaten bir hesap var. Giriş yapmayı deneyin.',
-        'weak-password' => 'Şifre çok zayıf. En az 6 karakter kullanın.',
-        'too-many-requests' => 'Çok fazla deneme yapıldı. Lütfen biraz sonra tekrar deneyin.',
-        'network-request-failed' => 'İnternet bağlantısı yok.',
-        _ => e.message ?? 'Kimlik doğrulama hatası.',
+        'invalid-email' => Dil.t.hataEpostaGecersiz,
+        'user-not-found' || 'wrong-password' || 'invalid-credential' => Dil.t.hataEpostaSifreHatali,
+        'email-already-in-use' => Dil.t.hataEpostaKullanimda,
+        'weak-password' => Dil.t.hataSifreZayif,
+        'too-many-requests' => Dil.t.hataCokFazlaDenemeYapildi,
+        'network-request-failed' => Dil.t.internetYok,
+        _ => e.message ?? Dil.t.hataKimlikDogrulama,
       };
     }
     return e.toString();

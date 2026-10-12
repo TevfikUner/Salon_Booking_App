@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 
 /// Yakalanmamış hatalar: Crashlytics'e raporlanır, kullanıcıya kırmızı ekran yerine sade bir mesaj gösterilir.
@@ -45,7 +46,7 @@ class _DostcaHata extends StatelessWidget {
       child: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
-          child: Text('Bu bölüm şu an gösterilemiyor.\nLütfen geri dönüp tekrar deneyin.',
+          child: Text(Dil.t.bolumGosterilemiyor,
               textAlign: TextAlign.center, style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 14)),
         ),
       ),

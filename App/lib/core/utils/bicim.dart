@@ -1,12 +1,21 @@
-/// Tarih, para ve süre biçimlendirme yardımcıları (Türkçe).
+/// Tarih, para ve süre biçimlendirme yardımcıları (uygulama diline göre: Türkçe / İngilizce).
 library;
 
-const _aylar = ['', 'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim',
+import 'package:berber_app_ui/core/dil.dart';
+
+const _aylarTr = ['', 'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim',
   'Kasım', 'Aralık'];
-const gunAdlari = ['', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
+const _aylarEn = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September',
+  'October', 'November', 'December'];
+const _gunlerTr = ['', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
+const _gunlerEn = ['', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+/// DateTime.weekday (1=Pzt … 7=Paz) → gün adı; [0] boş
+List<String> get gunAdlari => Dil.ingilizce ? _gunlerEn : _gunlerTr;
 
 /// Backend gün indeksi (0=Pzt … 6=Paz) → kısa ad
-const gunKisaAdlari = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
+List<String> get gunKisaAdlari =>
+    Dil.ingilizce ? const ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] : const ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
 
 /// Backend'in "0,3" biçimindeki haftalık gün listesi → {0, 3}
 Set<int> gunListesi(String? metin) => {
@@ -21,29 +30,33 @@ String gunListesiMetni(Set<int> gunler) => (gunler.toList()..sort()).join(',');
 String tarihStr(DateTime d) =>
     '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
-/// "YYYY-MM-DD" → "9 Ekim Cuma" (yil: true → "9 Ekim 2026 Cuma")
+/// "YYYY-MM-DD" → "9 Ekim Cuma" / "Friday, 9 October" (yil: true → "9 Ekim 2026 Cuma" / "Friday, 9 October 2026")
 String tarihUzun(String iso, {bool yil = false}) {
   final d = DateTime.tryParse(iso);
   if (d == null) return iso;
-  return '${d.day} ${_aylar[d.month]}${yil ? ' ${d.year}' : ''} ${gunAdlari[d.weekday]}';
+  if (Dil.ingilizce) return '${gunAdlari[d.weekday]}, ${d.day} ${_aylarEn[d.month]}${yil ? ' ${d.year}' : ''}';
+  return '${d.day} ${_aylarTr[d.month]}${yil ? ' ${d.year}' : ''} ${gunAdlari[d.weekday]}';
 }
 
 /// "YYYY-MM-DD" → "Bugün" / "Yarın" / "9 Ekim Cuma"
 String tarihGoreli(String iso) {
   final simdi = DateTime.now();
-  if (iso == tarihStr(simdi)) return 'Bugün';
-  if (iso == tarihStr(simdi.add(const Duration(days: 1)))) return 'Yarın';
+  if (iso == tarihStr(simdi)) return Dil.t.bugun;
+  if (iso == tarihStr(simdi.add(const Duration(days: 1)))) return Dil.t.yarin;
   return tarihUzun(iso);
 }
 
-String ayAdi(int ay) => _aylar[ay];
+String ayAdi(int ay) => (Dil.ingilizce ? _aylarEn : _aylarTr)[ay];
+
+/// "9 Ekim" / "9 October" (yıl ve gün adı olmadan)
+String gunAy(DateTime d) => '${d.day} ${ayAdi(d.month)}';
 
 String tl(num tutar) => '${tutar.toStringAsFixed(0)} ₺';
 
 String sureMetni(int dk) {
-  if (dk < 60) return '$dk dk';
+  if (dk < 60) return Dil.t.sureDk(dk);
   final s = dk ~/ 60, d = dk % 60;
-  return d == 0 ? '$s sa' : '$s sa $d dk';
+  return d == 0 ? Dil.t.sureSa(s) : Dil.t.sureSaDk(s, d);
 }
 
 String mesafeMetni(double km) => km < 1 ? '${(km * 1000).round()} m' : '${km.toStringAsFixed(1)} km';

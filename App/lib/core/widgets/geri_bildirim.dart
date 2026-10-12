@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 
 /// Kısa bilgi/hata mesajı (SnackBar).
@@ -16,7 +17,7 @@ void bilgiGoster(BuildContext context, String mesaj, {bool hata = false, Duratio
 
 /// Evet/Hayır onayı. Kullanıcı onaylarsa true.
 Future<bool> onayIste(BuildContext context, String baslik, String mesaj,
-    {String evet = 'Evet', bool tehlikeli = false}) async {
+    {String? evet, bool tehlikeli = false}) async {
   final sonuc = await showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
@@ -27,11 +28,11 @@ Future<bool> onayIste(BuildContext context, String baslik, String mesaj,
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(ctx, false),
-          child: const Text('Vazgeç', style: TextStyle(color: AppTheme.textSecondary)),
+          child: Text(Dil.t.vazgec, style: const TextStyle(color: AppTheme.textSecondary)),
         ),
         TextButton(
           onPressed: () => Navigator.pop(ctx, true),
-          child: Text(evet,
+          child: Text(evet ?? Dil.t.evet,
               style: TextStyle(color: tehlikeli ? AppTheme.error : AppTheme.gold, fontWeight: FontWeight.bold)),
         ),
       ],

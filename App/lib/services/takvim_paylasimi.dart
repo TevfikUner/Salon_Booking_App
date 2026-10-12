@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:share_plus/share_plus.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/utils/harici.dart';
 import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
@@ -54,18 +55,18 @@ class TakvimPaylasimi {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
-            child: Text('Takvime Ekle',
+            child: Text(Dil.t.takvimeEkle,
                 style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 19, fontWeight: FontWeight.bold)),
           ),
           ListTile(
             leading: const Icon(Icons.event, color: AppTheme.gold),
-            title: const Text('Google Takvim'),
+            title: Text(Dil.t.googleTakvim),
             onTap: () => Navigator.pop(ctx, 'google'),
           ),
           ListTile(
             leading: const Icon(Icons.ios_share, color: AppTheme.gold),
-            title: const Text('Diğer takvim uygulaması (.ics)'),
-            subtitle: const Text('Samsung Takvim, Outlook, Apple Takvim…'),
+            title: Text(Dil.t.digerTakvimUygulamasi),
+            subtitle: Text(Dil.t.digerTakvimOrnekleri),
             onTap: () => Navigator.pop(ctx, 'ics'),
           ),
           const SizedBox(height: 8),
@@ -75,7 +76,7 @@ class TakvimPaylasimi {
     if (secim == null || !context.mounted) return;
     if (secim == 'google') {
       if (!await Harici.ac(e.googleBaglantisi()) && context.mounted) {
-        bilgiGoster(context, 'Takvim açılamadı.', hata: true);
+        bilgiGoster(context, Dil.t.takvimAcilamadi, hata: true);
       }
       return;
     }
@@ -88,7 +89,7 @@ class TakvimPaylasimi {
       await Share.shareXFiles(
         [XFile.fromData(utf8.encode(ics), mimeType: 'text/calendar')],
         fileNameOverrides: ['randevu-$randevuId.ics'],
-        subject: 'Berber randevusu',
+        subject: Dil.t.berberRandevusu,
       );
     } on ApiHata catch (e) {
       if (context.mounted) bilgiGoster(context, e.mesaj, hata: true);

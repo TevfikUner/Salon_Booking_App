@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/features/kesfet/salon_detay_screen.dart';
 import 'package:berber_app_ui/features/musteri/degerlendirme/degerlendirme_screen.dart';
 import 'package:berber_app_ui/features/musteri/main_screen.dart';
@@ -83,8 +84,9 @@ class BildirimServisi {
         ],
       ),
       action: switch (m.data['type']) {
-        'degerlendirme' => SnackBarAction(label: 'Puanla', textColor: AppTheme.gold, onPressed: () => _ac(m.data)),
-        'randevu' || 'bekleme' || 'panel_randevu' => SnackBarAction(label: 'Aç', textColor: AppTheme.gold, onPressed: () => _ac(m.data)),
+        'degerlendirme' => SnackBarAction(label: Dil.t.puanla, textColor: AppTheme.gold, onPressed: () => _ac(m.data)),
+        'randevu' || 'bekleme' || 'panel_randevu' =>
+          SnackBarAction(label: Dil.t.ac, textColor: AppTheme.gold, onPressed: () => _ac(m.data)),
         _ => null,
       },
     ));
@@ -110,7 +112,7 @@ class BildirimServisi {
         nav.push(MaterialPageRoute(
           builder: (_) => DegerlendirmeEkrani(
             randevuId: id,
-            berberAdi: data['berber_adi']?.toString() ?? 'Berber',
+            berberAdi: data['berber_adi']?.toString() ?? Dil.t.berber,
             berberFotoUrl: data['berber_foto_url']?.toString(),
           ),
         ));

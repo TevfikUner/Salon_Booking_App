@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/widgets/bolum_basligi.dart';
 
@@ -52,7 +53,7 @@ class _AramaListesiState extends State<_AramaListesi> {
             child: TextField(
               autofocus: false,
               onChanged: (v) => setState(() => _arama = v),
-              decoration: const InputDecoration(hintText: 'Ara…', prefixIcon: Icon(Icons.search, color: AppTheme.gold)),
+              decoration: InputDecoration(hintText: Dil.t.ara, prefixIcon: const Icon(Icons.search, color: AppTheme.gold)),
             ),
           ),
         Expanded(

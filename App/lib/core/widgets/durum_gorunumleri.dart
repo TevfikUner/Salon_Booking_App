@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 
 /// Ortalanmış yükleme göstergesi.
@@ -30,7 +31,7 @@ class HataGorunumu extends StatelessWidget {
           ElevatedButton.icon(
             onPressed: onTekrar,
             icon: const Icon(Icons.refresh),
-            label: const Text('Yeniden Dene'),
+            label: Text(Dil.t.yenidenDene),
             style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
           ),
         ]),

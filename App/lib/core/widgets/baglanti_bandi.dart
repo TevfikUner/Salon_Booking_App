@@ -4,6 +4,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 
 /// Uygulamanın tamamını sarar; cihaz çevrimdışıyken üstte "İnternet bağlantısı yok" bandı gösterir.
@@ -62,7 +63,7 @@ class _BaglantiBandiState extends State<BaglantiBandi> {
                         const Icon(Icons.wifi_off, color: Colors.white, size: 16),
                         const SizedBox(width: 8),
                         Flexible(
-                          child: Text('İnternet bağlantısı yok',
+                          child: Text(Dil.t.internetYok,
                               style: GoogleFonts.inter(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
                         ),
                       ]),
