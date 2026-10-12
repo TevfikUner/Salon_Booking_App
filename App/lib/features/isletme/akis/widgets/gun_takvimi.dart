@@ -355,7 +355,9 @@ class _GunTakvimiState extends State<GunTakvimi> {
         border: Border(left: BorderSide(color: riskli ? AppTheme.error : renk, width: 3)),
         boxShadow: golge ? [BoxShadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 12)] : null,
       ),
-      child: ClipRect(
+      // Kısa (30 dk) blokta büyük yazıyla satırlar sığmayabilir: taşan kısım kırpılır, hata verilmez
+      child: SingleChildScrollView(
+        physics: const NeverScrollableScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
