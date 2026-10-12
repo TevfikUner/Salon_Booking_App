@@ -55,7 +55,7 @@ class TakvimLejanti extends StatelessWidget {
       _Oge(renk: Colors.white.withValues(alpha: 0.18), etiket: 'Kapalı'),
       if (kampanya)
         Row(mainAxisSize: MainAxisSize.min, children: [
-          Text('%', style: GoogleFonts.inter(color: AppTheme.gold, fontSize: 12, fontWeight: FontWeight.w900)),
+          Text('%', style: GoogleFonts.inter(color: AppTheme.gold, fontSize: 12, fontWeight: FontWeight.bold)),
           const SizedBox(width: 6),
           Text('Kampanyalı', style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 11)),
         ]),

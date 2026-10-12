@@ -95,15 +95,15 @@ def musait_takvim_getir(berber_id: int | None = None, salon_id: int | None = Non
         })
     if berber_id is not None and hizmet_ids:
         kalemler = ss.hizmet_kalemleri(db, salon.id, hizmet_ids, berber_id)
-        sayilar = ss.gunluk_bos_sayilari(db, salon, berber_id, acik, sum(k.sure for k in kalemler))
+        saatler = ss.gunluk_musait_saatler(db, salon, berber_id, acik, sum(k.sure for k in kalemler))
         kampanyalar = fs.aktif_kampanyalar(db, salon.id)
-        liste = sum(k.fiyat for k in kalemler)
         for g, kayit in zip(acik, gunler, strict=True):
-            kayit["bos_slot"] = sayilar[g]
-            kayit["dolu"] = sayilar[g] == 0
-            # O günün herhangi bir saatinde geçerli en yüksek kampanya indirimi (takvimde "%" işareti için)
-            tutar, _ = fs.kampanya_indirimi(kampanyalar, kalemler, g, None)
-            kayit["indirim_yuzde"] = round(tutar / liste * 100) if liste and tutar else 0
+            kayit["bos_slot"] = len(saatler[g])
+            kayit["dolu"] = not saatler[g]
+            # O günün hâlâ alınabilir saatlerindeki en yüksek kampanya indirimi (takvimde "%" işareti için;
+            # sabah kampanyası bitmiş ya da indirimli saatler dolmuşsa işaret yok)
+            yuzdeler = fs.slot_yuzdeleri(kampanyalar, kalemler, g, saatler[g]) if kampanyalar else {}
+            kayit["indirim_yuzde"] = max(yuzdeler.values(), default=0)
     return gunler
 
 

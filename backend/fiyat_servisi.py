@@ -117,7 +117,11 @@ def kampanya_ozeti(k: models.Kampanya, hizmet_adlari: dict[int, str]) -> str:
     """"Salı · 10:00–14:00 · Saç Kesimi" gibi kısa koşul metni."""
     parca = []
     gunler = sorted(gun_listesi(k.gunler))
-    if gunler and len(gunler) < 7:
+    if gunler == [0, 1, 2, 3, 4]:
+        parca.append("Hafta içi")
+    elif gunler == [5, 6]:
+        parca.append("Hafta sonu")
+    elif gunler and len(gunler) < 7:
         parca.append(", ".join(GUN_ADLARI[g] for g in gunler))
     if k.bas_saat and k.bit_saat:
         parca.append(f"{k.bas_saat}–{k.bit_saat}")

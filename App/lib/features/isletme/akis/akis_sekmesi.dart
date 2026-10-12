@@ -214,7 +214,13 @@ class _AkisSekmesiState extends State<AkisSekmesi> {
                 SegmentedButton<bool>(
                   key: const ValueKey('akis_gorunum'),
                   showSelectedIcon: false,
-                  style: const ButtonStyle(visualDensity: VisualDensity.compact),
+                  style: SegmentedButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+                selectedBackgroundColor: AppTheme.gold,
+                selectedForegroundColor: AppTheme.black,
+                foregroundColor: AppTheme.gold,
+                side: BorderSide(color: AppTheme.gold.withValues(alpha: 0.5)),
+              ),
                   segments: const [
                     ButtonSegment(value: false, icon: Icon(Icons.view_agenda_outlined, size: 18), tooltip: 'Liste'),
                     ButtonSegment(

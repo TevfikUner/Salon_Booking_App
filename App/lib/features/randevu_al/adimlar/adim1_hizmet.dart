@@ -138,15 +138,13 @@ class _Adim1HizmetState extends State<Adim1Hizmet> {
                             ],
                           ),
                         ),
-                        // Fiyat (personele göre değişiyorsa "300 ₺'den")
-                        Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                          Text('${h.fiyatMin.toStringAsFixed(0)} ₺',
-                              style: GoogleFonts.playfairDisplay(
-                                  color: AppTheme.gold, fontSize: 18, fontWeight: FontWeight.bold)),
-                          if (h.fiyatDegisken)
-                            Text("'den başlayan",
-                                style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 10)),
-                        ]),
+                        // Fiyat (personele göre değişiyorsa aralık: "300–350 ₺")
+                        Text(
+                            h.fiyatDegisken
+                                ? '${h.fiyatMin.toStringAsFixed(0)}–${h.fiyatMax.toStringAsFixed(0)} ₺'
+                                : '${h.fiyat.toStringAsFixed(0)} ₺',
+                            style: GoogleFonts.playfairDisplay(
+                                color: AppTheme.gold, fontSize: h.fiyatDegisken ? 16 : 18, fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ),

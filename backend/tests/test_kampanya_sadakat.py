@@ -174,3 +174,22 @@ def test_kampanya_silinince_indirim_korunur_ve_rapor(client, veri, db):
     assert rapor["toplam_indirim"] == 60 and rapor["indirimli_randevu"] == 1 and rapor["toplam_ciro"] == 240
     akis = client.get("/panel/akis", params={"tarih": YARIN}, headers=ISL).json()
     assert akis["randevular"][0]["indirim_tutari"] == 60
+
+
+def test_takvim_isareti_yalnizca_alinabilir_indirimli_saat_varsa(client, veri):
+    # Sabit an Çarşamba 12:10: bugünün 10:00–12:00 kampanyası geçti, yarınki geçerli
+    _kampanya(client, gunler="", bas_saat="10:00", bit_saat="12:00")
+    g = {x["tarih"]: x for x in client.get("/randevular/musait-takvim",
+                                            params=[("berber_id", veri["ali"]), ("hizmet_ids", veri["kesim"])]).json()}
+    assert g["2026-10-07"]["indirim_yuzde"] == 0 and g[YARIN]["indirim_yuzde"] == 20
+    # Yarının indirimli saatleri dolarsa işaret kalkar
+    for i, s in enumerate(("10:00", "10:30", "11:00", "11:30")):
+        randevu_al(client, f"dolu-{i}", veri["ali"], YARIN, s, [veri["kesim"]])
+    g = {x["tarih"]: x for x in client.get("/randevular/musait-takvim",
+                                            params=[("berber_id", veri["ali"]), ("hizmet_ids", veri["kesim"])]).json()}
+    assert g[YARIN]["indirim_yuzde"] == 0
+
+
+def test_kosul_metni_hafta_ici_ve_sonu(client, veri):
+    assert _kampanya(client, gunler="0,1,2,3,4")["kosul"] == "Hafta içi"
+    assert _kampanya(client, gunler="5,6", bit_tarih="2026-11-06")["kosul"] == "Hafta sonu · 06.11.2026'ya kadar"

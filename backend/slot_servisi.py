@@ -188,6 +188,12 @@ def bloke_araliklari(db: Session, salon: models.Salon, berber_id: int, tarih_str
 def gunluk_bos_sayilari(db: Session, salon: models.Salon, berber_id: int, gunler: list[date],
                         sure_dk: int) -> dict[date, int]:
     """Takvim için: her gün bu süredeki hizmetin kaç başlangıç saati boş. Gün sayısından bağımsız 2 sorgu."""
+    return {g: len(s) for g, s in gunluk_musait_saatler(db, salon, berber_id, gunler, sure_dk).items()}
+
+
+def gunluk_musait_saatler(db: Session, salon: models.Salon, berber_id: int, gunler: list[date],
+                          sure_dk: int) -> dict[date, list[str]]:
+    """Her gün için müşterinin alabileceği başlangıç saatleri ("HH:MM"). Gün sayısından bağımsız 2 sorgu."""
     tarihler = [g.isoformat() for g in gunler]
     dolu: dict[str, list[tuple[int, int]]] = {t: [] for t in tarihler}
     for r in db.query(models.Randevu).filter(models.Randevu.berber_id == berber_id,
@@ -202,15 +208,15 @@ def gunluk_bos_sayilari(db: Session, salon: models.Salon, berber_id: int, gunler
         except (ValueError, TypeError):
             continue
     mola = mola_araligi(salon)
-    sonuc = {}
+    sonuc: dict[date, list[str]] = {}
     for gun in gunler:
         mesai = gun_mesaisi(salon, gun)
         if not mesai:
-            sonuc[gun] = 0
+            sonuc[gun] = []
             continue
         araliklar = dolu[gun.isoformat()] + ([mola] if mola else [])
-        sonuc[gun] = len(musait_baslangiclar(mesai[0], mesai[1], sure_dk, araliklar,
-                                             _en_erken(gun, onceden_dk(salon))))
+        sonuc[gun] = [dk_saat(d) for d in musait_baslangiclar(mesai[0], mesai[1], sure_dk, araliklar,
+                                                              _en_erken(gun, onceden_dk(salon)))]
     return sonuc
 
 

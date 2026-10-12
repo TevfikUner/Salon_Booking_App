@@ -91,7 +91,8 @@ class _OncedenKartiState extends State<OncedenKarti> {
             style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
         trailing: _kaydediliyor
             ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.gold))
-            : const Icon(Icons.edit_outlined, color: AppTheme.gold),
+            : IconButton(
+                tooltip: 'Düzenle', icon: const Icon(Icons.edit_outlined, color: AppTheme.gold), onPressed: _sec),
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'package:berber_app_ui/core/theme/app_theme.dart';
@@ -32,7 +33,12 @@ import 'package:berber_app_ui/features/randevu_al/widgets/takvim_bilesenleri.dar
 /// yazı ölçeği (1,3×, bkz. main.dart) ile ekran/kartlar çizilir; "RenderFlex overflowed" hatası testi düşürür.
 /// Veriler gerçek API yanıtlarından alınıp metinler bilerek uzatıldı.
 void main() {
-  setUpAll(() => initializeDateFormatting('tr_TR', null));
+  setUpAll(() async {
+    await initializeDateFormatting('tr_TR', null);
+    // Uygulamadaki gibi: yalnızca gömülü yazı tipleri (assets/google_fonts). Gömülü olmayan bir ağırlık
+    // kullanılırsa google_fonts hata verir ve test düşer.
+    GoogleFonts.config.allowRuntimeFetching = false;
+  });
 
   Future<void> ciz(WidgetTester tester, Widget ekran, {double olcek = 1.3, double genislik = 360}) async {
     tester.view.devicePixelRatio = 3;

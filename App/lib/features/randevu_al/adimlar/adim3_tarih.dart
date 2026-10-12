@@ -208,7 +208,7 @@ class _Adim3TarihState extends State<Adim3Tarih> {
                           top: 2,
                           right: 4,
                           child: Text('%',
-                              style: GoogleFonts.inter(color: AppTheme.gold, fontSize: 10, fontWeight: FontWeight.w900)),
+                              style: GoogleFonts.inter(color: AppTheme.gold, fontSize: 10, fontWeight: FontWeight.bold)),
                         ),
                     ]),
                   );

@@ -18,7 +18,7 @@ class IndirimRozeti extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(gradient: AppTheme.goldGradient, borderRadius: BorderRadius.circular(6)),
       child: Text('%$yuzde${onEk ?? ''}',
-          style: GoogleFonts.inter(color: AppTheme.black, fontSize: yaziBoyu, fontWeight: FontWeight.w800)),
+          style: GoogleFonts.inter(color: AppTheme.black, fontSize: yaziBoyu, fontWeight: FontWeight.bold)),
     );
   }
 }

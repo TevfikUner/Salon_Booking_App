@@ -9,6 +9,8 @@ import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/features/musteri/randevularim/widgets/randevu_karti.dart';
 import 'package:berber_app_ui/features/randevu_al/widgets/saat_slot.dart';
 import 'package:berber_app_ui/features/randevu_al/widgets/takvim_bilesenleri.dart';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -183,6 +185,19 @@ void main() {
       expect((s.sadakatKarti!.ziyaret, s.sadakatKarti!.siradakiIndirimli), (9, true));
       expect(Salon.fromJson({'id': 1, 'ad': 'S'}).sadakatKarti, isNull);
     });
+  });
+
+  test('Yalnızca uygulamaya gömülü yazı tipi ağırlıkları kullanılır (internetten indirme kapalı)', () {
+    // assets/google_fonts: Inter 400/500/600/700, Playfair Display 400/600/700. Başka ağırlık üretimde eksik
+    // yazı tipi hatası verir (main.dart: GoogleFonts.config.allowRuntimeFetching = false).
+    const izinli = {'w400', 'w500', 'w600', 'w700', 'bold', 'normal'};
+    final kullanilan = <String>{};
+    for (final f in Directory('lib').listSync(recursive: true).whereType<File>().where((f) => f.path.endsWith('.dart'))) {
+      for (final m in RegExp(r'FontWeight\.(w\d00|bold|normal)').allMatches(f.readAsStringSync())) {
+        if (!izinli.contains(m.group(1))) kullanilan.add('${f.path}: ${m.group(0)}');
+      }
+    }
+    expect(kullanilan, isEmpty);
   });
 
   test('telefonBicimli', () {

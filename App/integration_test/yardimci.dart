@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'package:berber_app_ui/data/api/api_client.dart';
@@ -10,6 +11,7 @@ import 'package:berber_app_ui/main.dart';
 /// Kimlik: Firebase hesabı açılmaz; istekler `dev:<uid>` jetonu taşır.
 Future<void> hazirla(String uid) async {
   ApiClient.testJetonu = () async => 'dev:$uid';
+  GoogleFonts.config.allowRuntimeFetching = false; // uygulamadaki gibi (main.dart): yalnızca gömülü yazı tipleri
   if (Firebase.apps.isEmpty) await Firebase.initializeApp();
   await initializeDateFormatting('tr_TR', null);
 }
