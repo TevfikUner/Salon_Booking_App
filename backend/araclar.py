@@ -11,6 +11,9 @@
     python araclar.py reddet <isletme_id>
     python araclar.py gizli                       ADMIN_SECRET için güçlü rastgele değer üretir
     python araclar.py saglik                      DB ve Firebase yapılandırmasını kontrol eder
+    python araclar.py anahtar-uret                VERI_ANAHTARI için güçlü rastgele değer üretir (YEDEKLEYİN)
+    python araclar.py veri-sifrele                Kişisel veriyi güncel VERI_ANAHTARI ile (yeniden) şifreler
+    python araclar.py veri-coz                    Şifrelemeyi kapatmadan önce: veriyi çözüp düz yazar
 
 Render'da: Dashboard → servis → Shell → `python araclar.py ...`
 """
@@ -170,9 +173,26 @@ def saglik() -> int:
         db_admin = db.query(models.Yonetici).count()
     print(f"Admin         : {len(a.admin_uid_listesi)} (env) + {db_admin} (DB)")
     print(f"ADMIN_SECRET  : {'tanımlı' if a.admin_secret else 'kapalı'}")
+    from veri_sifreleme import sifreleme_acik
+    print(f"Veri şifreleme: {'açık' if sifreleme_acik() else 'kapalı (VERI_ANAHTARI yok)'}")
     if a.uretim_mi and not firebase_hazir():
         print("\nUYARI: Production'da Firebase olmadan kimse giriş yapamaz.")
         return 1
+    return 0
+
+
+def veri_sifrele(duz: bool) -> int:
+    from database import SessionLocal
+    from veri_sifreleme import tum_veriyi_yeniden_yaz
+
+    try:
+        with SessionLocal() as db:
+            sayac = tum_veriyi_yeniden_yaz(db, duz=duz)
+    except RuntimeError as e:
+        print(f"HATA: {e}")
+        return 1
+    for tablo, n in sayac.items():
+        print(f"{tablo:<24} {n} değer {'düz yazıldı' if duz else 'şifrelendi'}")
     return 0
 
 
@@ -195,6 +215,9 @@ def main() -> int:
     alt.add_parser("silme-uygula").add_argument("talep_id", type=int)
     alt.add_parser("gizli")
     alt.add_parser("saglik")
+    alt.add_parser("anahtar-uret")
+    alt.add_parser("veri-sifrele")
+    alt.add_parser("veri-coz")
     a = p.parse_args()
     if a.komut == "uid":
         return uid(a.eposta)
@@ -214,9 +237,11 @@ def main() -> int:
         return onayla(a.isletme_id, a.salon, a.sehir, a.ilce)
     if a.komut == "reddet":
         return reddet(a.isletme_id)
-    if a.komut == "gizli":
+    if a.komut in ("gizli", "anahtar-uret"):
         print(secrets.token_urlsafe(32))
         return 0
+    if a.komut in ("veri-sifrele", "veri-coz"):
+        return veri_sifrele(duz=a.komut == "veri-coz")
     return saglik()
 
 

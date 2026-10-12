@@ -67,6 +67,11 @@ class Ayarlar(BaseSettings):
     sentry_traces_sample_rate: float = 0.1
     surum: str = "1.0.0"
 
+    # Kişisel verinin veritabanında şifrelenmesi (veri_sifreleme.py). Boşsa düz saklanır.
+    # Anahtar değişiminde eskiler virgülle VERI_ANAHTARI_ESKI'ye yazılır. ANAHTAR KAYBOLURSA VERİ OKUNAMAZ.
+    veri_anahtari: str = ""
+    veri_anahtari_eski: str = ""
+
     # Yasal sayfalarda ve destek iletişiminde görünen e-posta (gerçek adres env ile verilmeli)
     destek_eposta: str = "destek@premiumberber.app"
 

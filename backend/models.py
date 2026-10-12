@@ -1,10 +1,13 @@
-from sqlalchemy import Boolean, Column, Float, ForeignKey, Index, Integer, String, Table, Text, UniqueConstraint, text
+from sqlalchemy import (Boolean, Column, Float, ForeignKey, Index, Integer, String, Table, Text, UniqueConstraint, event,
+                        text)
 from sqlalchemy.orm import relationship
 
 from database import Base
+from veri_sifreleme import SifreliMetin, SifreliUzunMetin, telefon_ozeti
 
 # Tarih alanları "YYYY-MM-DD", saat alanları "HH:MM" string'i olarak saklanır (salonun yerel saati).
 # Zaman damgaları (olusturma vb.) ISO-8601 string'idir.
+# Müşteri/işletme kişisel verisi SifreliMetin: VERI_ANAHTARI varsa veritabanında şifreli durur (veri_sifreleme.py).
 
 randevu_hizmetleri = Table(
     "randevu_hizmetleri",
@@ -86,9 +89,11 @@ class Musteri(Base):
     __tablename__ = "musteriler"
     id = Column(Integer, primary_key=True, index=True)
     firebase_uid = Column(String, unique=True, index=True, nullable=True)  # silinen hesapta NULL
-    ad = Column(String, default="")
-    soyad = Column(String, default="")
-    telefon = Column(String, default="")
+    ad = Column(SifreliMetin, default="")
+    soyad = Column(SifreliMetin, default="")
+    telefon = Column(SifreliMetin, default="")
+    # Şifreli telefonda eşitlik araması olmadığı için HMAC özeti (panelden eklenen müşteriyi telefonla eşleştirme)
+    telefon_ozet = Column(String, nullable=True, index=True)
     fcm_token = Column(String, nullable=True)
     favori_berber_id = Column(Integer, ForeignKey("berberler.id"), nullable=True)  # eski tekli favori
     # KVKK
@@ -98,6 +103,11 @@ class Musteri(Base):
     olusturma = Column(String, nullable=True)
 
     favori_berberler = relationship("Berber", secondary=favori_berberler)
+
+
+@event.listens_for(Musteri.telefon, "set")
+def _telefon_ozeti_guncelle(hedef, deger, _eski, _olay):
+    hedef.telefon_ozet = telefon_ozeti(deger)
 
 
 class Hizmet(Base):
@@ -187,14 +197,14 @@ class Randevu(Base):
     hatirlatma_gonderildi = Column(Boolean, default=False)
     degerlendirme_bildirimi_gonderildi = Column(Boolean, default=False)
     puan = Column(Integer, nullable=True)
-    yorum = Column(Text, nullable=True)
+    yorum = Column(SifreliUzunMetin, nullable=True)
     olusturma = Column(String, nullable=True)
     iptal_eden = Column(String, nullable=True)  # musteri | isletme
     iptal_zamani = Column(String, nullable=True)
     kaynak = Column(String, default="uygulama")  # uygulama | panel
     # Müşterinin kaç kez ertelediği (sınır: ERTELEME_LIMITI)
     erteleme_sayisi = Column(Integer, default=0, nullable=False, server_default="0")
-    notlar = Column(String, nullable=True)
+    notlar = Column(SifreliMetin, nullable=True)
 
     musteri = relationship("Musteri")
     berber = relationship("Berber")
@@ -210,7 +220,7 @@ class Degerlendirme(Base):
     salon_id = Column(Integer, ForeignKey("salonlar.id"), nullable=True, index=True)
     randevu_id = Column(Integer, ForeignKey("randevular.id"), unique=True)
     puan = Column(Integer)
-    yorum = Column(String, nullable=True)
+    yorum = Column(SifreliMetin, nullable=True)
     tarih = Column(String)
 
     musteri = relationship("Musteri")
@@ -256,10 +266,10 @@ class Isletme(Base):
     __tablename__ = "isletmeler"
     id = Column(Integer, primary_key=True, index=True)
     firebase_uid = Column(String, unique=True, index=True)
-    ad = Column(String)
-    soyad = Column(String)
-    telefon = Column(String)
-    email = Column(String)
+    ad = Column(SifreliMetin)
+    soyad = Column(SifreliMetin)
+    telefon = Column(SifreliMetin)
+    email = Column(SifreliMetin)
     isletme_adi = Column(String)
     durum = Column(String, default="beklemede")  # beklemede / onaylandi / reddedildi
     salon_id = Column(Integer, ForeignKey("salonlar.id"), nullable=True)
@@ -302,7 +312,7 @@ class MusteriNotu(Base):
     id = Column(Integer, primary_key=True)
     salon_id = Column(Integer, ForeignKey("salonlar.id"), nullable=False)
     musteri_id = Column(Integer, ForeignKey("musteriler.id", ondelete="CASCADE"), nullable=False, index=True)
-    metin = Column(Text, nullable=False)
+    metin = Column(SifreliUzunMetin, nullable=False)
     guncelleme = Column(String, nullable=False)
     guncelleyen = Column(String, nullable=True)  # "İşletme" veya personelin adı
 
@@ -336,7 +346,7 @@ class HesapSilmeTalebi(Base):
     """Uygulamaya erişemeyen kullanıcının web formundan ilettiği hesap silme talebi (Google Play şartı)."""
     __tablename__ = "hesap_silme_talepleri"
     id = Column(Integer, primary_key=True)
-    email = Column(String, nullable=False, index=True)
-    aciklama = Column(String, nullable=True)
+    email = Column(SifreliMetin, nullable=False, index=True)
+    aciklama = Column(SifreliMetin, nullable=True)
     olusturma = Column(String, nullable=False)
     durum = Column(String, default="bekliyor", nullable=False)  # bekliyor | tamamlandi

@@ -156,9 +156,11 @@ def test_isletme_basvuru_ve_onay(client, veri):
 
 def test_hesap_silme_anonimlestirir(client, veri, db):
     rid = randevu_al(client, "musteri-1", veri["ali"], YARIN, "10:00", [veri["kesim"]]).json()["randevu_id"]
+    mid = db.query(models.Musteri).filter_by(firebase_uid="musteri-1").one().id
     assert client.delete("/musteriler/hesabim", headers=auth("musteri-1")).status_code == 200
     db.expire_all()
-    m = db.query(models.Musteri).filter_by(telefon="", ad="Silinmiş").one()
+    m = db.get(models.Musteri, mid)  # ad/telefon şifreli olabilir: eşitlik aramasıyla değil kimlikle
+    assert (m.ad, m.telefon, m.telefon_ozet) == ("Silinmiş", "", None)
     assert m.firebase_uid is None and m.silindi and m.fcm_token is None
     assert db.get(models.Randevu, rid).durum == "iptal"
 

@@ -24,6 +24,10 @@ envVarGroups:
         sync: false
       - key: DESTEK_EPOSTA
         sync: false
+      # İsteğe bağlı: kişisel veri şifreleme anahtarı (boş bırakılabilir). Girerseniz YEDEKLEYİN ve Shell'den
+      # `python araclar.py veri-sifrele` çalıştırın. Ayrıntı: BENDEN_GEREKENLER.md §10
+      - key: VERI_ANAHTARI
+        sync: false
 
 services:
   - type: web

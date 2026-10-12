@@ -17,6 +17,7 @@ from auth import PanelBaglami, panel_baglami, panel_yonetici
 from database import get_db
 from idempotency import idempotent
 from koruma import SINIR_PANEL_YAZMA, limiter
+from veri_sifreleme import telefon_ozeti
 from zaman import bugun, saat_dk, simdi
 
 router = APIRouter(prefix="/panel", tags=["İşletme Paneli"])
@@ -204,7 +205,7 @@ def _panel_randevu_ekle(veri: PanelRandevuIstegi, p: PanelBaglami, db: Session) 
     if tel:
         # Yalnızca uygulaması olmayan (panelden eklenmiş) müşteri kaydıyla eşleşir; kayıtlı bir kullanıcının
         # hesabına onun haberi olmadan randevu eklenmesin.
-        musteri = db.query(models.Musteri).filter(models.Musteri.telefon == tel,
+        musteri = db.query(models.Musteri).filter(models.Musteri.telefon_ozet == telefon_ozeti(tel),
                                                   models.Musteri.firebase_uid.is_(None),
                                                   models.Musteri.silindi.is_(False)).first()
     if not musteri:
