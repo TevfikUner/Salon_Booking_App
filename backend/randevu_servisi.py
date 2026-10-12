@@ -234,17 +234,18 @@ def her_zamanki(db: Session, musteri: models.Musteri) -> dict | None:
     berber = db.query(models.Berber).filter(models.Berber.id == berber_id, models.Berber.aktif.is_(True)).first()
     if not berber or not berber.salon or not berber.salon.aktif:
         return None
-    hizmetler = db.query(models.Hizmet).filter(models.Hizmet.id.in_(hizmet_ids), models.Hizmet.aktif.is_(True)).all()
-    if len(hizmetler) != len(hizmet_ids):
+    try:  # hizmet menüden kalktıysa ya da berber artık bu hizmeti vermiyorsa öneri yok
+        kalemler = ss.hizmet_kalemleri(db, berber.salon_id, list(hizmet_ids), berber.id)
+    except HTTPException:
         return None
-    sure = sum(h.sure for h in hizmetler)
+    sure = sum(k.sure for k in kalemler)
     return {
         "berber": {"id": berber.id, "ad": berber.ad, "soyad": berber.soyad, "uzmanlik": berber.uzmanlik,
                    "puan": berber.puan, "foto_url": berber.foto_url},
         "salon": {"id": berber.salon.id, "ad": berber.salon.ad},
-        "hizmetler": [{"id": h.id, "ad": h.ad, "fiyat": h.fiyat, "sure": h.sure} for h in hizmetler],
+        "hizmetler": [{"id": k.hizmet.id, "ad": k.hizmet.ad, "fiyat": k.fiyat, "sure": k.sure} for k in kalemler],
         "toplam_sure_dk": sure,
-        "toplam_fiyat": sum(h.fiyat for h in hizmetler),
+        "toplam_fiyat": sum(k.fiyat for k in kalemler),
         "kac_kez": kac_kez,
         "en_yakin_slotlar": ss.en_yakin_slotlar(db, berber.salon, berber.id, sure, 3),
     }

@@ -9,6 +9,7 @@ import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
 import 'package:berber_app_ui/core/widgets/durum_gorunumleri.dart';
 import 'package:berber_app_ui/features/isletme/ekip/widgets/calisma_gunleri_sheet.dart';
+import 'package:berber_app_ui/features/isletme/ekip/widgets/personel_hizmetleri_sheet.dart';
 
 /// Personel (çalışma günleri dahil) ve hizmet menüsü yönetimi.
 class EkipSekmesi extends StatefulWidget {
@@ -101,6 +102,44 @@ class _EkipSekmesiState extends State<EkipSekmesi> {
         '$ad için çalışma günleri kaydedildi.');
   }
 
+  Future<void> _personelMenusu(Map<String, dynamic> p) async {
+    final ad = '${p['ad']} ${p['soyad']}'.trim();
+    final secim = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: AppTheme.surface,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (ctx) => SafeArea(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 6),
+            child: Text(ad, style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 19,
+                fontWeight: FontWeight.bold)),
+          ),
+          ListTile(
+            leading: const Icon(Icons.event_available_outlined, color: AppTheme.gold),
+            title: const Text('Çalışma günleri', style: TextStyle(color: Colors.white)),
+            onTap: () => Navigator.pop(ctx, 'gunler'),
+          ),
+          ListTile(
+            key: const ValueKey('personel_hizmetleri'),
+            leading: const Icon(Icons.content_cut, color: AppTheme.gold),
+            title: const Text('Verdiği hizmetler ve fiyatlar', style: TextStyle(color: Colors.white)),
+            subtitle: const Text('Bu personele özel fiyat, süre veya vermediği hizmetler',
+                style: TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+            onTap: () => Navigator.pop(ctx, 'hizmetler'),
+          ),
+          const SizedBox(height: 8),
+        ]),
+      ),
+    );
+    if (!mounted || secim == null) return;
+    if (secim == 'gunler') return _calismaGunleri(p);
+    if (await personelHizmetleriDuzenle(context, berberId: p['id'], ad: ad) == true) {
+      if (mounted) bilgiGoster(context, '$ad için hizmetler kaydedildi.');
+      await _yukle();
+    }
+  }
+
   Future<void> _personelCikar(Map<String, dynamic> p) async {
     if (!await onayIste(context, 'Kadrodan çıkar', '${p['ad']} ${p['soyad']} kadrodan çıkarılsın mı? '
         'Geçmiş randevu kayıtları korunur.', evet: 'Çıkar', tehlikeli: true)) {
@@ -184,20 +223,20 @@ class _EkipSekmesiState extends State<EkipSekmesi> {
         _bolum('Personel', 'Ekle', _personelEkle),
         Padding(
           padding: const EdgeInsets.only(bottom: 6),
-          child: Text('Çalışma günlerini düzenlemek için personele dokunun.',
+          child: Text('Çalışma günleri ve verdiği hizmetler için personele dokunun.',
               style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
         ),
         if (_personel.isEmpty) const BosGorunum(ikon: Icons.groups_outlined, mesaj: 'Henüz personel yok.'),
         for (final p in _personel)
           Card(
             child: ListTile(
-              onTap: () => _calismaGunleri(p),
+              onTap: () => _personelMenusu(p),
               leading: const CircleAvatar(backgroundColor: AppTheme.card, child: Icon(Icons.person, color: AppTheme.gold)),
               title: Text('${p['ad']} ${p['soyad']}'.trim(), style: const TextStyle(color: Colors.white)),
               subtitle: Text(
                   '${p['uzmanlik']} · ★ ${(p['puan'] as num).toStringAsFixed(1)}'
                   '${p['hesap_bagli'] == true ? ' · hesabı bağlı' : (p['email'] != null ? ' · davet: ${p['email']}' : '')}'
-                  '${_izinMetni(p)}',
+                  '${_izinMetni(p)}${_hizmetMetni(p)}',
                   style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
               trailing: IconButton(
                   tooltip: 'Kadrodan çıkar',
@@ -226,6 +265,12 @@ class _EkipSekmesiState extends State<EkipSekmesi> {
           ),
       ]),
     );
+  }
+
+  String _hizmetMetni(Map<String, dynamic> p) {
+    final vermedigi = p['vermedigi_hizmet_sayisi'] as int? ?? 0, ozel = p['ozel_fiyatli_hizmet_sayisi'] as int? ?? 0;
+    final parca = [if (vermedigi > 0) '$vermedigi hizmeti vermiyor', if (ozel > 0) '$ozel hizmette özel fiyat/süre'];
+    return parca.isEmpty ? '' : '\n${parca.join(' · ')}';
   }
 
   String _izinMetni(Map<String, dynamic> p) {

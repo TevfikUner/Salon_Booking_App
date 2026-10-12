@@ -1,5 +1,7 @@
 import 'package:berber_app_ui/data/api/api_client.dart';
 import 'package:berber_app_ui/data/models/berber.dart';
+import 'package:berber_app_ui/data/models/hizmet.dart';
+import 'package:berber_app_ui/features/randevu_al/randevu_provider.dart';
 import 'package:berber_app_ui/data/models/salon.dart';
 import 'package:berber_app_ui/data/models/randevu.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
@@ -123,6 +125,40 @@ void main() {
     expect(b.id, 3);
     expect(b.favori, isTrue);
     expect(b.salonAd, 'X');
+  });
+
+  group('Berbere özel hizmet', () {
+    test('Hizmet aralığı yoksa fiyat/süreye eşit, varsa değişken', () {
+      final sabit = Hizmet.fromJson({'id': 1, 'ad': 'Kesim', 'fiyat': 300, 'sure': 30});
+      expect((sabit.fiyatMin, sabit.fiyatMax, sabit.fiyatDegisken), (300, 300, false));
+      final degisken = Hizmet.fromJson({'id': 1, 'ad': 'Kesim', 'fiyat': 300, 'sure': 30, 'fiyat_min': 300,
+        'fiyat_max': 400, 'sure_min': 30, 'sure_max': 45});
+      expect((degisken.fiyatDegisken, degisken.sureDegisken, degisken.sureMax), (true, true, 45));
+    });
+    test('Berber uygunluk alanları; eski yanıtta uygun varsayılır', () {
+      expect(Berber.fromJson({'id': 1, 'ad': 'Ali'}).uygun, isTrue);
+      final b = Berber.fromJson({'id': 1, 'ad': 'Ali', 'uygun': false, 'vermedigi_hizmetler': ['Damat'],
+        'toplam_fiyat': null});
+      expect((b.uygun, b.toplamFiyat), (false, null));
+      expect(b.vermedigiHizmetler, ['Damat']);
+    });
+    test('Provider: berber seçilince toplam berberin fiyatı; hizmet değişince menüye döner', () {
+      final p = RandevuProvider()..baslat(salon: 1);
+      const kesim = Hizmet(id: 1, ad: 'Kesim', fiyat: 300, sure: 30, fiyatMax: 400, sureMax: 60);
+      p.hizmetToggle(kesim);
+      expect((p.toplamFiyat, p.toplamSureDk, p.toplamKesin), (300, 30, false));
+      p.berberSec(const Berber(id: 5, ad: 'Ali', soyad: '', uzmanlik: '', puan: 5, toplamFiyat: 400, toplamSureDk: 60));
+      expect((p.toplamFiyat, p.toplamSureDk, p.toplamKesin), (400, 60, true));
+      p.hizmetToggle(const Hizmet(id: 2, ad: 'Sakal', fiyat: 150, sure: 15));
+      expect((p.toplamFiyat, p.toplamSureDk, p.toplamKesin), (450, 45, false));
+      p.berberSeciminiKaldir();
+      expect(p.seciliBerber, isNull);
+    });
+    test('Provider: berberle başlayan akışta toplam kesin', () {
+      final p = RandevuProvider()
+        ..baslat(salon: 1, berber: const Berber(id: 5, ad: 'Ali', soyad: '', uzmanlik: '', puan: 5));
+      expect(p.berberleBasladi && p.toplamKesin, isTrue);
+    });
   });
 
   test('telefonBicimli', () {

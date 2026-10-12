@@ -32,7 +32,8 @@ db = SessionLocal()
 # Temizlik (FK sırasıyla)
 for tablo in (models.randevu_hizmetleri, models.favori_berberler):
     db.execute(tablo.delete())
-for model in (models.Degerlendirme, models.BeklemeListesi, models.MusteriNotu, models.Randevu, models.BerberIzin,
+for model in (models.Degerlendirme, models.BeklemeListesi, models.MusteriNotu, models.BerberHizmet, models.Randevu,
+              models.BerberIzin,
               models.SaatBloke, models.TatilGunu, models.Isletme, models.Musteri, models.SalonFotograf, models.Hizmet,
               models.Berber, models.Salon, models.Dukkan):
     db.query(model).delete()
@@ -107,6 +108,12 @@ for i, (ad, soyad, uzmanlik) in enumerate(berber_adlari):
     berberler.append(b)
 berberler[2].salon_id = salonlar[0].id  # Premium Berber Center'da 3 personel
 db.flush()
+# Berbere özel hizmet: Ali Usta'nın saç kesimi daha uzun ve pahalı; Eren Kalfa damat tıraşı ve keratin yapmıyor
+db.add_all([
+    models.BerberHizmet(berber_id=berberler[0].id, hizmet_id=hizmet[(0, "Saç Kesimi")].id, fiyat=350, sure=40),
+    models.BerberHizmet(berber_id=berberler[2].id, hizmet_id=hizmet[(0, "Damat Tıraşı (VIP Paket)")].id, veriyor=False),
+    models.BerberHizmet(berber_id=berberler[2].id, hizmet_id=hizmet[(0, "Keratin Bakımı")].id, veriyor=False),
+])
 
 # ── 4. İşletme sahibi (onaylı, salon 1'e bağlı) + bekleyen başvuru ──
 db.add(models.Isletme(firebase_uid=ISLETME_UID, ad="Demo", soyad="İşletmeci", telefon="05320000000",

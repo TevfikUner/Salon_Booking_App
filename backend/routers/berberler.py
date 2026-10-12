@@ -1,9 +1,10 @@
 import os
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
 from auth import admin_dogrula
 from sqlalchemy.orm import Session
 from database import get_db
 import models
+import slot_servisi as ss
 from config import ayarlar
 from routers.degerlendirmeler import degerlendirme_sayilari
 
@@ -37,16 +38,31 @@ def berber_ekle(
         "berber": f"{yeni_berber.ad} ({yeni_berber.uzmanlik})"
     }
 @router.get("/")
-def berberleri_listele(salon_id: int | None = None, db: Session = Depends(get_db)):
+def berberleri_listele(salon_id: int | None = None, hizmet_ids: list[int] | None = Query(default=None),
+                       db: Session = Depends(get_db)):
+    """Aktif personel. `hizmet_ids` verilirse (salonla birlikte) her berbere `uygun` (seçilen hizmetlerin hepsini
+    veriyor mu), vermedikleri ve bu berberdeki toplam fiyat/süre eklenir; uygunlar önce gelir."""
     q = db.query(models.Berber).filter(models.Berber.aktif.is_(True))
     if salon_id is not None:
         q = q.filter(models.Berber.salon_id == salon_id)
-    berberler = q.all()
+    berberler = q.order_by(models.Berber.id).all()
     sayilar = degerlendirme_sayilari(db, [b.id for b in berberler])
-    return [{"id": b.id, "ad": b.ad, "soyad": b.soyad, "uzmanlik": b.uzmanlik, "foto_url": b.foto_url,
-             "puan": b.puan, "salon_id": b.salon_id, "instagram_username": b.instagram_username,
-             "degerlendirme_sayisi": sayilar.get(b.id, 0)}
-            for b in berberler]
+    liste = [{"id": b.id, "ad": b.ad, "soyad": b.soyad, "uzmanlik": b.uzmanlik, "foto_url": b.foto_url,
+              "puan": b.puan, "salon_id": b.salon_id, "instagram_username": b.instagram_username,
+              "degerlendirme_sayisi": sayilar.get(b.id, 0)}
+             for b in berberler]
+    if salon_id is None or not hizmet_ids:
+        return liste
+    hizmetler = ss.hizmetleri_coz(db, salon_id, hizmet_ids)
+    ayarlar_ = ss.berber_ayarlari(db, [b.id for b in berberler])
+    for x in liste:
+        kalemler = [(h, ss.kalem(h, ayarlar_[x["id"]].get(h.id))) for h in hizmetler]
+        uygun = [k for _, k in kalemler if k is not None]
+        x["uygun"] = len(uygun) == len(kalemler)
+        x["vermedigi_hizmetler"] = [h.ad for h, k in kalemler if k is None]
+        x["toplam_fiyat"] = sum(k.fiyat for k in uygun) if x["uygun"] else None
+        x["toplam_sure_dk"] = sum(k.sure for k in uygun) if x["uygun"] else None
+    return sorted(liste, key=lambda x: not x["uygun"])
 
 @router.put("/guncelle/{berber_id}")
 def berber_guncelle(

@@ -109,6 +109,17 @@ class Hizmet(Base):
     aktif = Column(Boolean, default=True, nullable=False)
 
 
+class BerberHizmet(Base):
+    """Berbere özel hizmet ayarı (istisna). Kayıt yoksa berber hizmeti menü fiyatı ve süresiyle verir.
+    `veriyor=False` → bu berber bu hizmeti vermez; `fiyat`/`sure` doluysa menüdeki değerin yerine geçer."""
+    __tablename__ = "berber_hizmetleri"
+    berber_id = Column(Integer, ForeignKey("berberler.id", ondelete="CASCADE"), primary_key=True)
+    hizmet_id = Column(Integer, ForeignKey("hizmetler.id", ondelete="CASCADE"), primary_key=True)
+    veriyor = Column(Boolean, default=True, nullable=False)
+    fiyat = Column(Float, nullable=True)
+    sure = Column(Integer, nullable=True)
+
+
 class Dukkan(Base):
     """Tek-dükkan dönemi kaydı (geriye uyumluluk). Yeni kod Salon kullanır."""
     __tablename__ = "dukkan_bilgileri"

@@ -56,7 +56,16 @@ class PanelApi {
 
   static Future<Json> salonGuncelle(Json veri) async => await ApiClient.put('/panel/salon', govde: veri);
 
-  static Future<List<Json>> hizmetler() async => ApiClient.liste(await ApiClient.get('/panel/hizmetler'));
+  /// [berberId] verilirse yalnızca o personelin verdiği hizmetler, fiyat/süre ona göre.
+  static Future<List<Json>> hizmetler({int? berberId}) async =>
+      ApiClient.liste(await ApiClient.get('/panel/hizmetler', params: {'berber_id': berberId}));
+
+  /// Personelin her menü hizmeti için: veriyor mu, özel fiyat/süre (null = menüdeki).
+  static Future<List<Json>> personelHizmetleri(int berberId) async =>
+      ApiClient.liste(await ApiClient.get('/panel/personel/$berberId/hizmetler'));
+
+  static Future<void> personelHizmetleriKaydet(int berberId, List<Json> ayarlar) =>
+      ApiClient.put('/panel/personel/$berberId/hizmetler', govde: ayarlar);
 
   static Future<void> hizmetKaydet(Json veri, {int? id}) =>
       id == null ? ApiClient.post('/panel/hizmetler', govde: veri) : ApiClient.put('/panel/hizmetler/$id', govde: veri);

@@ -56,8 +56,9 @@ def _salon_bul(db: Session, berber_id: int | None, salon_id: int | None) -> mode
     raise HTTPException(status_code=400, detail="berber_id veya salon_id gerekli.")
 
 
-def _sure_hesapla(db: Session, salon_id: int, hizmet_ids: list[int]) -> int:
-    return sum(h.sure for h in ss.hizmetleri_coz(db, salon_id, hizmet_ids))
+def _sure_hesapla(db: Session, salon_id: int, hizmet_ids: list[int], berber_id: int | None) -> int:
+    """Seçilen hizmetlerin toplam süresi; berber verilmişse o berbere özel süreler."""
+    return ss.toplam_sure(db, salon_id, hizmet_ids, berber_id)
 
 
 # ── 1. Müsait takvim ─────────────────────────────────────────
@@ -87,7 +88,7 @@ def musait_takvim_getir(berber_id: int | None = None, salon_id: int | None = Non
             "berber_izin": False,
         })
     if berber_id is not None and hizmet_ids:
-        sayilar = ss.gunluk_bos_sayilari(db, salon, berber_id, acik, _sure_hesapla(db, salon.id, hizmet_ids))
+        sayilar = ss.gunluk_bos_sayilari(db, salon, berber_id, acik, _sure_hesapla(db, salon.id, hizmet_ids, berber_id))
         for g, kayit in zip(acik, gunler, strict=True):
             kayit["bos_slot"] = sayilar[g]
             kayit["dolu"] = sayilar[g] == 0
@@ -138,7 +139,7 @@ def musait_saatleri_getir(
         # Süre randevuda mühürlü: hizmet sonradan menüden kaldırılmış olsa da erteleme engellenmesin
         haric, sure = r.id, r.sure_dk or ayarlar().slot_dk
     else:
-        sure = _sure_hesapla(db, salon.id, hizmet_ids)
+        sure = _sure_hesapla(db, salon.id, hizmet_ids, berber_id)
     m = ss.gun_musaitligi(db, salon, berber_id, tarih, sure, haric_id=haric)
     musait = set(m.musait)
     return {
@@ -166,7 +167,7 @@ def en_yakin_bos(berber_id: int, hizmet_ids: list[int] = Query(...), adet: int =
                  db: Session = Depends(get_db)):
     """Akıllı en yakın boş slot önerisi."""
     _, salon = ss.berber_ve_salon(db, berber_id)
-    sure = _sure_hesapla(db, salon.id, hizmet_ids)
+    sure = _sure_hesapla(db, salon.id, hizmet_ids, berber_id)
     return {"toplam_sure_dk": sure, "slotlar": ss.en_yakin_slotlar(db, salon, berber_id, sure, adet)}
 
 
@@ -308,7 +309,7 @@ def bekleme_listesine_ekle(veri: BeklemeIstegi, kimlik: Kimlik = Depends(kimlik_
     """Dolu bir gün için 'boşalırsa haber ver'."""
     musteri = musteri_getir_veya_olustur(db, kimlik)
     _, salon = ss.berber_ve_salon(db, veri.berber_id)
-    sure = _sure_hesapla(db, salon.id, veri.hizmet_ids)
+    sure = _sure_hesapla(db, salon.id, veri.hizmet_ids, veri.berber_id)
     gun = ss.tarih_dogrula(veri.tarih)
     neden = ss.kapali_neden(db, salon, veri.berber_id, gun)
     if neden:

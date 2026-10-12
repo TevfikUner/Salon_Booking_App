@@ -32,7 +32,9 @@ class _Adim1HizmetState extends State<Adim1Hizmet> {
       _hata = null;
     });
     try {
-      final data = await SalonApi.hizmetler(context.read<RandevuProvider>().salonId);
+      final p = context.read<RandevuProvider>();
+      // Berberle başlayan akış (favori, Her Zamanki): yalnızca onun verdiği hizmetler, onun fiyatlarıyla
+      final data = await SalonApi.hizmetler(p.salonId, berberId: p.berberleBasladi ? p.seciliBerber?.id : null);
       if (mounted) setState(() => _hizmetler = data);
     } on ApiHata catch (e) {
       if (mounted) setState(() => _hata = e.mesaj);
@@ -117,19 +119,27 @@ class _Adim1HizmetState extends State<Adim1Hizmet> {
                                 const Icon(Icons.access_time,
                                     color: AppTheme.textSecondary, size: 12),
                                 const SizedBox(width: 4),
-                                Text('${h.sure} dk',
+                                Text(h.sureDegisken ? '${h.sureMin}–${h.sureMax} dk' : '${h.sure} dk',
                                     style: GoogleFonts.inter(
                                         color: AppTheme.textSecondary, fontSize: 12)),
                               ]),
+                              if (h.fiyatDegisken || h.sureDegisken) ...[
+                                const SizedBox(height: 2),
+                                Text('Fiyat ve süre personele göre değişir',
+                                    style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 11)),
+                              ],
                             ],
                           ),
                         ),
-                        // Fiyat
-                        Text('${h.fiyat.toStringAsFixed(0)} ₺',
-                            style: GoogleFonts.playfairDisplay(
-                                color: AppTheme.gold,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold)),
+                        // Fiyat (personele göre değişiyorsa "300 ₺'den")
+                        Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                          Text('${h.fiyatMin.toStringAsFixed(0)} ₺',
+                              style: GoogleFonts.playfairDisplay(
+                                  color: AppTheme.gold, fontSize: 18, fontWeight: FontWeight.bold)),
+                          if (h.fiyatDegisken)
+                            Text("'den başlayan",
+                                style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 10)),
+                        ]),
                       ],
                     ),
                   ),
@@ -154,10 +164,10 @@ class _Adim1HizmetState extends State<Adim1Hizmet> {
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text('${provider.seciliHizmetler.length} hizmet seçildi',
                       style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600)),
-                  Text('${provider.toplamSureDk} dakika',
+                  Text(_degisken(provider) ? 'Kesin süre personel seçince' : '${provider.toplamSureDk} dakika',
                       style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
                 ]),
-                Text('${provider.toplamFiyat.toStringAsFixed(0)} ₺',
+                Text('${_degisken(provider) ? '~' : ''}${provider.toplamFiyat.toStringAsFixed(0)} ₺',
                     style: GoogleFonts.playfairDisplay(
                         color: AppTheme.gold, fontSize: 22, fontWeight: FontWeight.bold)),
               ],
@@ -166,4 +176,8 @@ class _Adim1HizmetState extends State<Adim1Hizmet> {
       ],
     );
   }
+
+  /// Seçilenlerden biri personele göre değişiyorsa özet kesin değildir (berber seçilince netleşir).
+  bool _degisken(RandevuProvider p) =>
+      !p.toplamKesin && p.seciliHizmetler.any((h) => h.fiyatDegisken || h.sureDegisken);
 }

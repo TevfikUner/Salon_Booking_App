@@ -3,6 +3,7 @@ from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 import models
+import slot_servisi as ss
 from auth import admin_dogrula
 from database import get_db
 
@@ -14,14 +15,41 @@ def _json(h: models.Hizmet) -> dict:
 
 
 @router.get("/")
-def hizmetleri_listele(salon_id: int | None = None, db: Session = Depends(get_db)):
-    """salon_id verilirse o salonun hizmetleri (+ varsa ortak hizmetler); verilmezse ortak hizmetler."""
+def hizmetleri_listele(salon_id: int | None = None, berber_id: int | None = None, db: Session = Depends(get_db)):
+    """salon_id verilirse o salonun hizmetleri (+ varsa ortak hizmetler); verilmezse ortak hizmetler.
+
+    - `berber_id` ile: yalnızca o berberin verdiği hizmetler, fiyat/süre o berbere göre.
+    - Yalnızca salonla: her hizmete personel arasındaki fiyat/süre aralığı (`fiyat_min` … `sure_max`) eklenir;
+      hiçbir personelin vermediği hizmet listelenmez.
+    """
+    if berber_id is not None:
+        berber, salon = ss.berber_ve_salon(db, berber_id)
+        salon_id = salon.id
     q = db.query(models.Hizmet).filter(models.Hizmet.aktif.is_(True))
     if salon_id is not None:
         q = q.filter(or_(models.Hizmet.salon_id == salon_id, models.Hizmet.salon_id.is_(None)))
     else:
         q = q.filter(models.Hizmet.salon_id.is_(None))
-    return [_json(h) for h in q.order_by(models.Hizmet.id).all()]
+    hizmetler = q.order_by(models.Hizmet.id).all()
+    if salon_id is None:
+        return [_json(h) for h in hizmetler]
+    if berber_id is not None:
+        ayar = ss.berber_ayarlari(db, [berber_id])[berber_id]
+        return [{**_json(h), "fiyat": k.fiyat, "sure": k.sure}
+                for h in hizmetler if (k := ss.kalem(h, ayar.get(h.id)))]
+    berber_idler = [b for (b,) in db.query(models.Berber.id).filter(models.Berber.salon_id == salon_id,
+                                                                     models.Berber.aktif.is_(True))]
+    ayarlar_ = ss.berber_ayarlari(db, berber_idler)
+    sonuc = []
+    for h in hizmetler:
+        kalemler = [k for b in berber_idler if (k := ss.kalem(h, ayarlar_[b].get(h.id)))]
+        if berber_idler and not kalemler:
+            continue
+        kalemler = kalemler or [ss.Kalem(h, h.fiyat, h.sure)]
+        sonuc.append({**_json(h),
+                      "fiyat_min": min(k.fiyat for k in kalemler), "fiyat_max": max(k.fiyat for k in kalemler),
+                      "sure_min": min(k.sure for k in kalemler), "sure_max": max(k.sure for k in kalemler)})
+    return sonuc
 
 
 # ── Admin (işletmeler kendi hizmetlerini /panel/hizmetler ile yönetir) ──

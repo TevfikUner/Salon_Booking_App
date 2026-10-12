@@ -34,9 +34,16 @@ class SalonApi {
   static Future<Json> yorumlar(int salonId, {int sayfa = 1, int adet = 20}) async =>
       await ApiClient.get('/degerlendirmeler/salon/$salonId', params: {'sayfa': sayfa, 'adet': adet});
 
-  static Future<List<Hizmet>> hizmetler(int? salonId) async =>
-      ApiClient.liste(await ApiClient.get('/hizmetler/', params: {'salon_id': salonId})).map(Hizmet.fromJson).toList();
+  /// [berberId] verilirse yalnızca o berberin verdiği hizmetler, fiyat/süre ona göre; verilmezse salon menüsü
+  /// (personel arası fiyat/süre aralığıyla).
+  static Future<List<Hizmet>> hizmetler(int? salonId, {int? berberId}) async => ApiClient.liste(
+          await ApiClient.get('/hizmetler/', params: {'salon_id': salonId, 'berber_id': berberId}))
+      .map(Hizmet.fromJson)
+      .toList();
 
-  static Future<List<Berber>> berberler(int? salonId) async =>
-      ApiClient.liste(await ApiClient.get('/berberler/', params: {'salon_id': salonId})).map(Berber.fromJson).toList();
+  /// [hizmetIds] verilirse her berberde `uygun` ve seçilen hizmetlerin o berberdeki toplam fiyat/süresi gelir.
+  static Future<List<Berber>> berberler(int? salonId, {List<int>? hizmetIds}) async => ApiClient.liste(
+          await ApiClient.get('/berberler/', params: {'salon_id': salonId, 'hizmet_ids': hizmetIds}))
+      .map(Berber.fromJson)
+      .toList();
 }

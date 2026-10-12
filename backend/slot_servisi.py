@@ -273,6 +273,51 @@ def hizmetleri_coz(db: Session, salon_id: int, hizmet_ids: list[int]) -> list[mo
     return gecerli
 
 
+@dataclass(frozen=True)
+class Kalem:
+    """Bir hizmetin seçilen berberdeki fiyatı ve süresi (berbere özel ayar yoksa menüdeki değerler)."""
+    hizmet: models.Hizmet
+    fiyat: float
+    sure: int
+
+
+def berber_ayarlari(db: Session, berber_idler: list[int]) -> dict[int, dict[int, models.BerberHizmet]]:
+    """berber_id → {hizmet_id → berbere özel ayar}. Tek sorgu."""
+    sonuc: dict[int, dict[int, models.BerberHizmet]] = {b: {} for b in berber_idler}
+    if berber_idler:
+        for k in db.query(models.BerberHizmet).filter(models.BerberHizmet.berber_id.in_(berber_idler)):
+            sonuc[k.berber_id][k.hizmet_id] = k
+    return sonuc
+
+
+def kalem(h: models.Hizmet, ayar: models.BerberHizmet | None) -> Kalem | None:
+    """Berber bu hizmeti vermiyorsa None."""
+    if ayar is None:
+        return Kalem(h, h.fiyat, h.sure)
+    if not ayar.veriyor:
+        return None
+    return Kalem(h, h.fiyat if ayar.fiyat is None else ayar.fiyat, h.sure if ayar.sure is None else ayar.sure)
+
+
+def hizmet_kalemleri(db: Session, salon_id: int, hizmet_ids: list[int], berber_id: int | None) -> list[Kalem]:
+    """Seçilen hizmetlerin bu berberdeki fiyat/süresi. Berber verilmezse menü değerleri.
+    Berber hizmetlerden birini vermiyorsa 400."""
+    hizmetler = hizmetleri_coz(db, salon_id, hizmet_ids)
+    if berber_id is None:
+        return [Kalem(h, h.fiyat, h.sure) for h in hizmetler]
+    ayarlar_ = berber_ayarlari(db, [berber_id])[berber_id]
+    kalemler = [(h, kalem(h, ayarlar_.get(h.id))) for h in hizmetler]
+    vermedigi = [h.ad for h, k in kalemler if k is None]
+    if vermedigi:
+        raise is_kurali_hatasi(f"Seçilen personel şu hizmeti vermiyor: {', '.join(vermedigi)}.",
+                               vermedigi_hizmetler=vermedigi)
+    return [k for _, k in kalemler]
+
+
+def toplam_sure(db: Session, salon_id: int, hizmet_ids: list[int], berber_id: int | None) -> int:
+    return sum(k.sure for k in hizmet_kalemleri(db, salon_id, hizmet_ids, berber_id))
+
+
 def randevu_olustur(
     db: Session,
     musteri: models.Musteri,
@@ -290,22 +335,23 @@ def randevu_olustur(
         raise is_kurali_hatasi("Geçersiz saat formatı. Örnek: 14:30") from None
 
     berber, salon = berber_ve_salon(db, berber_id)
-    hizmetler = hizmetleri_coz(db, salon.id, hizmet_ids)
-    toplam_sure = sum(h.sure for h in hizmetler)
-    toplam_fiyat = sum(h.fiyat for h in hizmetler)
+    kalemler = hizmet_kalemleri(db, salon.id, hizmet_ids, berber.id)
+    hizmetler = [k.hizmet for k in kalemler]
+    sure = sum(k.sure for k in kalemler)
+    toplam_fiyat = sum(k.fiyat for k in kalemler)
 
     with _rezervasyon_kilidi:
         # PostgreSQL: aynı berbere eşzamanlı yazmaları sıraya sokar (SQLite'ta yok sayılır).
         db.query(models.Berber).filter(models.Berber.id == berber.id).with_for_update().first()
-        m = gun_musaitligi(db, salon, berber.id, tarih_str, toplam_sure)
+        m = gun_musaitligi(db, salon, berber.id, tarih_str, sure)
         if m.kapali_neden:
             raise is_kurali_hatasi(m.kapali_neden)
         if saat not in m.musait:
             oneriler = [s for s in m.musait][:5] or [
-                f"{x['tarih']} {x['saat']}" for x in en_yakin_slotlar(db, salon, berber.id, toplam_sure, 3)
+                f"{x['tarih']} {x['saat']}" for x in en_yakin_slotlar(db, salon, berber.id, sure, 3)
             ]
             raise is_kurali_hatasi(
-                f"Seçtiğiniz saat ({saat}) artık uygun değil. Hizmet {toplam_sure} dk sürüyor.",
+                f"Seçtiğiniz saat ({saat}) artık uygun değil. Hizmet {sure} dk sürüyor.",
                 409,
                 oneriler=oneriler,
             )
@@ -315,7 +361,7 @@ def randevu_olustur(
             salon_id=salon.id,
             tarih=tarih_str,
             saat=saat,
-            sure_dk=toplam_sure,
+            sure_dk=sure,
             durum="onaylandi",
             hizmetler=hizmetler,
             toplam_fiyat=toplam_fiyat,

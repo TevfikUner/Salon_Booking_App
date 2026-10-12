@@ -21,23 +21,45 @@ class RandevuProvider extends ChangeNotifier {
       seciliHizmetler.add(h);
     }
     seciliSaat = null; // süre değişti, seçili saat artık uygun olmayabilir
+    _berberToplami = null; // berbere özel toplam, personel adımında yeniden gelir
     notifyListeners();
   }
 
   bool isHizmetSecili(Hizmet h) => seciliHizmetler.contains(h);
 
-  int get toplamSureDk => seciliHizmetler.fold(0, (s, h) => s + h.sure);
-  double get toplamFiyat => seciliHizmetler.fold(0.0, (s, h) => s + h.fiyat);
+  /// Seçilen berberdeki toplam (berbere özel fiyat/süre olabilir). Yoksa hizmet listesindeki değerlerin toplamı:
+  /// berberle başlayan akışta liste zaten o berberin fiyatlarıdır.
+  ({double fiyat, int sure})? _berberToplami;
+
+  /// Akış berberle başladı (favori, Her Zamanki): personel adımı yok, hizmet listesi o berberin.
+  bool berberleBasladi = false;
+
+  /// Toplam fiyat/süre kesin mi (berbere göre netleşti mi)
+  bool get toplamKesin => _berberToplami != null || berberleBasladi;
+
+  int get toplamSureDk => _berberToplami?.sure ?? seciliHizmetler.fold(0, (s, h) => s + h.sure);
+  double get toplamFiyat => _berberToplami?.fiyat ?? seciliHizmetler.fold(0.0, (s, h) => s + h.fiyat);
 
   // ── Adım 2: Berber ────────────────────────────────────────
   Berber? seciliBerber;
 
   void berberSec(Berber b) {
-    if (seciliBerber?.id != b.id) {
-      seciliTarih = null; // berber değişince izin günleri değişebilir
+    if (seciliBerber?.id != b.id || toplamSureDk != (b.toplamSureDk ?? toplamSureDk)) {
+      seciliTarih = null; // berber değişince izin günleri ve süre değişebilir
       seciliSaat = null;
     }
     seciliBerber = b;
+    _berberToplami =
+        b.toplamFiyat != null && b.toplamSureDk != null ? (fiyat: b.toplamFiyat!, sure: b.toplamSureDk!) : null;
+    notifyListeners();
+  }
+
+  /// Seçili berber artık seçilen hizmetleri vermiyorsa (hizmetler değişti) seçimi kaldırır.
+  void berberSeciminiKaldir() {
+    seciliBerber = null;
+    _berberToplami = null;
+    seciliTarih = null;
+    seciliSaat = null;
     notifyListeners();
   }
 
@@ -63,6 +85,8 @@ class RandevuProvider extends ChangeNotifier {
     salonId = salon;
     seciliHizmetler.clear();
     seciliBerber = berber;
+    berberleBasladi = berber != null;
+    _berberToplami = null;
     seciliTarih = null;
     seciliSaat = null;
     // notifyListeners yok: akış ekranının initState'inde (build sırasında) çağrılır,
@@ -74,6 +98,8 @@ class RandevuProvider extends ChangeNotifier {
     salonId = null;
     seciliHizmetler.clear();
     seciliBerber = null;
+    berberleBasladi = false;
+    _berberToplami = null;
     seciliTarih = null;
     seciliSaat = null;
     notifyListeners();

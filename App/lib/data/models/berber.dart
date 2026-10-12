@@ -15,6 +15,13 @@ class Berber {
   final int tamamlanan;
   final int degerlendirmeSayisi;
 
+  /// Hizmet seçiminden sonra listelenirken: seçilen hizmetlerin hepsini veriyor mu, vermedikleri ve
+  /// bu berberdeki toplam fiyat/süre (berbere özel fiyat olabilir).
+  final bool uygun;
+  final List<String> vermedigiHizmetler;
+  final double? toplamFiyat;
+  final int? toplamSureDk;
+
   const Berber({
     required this.id,
     required this.ad,
@@ -27,6 +34,10 @@ class Berber {
     this.favori = false,
     this.tamamlanan = 0,
     this.degerlendirmeSayisi = 0,
+    this.uygun = true,
+    this.vermedigiHizmetler = const [],
+    this.toplamFiyat,
+    this.toplamSureDk,
   });
 
   String get tamAd => '$ad $soyad'.trim();
@@ -47,6 +58,10 @@ class Berber {
         favori: j['favori'] == true || j.containsKey('berber_id'),
         tamamlanan: j['tamamlanan'] ?? 0,
         degerlendirmeSayisi: j['degerlendirme_sayisi'] ?? 0,
+        uygun: j['uygun'] ?? true,
+        vermedigiHizmetler: List<String>.from(j['vermedigi_hizmetler'] ?? const []),
+        toplamFiyat: (j['toplam_fiyat'] as num?)?.toDouble(),
+        toplamSureDk: j['toplam_sure_dk'],
       );
 
   Berber copyWith({bool? favori}) => Berber(
@@ -61,5 +76,9 @@ class Berber {
         favori: favori ?? this.favori,
         tamamlanan: tamamlanan,
         degerlendirmeSayisi: degerlendirmeSayisi,
+        uygun: uygun,
+        vermedigiHizmetler: vermedigiHizmetler,
+        toplamFiyat: toplamFiyat,
+        toplamSureDk: toplamSureDk,
       );
 }

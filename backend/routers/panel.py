@@ -210,7 +210,7 @@ def panel_musait(berber_id: int, tarih: str, hizmet_ids: list[int] = Query(...),
     berber, salon = ss.berber_ve_salon(db, berber_id)
     if salon.id != p.salon_id:
         raise HTTPException(status_code=403, detail="Bu personel sizin salonunuzda değil.")
-    sure = sum(h.sure for h in ss.hizmetleri_coz(db, salon.id, hizmet_ids))
+    sure = ss.toplam_sure(db, salon.id, hizmet_ids, berber.id)
     m = ss.gun_musaitligi(db, salon, berber.id, tarih, sure)
     return {"musait_saatler": m.musait, "kapali_neden": m.kapali_neden, "toplam_sure_dk": sure}
 
@@ -325,7 +325,17 @@ def _personel_json(b: models.Berber) -> dict:
 @router.get("/personel")
 def personel_listele(p: PanelBaglami = Depends(panel_baglami), db: Session = Depends(get_db)):
     q = db.query(models.Berber).filter(models.Berber.salon_id == p.salon_id, models.Berber.aktif.is_(True))
-    return [_personel_json(b) for b in q.order_by(models.Berber.id).all()]
+    berberler = q.order_by(models.Berber.id).all()
+    ayarlar_ = ss.berber_ayarlari(db, [b.id for b in berberler])
+    aktif_hizmet = {i for (i,) in db.query(models.Hizmet.id).filter(models.Hizmet.salon_id == p.salon_id,
+                                                                     models.Hizmet.aktif.is_(True))}
+    sonuc = []
+    for b in berberler:
+        ayar = [a for hid, a in ayarlar_[b.id].items() if hid in aktif_hizmet]
+        sonuc.append({**_personel_json(b),
+                      "vermedigi_hizmet_sayisi": sum(1 for a in ayar if not a.veriyor),
+                      "ozel_fiyatli_hizmet_sayisi": sum(1 for a in ayar if a.veriyor)})
+    return sonuc
 
 
 @router.post("/personel")
@@ -369,6 +379,72 @@ def personel_cikar(berber_id: int, p: PanelBaglami = Depends(panel_yonetici), db
     return {"mesaj": f"{b.ad} {b.soyad} kadrodan çıkarıldı."}
 
 
+class PersonelHizmetAyari(BaseModel):
+    hizmet_id: int
+    veriyor: bool = True
+    # Boş (null) → menüdeki fiyat/süre geçerli
+    fiyat: float | None = Field(default=None, ge=0, le=100000)
+    sure: int | None = Field(default=None, ge=5, le=480)
+
+
+def _personel(db: Session, p: PanelBaglami, berber_id: int) -> models.Berber:
+    b = db.get(models.Berber, berber_id)
+    if not b or b.salon_id != p.salon_id or not b.aktif:
+        raise HTTPException(status_code=404, detail="Personel bulunamadı.")
+    return b
+
+
+def _personel_hizmetleri_json(db: Session, salon_id: int, berber_id: int) -> list[dict]:
+    ayar = ss.berber_ayarlari(db, [berber_id])[berber_id]
+    sonuc = []
+    for h in db.query(models.Hizmet).filter(models.Hizmet.salon_id == salon_id, models.Hizmet.aktif.is_(True))             .order_by(models.Hizmet.id):
+        a = ayar.get(h.id)
+        sonuc.append({"hizmet_id": h.id, "ad": h.ad, "menu_fiyat": h.fiyat, "menu_sure": h.sure,
+                      "veriyor": a.veriyor if a else True,
+                      "fiyat": a.fiyat if a else None, "sure": a.sure if a else None})
+    return sonuc
+
+
+@router.get("/personel/{berber_id}/hizmetler")
+def personel_hizmetleri(berber_id: int, p: PanelBaglami = Depends(panel_baglami), db: Session = Depends(get_db)):
+    """Menüdeki her hizmet için bu personelin verip vermediği ve (varsa) kendine özel fiyatı/süresi."""
+    _personel(db, p, berber_id)
+    return _personel_hizmetleri_json(db, p.salon_id, berber_id)
+
+
+@router.put("/personel/{berber_id}/hizmetler")
+def personel_hizmetleri_kaydet(berber_id: int, veri: list[PersonelHizmetAyari],
+                               p: PanelBaglami = Depends(panel_yonetici), db: Session = Depends(get_db)):
+    """Gönderilen hizmetlerin ayarını yazar. Menüyle aynı olan (veriyor, özel fiyat/süre yok) kayıt tutulmaz.
+    Mevcut randevular etkilenmez (fiyat ve süre randevuda mühürlü)."""
+    b = _personel(db, p, berber_id)
+    menu = {h.id: h for h in db.query(models.Hizmet).filter(models.Hizmet.salon_id == p.salon_id,
+                                                              models.Hizmet.aktif.is_(True))}
+    mevcut = ss.berber_ayarlari(db, [b.id])[b.id]
+    for a in veri:
+        if a.hizmet_id not in menu:
+            raise HTTPException(status_code=404, detail="Hizmet bu salonun menüsünde yok.")
+        h = menu[a.hizmet_id]
+        fiyat = None if a.fiyat is None or a.fiyat == h.fiyat else a.fiyat
+        sure = None if a.sure is None or a.sure == h.sure else a.sure
+        kayit = mevcut.get(h.id)
+        if a.veriyor and fiyat is None and sure is None:
+            if kayit:
+                db.delete(kayit)
+            continue
+        if not kayit:
+            kayit = models.BerberHizmet(berber_id=b.id, hizmet_id=h.id)
+            db.add(kayit)
+        kayit.veriyor, kayit.fiyat, kayit.sure = a.veriyor, fiyat, sure
+    db.flush()
+    yeni = ss.berber_ayarlari(db, [b.id])[b.id]
+    if menu and all(ss.kalem(h, yeni.get(h.id)) is None for h in menu.values()):
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Personel en az bir hizmet vermeli.")
+    db.commit()
+    return _personel_hizmetleri_json(db, p.salon_id, b.id)
+
+
 # ─────────────────────────── Hizmetler ───────────────────────────
 
 class HizmetVerisi(BaseModel):
@@ -383,9 +459,17 @@ def _hizmet_json(h: models.Hizmet) -> dict:
 
 
 @router.get("/hizmetler")
-def hizmet_listele(p: PanelBaglami = Depends(panel_baglami), db: Session = Depends(get_db)):
+def hizmet_listele(berber_id: int | None = None, p: PanelBaglami = Depends(panel_baglami),
+                   db: Session = Depends(get_db)):
+    """Salonun menüsü. `berber_id` ile: yalnızca o personelin verdikleri, fiyat/süre ona göre."""
     q = db.query(models.Hizmet).filter(models.Hizmet.salon_id == p.salon_id, models.Hizmet.aktif.is_(True))
-    return [_hizmet_json(h) for h in q.order_by(models.Hizmet.id).all()]
+    hizmetler = q.order_by(models.Hizmet.id).all()
+    if berber_id is None:
+        return [_hizmet_json(h) for h in hizmetler]
+    _personel(db, p, berber_id)
+    ayar = ss.berber_ayarlari(db, [berber_id])[berber_id]
+    return [{**_hizmet_json(h), "fiyat": k.fiyat, "sure": k.sure}
+            for h in hizmetler if (k := ss.kalem(h, ayar.get(h.id)))]
 
 
 @router.post("/hizmetler")

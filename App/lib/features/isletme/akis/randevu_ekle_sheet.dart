@@ -54,12 +54,14 @@ class _RandevuEkleSheetState extends State<RandevuEkleSheet> {
 
   Future<void> _yukle() async {
     try {
-      final sonuc = await Future.wait([PanelApi.personel(), PanelApi.hizmetler()]);
+      final personel = await PanelApi.personel();
+      final berberId = personel.isEmpty ? null : personel.first['id'] as int;
+      final hizmetler = await PanelApi.hizmetler(berberId: berberId);
       if (!mounted) return;
       setState(() {
-        _personel = sonuc[0];
-        _hizmetler = sonuc[1];
-        _berberId = _personel.isNotEmpty ? _personel.first['id'] : null;
+        _personel = personel;
+        _hizmetler = hizmetler;
+        _berberId = berberId;
         _yukleniyor = false;
       });
     } on ApiHata catch (e) {
@@ -91,6 +93,22 @@ class _RandevuEkleSheetState extends State<RandevuEkleSheet> {
     } finally {
       if (mounted) setState(() => _saatYukleniyor = false);
     }
+  }
+
+  /// Personel değişince hizmet listesi onun verdikleri ve fiyatlarıyla yenilenir; vermedikleri seçimden düşer.
+  Future<void> _berberDegisti(int id) async {
+    setState(() => _berberId = id);
+    try {
+      final h = await PanelApi.hizmetler(berberId: id);
+      if (!mounted || _berberId != id) return;
+      setState(() {
+        _hizmetler = h;
+        _secili.retainAll(h.map((x) => x['id']));
+      });
+    } on ApiHata catch (e) {
+      if (mounted) bilgiGoster(context, e.mesaj, hata: true);
+    }
+    _saatleriGetir();
   }
 
   Future<void> _tarihSec() async {
@@ -171,10 +189,7 @@ class _RandevuEkleSheetState extends State<RandevuEkleSheet> {
                     ChoiceChip(
                       label: Text('${p['ad']} ${p['soyad']}'.trim()),
                       selected: _berberId == p['id'],
-                      onSelected: (_) {
-                        setState(() => _berberId = p['id']);
-                        _saatleriGetir();
-                      },
+                      onSelected: (_) => _berberDegisti(p['id']),
                       selectedColor: AppTheme.gold,
                       showCheckmark: false,
                     ),
