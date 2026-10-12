@@ -124,7 +124,7 @@ def gunun_akisi(tarih: str | None = None, p: PanelBaglami = Depends(panel_baglam
         berberler = berberler.filter(models.Berber.id == p.berber_id)
     doluluk = []
     for b in berberler.all():
-        m = ss.gun_musaitligi(db, salon, b.id, hedef, ss.ayarlar().slot_dk)
+        m = ss.gun_musaitligi(db, salon, b.id, hedef, ss.ayarlar().slot_dk, onceden=False)
         dolu_dk = sum(r.sure_dk or 0 for r in gecerli if r.berber_id == b.id and r.durum == "onaylandi")
         doluluk.append({"berber_id": b.id, "ad": f"{b.ad} {b.soyad}".strip(), "bos_slot": len(m.musait),
                         "toplam_slot": len(m.tum), "dolu_dk": dolu_dk, "kapali_neden": m.kapali_neden})
@@ -245,7 +245,7 @@ def panel_musait(berber_id: int, tarih: str, hizmet_ids: list[int] = Query(...),
     if salon.id != p.salon_id:
         raise HTTPException(status_code=403, detail="Bu personel sizin salonunuzda değil.")
     sure = ss.toplam_sure(db, salon.id, hizmet_ids, berber.id)
-    m = ss.gun_musaitligi(db, salon, berber.id, tarih, sure)
+    m = ss.gun_musaitligi(db, salon, berber.id, tarih, sure, onceden=False)  # panel: son dakika serbest
     return {"musait_saatler": m.musait, "kapali_neden": m.kapali_neden, "toplam_sure_dk": sure}
 
 
@@ -857,6 +857,8 @@ class SalonVerisi(BaseModel):
     # Öğle arası: ikisi birlikte verilir; ikisi de null → mola yok. Gönderilmezse mevcut değer korunur.
     mola_baslangic: str | None = None
     mola_bitis: str | None = None
+    # Müşteri en az kaç dakika önceden randevu alabilir (0 = sınır yok, en fazla 7 gün)
+    min_onceden_dk: int | None = Field(default=None, ge=0, le=10080)
 
     @field_validator("acilis_saati", "kapanis_saati", "pazar_acilis_saati", "pazar_kapanis_saati",
                      "mola_baslangic", "mola_bitis")
@@ -889,7 +891,7 @@ def _salon_json(s: models.Salon) -> dict:
     return {k: getattr(s, k) for k in ("id", "ad", "adres", "telefon", "whatsapp", "instagram_url", "sehir", "ilce",
                                        "acilis_saati", "kapanis_saati", "pazar_acilis_saati", "pazar_kapanis_saati",
                                        "kapali_gunler", "puan", "mola_baslangic", "mola_bitis", "sadakat_esik",
-                                       "sadakat_yuzde")}
+                                       "sadakat_yuzde", "min_onceden_dk")}
 
 
 @router.get("/salon")

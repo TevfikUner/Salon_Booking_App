@@ -5,6 +5,8 @@ Kurallar:
 - Tatil günü (salona özel veya genel), berber izin günü ve berberin haftalık izin günü kapalıdır.
 - Salonun öğle arası ve berberin saatlik blokeleri, randevu gibi dolu aralık sayılır.
 - Geçmiş tarih/saat ve rezervasyon ufkunun ötesi alınamaz.
+- Müşteri, salonun "en az önceden" süresinden (min_onceden_dk) daha yakın bir saate randevu alamaz/erteleyemez;
+  işletme panelinden eklenen ve taşınan randevular bu sınırdan muaftır.
 - Bir randevu, süresi SLOT_DK'ya yukarı yuvarlanmış aralığı kaplar (40 dk → 60 dk).
 - Başlangıç saatleri açılıştan itibaren SLOT_DK adımlı ızgaradadır.
 - İki randevu [bas, bit) aralıkları kesişiyorsa çakışır (bitiş anı ile başlangıç anı çakışma sayılmaz).
@@ -207,14 +209,28 @@ def gunluk_bos_sayilari(db: Session, salon: models.Salon, berber_id: int, gunler
             sonuc[gun] = 0
             continue
         araliklar = dolu[gun.isoformat()] + ([mola] if mola else [])
-        sonuc[gun] = len(musait_baslangiclar(mesai[0], mesai[1], sure_dk, araliklar, _en_erken(gun)))
+        sonuc[gun] = len(musait_baslangiclar(mesai[0], mesai[1], sure_dk, araliklar,
+                                             _en_erken(gun, onceden_dk(salon))))
     return sonuc
 
 
-def _en_erken(gun: date) -> int | None:
-    if gun == bugun():
-        s = simdi()
-        return s.hour * 60 + s.minute
+def onceden_dk(salon: models.Salon, uygula: bool = True) -> int:
+    return (salon.min_onceden_dk or 0) if uygula else 0
+
+
+def en_erken_an(onceden: int = 0):
+    """Randevunun başlayabileceği en erken an: şimdi + salonun önceden alma süresi."""
+    return simdi() + timedelta(minutes=onceden)
+
+
+def _en_erken(gun: date, onceden: int = 0) -> int | None:
+    """Bu günde bu dakikadan sonra başlayan saatler alınabilir; kısıt yoksa None. Önceden alma süresi ertesi
+    güne taşıyorsa (ör. 24 saat) o gün tamamen kapanır."""
+    sinir = en_erken_an(onceden)
+    if gun < sinir.date():
+        return 24 * 60
+    if gun == sinir.date():
+        return sinir.hour * 60 + sinir.minute
     return None
 
 
@@ -227,7 +243,8 @@ class GunMusaitligi:
 
 
 def gun_musaitligi(db: Session, salon: models.Salon, berber_id: int, tarih_str: str, sure_dk: int,
-                   haric_id: int | None = None) -> GunMusaitligi:
+                   haric_id: int | None = None, onceden: bool = True) -> GunMusaitligi:
+    """onceden=False: salonun "en az önceden" sınırı uygulanmaz (işletme paneli)."""
     gun = tarih_dogrula(tarih_str)
     neden = kapali_neden(db, salon, berber_id, gun)
     mesai = gun_mesaisi(salon, gun)
@@ -235,18 +252,18 @@ def gun_musaitligi(db: Session, salon: models.Salon, berber_id: int, tarih_str: 
     if neden:
         return GunMusaitligi(tarih_str, neden, [], tum)
     dolu = dolu_araliklar(db, berber_id, tarih_str, haric_id) + bloke_araliklari(db, salon, berber_id, tarih_str)
-    bas = musait_baslangiclar(mesai[0], mesai[1], sure_dk, dolu, _en_erken(gun))
+    bas = musait_baslangiclar(mesai[0], mesai[1], sure_dk, dolu, _en_erken(gun, onceden_dk(salon, onceden)))
     return GunMusaitligi(tarih_str, None, [dk_saat(d) for d in bas], tum)
 
 
 def en_yakin_slotlar(db: Session, salon: models.Salon, berber_id: int, sure_dk: int,
-                     adet: int = 3, baslangic: date | None = None) -> list[dict]:
+                     adet: int = 3, baslangic: date | None = None, onceden: bool = True) -> list[dict]:
     """Bugünden (veya verilen günden) itibaren ilk boş slotlar."""
     gun = baslangic or bugun()
     son = bugun() + timedelta(days=ayarlar().rezervasyon_ufku_gun)
     sonuc: list[dict] = []
     while gun <= son and len(sonuc) < adet:
-        m = gun_musaitligi(db, salon, berber_id, gun.isoformat(), sure_dk)
+        m = gun_musaitligi(db, salon, berber_id, gun.isoformat(), sure_dk, onceden=onceden)
         for s in m.musait:
             sonuc.append({"tarih": m.tarih, "saat": s})
             if len(sonuc) >= adet:
@@ -344,12 +361,13 @@ def randevu_olustur(
     with _rezervasyon_kilidi:
         # PostgreSQL: aynı berbere eşzamanlı yazmaları sıraya sokar (SQLite'ta yok sayılır).
         db.query(models.Berber).filter(models.Berber.id == berber.id).with_for_update().first()
-        m = gun_musaitligi(db, salon, berber.id, tarih_str, sure)
+        onceden = kaynak != "panel"
+        m = gun_musaitligi(db, salon, berber.id, tarih_str, sure, onceden=onceden)
         if m.kapali_neden:
             raise is_kurali_hatasi(m.kapali_neden)
         if saat not in m.musait:
             oneriler = [s for s in m.musait][:5] or [
-                f"{x['tarih']} {x['saat']}" for x in en_yakin_slotlar(db, salon, berber.id, sure, 3)
+                f"{x['tarih']} {x['saat']}" for x in en_yakin_slotlar(db, salon, berber.id, sure, 3, onceden=onceden)
             ]
             raise is_kurali_hatasi(
                 f"Seçtiğiniz saat ({saat}) artık uygun değil. Hizmet {sure} dk sürüyor.",
@@ -404,12 +422,14 @@ def randevu_tasi(db: Session, r: models.Randevu, tarih_str: str, saat: str, berb
     sure = r.sure_dk or 30
     with _rezervasyon_kilidi:
         db.query(models.Berber).filter(models.Berber.id == berber.id).with_for_update().first()
-        m = gun_musaitligi(db, salon, berber.id, tarih_str, sure, haric_id=r.id if berber.id == r.berber_id else None)
+        m = gun_musaitligi(db, salon, berber.id, tarih_str, sure, haric_id=r.id if berber.id == r.berber_id else None,
+                           onceden=musteri_ertelemesi)
         if m.kapali_neden:
             raise is_kurali_hatasi(m.kapali_neden)
         if saat not in m.musait:
             oneriler = m.musait[:5] or [
-                f"{x['tarih']} {x['saat']}" for x in en_yakin_slotlar(db, salon, berber.id, sure, 3)
+                f"{x['tarih']} {x['saat']}"
+                for x in en_yakin_slotlar(db, salon, berber.id, sure, 3, onceden=musteri_ertelemesi)
             ]
             raise is_kurali_hatasi(f"Seçtiğiniz saat ({saat}) uygun değil. Hizmet {sure} dk sürüyor.", 409,
                                    oneriler=oneriler)

@@ -76,12 +76,13 @@ def musait_takvim_getir(berber_id: int | None = None, salon_id: int | None = Non
     gunler = []
     aday = [bugun() + timedelta(days=i) for i in range(ayarlar().rezervasyon_ufku_gun + 1)]
     nedenler = ss.kapali_nedenler(db, salon, berber_id, aday)
+    sinir = ss.en_erken_an(ss.onceden_dk(salon))  # şimdi + salonun "en az önceden" süresi
     acik = []
     for gun in aday:
         if nedenler[gun]:
             continue
         acilis, kapanis = ss.gun_mesaisi(salon, gun)
-        if gun == bugun() and simdi().hour * 60 + simdi().minute >= kapanis - ss.blok_dk(1):
+        if gun < sinir.date() or (gun == sinir.date() and sinir.hour * 60 + sinir.minute >= kapanis - ss.blok_dk(1)):
             continue
         acik.append(gun)
         gunler.append({
@@ -173,6 +174,7 @@ def musait_saatleri_getir(
         "musait_saatler": m.musait,
         "tum_saatler": m.tum,
         "dolu_slotlar": [s for s in m.tum if s not in musait],
+        "min_onceden_dk": salon.min_onceden_dk or 0,
         "indirimler": indirimler,  # saat → kampanya indirim yüzdesi (yalnızca indirimli müsait saatler)
         "kampanya_korunan_saatler": korunan,  # yalnızca kampanyalı randevu ertelenirken
     }

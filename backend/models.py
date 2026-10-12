@@ -55,6 +55,8 @@ class Salon(Base):
     # Sadakat kartı: her `sadakat_esik`. ziyarette `sadakat_yuzde` indirim (ikisi de boşsa kapalı)
     sadakat_esik = Column(Integer, nullable=True)
     sadakat_yuzde = Column(Integer, nullable=True)
+    # Müşteri en az bu kadar dakika sonrasına randevu alabilir (0 = son dakika randevuya açık)
+    min_onceden_dk = Column(Integer, default=0, nullable=False, server_default="0")
     puan = Column(Float, default=5.0)
     aktif = Column(Boolean, default=True, nullable=False)
 

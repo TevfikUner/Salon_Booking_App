@@ -24,6 +24,7 @@ class _Adim4SaatState extends State<Adim4Saat> {
   List<String> _tum = [];
   Set<String> _musait = {};
   Map<String, int> _indirimler = {};
+  int _minOnceden = 0;
   String? _kapaliNeden;
   List<Map<String, dynamic>> _enYakin = [];
   bool _yukleniyor = true;
@@ -62,6 +63,7 @@ class _Adim4SaatState extends State<Adim4Saat> {
         _tum = List<String>.from(v['tum_saatler']);
         _musait = musait;
         _indirimler = Map<String, int>.from(v['indirimler'] ?? const {});
+        _minOnceden = v['min_onceden_dk'] as int? ?? 0;
         _kapaliNeden = v['kapali_neden'];
         _enYakin = enYakin;
       });
@@ -132,7 +134,8 @@ class _Adim4SaatState extends State<Adim4Saat> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Text(
-            'Toplam süre: ${sureMetni(provider.toplamSureDk)} — yalnızca hizmetin tamamının sığdığı saatler açıktır.',
+            'Toplam süre: ${sureMetni(provider.toplamSureDk)} — yalnızca hizmetin tamamının sığdığı saatler açıktır.'
+            '${_minOnceden > 0 ? ' Bu salon en az ${_minOnceden % 1440 == 0 ? '${_minOnceden ~/ 1440} gün' : sureMetni(_minOnceden)} önceden randevu alıyor.' : ''}',
             style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 11),
           ),
         ),

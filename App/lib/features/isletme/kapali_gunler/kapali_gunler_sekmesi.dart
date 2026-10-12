@@ -8,6 +8,7 @@ import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
 import 'package:berber_app_ui/core/widgets/durum_gorunumleri.dart';
 import 'package:berber_app_ui/features/isletme/kapali_gunler/widgets/mola_karti.dart';
+import 'package:berber_app_ui/features/isletme/kapali_gunler/widgets/onceden_karti.dart';
 import 'package:berber_app_ui/features/isletme/kapali_gunler/widgets/saat_secici.dart';
 
 /// Salonun öğle arası, kapalı günleri (tatil), personel izinleri ve saatlik kapatmaları.
@@ -179,6 +180,7 @@ class _KapaliGunlerSekmesiState extends State<KapaliGunlerSekmesi> {
             style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
         const SizedBox(height: 8),
         if (_salon != null) MolaKarti(salon: _salon!, onDegisti: (s) => setState(() => _salon = s)),
+        if (_salon != null) OncedenKarti(salon: _salon!, onDegisti: (s) => setState(() => _salon = s)),
         _baslik('Salonun kapalı olduğu günler', _tatilEkle),
         if (_tatiller.isEmpty) _bos('Planlanmış kapalı gün yok.'),
         for (final t in _tatiller)

@@ -14,6 +14,7 @@ import 'package:berber_app_ui/features/isletme/akis/musteri_karti_sheet.dart';
 import 'package:berber_app_ui/features/isletme/akis/widgets/akis_randevu_karti.dart';
 import 'package:berber_app_ui/features/isletme/akis/widgets/gun_takvimi.dart';
 import 'package:berber_app_ui/features/isletme/kapali_gunler/widgets/mola_karti.dart';
+import 'package:berber_app_ui/features/isletme/kapali_gunler/widgets/onceden_karti.dart';
 import 'package:berber_app_ui/data/models/berber.dart';
 import 'package:berber_app_ui/features/kesfet/widgets/ekip_listesi.dart';
 import 'package:berber_app_ui/features/kesfet/widgets/kampanya_bilesenleri.dart';
@@ -229,6 +230,8 @@ void main() {
           liste([
             MolaKarti(salon: const {'mola_baslangic': '12:30', 'mola_bitis': '13:45'}, onDegisti: (_) {}),
             MolaKarti(salon: const {}, onDegisti: (_) {}),
+            OncedenKarti(salon: const {'min_onceden_dk': 1440}, onDegisti: (_) {}),
+            OncedenKarti(salon: const {}, onDegisti: (_) {}),
           ]),
           olcek: olcek));
       testWidgets('randevu onay ekranı', (t) => ciz(
