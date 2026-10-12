@@ -13,8 +13,17 @@ class RandevuKarti extends StatelessWidget {
   final VoidCallback? onDegerlendir;
   final VoidCallback? onTakvim;
 
+  /// Tamamlanan randevuyu "N hafta sonra aynı saatte" tekrar almak
+  final VoidCallback? onTekrarla;
+
   const RandevuKarti(
-      {super.key, required this.randevu, this.onIptal, this.onErtele, this.onDegerlendir, this.onTakvim});
+      {super.key,
+      required this.randevu,
+      this.onIptal,
+      this.onErtele,
+      this.onDegerlendir,
+      this.onTakvim,
+      this.onTekrarla});
 
   static (String, Color) durumBilgisi(String durum) => switch (durum) {
         'onaylandi' => ('✓ Onaylandı', AppTheme.success),
@@ -126,6 +135,23 @@ class RandevuKarti extends StatelessWidget {
                     label: const Text('Hizmeti Değerlendir'),
                   ),
                 ),
+          if (onTekrarla != null) ...[
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                key: ValueKey('tekrarla_${r.id}'),
+                onPressed: onTekrarla,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppTheme.gold,
+                  side: BorderSide(color: AppTheme.gold.withValues(alpha: 0.6)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                icon: const Icon(Icons.replay, size: 18),
+                label: const Text('Aynısını Tekrar Al'),
+              ),
+            ),
+          ],
         ],
       ]),
     );

@@ -9,6 +9,7 @@ import 'package:berber_app_ui/data/api/randevu_api.dart';
 import 'package:berber_app_ui/data/models/randevu.dart';
 import 'package:berber_app_ui/features/musteri/degerlendirme/degerlendirme_screen.dart';
 import 'package:berber_app_ui/features/musteri/randevularim/erteleme_sheet.dart';
+import 'package:berber_app_ui/features/musteri/randevularim/tekrar_sheet.dart';
 import 'package:berber_app_ui/features/musteri/randevularim/widgets/randevu_karti.dart';
 import 'package:berber_app_ui/services/analitik.dart';
 import 'package:berber_app_ui/services/takvim_paylasimi.dart';
@@ -45,6 +46,19 @@ class RandevularimScreenState extends State<RandevularimScreen> {
     } finally {
       if (mounted) setState(() => _yukleniyor = false);
     }
+  }
+
+  Future<void> _tekrarla(Randevu r) async {
+    final onay = await showModalBottomSheet<Widget>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppTheme.surface,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (_) => TekrarSheet(randevu: r),
+    );
+    if (onay == null || !mounted) return;
+    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => onay));
+    yenile();
   }
 
   Future<void> _ertele(Randevu r) async {
@@ -176,6 +190,7 @@ class RandevularimScreenState extends State<RandevularimScreen> {
                           ))
                       : null,
                   onDegerlendir: () => _degerlendir(r),
+                  onTekrarla: r.durum == 'tamamlandi' ? () => _tekrarla(r) : null,
                 );
               },
             ),

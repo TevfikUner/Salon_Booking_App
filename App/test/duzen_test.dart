@@ -116,7 +116,7 @@ void main() {
           t,
           liste([
             RandevuKarti(randevu: randevu('onaylandi'), onIptal: () {}, onErtele: () {}),
-            RandevuKarti(randevu: randevu('tamamlandi'), onDegerlendir: () {}),
+            RandevuKarti(randevu: randevu('tamamlandi'), onDegerlendir: () {}, onTekrarla: () {}),
             RandevuKarti(randevu: randevu('iptal', iptalEden: 'isletme')),
             RandevuKarti(randevu: randevu('gelmedi')),
           ]),

@@ -69,6 +69,10 @@ class RandevuApi {
     }
   }
 
+  /// "N hafta sonra aynı saatte tekrar" önerisi; [hafta] verilmezse müşterinin olağan gelme aralığı.
+  static Future<Json> tekrarOnerisi(int randevuId, {int? hafta}) async =>
+      await ApiClient.get('/randevular/$randevuId/tekrar-onerisi', params: {'hafta': hafta});
+
   static Future<void> iptal(int randevuId) => ApiClient.post('/randevular/$randevuId/iptal');
 
   /// Randevunun iCalendar (.ics) metni — yalnızca sahibine.

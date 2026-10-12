@@ -1,6 +1,7 @@
 """Randevu yaşam döngüsü: iptal, durum değişikliği, bekleme listesi, güven skoru, "her zamanki"."""
 from collections import Counter
-from datetime import timedelta
+from datetime import date, timedelta
+from itertools import pairwise
 
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
@@ -236,6 +237,63 @@ def guven_skoru(db: Session, musteri_id: int) -> dict:
     skor = max(0, min(100, 80 + tamam * 5 - gelmedi * 30 - gec_iptal * 10))
     etiket = "Güvenilir" if skor >= 80 else ("Dikkat" if skor >= 50 else "Riskli")
     return {"skor": skor, "etiket": etiket, "tamamlanan": tamam, "gelmedi": gelmedi, "gec_iptal": gec_iptal}
+
+
+# ─────────────────────────── Tekrar randevu ───────────────────────────
+
+def olagan_aralik_hafta(db: Session, r: models.Randevu) -> int:
+    """Müşterinin bu berbere gelme sıklığı (hafta, 1–8): tamamlanan ziyaretler arası günlerin medyanı.
+    Yeterli geçmiş yoksa 3 hafta (berberde en yaygın aralık)."""
+    tarihler = sorted({x for (x,) in db.query(models.Randevu.tarih).filter(
+        models.Randevu.musteri_id == r.musteri_id, models.Randevu.berber_id == r.berber_id,
+        models.Randevu.durum == "tamamlandi")})
+    if len(tarihler) < 2:
+        return 3
+    gunler = sorted((date.fromisoformat(b) - date.fromisoformat(a)).days for a, b in pairwise(tarihler))
+    medyan = gunler[len(gunler) // 2]
+    return max(1, min(8, round(medyan / 7)))
+
+
+def tekrar_onerisi(db: Session, r: models.Randevu, hafta: int | None) -> dict:
+    """Aynı berber ve hizmetlerle N hafta sonrası için öneri: aynı saat boşsa o; değilse o günün en yakın saatleri,
+    gün kapalı/doluysa sonraki en yakın boş saatler. Hedef geçmişte kalırsa aynı haftanın gününe ileri alınır."""
+    if r.durum not in ("tamamlandi", "onaylandi"):
+        raise HTTPException(status_code=400, detail="Yalnızca alınmış veya tamamlanmış bir randevu tekrarlanabilir.")
+    berber = db.query(models.Berber).filter(models.Berber.id == r.berber_id, models.Berber.aktif.is_(True)).first()
+    if not berber or not berber.salon or not berber.salon.aktif:
+        raise HTTPException(status_code=400, detail="Bu personel artık randevu almıyor.")
+    kalemler = ss.hizmet_kalemleri(db, berber.salon_id, [h.id for h in r.hizmetler], berber.id)
+    sure = sum(k.sure for k in kalemler)
+    varsayilan = olagan_aralik_hafta(db, r)
+    hafta = hafta or varsayilan
+    hedef = date.fromisoformat(r.tarih) + timedelta(weeks=hafta)
+    while hedef <= ss.bugun():
+        hedef += timedelta(weeks=1)
+    m = ss.gun_musaitligi(db, berber.salon, berber.id, hedef.isoformat(), sure)
+    ayni = r.saat in m.musait
+    if ayni:
+        oneriler = [{"tarih": m.tarih, "saat": r.saat}]
+    elif m.musait:
+        hedef_dk = ss.saat_dk(r.saat)
+        yakin = sorted(m.musait, key=lambda s: abs(ss.saat_dk(s) - hedef_dk))[:3]
+        oneriler = [{"tarih": m.tarih, "saat": s} for s in sorted(yakin)]
+    else:
+        oneriler = ss.en_yakin_slotlar(db, berber.salon, berber.id, sure, 3, baslangic=hedef)
+    return {
+        "hafta": hafta,
+        "olagan_hafta": varsayilan,
+        "hedef_tarih": hedef.isoformat(),
+        "ayni_saat_bos": ayni,
+        "kapali_neden": m.kapali_neden,
+        "oneriler": oneriler,
+        "berber_id": berber.id,
+        "berber": f"{berber.ad} {berber.soyad}".strip(),
+        "salon_ad": berber.salon.ad,
+        "hizmet_ids": [k.hizmet.id for k in kalemler],
+        "hizmetler": [k.hizmet.ad for k in kalemler],
+        "toplam_sure_dk": sure,
+        "liste_fiyati": sum(k.fiyat for k in kalemler),
+    }
 
 
 # ─────────────────────────── "Her Zamanki" (imza özellik) ───────────────────────────

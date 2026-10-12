@@ -330,6 +330,15 @@ def randevu_ertele(request: Request, randevu_id: int, veri: ErtelemeIstegi,
     return idempotent(idempotency_key, kimlik.uid, _ertele)
 
 
+@router.get("/{randevu_id}/tekrar-onerisi")
+def tekrar_onerisi(randevu_id: int, hafta: int | None = Query(default=None, ge=1, le=12),
+                   kimlik: Kimlik = Depends(kimlik_gerekli), db: Session = Depends(get_db)):
+    """"N hafta sonra aynı saatte tekrar" önerisi (aynı berber ve hizmetler). `hafta` verilmezse müşterinin
+    bu berbere olağan gelme aralığı. Randevu /randevular/olustur ile alınır."""
+    r = _musteri_randevusu(db, randevu_id, kimlik)
+    return rs.tekrar_onerisi(db, r, hafta)
+
+
 @router.get("/{randevu_id}/takvim.ics", response_class=Response)
 def randevu_takvim_dosyasi(randevu_id: int, kimlik: Kimlik = Depends(kimlik_gerekli), db: Session = Depends(get_db)):
     """Randevunun .ics dosyası (Google/Samsung/Apple takvimine eklemek için). Yalnızca randevunun sahibine."""
