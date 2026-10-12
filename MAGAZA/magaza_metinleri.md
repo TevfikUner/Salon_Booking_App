@@ -23,7 +23,8 @@ NEDEN PREMIUM BERBER?
 • Sıra beklemek yok: Salonun gerçek zamanlı boş saatlerini görürsün, dolu saat sana hiç gösterilmez.
 • Çift randevu derdi yok: Aynı saati iki kişi alamaz; seçtiğin saat onaylandığında senindir.
 • Hatırlatma bildirimi: Randevundan önce telefonuna hatırlatma gelir, unutmazsın.
-• Kolay iptal: Planın mı değişti? Randevularım ekranından tek dokunuşla iptal et, saat başkasına açılsın.
+• Kolay erteleme ve iptal: Planın mı değişti? Randevunu başka bir saate ertele ya da tek dokunuşla iptal et.
+• Kampanyalar ve sadakat kartı: İndirimli saatler takvimde işaretli; salonun sadakat kartıyla belirli ziyaretlerin indirimli.
 
 RANDEVU ALMAK 4 ADIM
 1. Hizmetleri seç: saç kesimi, sakal, cilt bakımı, keratin… Toplam süre ve fiyatı anında gör.
@@ -34,6 +35,7 @@ RANDEVU ALMAK 4 ADIM
 SANA ÖZEL
 • Konumuna yakın salonlar: İstersen yaklaşık konumunla salonları mesafeye göre sırala, istersen şehir ve ilçe seç.
 • Favori berberler: Her zamanki ustanla tek dokunuşla yeniden randevu al.
+• Aynısını tekrar al: Geçen seferki hizmeti birkaç hafta sonrasına, her zamanki saatine tek dokunuşla al.
 • Bekleme listesi: Gün doluysa "Yer açılırsa haber ver" de; iptal olursa ilk sen öğren.
 • Değerlendirme: Hizmetten sonra puan ver, diğer müşterilere yol göster.
 
@@ -41,6 +43,9 @@ SANA ÖZEL
 Salon sahibiysen uygulamadan işletme başvurusu yap. Onaylandıktan sonra:
 • Günün akışını tek ekranda gör: sıradaki müşteri, doluluk, beklenen ciro.
 • Telefonla veya kapıdan gelen müşteriyi saniyeler içinde takvime ekle.
+• Personel sütunlu gün takviminde randevuyu sürükleyerek başka saate ya da başka ustaya taşı.
+• Boş saatleri doldurmak için kampanya tanımla (ör. "Salı sabah %20"), sadakat kartı aç.
+• Her ustanın verdiği hizmetleri ve kendine özel fiyatını belirle.
 • Randevuyu "Tamamlandı" ya da "Gelmedi" olarak işaretle; güven skoru sayesinde sık iptal eden müşteriyi önceden gör.
 • Personel, hizmet menüsü, fiyatlar, tatil ve izin günlerini yönet.
 • Aylık raporla ciro ve gelmeme oranını takip et.

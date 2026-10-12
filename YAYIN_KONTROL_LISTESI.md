@@ -1,6 +1,6 @@
 # Yayın Kontrol Listesi — Premium Berber v1.0.0
 
-Dal: `feature/v1-hazirlik` · Tarih: 2026-10-11 · Her madde kanıtıyla (komut çıktısı / test / dosya). ❌ olanların engeli ve çözümü yazılı.
+Dal: `main` (v1 hazırlık + Tur 4 + Tur 5) · Tarih: 2026-10-11, Tur 5 güncellemesi 2026-10-12 · Her madde kanıtıyla (komut çıktısı / test / dosya). ❌ olanların engeli ve çözümü yazılı.
 
 ## Özet
 
@@ -81,9 +81,11 @@ Dal: `feature/v1-hazirlik` · Tarih: 2026-10-11 · Her madde kanıtıyla (komut 
 | Crashlytics + analytics (kayıt, randevu, iptal) | ✅ | `services/hata_raporlama.dart`, `services/analitik.dart` (`sign_up`, `randevu_olustur`, `randevu_iptal`) |
 | Android 13+ bildirim izni, bildirime dokununca doğru ekran | ✅ | `POST_NOTIFICATIONS` + `FirebaseMessaging.requestPermission()`; `BildirimServisi._ac`: randevu → Randevularım, bekleme → salon, değerlendirme → puanlama |
 | `flutter analyze` 0 | ✅ | `No issues found!` |
-| Tüm testler yeşil | ✅ | `flutter test` → `All tests passed!` (30) |
+| Tüm testler yeşil | ✅ | `flutter test` → `All tests passed!` (64, Tur 5) · backend `pytest` 155 (SQLite, PostgreSQL 16, `VERI_ANAHTARI` açık) |
 | integration_test: müşteri akışı | ✅ | `flutter test integration_test/musteri_akisi_test.dart -d emulator-5554 --dart-define=API_URL=http://10.0.2.2:8020` → `00:25 +1: All tests passed!`; backend logu: `POST /randevular/olustur 200`, `POST /randevular/2/iptal 200`. Backend: SQLite + `AUTH_MODE=dev`, veri `yuk/entegrasyon_veri.py`. Emülatör saat dilimi Europe/Istanbul olmalı (`adb shell cmd alarm set-timezone Europe/Istanbul`) |
 | integration_test: işletme akışı | ✅ | `flutter test integration_test/isletme_akisi_test.dart …` → `00:06 +1: All tests passed!`; backend logu: `PATCH /panel/randevular/1/durum 200` (tamamlandı) |
+| integration_test: Tur 5 özellikleri | ✅ | `flutter test integration_test/yeni_ozellikler_test.dart …` (Docker yığını, PostgreSQL) → `00:41 +3: All tests passed!`: kampanya rozeti → vermeyen personel seçilemez → indirimli saat → özette ve onayda indirim (150 → 120 ₺); "Aynısını Tekrar Al"; gün takviminde sürükle-bırak (10:00 → 11:30), kampanya formu, personel hizmetleri |
+| Görsel inceleme (Tur 5) | ✅ | `flutter drive … inceleme_test.dart` → 15 ekran görüntüsü tek tek incelendi; bulunan ve düzeltilen: takvim bloğunda büyük yazı taşması, takvimde geçmiş kampanya saati için "%" işareti, gömülü olmayan yazı ağırlığı (üretimde eksik font) |
 
 ## Kapı 5 — Play politikası ve mağaza
 
@@ -95,7 +97,7 @@ Dal: `feature/v1-hazirlik` · Tarih: 2026-10-11 · Her madde kanıtıyla (komut 
 | Veri güvenliği yanıtları kodla tutarlı | ✅ | `MAGAZA/veri_guvenligi.md` (her satırda kaynak dosya) |
 | İçerik derecelendirme yanıtları | ✅ | `MAGAZA/icerik_derecelendirme.md` |
 | 512×512 ikon, 1024×500 öne çıkan grafik | ✅ | `magaza_kontrol.py` → `ikon_512.png: 512x512 RGBA`, `one_cikan_1024x500.png: 1024x500 RGB` |
-| Telefon ekran görüntüleri | ✅ | `flutter drive --driver=test_driver/ekran_goruntusu.dart --target=integration_test/ekran_goruntusu_test.dart` (demo verisi, `wm size 1080x1920`) → `All tests passed`; `MAGAZA/ekran_goruntuleri/` 7 PNG, hepsi 1080×1920 (9:16): ana sayfa, keşfet, salon detay, hizmet seçimi, randevularım, işletme akışı, işletme raporu |
+| Telefon ekran görüntüleri | ✅ | `flutter drive --driver=test_driver/ekran_goruntusu.dart --target=integration_test/ekran_goruntusu_test.dart` (demo verisi, `wm size 1080x1920`) → `All tests passed`; `MAGAZA/ekran_goruntuleri/` 8 PNG, hepsi 1080×1920 (9:16): ana sayfa, keşfet (kampanya rozeti), salon detay (kampanya + sadakat kartı), hizmet seçimi, indirimli saat seçimi, randevularım, işletme akışı, işletme gün takvimi (Tur 5, 12 Ekim 2026) |
 | Kapalı test rehberi (12 testçi, 14 gün, mesaj) | ✅ | `MAGAZA/kapali_test_rehberi.md` |
 
 ## Kapı 6 — Teslim

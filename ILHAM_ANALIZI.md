@@ -190,27 +190,31 @@ Klonlanamayan repo yok (26/26). Atlananlar (konu dışı): `DietrichGebert/ponyt
 
 ### SONRAYA / GEREK YOK
 
+> **Tur 5 (2026-10-12, dal `feature/tur5`, `main`'e birleştirildi):** #12, #13, #14, #15, #16, #19, #20 ✅ uygulandı
+> (ayrıntı ve kararlar: KARARLAR.md "Tur 5", ILERLEME.md). #10, #11, #17 ücretli servis/sözleşme gerektirdiği için
+> bekliyor; #18 çoklu dil ayrı kayıtta (YAPILACAKLAR.md).
+
 **#10 — Online kapora / ödeme** · [Yüksek] · [L] · İlham: django (`down_payment`), calma (Razorpay), DebankurMandal ve himanshugoyal77 (Stripe) · Bizde ❌ · Backend: ödeme kuruluşu entegrasyonu, webhook, iade; frontend: ödeme sayfası · Fayda: no-show'a karşı en güçlü araç · **Önerim: SONRAYA.** 💰 Ücretli servis ve sözleşme gerekiyor (TR'de iyzico/PayTR; Stripe TR'de doğrudan yok). Ayrıca DebankurMandal'daki gibi gizli anahtar asla istemcide olmamalı. ANALIZ_RAPORU F7 ile aynı karar.
 
 **#11 — Salon galerisi / berber portföyü + fotoğraflı yorum** · [Orta] · [M] · İlham: dalpat98, Sarah358 (portfolio), antoni-codes, himanshugoyal77 · Bizde 🟡 (tablo var, yükleme ve gösterim yok) · **Önerim: SONRAYA.** Render diski kalıcı değil (P12); 💰 obje depolama gerekiyor (Firebase Storage yeni projelerde Blaze planı ister, alternatif Cloudinary ücretsiz katmanı) ve fotoğraflı yorumda moderasyon gerekiyor.
 
-**#12 — Kampanya / paket fiyat** · [Orta] · [M–L] · İlham: Sohna (Deals), CRM-laravel (indirim % + tarih aralığı + gizli), Gerato25 (Promotion), Snipped (kupon) · Bizde ❌ · **Önerim: SONRAYA.** Boş günleri doldurmak için değerli ama fiyat mühürleme, rapor ve "uygulamadaki fiyat salondakiyle tutmuyor" (ANALIZ_RAPORU'ndaki TR şikâyeti) riskleri ayrı bir ürün kararı gerektiriyor.
+**#12 — Kampanya / paket fiyat** ✅ Tur 5 · [Orta] · [M–L] · İlham: Sohna (Deals), CRM-laravel (indirim % + tarih aralığı + gizli), Gerato25 (Promotion), Snipped (kupon) · Bizde ❌ · **Önerim: SONRAYA.** Boş günleri doldurmak için değerli ama fiyat mühürleme, rapor ve "uygulamadaki fiyat salondakiyle tutmuyor" (ANALIZ_RAPORU'ndaki TR şikâyeti) riskleri ayrı bir ürün kararı gerektiriyor.
 
-**#13 — Berber ↔ hizmet eşleşmesi ve berbere göre fiyat/süre** · [Orta] · [M] · İlham: vfix (`employee_service`), django (`services_offered`), Gerato25 (Price) · Bizde 🟡 · **Önerim: SONRAYA.** Boyacı/usta berber ayrımı olan salonlar için yararlı; randevu akışı sırası (hizmet → berber) ve slot hesabı etkilenir. #4'ten sonra ele alınmalı.
+**#13 — Berber ↔ hizmet eşleşmesi ve berbere göre fiyat/süre** ✅ Tur 5 · [Orta] · [M] · İlham: vfix (`employee_service`), django (`services_offered`), Gerato25 (Price) · Bizde 🟡 · **Önerim: SONRAYA.** Boyacı/usta berber ayrımı olan salonlar için yararlı; randevu akışı sırası (hizmet → berber) ve slot hesabı etkilenir. #4'ten sonra ele alınmalı.
 
-**#14 — Berber sütunlu gün/hafta takvimi + sürükle-bırak** · [Orta] · [L] · İlham: planner (kaynak × zaman ızgarası), vfix, CRM-laravel · Bizde 🟡 · **Önerim: SONRAYA.** Çok koltuklu salonlar için güzel ama 360 dp telefonda ızgara zor; mevcut "Akış + doluluk" listesi ilk sürüm için yeterli. Sürükle-bırak #2'deki erteleme servisini kullanabilir.
+**#14 — Berber sütunlu gün/hafta takvimi + sürükle-bırak** ✅ Tur 5 (gün görünümü) · [Orta] · [L] · İlham: planner (kaynak × zaman ızgarası), vfix, CRM-laravel · Bizde 🟡 · **Önerim: SONRAYA.** Çok koltuklu salonlar için güzel ama 360 dp telefonda ızgara zor; mevcut "Akış + doluluk" listesi ilk sürüm için yeterli. Sürükle-bırak #2'deki erteleme servisini kullanabilir.
 
-**#15 — Minimum önceden rezervasyon süresi** · [Düşük] · [S] · İlham: thunderbird (`earliest_booking`), django (`lead_time`) · Bizde 🟡 (şimdiden sonraki her slot alınabiliyor) · **Önerim: SONRAYA.** Berberlerde son dakika randevu genelde istenen bir şey; talep gelirse salon ayarına tek alan olarak eklenir.
+**#15 — Minimum önceden rezervasyon süresi** ✅ Tur 5 · [Düşük] · [S] · İlham: thunderbird (`earliest_booking`), django (`lead_time`) · Bizde 🟡 (şimdiden sonraki her slot alınabiliyor) · **Önerim: SONRAYA.** Berberlerde son dakika randevu genelde istenen bir şey; talep gelirse salon ayarına tek alan olarak eklenir.
 
-**#16 — Sadakat kartı (ör. 10. tıraş indirimli)** · [Orta] · [M] · İlham: repolarda yok (en yakını kupon/promo) · **Önerim: SONRAYA.** Kampanya (#12) altyapısıyla birlikte tasarlanmalı.
+**#16 — Sadakat kartı (ör. 10. tıraş indirimli)** ✅ Tur 5 · [Orta] · [M] · İlham: repolarda yok (en yakını kupon/promo) · **Önerim: SONRAYA.** Kampanya (#12) altyapısıyla birlikte tasarlanmalı.
 
 **#17 — SMS / otomatik WhatsApp hatırlatma** · [Orta] · [M] · İlham: repolarda yalnızca e-posta hatırlatma var (django, vfix) · Bizde 🟡 (`wa.me` elle) · **Önerim: SONRAYA.** 💰 SMS kontörü (Netgsm/İleti Merkezi) + İYS kaydı veya WhatsApp Business API (Meta onayı + mesaj başı ücret).
 
 **#18 — Çoklu dil** · [Düşük] · [L] · İlham: TareqAlKushari (easy_localization), thunderbird (Fluent), django (gettext) · Bizde ❌ · **Önerim: SONRAYA.** Hedef pazar TR; bütün metinlerin ARB'ye taşınması geniş bir iş.
 
-**#19 — Tekrarlayan randevu** · [Düşük] · [M] · İlham: hiçbir repoda yok · Bizde 🟡 (Her Zamanki) · **Önerim: SONRAYA.** Tamamlanan randevudan sonra "3 hafta sonra aynı saate al?" önerisi daha az riskli bir ara adım olur.
+**#19 — Tekrarlayan randevu** ✅ Tur 5 ("Aynısını Tekrar Al") · [Düşük] · [M] · İlham: hiçbir repoda yok · Bizde 🟡 (Her Zamanki) · **Önerim: SONRAYA.** Tamamlanan randevudan sonra "3 hafta sonra aynı saate al?" önerisi daha az riskli bir ara adım olur.
 
-**#20 — Kişisel verinin DB'de şifrelenmesi** · [Orta] · [M] · İlham: thunderbird (`encrypted_type` ile ad, e-posta, telefon) · **Önerim: SONRAYA.** KVKK açısından güçlü ama arama (il/ilçe, telefon eşleşmesi) ve veri taşıma etkisi var; ayrı bir güvenlik turunda ele alınmalı.
+**#20 — Kişisel verinin DB'de şifrelenmesi** ✅ Tur 5 (isteğe bağlı anahtarla) · [Orta] · [M] · İlham: thunderbird (`encrypted_type` ile ad, e-posta, telefon) · **Önerim: SONRAYA.** KVKK açısından güçlü ama arama (il/ilçe, telefon eşleşmesi) ve veri taşıma etkisi var; ayrı bir güvenlik turunda ele alınmalı.
 
 **#21 — Uygulama içi mesajlaşma** · İlham: sailesh307, masifdevs, Sarah358, Telecare · **Önerim: GEREK YOK.** WhatsApp/telefon derin bağlantısı TR'de daha yüksek etkileşim sağlıyor; sohbet moderasyon, KVKK ve altyapı yükü getirir.
 

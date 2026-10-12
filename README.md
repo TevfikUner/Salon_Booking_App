@@ -36,8 +36,8 @@ python worker.py                     # (ayrı terminal, isteğe bağlı) hatırl
 ```
 
 - API belgesi: http://localhost:8010/docs (production'da kapalı) · sağlık: http://localhost:8010/health
-- Testler: `pytest` (110 test: slot/çakışma/eşzamanlılık/idempotency/hız sınırı/DB kesintisi/zamanlayıcı kilidi/yasal sayfalar/panel yetkileri/KVKK, erteleme, öğle arası/saatlik kapatma, yorumlar, müşteri kartı, arama, takvim dosyası). PostgreSQL'e karşı: `TEST_DATABASE_URL=postgresql://... pytest` · Lint: `ruff check .`
-- Yönetim: `python araclar.py --help` (admin ekleme, işletme onay/red, hesap silme talepleri, sağlık kontrolü)
+- Testler: `pytest` (155 test: slot/çakışma/eşzamanlılık/idempotency/hız sınırı/DB kesintisi/zamanlayıcı kilidi/yasal sayfalar/panel yetkileri/KVKK, erteleme, öğle arası/saatlik kapatma, yorumlar, müşteri kartı, arama, takvim dosyası, berbere özel hizmet, kampanya/sadakat, takvimde taşıma, veri şifreleme, en az önceden, tekrar randevu). PostgreSQL'e karşı: `TEST_DATABASE_URL=postgresql://... pytest` · şifreleme açıkken: `VERI_ANAHTARI=deneme pytest` · Lint: `ruff check .`
+- Yönetim: `python araclar.py --help` (admin ekleme, işletme onay/red, hesap silme talepleri, sağlık kontrolü, veri şifreleme anahtarı ve toplu şifreleme)
 
 ### Kimlik doğrulama
 
@@ -73,8 +73,9 @@ flutter run --dart-define=API_URL=http://192.168.1.20:8010
 flutter build appbundle --release --dart-define=API_URL=https://premium-berber-api.onrender.com
 ```
 
-- `flutter analyze` → temiz · `flutter test` → 50 test (birim, widget, 360 dp + 1,3× yazı taşma testleri)
-- Uçtan uca: `bash backend/yuk/yigin.sh entegrasyon` → `flutter test integration_test/musteri_akisi_test.dart --dart-define=API_URL=http://10.0.2.2:8020` (ve `isletme_akisi_test.dart`)
+- `flutter analyze` → temiz · `flutter test` → 64 test (birim, widget, gün takvimi sürükle-bırak, 360 dp + 1,3× yazı taşma testleri, gömülü yazı tipi koruması)
+- Uçtan uca: `bash backend/yuk/yigin.sh entegrasyon` → `flutter test integration_test/musteri_akisi_test.dart --dart-define=API_URL=http://10.0.2.2:8020` (ve `isletme_akisi_test.dart`, `yeni_ozellikler_test.dart`)
+- Görsel inceleme (demo verisiyle 15 ekran → `build/inceleme/`): `flutter drive --driver=test_driver/inceleme.dart --target=integration_test/inceleme_test.dart --dart-define=API_URL=http://10.0.2.2:8020`
 
 ### Kod yapısı
 
@@ -124,7 +125,10 @@ docker compose -p premium-berber exec api python seed_demo.py   # isteğe bağl�
 | `GET /health` | Sağlık (DB dahil; DB yoksa 503) |
 | `GET /ben` | Oturumdaki kullanıcının rolü ve bağlamı |
 | `GET /salonlar?sehir=&ilce=&lat=&lng=&q=&min_puan=`, `/salonlar/{id}` | Keşfet (harf duyarsız filtre ve arama — salon/ilçe/hizmet adı, konuma göre sıralama, favori işareti, berber tıraş/yorum sayısı) |
-| `GET /hizmetler/?salon_id=` | Salonun menüsü |
+| `GET /hizmetler/?salon_id=&berber_id=` | Salonun menüsü (personel arası fiyat/süre aralığı, kampanya yüzdesi); berberle: yalnızca onun verdikleri, onun fiyatıyla |
+| `GET /berberler/?salon_id=&hizmet_ids=` | Personel; hizmet verilirse her birinde `uygun`, vermedikleri ve o berberdeki toplam fiyat/süre |
+| `GET /randevular/fiyat?berber_id=&tarih=&saat=&hizmet_ids=` | Onay öncesi tutar: liste fiyatı, kampanya veya sadakat indirimi, toplam |
+| `GET /randevular/{id}/tekrar-onerisi?hafta=` | "N hafta sonra aynı saatte" önerisi (varsayılan: müşterinin olağan aralığı) |
 | `GET /randevular/musait-takvim?berber_id=&hizmet_ids=` | Açık günler (tatil/izin/kapalı gün/berberin haftalık izni hariç); hizmet verilirse gün başına boş saat sayısı ve `dolu` |
 | `GET /degerlendirmeler/salon/{id}?sayfa=` | Salon yorumları: ortalama, 1–5 dağılımı, sayfalı liste |
 | `GET /randevular/musait-saatler/{berber_id}?tarih=&hizmet_ids=` | Tek doğruluk kaynağı: müsait saatler |
@@ -139,7 +143,10 @@ docker compose -p premium-berber exec api python seed_demo.py   # isteğe bağl�
 | `POST /panel/randevular` | Telefonla/kapıdan gelen müşteri |
 | `GET /panel/musteriler/{id}`, `PUT /panel/musteriler/{id}/not` | Müşteri kartı (bu salondaki geçmiş, harcama, güven skoru) ve kalıcı işletme notu |
 | `POST /panel/bloke`, `DELETE /panel/bloke/{id}` | Berberi bir günün belirli saatlerinde kapatma |
-| `/panel/personel`, `/panel/hizmetler`, `/panel/tatil`, `/panel/izin`, `/panel/rapor`, `/panel/salon` | İşletme yönetimi (personelin haftalık izin günleri, salonun öğle arası dahil) |
+| `POST /panel/randevular/{id}/tasi` | Gün takviminde sürükle-bırak: başka saat/gün/personel (fiyat ve süre aynı, müşteriye bildirim) |
+| `GET/PUT /panel/personel/{id}/hizmetler` | Personelin verdiği hizmetler ve kendine özel fiyat/süre |
+| `/panel/kampanyalar`, `PUT /panel/sadakat` | Kampanyalar (gün/saat/tarih/hizmet koşullu yüzde) ve sadakat kartı (her N. ziyaret %X) |
+| `/panel/personel`, `/panel/hizmetler`, `/panel/tatil`, `/panel/izin`, `/panel/rapor`, `/panel/salon` | İşletme yönetimi (personelin haftalık izin günleri, salonun öğle arası ve "en az önceden" süresi dahil) |
 | `POST /isletmeler/kayit`, `POST /isletmeler/{id}/onayla` | İşletme başvurusu ve admin onayı |
 | `DELETE /musteriler/hesabim` | Hesap silme (müşteri, işletme, personel — anonimleştirme) |
 | `GET /yasal/{gizlilik,kvkk,kullanim}` | Herkese açık yasal sayfalar (Play gizlilik URL'si) |

@@ -52,7 +52,8 @@ Yapılacak: `.premium-berber` klasörünü **iki ayrı yere** kopyalayın (ör. 
 
 ## 4. Render'a yayın (~15 dk + derleme)
 
-Önkoşul: `feature/v1-hazirlik` dalını GitHub'da `main`'e birleştirin (PR açıp merge). Ben main'e birleştirmedim.
+Kodun güncel hali GitHub `main` dalında (Tur 5 dahil). Yeni migration'lar (0003–0009) dağıtımda `preDeployCommand`
+ile kendiliğinden çalışır; mevcut veriye dokunmaz.
 
 1. https://render.com → hesap açın (GitHub ile) → **Billing**'e kart ekleyin (Starter planlar ücretli; free plan neden olmaz: KARARLAR.md "Render planı").
 2. **New → Blueprint** → repo `TevfikUner/pro_berber_full` → dal `main` → Render `render.yaml`'ı okur: 1 web, 1 worker, 1 PostgreSQL.
@@ -64,6 +65,7 @@ Yapılacak: `.premium-berber` klasörünü **iki ayrı yere** kopyalayın (ör. 
    | `DESTEK_EPOSTA` | Gerçek destek adresiniz (ör. `destek@alanadiniz.com`) — gizlilik sayfasında görünür | ✅ |
    | `ADMIN_UIDS` | Boş bırakın (admin'i adım 4.6'da komutla ekleyeceğiz) | — |
    | `SENTRY_DSN` | sentry.io'da ücretsiz proje → Python/FastAPI → DSN. Boşsa hata izleme kapalı | İsteğe bağlı |
+   | `VERI_ANAHTARI` | Kişisel veri şifreleme anahtarı — **boş bırakın**, açmak için adım 4.8 | İsteğe bağlı |
 
 4. **Apply** → ilk derleme 5–8 dk. Web servisi adı `premium-berber-api` ise adres `https://premium-berber-api.onrender.com`
    olur (başka ad verdiyseniz bundan sonraki her yerde kendi adresinizi kullanın).
@@ -75,6 +77,15 @@ Yapılacak: `.premium-berber` klasörünü **iki ayrı yere** kopyalayın (ör. 
    python araclar.py admin-ekle sizin@eposta.com # önce uygulamada bu e-postayla hesap açmış olmalısınız
    ```
 7. Worker'ı kontrol: Render → `premium-berber-gorevler` → **Logs** → `Worker başladı: hatirlatma, tamamlama, idempotency_temizlik`.
+8. **(İsteğe bağlı, önerilir) Kişisel veriyi veritabanında şifreleme.** Ad, telefon, e-posta, notlar ve yorumlar
+   veritabanında şifreli durur; veritabanı yedeği/dökümü sızsa bile okunamaz (KVKK teknik tedbir).
+   > ⚠️ **Anahtarı kaybederseniz şifreli veri geri getirilemez.** Önce yedekleyin, sonra açın.
+   1. Shell'de: `python araclar.py anahtar-uret` → çıkan değeri **parola yöneticinize** kaydedin (upload anahtarının yanına).
+   2. Render → **Env Groups → premium-berber-ortak** → `VERI_ANAHTARI` = o değer → **Save** (web ve worker yeniden başlar).
+   3. Shell'de mevcut kayıtları şifreleyin: `python araclar.py veri-sifrele` → tablo başına sayı yazar.
+      `python araclar.py saglik` → "Veri şifreleme: açık".
+   - Anahtarı değiştirmek: yeni değeri `VERI_ANAHTARI`'na, eskisini `VERI_ANAHTARI_ESKI`'ye yazın → `veri-sifrele` →
+     eskisini silin. Kapatmak: önce `python araclar.py veri-coz`, sonra `VERI_ANAHTARI`'nı silin.
 
 ## 5. Gerçek API adresiyle AAB derleyin (~5 dk)
 
@@ -84,6 +95,7 @@ Adım 1 ve 4 bittikten sonra, `App/` klasöründe:
 flutter build appbundle --release --dart-define=API_URL=https://premium-berber-api.onrender.com --dart-define=DESTEK_EPOSTA=destek@alanadiniz.com
 ```
 
+Tur 4–5 özellikleri `main`'de olduğu için daha önce derlenmiş bir AAB'yi değil bu komutla yenisini yükleyin.
 Çıktı: `App/build/app/outputs/bundle/release/app-release.aab`. Telefonda denemek için aynı parametrelerle
 `flutter build apk --release ...` → `App/build/app/outputs/flutter-apk/app-release.apk` dosyasını telefona atıp kurun.
 
@@ -123,6 +135,11 @@ onay bildirimi gelir mi → bildirime dokununca Randevularım açılıyor mu →
   > Randevu aldığınız salon, size daha iyi hizmet verebilmek için sizinle ilgili kısa hizmet notları (ör. tercih
   > ettiğiniz kesim) tutabilir. Bu notlar yalnızca o salon tarafından görülür ve hesabınızı sildiğinizde silinir.
   Ayrıca işletmelere "notlara sağlık bilgisi gibi özel nitelikli veri yazmayın" uyarısı (ör. işletme sözleşmesinde) eklenmeli.
+- **Kampanya ve indirim gösterimi (yeni, Tur 5):** İşletmeler yüzde kampanya ve sadakat kartı tanımlayabiliyor; uygulama
+  liste fiyatını üstü çizili, indirimli tutarı yanında gösteriyor. Ticaret Bakanlığı'nın indirimli satış kuralları
+  (indirim öncesi fiyat olarak son 30 günün en düşük fiyatının gösterilmesi) hizmet fiyatlarına uygulanıyor mu,
+  hukukçuya sorun. Gerekirse işletme sözleşmesine "menü fiyatını kampanyadan hemen önce yükseltmeyin" maddesi
+  eklenebilir. Uygulama içi kampanya gösterimi ticari ileti (SMS/e-posta) değildir, İYS gerektirmez.
 - **Ticari ileti:** kampanya mesajı gönderecekseniz İYS kaydı gerekir (uygulama izni ayrı ve isteğe bağlı topluyor).
 - **iOS** isterseniz: Apple Developer (99 $/yıl), `GoogleService-Info.plist`, APNs anahtarı.
 
