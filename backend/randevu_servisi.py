@@ -88,7 +88,6 @@ def musteri_ertele(db: Session, r: models.Randevu, tarih: str, saat: str) -> Non
     ss.randevu_tasi(db, r, tarih, saat)
     bekleme_listesine_haber_ver(db, r.berber_id, eski_tarih)
     salona_bildir(db, r, "Randevu ertelendi", f"önceki: {_tarih_tr(eski_tarih)} {eski_saat}")
-    salona_bildir(db, r, "Randevu iptal edildi", "müşteri iptal etti, saat artık boş.")
 
 
 def isletme_iptal(db: Session, r: models.Randevu) -> None:

@@ -91,6 +91,7 @@ def test_erteleme_eski_gunu_bekleme_listesine_acar_ve_isletmeye_bildirir(client,
     b = [g for g in gonderilenler if g["token"] == "tok-isletme-a"]
     assert b and b[0]["baslik"] == "Randevu ertelendi" and "09.10.2026 11:00" in b[0]["mesaj"]
     assert "önceki: 08.10.2026 14:00" in b[0]["mesaj"]
+    assert len(b) == 1  # yalnızca "ertelendi"; ayrıca "iptal edildi" gitmemeli
 
 
 def test_musait_saatler_ertelenen_randevunun_yerini_bos_gosterir(client, veri):
