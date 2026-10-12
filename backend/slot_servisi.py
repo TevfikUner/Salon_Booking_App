@@ -381,21 +381,30 @@ def randevu_olustur(
     return r
 
 
-def randevu_tasi(db: Session, r: models.Randevu, tarih_str: str, saat: str) -> None:
-    """Randevuyu aynı berberde yeni güne/saate taşır (süre ve fiyat mühürlü kalır). Kilit altında, randevunun
-    kendi eski aralığı dolu sayılmadan yeniden müsaitlik hesaplanır; çakışmada 409 + öneriler.
-    Kampanya indirimi yalnızca yeni gün/saat de aynı kampanyaya uyuyorsa korunur (sadakat indirimi korunur)."""
+def randevu_tasi(db: Session, r: models.Randevu, tarih_str: str, saat: str, berber_id: int | None = None,
+                 musteri_ertelemesi: bool = True) -> None:
+    """Randevuyu yeni güne/saate (işletme taşımasında başka berbere de) taşır; süre ve fiyat mühürlü kalır.
+    Kilit altında, randevunun kendi eski aralığı dolu sayılmadan yeniden müsaitlik hesaplanır; çakışmada 409 +
+    öneriler. Müşteri ertelemesinde: erteleme sayacı artar ve kampanya indirimi yalnızca yeni gün/saat de aynı
+    kampanyaya uyuyorsa korunur (sadakat indirimi korunur). İşletme taşımasında fiyat olduğu gibi kalır."""
     import fiyat_servisi as fs
 
     try:
         saat_dk(saat)
     except (ValueError, TypeError):
         raise is_kurali_hatasi("Geçersiz saat formatı. Örnek: 14:30") from None
-    berber, salon = berber_ve_salon(db, r.berber_id)
+    berber, salon = berber_ve_salon(db, berber_id or r.berber_id)
+    if berber.salon_id != r.salon_id:
+        raise is_kurali_hatasi("Randevu yalnızca aynı salondaki personele taşınabilir.", 403)
+    if berber.id != r.berber_id:
+        ayar = berber_ayarlari(db, [berber.id])[berber.id]
+        vermedigi = [h.ad for h in r.hizmetler if kalem(h, ayar.get(h.id)) is None]
+        if vermedigi:
+            raise is_kurali_hatasi(f"{berber.ad} şu hizmeti vermiyor: {', '.join(vermedigi)}.")
     sure = r.sure_dk or 30
     with _rezervasyon_kilidi:
         db.query(models.Berber).filter(models.Berber.id == berber.id).with_for_update().first()
-        m = gun_musaitligi(db, salon, berber.id, tarih_str, sure, haric_id=r.id)
+        m = gun_musaitligi(db, salon, berber.id, tarih_str, sure, haric_id=r.id if berber.id == r.berber_id else None)
         if m.kapali_neden:
             raise is_kurali_hatasi(m.kapali_neden)
         if saat not in m.musait:
@@ -404,12 +413,14 @@ def randevu_tasi(db: Session, r: models.Randevu, tarih_str: str, saat: str) -> N
             ]
             raise is_kurali_hatasi(f"Seçtiğiniz saat ({saat}) uygun değil. Hizmet {sure} dk sürüyor.", 409,
                                    oneriler=oneriler)
-        if r.kampanya_id and not fs.ertelemede_kampanya_korunur(db, r, tarih_dogrula(tarih_str), saat):
-            r.toplam_fiyat = r.liste_fiyati if r.liste_fiyati is not None else r.toplam_fiyat
-            r.indirim_tutari, r.indirim_aciklama, r.kampanya_id = 0, None, None
+        if musteri_ertelemesi:
+            if r.kampanya_id and not fs.ertelemede_kampanya_korunur(db, r, tarih_dogrula(tarih_str), saat):
+                r.toplam_fiyat = r.liste_fiyati if r.liste_fiyati is not None else r.toplam_fiyat
+                r.indirim_tutari, r.indirim_aciklama, r.kampanya_id = 0, None, None
+            r.erteleme_sayisi = (r.erteleme_sayisi or 0) + 1
+        r.berber_id = berber.id
         r.tarih, r.saat = tarih_str, saat
         r.hatirlatma_gonderildi = False
-        r.erteleme_sayisi = (r.erteleme_sayisi or 0) + 1
         db.commit()
 
 

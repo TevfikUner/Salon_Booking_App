@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
@@ -11,6 +12,7 @@ import 'package:berber_app_ui/features/isletme/akis/musteri_karti_sheet.dart';
 import 'package:berber_app_ui/features/isletme/akis/randevu_ekle_sheet.dart';
 import 'package:berber_app_ui/features/isletme/akis/widgets/akis_ozeti.dart';
 import 'package:berber_app_ui/features/isletme/akis/widgets/akis_randevu_karti.dart';
+import 'package:berber_app_ui/features/isletme/akis/widgets/gun_takvimi.dart';
 
 /// İmza özellik — "Bugünün Akışı": günün randevuları saat sırasıyla, müşteri/hizmet/süre/ücret,
 /// güven skoru ve tek dokunuş WhatsApp onay mesajı.
@@ -31,10 +33,29 @@ class _AkisSekmesiState extends State<AkisSekmesi> {
   String? _hata;
   final Set<int> _islemde = {};
 
+  /// Liste (varsayılan) veya berber sütunlu gün takvimi; seçim cihazda hatırlanır
+  bool _takvim = false;
+  static const _gorunumAnahtari = 'akis_gorunumu_takvim';
+
   @override
   void initState() {
     super.initState();
     _yukle();
+    _gorunumuOku();
+  }
+
+  Future<void> _gorunumuOku() async {
+    try {
+      final t = (await SharedPreferences.getInstance()).getBool(_gorunumAnahtari) ?? false;
+      if (mounted && t != _takvim) setState(() => _takvim = t);
+    } catch (_) {
+      // Tercih okunamazsa liste görünümü
+    }
+  }
+
+  void _gorunumSec(bool takvim) {
+    setState(() => _takvim = takvim);
+    SharedPreferences.getInstance().then((p) => p.setBool(_gorunumAnahtari, takvim)).ignore();
   }
 
   Future<void> _yukle() async {
@@ -57,9 +78,13 @@ class _AkisSekmesiState extends State<AkisSekmesi> {
 
   Future<void> _durum(Map<String, dynamic> r, String durum) async {
     if (durum == 'iptal' &&
-        !await onayIste(context, 'Randevuyu iptal et',
-            '${r['musteri']['ad']} — ${r['saat']} randevusu iptal edilsin mi? Müşteriye bildirim gönderilir.',
-            evet: 'İptal Et', tehlikeli: true)) {
+        !await onayIste(
+          context,
+          'Randevuyu iptal et',
+          '${r['musteri']['ad']} — ${r['saat']} randevusu iptal edilsin mi? Müşteriye bildirim gönderilir.',
+          evet: 'İptal Et',
+          tehlikeli: true,
+        )) {
       return;
     }
     setState(() => _islemde.add(r['id']));
@@ -78,15 +103,77 @@ class _AkisSekmesiState extends State<AkisSekmesi> {
     if (!await islem && mounted) bilgiGoster(context, 'Uygulama açılamadı.', hata: true);
   }
 
-  Future<void> _randevuEkle() async {
+  Future<void> _randevuEkle({int? berberId, String? saat}) async {
     final eklendi = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: AppTheme.surface,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-      builder: (_) => RandevuEkleSheet(baslangicTarihi: _gun),
+      builder: (_) => RandevuEkleSheet(baslangicTarihi: _gun, berberId: berberId, saat: saat),
     );
     if (eklendi == true) _yukle();
+  }
+
+  /// Takvimde bırakılan randevu: onay → taşı. Çakışırsa sunucunun önerdiği saatler gösterilir.
+  Future<void> _tasi(Map<String, dynamic> r, int berberId, String saat) async {
+    final ayniBerber = r['berber']['id'] == berberId;
+    if (ayniBerber && r['saat'] == saat) return;
+    final hedef = ((_veri?['doluluk'] as List?) ?? const [])
+        .cast<Map<String, dynamic>>()
+        .where((d) => d['berber_id'] == berberId)
+        .map((d) => d['ad'] as String)
+        .firstOrNull;
+    if (!await onayIste(
+      context,
+      'Randevuyu taşı',
+      '${r['musteri']['ad']} · ${r['saat']} → $saat${ayniBerber ? '' : ' (${hedef ?? 'diğer personel'})'}\n'
+          'Fiyat ve süre değişmez; müşteriye bildirim gönderilir.',
+      evet: 'Taşı',
+    )) {
+      return;
+    }
+    try {
+      await PanelApi.randevuTasi(r['id'], berberId: berberId, tarih: tarihStr(_gun), saat: saat);
+      if (mounted) bilgiGoster(context, 'Randevu $saat saatine taşındı.');
+    } on ApiHata catch (e) {
+      if (mounted) {
+        bilgiGoster(
+          context,
+          e.oneriler.isEmpty ? e.mesaj : '${e.mesaj} Uygun: ${e.oneriler.take(4).join(', ')}',
+          hata: true,
+          sure: const Duration(seconds: 6),
+        );
+      }
+    }
+    await _yukle();
+  }
+
+  /// Takvimdeki randevuya dokununca: listedeki kartın aynısı (aksiyonlarıyla) alt sayfada.
+  Future<void> _randevuDetay(Map<String, dynamic> r) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppTheme.surface,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (ctx) => SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+          child: AkisRandevuKarti(
+            randevu: r,
+            islemde: false,
+            onDurum: (d) {
+              Navigator.pop(ctx);
+              _durum(r, d);
+            },
+            onWhatsapp: () => _harici(Harici.ac(Uri.parse(r['whatsapp_link']))),
+            onAra: () => _harici(Harici.ara(r['musteri']['telefon'])),
+            onMusteri: () {
+              Navigator.pop(ctx);
+              _musteriKarti(r);
+            },
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _musteriKarti(Map<String, dynamic> r) async {
@@ -111,17 +198,55 @@ class _AkisSekmesiState extends State<AkisSekmesi> {
         icon: const Icon(Icons.add),
         label: const Text('Randevu Ekle', style: TextStyle(fontWeight: FontWeight.bold)),
       ),
-      body: Column(children: [
-        _GunSecici(gun: _gun, onSecim: _gunDegistir),
-        Expanded(
-          child: AsenkronGorunum(
-            yukleniyor: _veri == null && _hata == null,
-            hata: _hata,
-            onTekrar: _yukle,
-            builder: (_) => _liste(_veri!),
+      body: Column(
+        children: [
+          _GunSecici(gun: _gun, onSecim: _gunDegistir),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _takvim ? 'Taşımak için randevuya basılı tutup sürükleyin.' : '',
+                    style: const TextStyle(color: AppTheme.textSecondary, fontSize: 11),
+                  ),
+                ),
+                SegmentedButton<bool>(
+                  key: const ValueKey('akis_gorunum'),
+                  showSelectedIcon: false,
+                  style: const ButtonStyle(visualDensity: VisualDensity.compact),
+                  segments: const [
+                    ButtonSegment(value: false, icon: Icon(Icons.view_agenda_outlined, size: 18), tooltip: 'Liste'),
+                    ButtonSegment(
+                      value: true,
+                      icon: Icon(Icons.calendar_view_day_outlined, size: 18),
+                      tooltip: 'Takvim',
+                    ),
+                  ],
+                  selected: {_takvim},
+                  onSelectionChanged: (s) => _gorunumSec(s.first),
+                ),
+              ],
+            ),
           ),
-        ),
-      ]),
+          Expanded(
+            child: AsenkronGorunum(
+              yukleniyor: _veri == null && _hata == null,
+              hata: _hata,
+              onTekrar: _yukle,
+              builder: (_) => _takvim
+                  ? GunTakvimi(
+                      veri: _veri!,
+                      personel: widget.personel,
+                      onRandevu: _randevuDetay,
+                      onBosHucre: (b, s) => _randevuEkle(berberId: b, saat: s),
+                      onTasi: _tasi,
+                    )
+                  : _liste(_veri!),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -130,27 +255,31 @@ class _AkisSekmesiState extends State<AkisSekmesi> {
     return RefreshIndicator(
       color: AppTheme.gold,
       onRefresh: _yukle,
-      child: ListView(padding: const EdgeInsets.fromLTRB(16, 4, 16, 96), children: [
-        AkisOzetKartlari(ozet: v['ozet']),
-        if (v['siradaki'] != null) SiradakiKarti(randevu: v['siradaki']),
-        DolulukCipleri(doluluk: (v['doluluk'] as List).cast<Map<String, dynamic>>()),
-        const SizedBox(height: 8),
-        if (randevular.isEmpty)
-          const BosGorunum(
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 96),
+        children: [
+          AkisOzetKartlari(ozet: v['ozet']),
+          if (v['siradaki'] != null) SiradakiKarti(randevu: v['siradaki']),
+          DolulukCipleri(doluluk: (v['doluluk'] as List).cast<Map<String, dynamic>>()),
+          const SizedBox(height: 8),
+          if (randevular.isEmpty)
+            const BosGorunum(
               ikon: Icons.event_available,
               mesaj: 'Bu gün için randevu yok.',
-              altMesaj: '"Randevu Ekle" ile telefonla gelen müşteriyi ekleyebilirsiniz.')
-        else
-          for (final r in randevular)
-            AkisRandevuKarti(
-              randevu: r,
-              islemde: _islemde.contains(r['id']),
-              onDurum: (d) => _durum(r, d),
-              onWhatsapp: () => _harici(Harici.ac(Uri.parse(r['whatsapp_link']))),
-              onAra: () => _harici(Harici.ara(r['musteri']['telefon'])),
-              onMusteri: () => _musteriKarti(r),
-            ),
-      ]),
+              altMesaj: '"Randevu Ekle" ile telefonla gelen müşteriyi ekleyebilirsiniz.',
+            )
+          else
+            for (final r in randevular)
+              AkisRandevuKarti(
+                randevu: r,
+                islemde: _islemde.contains(r['id']),
+                onDurum: (d) => _durum(r, d),
+                onWhatsapp: () => _harici(Harici.ac(Uri.parse(r['whatsapp_link']))),
+                onAra: () => _harici(Harici.ara(r['musteri']['telefon'])),
+                onMusteri: () => _musteriKarti(r),
+              ),
+        ],
+      ),
     );
   }
 }
@@ -171,33 +300,35 @@ class _GunSecici extends StatelessWidget {
     ];
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-      child: Row(children: [
-        for (final (tarih, etiket) in secenekler)
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: ChoiceChip(
-              label: Text(etiket),
-              selected: tarihStr(gun) == tarihStr(tarih),
-              onSelected: (_) => onSecim(tarih),
-              selectedColor: AppTheme.gold,
-              showCheckmark: false,
+      child: Row(
+        children: [
+          for (final (tarih, etiket) in secenekler)
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: ChoiceChip(
+                label: Text(etiket),
+                selected: tarihStr(gun) == tarihStr(tarih),
+                onSelected: (_) => onSecim(tarih),
+                selectedColor: AppTheme.gold,
+                showCheckmark: false,
+              ),
             ),
+          const Spacer(),
+          TextButton.icon(
+            onPressed: () async {
+              final g = await showDatePicker(
+                context: context,
+                initialDate: gun,
+                firstDate: bugun.subtract(const Duration(days: 90)),
+                lastDate: bugun.add(const Duration(days: 90)),
+              );
+              if (g != null) onSecim(g);
+            },
+            icon: const Icon(Icons.calendar_month, size: 18),
+            label: Text(tarihUzun(tarihStr(gun)).split(' ').take(2).join(' ')),
           ),
-        const Spacer(),
-        TextButton.icon(
-          onPressed: () async {
-            final g = await showDatePicker(
-              context: context,
-              initialDate: gun,
-              firstDate: bugun.subtract(const Duration(days: 90)),
-              lastDate: bugun.add(const Duration(days: 90)),
-            );
-            if (g != null) onSecim(g);
-          },
-          icon: const Icon(Icons.calendar_month, size: 18),
-          label: Text(tarihUzun(tarihStr(gun)).split(' ').take(2).join(' ')),
-        ),
-      ]),
+        ],
+      ),
     );
   }
 }

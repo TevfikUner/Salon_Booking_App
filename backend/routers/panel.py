@@ -134,9 +134,20 @@ def gunun_akisi(tarih: str | None = None, p: PanelBaglami = Depends(panel_baglam
     for x in liste:
         x["not_var"] = x["musteri"]["id"] in notlu
 
+    # Gün takvimi (berber sütunları) için: mesai, öğle arası ve saatlik blokeler
+    mesai = ss.gun_mesaisi(salon, ss.tarih_dogrula(hedef))
+    mola = ss.mola_araligi(salon)
+    bq = db.query(models.SaatBloke).join(models.Berber).filter(models.Berber.salon_id == salon.id,
+                                                               models.SaatBloke.tarih == hedef)
+    if p.berber_id is not None:
+        bq = bq.filter(models.SaatBloke.berber_id == p.berber_id)
     return {
         "tarih": hedef,
         "salon": {"id": salon.id, "ad": salon.ad},
+        "mesai": {"acilis": ss.dk_saat(mesai[0]), "kapanis": ss.dk_saat(mesai[1])} if mesai else None,
+        "mola": {"bas": ss.dk_saat(mola[0]), "bit": ss.dk_saat(mola[1])} if mola else None,
+        "blokeler": [{"id": b.id, "berber_id": b.berber_id, "bas_saat": b.bas_saat, "bit_saat": b.bit_saat,
+                      "aciklama": b.aciklama} for b in bq.order_by(models.SaatBloke.bas_saat)],
         "ozet": {
             "randevu_sayisi": len(gecerli),
             "bekleyen": sum(1 for r in gecerli if r.durum == "onaylandi"),
@@ -205,6 +216,25 @@ def _panel_randevu_ekle(veri: PanelRandevuIstegi, p: PanelBaglami, db: Session) 
     r = ss.randevu_olustur(db, musteri, berber.id, veri.tarih, veri.saat, veri.hizmet_ids, kaynak="panel",
                            notlar=veri.notlar)
     return {"mesaj": "Randevu eklendi.", "randevu": _randevu_panel_json(db, r, {})}
+
+
+class TasimaIstegi(BaseModel):
+    berber_id: int
+    tarih: str
+    saat: str
+
+
+@router.post("/randevular/{randevu_id}/tasi")
+@limiter.limit(SINIR_PANEL_YAZMA)
+def randevu_tasi(request: Request, randevu_id: int, veri: TasimaIstegi, p: PanelBaglami = Depends(panel_baglami),
+                 db: Session = Depends(get_db)):
+    """Takvimde sürükle-bırak: randevuyu başka saate/güne veya (işletme) başka personele taşır.
+    Aynı slot kuralları geçerli (çakışmada 409 + öneriler); fiyat ve süre değişmez; müşteriye bildirim gider."""
+    r = _salon_randevusu(db, randevu_id, p)
+    if p.berber_id is not None and veri.berber_id != p.berber_id:
+        raise HTTPException(status_code=403, detail="Randevuyu yalnızca kendi takviminizde taşıyabilirsiniz.")
+    rs.isletme_tasi(db, r, veri.berber_id, veri.tarih, veri.saat)
+    return {"mesaj": "Randevu taşındı.", "randevu": _randevu_panel_json(db, r, {})}
 
 
 @router.get("/musait-saatler")

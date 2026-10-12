@@ -12,6 +12,7 @@ import 'package:berber_app_ui/features/giris/isletme_kayit_screen.dart';
 import 'package:berber_app_ui/features/giris/kayit_screen.dart';
 import 'package:berber_app_ui/features/isletme/akis/musteri_karti_sheet.dart';
 import 'package:berber_app_ui/features/isletme/akis/widgets/akis_randevu_karti.dart';
+import 'package:berber_app_ui/features/isletme/akis/widgets/gun_takvimi.dart';
 import 'package:berber_app_ui/features/isletme/kapali_gunler/widgets/mola_karti.dart';
 import 'package:berber_app_ui/data/models/berber.dart';
 import 'package:berber_app_ui/features/kesfet/widgets/ekip_listesi.dart';
@@ -195,6 +196,33 @@ void main() {
             ),
             const TakvimLejanti(doluluk: true, kampanya: true),
           ]),
+          olcek: olcek));
+      testWidgets('işletme gün takvimi', (t) => ciz(
+          t,
+          Scaffold(
+            body: GunTakvimi(
+              veri: {
+                'tarih': '2099-12-31',
+                'mesai': {'acilis': '09:00', 'kapanis': '21:00'},
+                'mola': {'bas': '13:00', 'bit': '14:00'},
+                'blokeler': [
+                  {'id': 1, 'berber_id': 201, 'bas_saat': '16:00', 'bit_saat': '17:00', 'aciklama': 'Doktor randevusu çok uzun'},
+                ],
+                'doluluk': [
+                  {'berber_id': 201, 'ad': 'Abdurrahman Çağlayanoğlu', 'kapali_neden': null},
+                  {'berber_id': 202, 'ad': 'Veli', 'kapali_neden': 'Seçilen personel bu gün izinli.'},
+                  {'berber_id': 203, 'ad': 'Zeki', 'kapali_neden': null},
+                ],
+                'randevular': [
+                  {...akis, 'tarih': '2099-12-31', 'not_var': true},
+                  {...akis, 'id': 2, 'tarih': '2099-12-31', 'saat': '10:30', 'bitis': '11:00', 'sure_dk': 30},
+                ],
+              },
+              onRandevu: (_) {},
+              onBosHucre: (_, _) {},
+              onTasi: (_, _, _) async {},
+            ),
+          ),
           olcek: olcek));
       testWidgets('öğle arası kartı', (t) => ciz(
           t,

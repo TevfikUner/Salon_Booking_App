@@ -19,20 +19,35 @@ class PanelApi {
     String musteriTelefon = '',
     String? notlar,
     String? idempotencyKey,
-  }) async =>
-      await ApiClient.post('/panel/randevular', idempotencyKey: idempotencyKey, govde: {
-        'berber_id': berberId,
-        'tarih': tarih,
-        'saat': saat,
-        'hizmet_ids': hizmetIds,
-        'musteri_ad': musteriAd,
-        'musteri_telefon': musteriTelefon,
-        'notlar': notlar,
-      });
+  }) async => await ApiClient.post(
+    '/panel/randevular',
+    idempotencyKey: idempotencyKey,
+    govde: {
+      'berber_id': berberId,
+      'tarih': tarih,
+      'saat': saat,
+      'hizmet_ids': hizmetIds,
+      'musteri_ad': musteriAd,
+      'musteri_telefon': musteriTelefon,
+      'notlar': notlar,
+    },
+  );
 
-  static Future<Json> musaitSaatler(int berberId, String tarih, List<int> hizmetIds) async =>
-      await ApiClient.get('/panel/musait-saatler',
-          params: {'berber_id': berberId, 'tarih': tarih, 'hizmet_ids': hizmetIds});
+  /// Takvimde sürükle-bırak: randevuyu başka saate/güne/personele taşır. Çakışmada ApiHata (409 + öneriler).
+  static Future<Json> randevuTasi(
+    int randevuId, {
+    required int berberId,
+    required String tarih,
+    required String saat,
+  }) async => await ApiClient.post(
+    '/panel/randevular/$randevuId/tasi',
+    govde: {'berber_id': berberId, 'tarih': tarih, 'saat': saat},
+  );
+
+  static Future<Json> musaitSaatler(int berberId, String tarih, List<int> hizmetIds) async => await ApiClient.get(
+    '/panel/musait-saatler',
+    params: {'berber_id': berberId, 'tarih': tarih, 'hizmet_ids': hizmetIds},
+  );
 
   // ── Müşteri kartı ──
   static Future<Json> musteriKarti(int musteriId) async => await ApiClient.get('/panel/musteriler/$musteriId');
@@ -86,15 +101,16 @@ class PanelApi {
   static Future<void> izinSil(int id) => ApiClient.delete('/panel/izin/$id');
 
   /// Berberi bir günün belirli saatlerinde randevuya kapatır; yanıtta çakışan randevu sayısı döner.
-  static Future<Json> blokeEkle(
-          {required int berberId, required String tarih, required String bas, required String bit, String? aciklama}) async =>
-      await ApiClient.post('/panel/bloke', govde: {
-        'berber_id': berberId,
-        'tarih': tarih,
-        'bas_saat': bas,
-        'bit_saat': bit,
-        'aciklama': aciklama,
-      });
+  static Future<Json> blokeEkle({
+    required int berberId,
+    required String tarih,
+    required String bas,
+    required String bit,
+    String? aciklama,
+  }) async => await ApiClient.post(
+    '/panel/bloke',
+    govde: {'berber_id': berberId, 'tarih': tarih, 'bas_saat': bas, 'bit_saat': bit, 'aciklama': aciklama},
+  );
 
   static Future<void> blokeSil(int id) => ApiClient.delete('/panel/bloke/$id');
 

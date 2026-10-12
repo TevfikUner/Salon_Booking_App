@@ -2,6 +2,7 @@ import 'package:berber_app_ui/data/api/api_client.dart';
 import 'package:berber_app_ui/data/models/berber.dart';
 import 'package:berber_app_ui/data/models/hizmet.dart';
 import 'package:berber_app_ui/features/randevu_al/randevu_provider.dart';
+import 'package:berber_app_ui/features/isletme/akis/widgets/gun_takvimi.dart';
 import 'package:berber_app_ui/data/models/salon.dart';
 import 'package:berber_app_ui/data/models/randevu.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
@@ -191,6 +192,95 @@ void main() {
   });
 
   group('Widget', () {
+    Map<String, dynamic> takvimVerisi() => {
+          'tarih': '2099-12-31',
+          'mesai': {'acilis': '09:00', 'kapanis': '12:00'},
+          'mola': {'bas': '11:00', 'bit': '11:30'},
+          'blokeler': [],
+          'doluluk': [
+            {'berber_id': 1, 'ad': 'Ali Usta', 'kapali_neden': null},
+            {'berber_id': 2, 'ad': 'Veli Kalfa', 'kapali_neden': null},
+            {'berber_id': 3, 'ad': 'Zeki', 'kapali_neden': 'Seçilen personel bu gün izinli.'},
+          ],
+          'randevular': [
+            {'id': 7, 'tarih': '2099-12-31', 'saat': '09:00', 'bitis': '09:45', 'durum': 'onaylandi',
+              'berber': {'id': 1, 'ad': 'Ali Usta'}, 'musteri': {'id': 5, 'ad': 'Ahmet Yıldız'},
+              'hizmetler': [{'id': 1, 'ad': 'Saç & Sakal'}], 'guven': {'etiket': 'Yeni'}},
+          ],
+        };
+
+    testWidgets('Gün takvimi: sütunlar, boş hücreye dokun, randevuyu sürükleyip başka personele bırak', (tester) async {
+      (int, String)? bos;
+      (int, int, String)? tasinan;
+      Map<String, dynamic>? acilan;
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: GunTakvimi(
+            veri: takvimVerisi(),
+            onRandevu: (r) => acilan = r,
+            onBosHucre: (b, s) => bos = (b, s),
+            onTasi: (r, b, s) async => tasinan = (r['id'], b, s),
+          ),
+        ),
+      ));
+      expect(find.text('Ali Usta'), findsOneWidget);
+      expect(find.text('Seçilen personel bu gün izinli.'), findsOneWidget);
+      expect(find.text('Öğle arası'), findsNWidgets(2)); // izinli sütunda gösterilmez
+
+      await tester.tap(find.byKey(const ValueKey('hucre_2_10:00')));
+      expect(bos, (2, '10:00'));
+      await tester.tap(find.byKey(const ValueKey('takvim_randevu_7')));
+      expect(acilan?['id'], 7);
+
+      final kaynak = tester.getCenter(find.byKey(const ValueKey('takvim_randevu_7')));
+      final hedef = tester.getCenter(find.byKey(const ValueKey('hucre_2_10:30')));
+      final g = await tester.startGesture(kaynak);
+      await tester.pump(const Duration(milliseconds: 600)); // uzun basış
+      await g.moveTo(hedef);
+      await tester.pump();
+      await g.up();
+      await tester.pump();
+      expect(tasinan, (7, 2, '10:30'));
+      // İzinli personelin sütununa bırakılamaz (hücre hedef değil)
+      expect(find.byKey(const ValueKey('hucre_3_10:00')), findsNothing);
+    });
+
+    testWidgets('Gün takvimi: personel başka sütuna taşıyamaz, geçmiş randevu sürüklenmez', (tester) async {
+      var tasindi = false;
+      final veri = takvimVerisi();
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: GunTakvimi(
+            veri: veri,
+            personel: true,
+            onRandevu: (_) {},
+            onBosHucre: (_, _) {},
+            onTasi: (_, _, _) async => tasindi = true,
+          ),
+        ),
+      ));
+      final g = await tester.startGesture(tester.getCenter(find.byKey(const ValueKey('takvim_randevu_7'))));
+      await tester.pump(const Duration(milliseconds: 600));
+      await g.moveTo(tester.getCenter(find.byKey(const ValueKey('hucre_2_10:30'))));
+      await tester.pump();
+      await g.up();
+      await tester.pump();
+      expect(tasindi, isFalse);
+
+      (veri['randevular'] as List).first['tarih'] = '2000-01-01';
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: GunTakvimi(
+            veri: {...veri, 'tarih': '2000-01-01'},
+            onRandevu: (_) {},
+            onBosHucre: (_, _) {},
+            onTasi: (_, _, _) async => tasindi = true,
+          ),
+        ),
+      ));
+      expect(find.byType(LongPressDraggable<Map<String, dynamic>>), findsNothing);
+    });
+
     testWidgets('Dolu slot dokunmaya tepki vermez, müsait slot verir', (tester) async {
       var tiklandi = 0;
       await tester.pumpWidget(MaterialApp(

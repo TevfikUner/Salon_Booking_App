@@ -90,6 +90,27 @@ def musteri_ertele(db: Session, r: models.Randevu, tarih: str, saat: str) -> Non
     salona_bildir(db, r, "Randevu ertelendi", f"önceki: {_tarih_tr(eski_tarih)} {eski_saat}")
 
 
+def isletme_tasi(db: Session, r: models.Randevu, berber_id: int, tarih: str, saat: str) -> None:
+    """İşletmenin randevuyu takvimde taşıması (başka saat/gün/berber). Fiyat ve süre aynı kalır; müşteriye
+    bildirim gider, eski günün bekleme listesi açılır. Müşterinin erteleme hakkından düşmez."""
+    if r.durum != "onaylandi":
+        raise HTTPException(status_code=400, detail="Yalnızca aktif randevular taşınabilir.")
+    if ss.randevu_baslangic(r) <= simdi():
+        raise HTTPException(status_code=400, detail="Başlamış veya geçmiş bir randevu taşınamaz.")
+    if (r.berber_id, r.tarih, r.saat) == (berber_id, tarih, saat):
+        raise HTTPException(status_code=400, detail="Randevu zaten bu saatte.")
+    eski_berber, eski_tarih, eski_saat = r.berber_id, r.tarih, r.saat
+    ss.randevu_tasi(db, r, tarih, saat, berber_id=berber_id, musteri_ertelemesi=False)
+    db.refresh(r)
+    bekleme_listesine_haber_ver(db, eski_berber, eski_tarih)
+    if r.musteri and r.musteri.fcm_token:
+        berber = f"{r.berber.ad} {r.berber.soyad}".strip() if r.berber else ""
+        bildirim_gonder(r.musteri.fcm_token, "Randevunuz güncellendi",
+                        f"{r.salon.ad if r.salon else 'Salon'}: {_tarih_tr(eski_tarih)} {eski_saat} randevunuz "
+                        f"{_tarih_tr(r.tarih)} {r.saat}{f' ({berber})' if berber else ''} olarak değiştirildi.",
+                        {"type": "randevu", "randevu_id": r.id})
+
+
 def isletme_iptal(db: Session, r: models.Randevu) -> None:
     if r.durum != "onaylandi":
         raise HTTPException(status_code=400, detail="Bu randevu zaten aktif değil.")
