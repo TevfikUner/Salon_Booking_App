@@ -1,90 +1,53 @@
 # Yapılacaklar
 
-Tek liste: biten iş buradan **silinir**. Ayrıntılı adımlar [BENDEN_GEREKENLER.md](BENDEN_GEREKENLER.md)'de (§ numaraları oraya bakar).
-Neyin hazır olduğu: [YAYIN_KONTROL_LISTESI.md](YAYIN_KONTROL_LISTESI.md) · Son güncelleme: 13 Ekim 2026 (çoklu dil)
+Tek liste: biten iş buradan **silinir**. Son güncelleme: 13 Ekim 2026.
 
-Kodun güncel hali GitHub `main` dalında (Tur 4 + Tur 5 dahil). Tur 5'te eklenenler: berbere özel hizmet/fiyat,
-kampanya ve sadakat kartı, işletme gün takvimi (sürükle-bırak), kişisel veri şifreleme (isteğe bağlı), en az önceden
-randevu süresi, "Aynısını Tekrar Al" — ayrıntı [KARARLAR.md](KARARLAR.md) "Tur 5", demo [DEMO.md](DEMO.md).
-Sonra: uygulama Türkçe + İngilizce (cihaz diline göre; Profil → Dil'den değiştirilebilir) — [KARARLAR.md](KARARLAR.md) "Çoklu dil".
+**Hedef (13 Ekim 2026'da değişti):** Uygulama Play Store'a yayınlanmayacak. GitHub'da yayına hazır kalitede,
+profesyonel bir proje olarak duracak. Yayına özgü işler (Play Console, kapalı test, AAB, Render, hukukçu) listeden
+çıkarıldı; yapılmış olan yayın hazırlığı (mağaza metinleri, imzalama, yük testleri) projenin "üretime hazır" olduğunun
+kanıtı olarak belgelerde kalır.
+
+`(SİZ)` işaretli maddeleri siz yaparsınız, diğerlerini ben yaparım.
 
 ---
 
-## ⚠️ HATIRLATMA — Uygulamayı kendiniz deneyin
+1. **(SİZ) Eski admin şifresini değiştirin.** Repo herkese açık ve şifre git geçmişinde duruyor. Kodda artık
+   kullanılmıyor ama başka bir hesapta (e-posta, Firebase vb.) kullandıysanız oralarda değiştirin.
+2. **(SİZ) Lisans seçin.** MIT: herkes kodu kullanabilir, yalnızca sizin adınızı korur (portfolyo için yaygın). "Tüm
+   hakları saklıdır": kod görünür ama kimse kullanamaz. Seçiminizi söyleyin, dosyayı ben eklerim.
+3. **(SİZ) README dilini seçin.** Öneri: ana README İngilizce (işverenler ve yabancı geliştiriciler okur), Türkçe
+   sürümü `README.tr.md`'de. İsterseniz yalnızca Türkçe de kalabilir.
+4. **GitHub Actions CI:** her push'ta backend `pytest` + `ruff`, Flutter `analyze` + `test` (Linux'ta
+   `flutter test` çalışır). README'ye "build passing" rozeti.
+5. **README'yi vitrin haline getirme:**
+   - Üstte ekran görüntüleri (8 adet hazır, `MAGAZA/ekran_goruntuleri/`) ve kısa bir demo GIF
+   - Özellik listesi (müşteri / işletme / admin)
+   - Mimari diyagramı (Flutter ↔ FastAPI ↔ PostgreSQL, worker, Firebase)
+   - Teknoloji yığını
+   - Öne çıkan mühendislik kararları: çakışmasız randevu, eşzamanlılık, idempotency, yük testi, KVKK, şifreleme, çoklu dil
+   - "Hızlı başlangıç": tek komutla `docker compose up` + demo verisi
+6. **Demo GIF'i / videosu:** emülatörde randevu alma ve işletme takvimi akışlarını kaydedip README'ye koyarım.
+7. **Belgeleri düzenleme:**
+   - Kökteki .md dosyalarını `docs/` altına taşıyıp yeni hedefe göre sadeleştiririm
+   - Kişisel iş listelerini kaldırırım: BENDEN_GEREKENLER, YAYIN_KONTROL_LISTESI, en son bu dosya
+   - KARARLAR, YUK_TESTI, ILHAM_ANALIZI kalır
+   - Gizlilik politikası PDF'ini kökten kaldırırım
+8. **Temiz klondan kurulum denemesi:** repoyu sıfırdan klonlayıp README'deki adımlarla backend + uygulamanın
+   gerçekten ayağa kalktığını doğrularım (docker compose, seed, emülatör).
+9. **Son kod gözden geçirmesi:**
+   - `flutter analyze` ve `ruff` uyarısız
+   - Ölü kod ve kullanılmayan dosyalar temizlenir
+   - Commit'lenmemesi gereken bir şey kalmadığı doğrulanır (`google-services.json`, demo veritabanı vb.)
+10. **"Yol haritası" bölümü:** online kapora, salon galerisi, SMS/WhatsApp hatırlatma README'ye "planlanan" olarak
+    girer. Ücretli servis gerektirdikleri için yapılmadılar; bu bir eksik değil, kapsam kararı olarak görünür.
+11. **GitHub sayfası:** repo açıklaması ve konu etiketleri (flutter, fastapi, booking-app…) `gh` ile eklenir. `v1.0.0`
+    etiketi ve kısa sürüm notu.
+12. **(SİZ) Uygulamayı bir tur kendiniz deneyin** (emülatör yeterli, kurulum `docs/DEMO.md`). Çeviriler doğal mı,
+    göze batan bir şey var mı? Bulduklarınızı yazın, düzeltirim.
+13. **(SİZ) README'nin son halini okuyun** ve repoyu GitHub profilinizde sabitleyin (Customize your pins).
+14. **(SİZ, isteğe bağlı) Canlı demo:** Firebase'e uygulamayı ekleyip Render'a dağıtırsanız README'ye canlı API
+    linki konur. Gerekmez; ekran görüntüleri ve GIF yeterli vitrin olur. Render'ın ücretsiz PostgreSQL'i 30 gün sonra
+    silinir.
 
-Emülatörde benim doğruladıklarım (listeden çıkarıldı): erteleme ve iptal diyaloğu, müşteri kartı notu, takvimde
-dolu/az yer işaretleri, kampanya indirimi akışı, vermeyen personelin seçilemeyişi, tekrar al, takvimde sürükle-bırak,
-kampanya formu, personel hizmetleri; 15 ekranın cihaz görüntüsü (backend 161, Flutter 93, uçtan uca 5 test);
-İngilizce arayüzde müşteri ve işletme ekranları (taşma yok, sunucu mesajları İngilizce).
-
-Sizin denemeniz gerekenler (gerçek telefon / gerçek Firebase / sizin gözünüz). Kurulum: [DEMO.md](DEMO.md) "Hazırlık".
-Sorunluysa bana yazın:
-
-- [ ] **Bildirimler (gerçek Firebase gerekir → önce A-1):** müşteri randevu alınca / iptal edince / erteleyince işletmeye push; işletme takvimde taşıyınca müşteriye "Randevunuz güncellendi"; dokununca doğru ekran
-- [ ] **Bildirim izni kartı:** temiz kurulumda ilk randevu onayında "1 saat kala hatırlatalım mı?"; "Şimdi değil" sonrası bir daha çıkmıyor mu
-- [ ] **Takvime Ekle:** onay ekranında ve randevu kartında → Google Takvim ve .ics (Samsung Takvim vb.) gerçekten ekliyor mu
-- [ ] **Takvimde sürükle-bırak (yeni):** gerçek telefonda basılı tutup sürüklemek rahat mı, kenara gelince kayıyor mu
-- [ ] **Kampanya ve sadakat (yeni):** kendi salonunuzun kurallarıyla bir kampanya tanımlayın; müşteri tarafında doğru gün/saatte indirim görünüyor mu, özet ve randevu kartındaki tutar beklediğiniz gibi mi
-- [ ] **Berbere özel fiyat (yeni):** bir personele farklı fiyat/süre verin, bir hizmeti kapatın → müşteri akışında doğru mu
-- [ ] **Yorumlar ve arama:** salon detayında puan özeti, "Tümünü gör"; Keşfet'te "sakal" araması, ★4.5+ filtresi
-- [ ] **Öğle arası / saatlik kapatma / çalışma günleri / en az önceden (yeni):** panelde ayarlayın → müşteri tarafında o saatler/günler kapanıyor mu
-- [ ] Eski akışlar: kayıt/giriş, şifremi unuttum, Her Zamanki, walk-in randevu, bekleme listesi, hesap silme
-- [ ] Büyük yazı boyutu (Ayarlar → Yazı tipi en büyük) ile yeni ekranlarda taşma var mı
-- [ ] **İngilizce (yeni):** Profil → Dil → English (veya telefon dili İngilizce) → ekranlar ve hata mesajları İngilizce mi;
-  çeviriler size doğal geliyor mu. Bilerek Türkçe kalanlar: push bildirimleri, yasal metinler, salonun girdiği hizmet/kampanya adları
-
-## A. Sizin yapacaklarınız — önce bu 3'ü
-
-1. **Firebase'e yeni Android uygulamasını ekleyin** — yayını bu engelliyor (§1)
-   - Firebase Console → proje `berberapp-9859f` → Proje ayarları → Uygulama ekle → Android
-   - Paket adı: `com.tevfikuner.premiumberber` · SHA-1: `C3:32:F3:DA:D6:34:7E:10:F4:9C:33:0F:59:A0:A9:95:71:6D:16:31`
-   - İnen dosyayı yerleştirin: `python scripts/google_services_yukle.py ~/Downloads/google-services.json`
-2. **Upload anahtarını yedekleyin** (§2)
-   - `C:\Users\VICTUS\.premium-berber\` klasörünü iki ayrı yere kopyalayın (USB + bulut/parola yöneticisi)
-   - Kaybolursa uygulamaya güncelleme yükleyemezsiniz
-3. **Render'a yayın** (§3–4)
-   - Firebase → Hizmet hesapları → yeni özel anahtar (JSON) indirin; E-posta/Şifre girişi açık olsun
-   - render.com → New → Blueprint → `TevfikUner/pro_berber_full`, dal `main`
-   - `FIREBASE_CREDENTIALS_JSON` (JSON'un tamamı) ve `DESTEK_EPOSTA` girin; `VERI_ANAHTARI`'nı şimdilik boş bırakın
-   - Kontrol: `https://premium-berber-api.onrender.com/health` → `"durum":"ok"`
-   - Render Shell: `python araclar.py admin-ekle sizin@eposta.com`
-   - Not: migration'lar (0003–0009) dağıtımda `preDeployCommand` ile kendiliğinden çalışır
-
-## B. Sizin yapacaklarınız — sonra
-
-4. Gerçek adresle AAB derleyin (§5) — Tur 4–5 özellikleri main'de olduğu için eski AAB'yi değil yenisini yükleyin:
-   `cd App && flutter build appbundle --release --dart-define=API_URL=https://premium-berber-api.onrender.com`
-5. Play Console: geliştirici hesabı (25 $), uygulama oluştur, mağaza girişi ve uygulama içeriği — metinler `MAGAZA/` klasöründe,
-   ekran görüntüleri yenilendi: `MAGAZA/ekran_goruntuleri/` (8 adet) (§6)
-6. Kapalı test: 12+ testçi, 14 gün — davet mesajı `MAGAZA/kapali_test_rehberi.md`
-7. İnceleme hesabı (müşteri + onaylı işletme) → Play Console "Uygulama erişimi" (§7)
-8. Gerçek telefonda giriş/kayıt/bildirim/hesap silme kontrolü (§8)
-9. Yasal metinlere veri sorumlusu unvanı/adresi (hukukçu) → `python scripts/yasal_senkron.py` (§9)
-10. Müşteri notu için gizlilik metnine bir cümle (hukukçu onayı; taslak hazır) → BENDEN_GEREKENLER §9
-11. **Yeni:** Kampanyada üstü çizili fiyat gösterimi için indirimli satış kurallarını hukukçuya sorun → BENDEN_GEREKENLER §9
-12. **Yeni, isteğe bağlı:** Kişisel veri şifrelemesini açın — anahtarı üretip **yedekledikten sonra** (§4.8)
-13. Eski admin şifresi `***KALDIRILDI***` başka bir yerde kullanıldıysa değiştirin
-
-## C. Benim yapacaklarım
-
-1. Sizin test sonuçlarınıza göre düzeltmeler (yukarıdaki HATIRLATMA listesi).
-
-A-1 (Firebase) bitince B-4'ü (AAB derleme) ben de yapabilirim.
-Emülatör hazır: `emulator -avd berber_test` (testlerden önce saat dilimi: `adb shell cmd alarm set-timezone Europe/Istanbul`).
-Not: Windows "Akıllı Uygulama Denetimi" (Smart App Control) bu bilgisayarda `flutter_tester.exe`'yi engelliyor, bu yüzden
-`flutter test` masaüstünde çalışmıyor; birim testleri emülatörde koşuyorum (`integration_test/birim_cihazda_test.dart`).
-Masaüstünde de çalışsın isterseniz: Windows Güvenliği → Uygulama ve tarayıcı denetimi → Akıllı Uygulama Denetimi → Kapalı
-(bir kez kapatılınca yeniden açılamaz; isteğe bağlı).
-
-## D. İlham raporundan bekleyenler — ayrıntı: [ILHAM_ANALIZI.md](ILHAM_ANALIZI.md) §3
-
-Üçü de ücretli bir servis/sözleşme olmadan yapılamaz ya da doğrulanamaz. Hesabı açtığınızda "yap" deyin, sırayla ele alırım.
-
-| # | Özellik | Neden bekliyor | Ön koşul |
-|---|---|---|---|
-| 10 | Online kapora / ödeme | No-show'a karşı en güçlü araç ama ödeme kuruluşu şart | 💰 iyzico/PayTR sözleşmesi + test hesabı (API anahtarları) |
-| 11 | Salon galerisi / berber portföyü + fotoğraflı yorum | Render diski kalıcı değil; fotoğraflı yorumda moderasyon gerekir | 💰 Obje depolama (Firebase Storage → Blaze planı veya Cloudinary ücretsiz katman) hesabı |
-| 17 | SMS / otomatik WhatsApp hatırlatma | Push + manuel WhatsApp şimdilik yeterli | 💰 SMS kontörü (Netgsm/İleti Merkezi) + İYS veya WhatsApp Business API |
-
-Gerek görülmeyenler (karar, iş değil): uygulama içi sohbet, işletme onaylı (bekleyen) randevu, aydınlık tema,
-e-posta bildirimleri, tanıtım slaytları/sepet/evde hizmet — gerekçeler ILHAM_ANALIZI §3 #21–#25.
+Not: Windows "Akıllı Uygulama Denetimi" bu bilgisayarda `flutter test`'i engelliyor; birim testleri emülatörde
+koşuyorum (`integration_test/birim_cihazda_test.dart`). CI (madde 4) bu sorunu GitHub tarafında da çözer.
