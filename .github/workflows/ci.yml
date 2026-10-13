@@ -53,6 +53,9 @@ jobs:
       - run: pip install -r requirements-dev.txt
       - name: Lint
         run: ruff check .
+      - name: Dependency audit (known vulnerabilities)
+        if: matrix.name == 'SQLite'
+        run: pip install pip-audit && pip-audit -r requirements.txt
       - name: Migrations (empty DB → head → check)
         if: matrix.name == 'SQLite'
         env:
