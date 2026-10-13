@@ -135,7 +135,8 @@ def test_panel_hizmet_personel_tatil_yonetimi(client, veri, db):
 
 
 def test_admin_secret_varsayilani_yok(client, veri):
-    assert client.post("/tatil/ekle", params={"tarih": YARIN}, headers={"x-admin-secret": "***KALDIRILDI***"}).status_code == 403
+    # ADMIN_SECRET env'de yoksa hiçbir başlık değeri admin yetkisi vermez (kodda varsayılan şifre yok)
+    assert client.post("/tatil/ekle", params={"tarih": YARIN}, headers={"x-admin-secret": "herhangi-bir-deger"}).status_code == 403
     assert client.post("/tatil/ekle", params={"tarih": YARIN}, headers=auth("isletme-a")).status_code == 403
     assert client.post("/tatil/ekle", params={"tarih": YARIN}, headers=auth("admin-uid")).status_code == 200
     # işletme listesi (iletişim bilgileri) herkese açık değil
