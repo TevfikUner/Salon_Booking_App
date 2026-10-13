@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/data/api/api_client.dart';
 import 'package:berber_app_ui/data/api/panel_api.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
@@ -68,15 +69,15 @@ class _EkipSekmesiState extends State<EkipSekmesi> {
   Future<void> _personelEkle() async {
     final ad = TextEditingController(), soyad = TextEditingController(), unvan = TextEditingController(text: 'Berber'),
         email = TextEditingController();
-    final tamam = await _form('Personel Ekle', [
+    final tamam = await _form(Dil.t.personelEkle, [
       TextField(controller: ad, textCapitalization: TextCapitalization.words,
-          decoration: const InputDecoration(labelText: 'Ad')),
+          decoration: InputDecoration(labelText: Dil.t.ad)),
       TextField(controller: soyad, textCapitalization: TextCapitalization.words,
-          decoration: const InputDecoration(labelText: 'Soyad')),
-      TextField(controller: unvan, decoration: const InputDecoration(labelText: 'Unvan (Usta, Kalfa...)')),
+          decoration: InputDecoration(labelText: Dil.t.soyad)),
+      TextField(controller: unvan, decoration: InputDecoration(labelText: Dil.t.unvan)),
       TextField(controller: email, keyboardType: TextInputType.emailAddress,
-          decoration: const InputDecoration(labelText: 'E-posta (isteğe bağlı)',
-              helperText: 'Personel bu e-postayla kayıt olursa kendi takvimini görür.', helperMaxLines: 2)),
+          decoration: InputDecoration(labelText: Dil.t.epostaIstegeBagli,
+              helperText: Dil.t.personelEpostaIpucu, helperMaxLines: 2)),
     ]);
     if (tamam != true || ad.text.trim().isEmpty) return;
     await _calistir(
@@ -86,7 +87,7 @@ class _EkipSekmesiState extends State<EkipSekmesi> {
               'uzmanlik': unvan.text.trim().isEmpty ? 'Berber' : unvan.text.trim(),
               'email': email.text.trim().isEmpty ? null : email.text.trim(),
             }),
-        'Personel eklendi.');
+        Dil.t.personelEklendi);
   }
 
   Future<void> _calismaGunleri(Map<String, dynamic> p) async {
@@ -102,7 +103,7 @@ class _EkipSekmesiState extends State<EkipSekmesi> {
               'email': p['email'],
               'kapali_gunler': gunListesiMetni(izinli),
             }),
-        '$ad için çalışma günleri kaydedildi.');
+        Dil.t.calismaGunleriKaydedildi(ad));
   }
 
   Future<void> _personelMenusu(Map<String, dynamic> p) async {
@@ -120,14 +121,14 @@ class _EkipSekmesiState extends State<EkipSekmesi> {
           ),
           ListTile(
             leading: const Icon(Icons.event_available_outlined, color: AppTheme.gold),
-            title: const Text('Çalışma günleri', style: TextStyle(color: Colors.white)),
+            title: Text(Dil.t.calismaGunleri, style: TextStyle(color: Colors.white)),
             onTap: () => Navigator.pop(ctx, 'gunler'),
           ),
           ListTile(
             key: const ValueKey('personel_hizmetleri'),
             leading: const Icon(Icons.content_cut, color: AppTheme.gold),
-            title: const Text('Verdiği hizmetler ve fiyatlar', style: TextStyle(color: Colors.white)),
-            subtitle: const Text('Bu personele özel fiyat, süre veya vermediği hizmetler',
+            title: Text(Dil.t.verdigiHizmetler, style: TextStyle(color: Colors.white)),
+            subtitle: Text(Dil.t.verdigiHizmetlerAciklama,
                 style: TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
             onTap: () => Navigator.pop(ctx, 'hizmetler'),
           ),
@@ -138,17 +139,17 @@ class _EkipSekmesiState extends State<EkipSekmesi> {
     if (!mounted || secim == null) return;
     if (secim == 'gunler') return _calismaGunleri(p);
     if (await personelHizmetleriDuzenle(context, berberId: p['id'], ad: ad) == true) {
-      if (mounted) bilgiGoster(context, '$ad için hizmetler kaydedildi.');
+      if (mounted) bilgiGoster(context, Dil.t.hizmetlerKaydedildi(ad));
       await _yukle();
     }
   }
 
   Future<void> _personelCikar(Map<String, dynamic> p) async {
-    if (!await onayIste(context, 'Kadrodan çıkar', '${p['ad']} ${p['soyad']} kadrodan çıkarılsın mı? '
-        'Geçmiş randevu kayıtları korunur.', evet: 'Çıkar', tehlikeli: true)) {
+    if (!await onayIste(context, Dil.t.kadrodanCikar, Dil.t.kadrodanCikarilsinMi('${p['ad']} ${p['soyad']}'),
+        evet: Dil.t.cikar, tehlikeli: true)) {
       return;
     }
-    await _calistir(() => PanelApi.personelCikar(p['id']), 'Personel kadrodan çıkarıldı.');
+    await _calistir(() => PanelApi.personelCikar(p['id']), Dil.t.personelCikarildi);
   }
 
   // ── Hizmet ──
@@ -157,23 +158,23 @@ class _EkipSekmesiState extends State<EkipSekmesi> {
     final fiyat = TextEditingController(text: h == null ? '' : (h['fiyat'] as num).toStringAsFixed(0));
     final sure = TextEditingController(text: h == null ? '30' : '${h['sure']}');
     final aciklama = TextEditingController(text: h?['aciklama'] ?? '');
-    final tamam = await _form(h == null ? 'Hizmet Ekle' : 'Hizmeti Düzenle', [
-      TextField(controller: ad, decoration: const InputDecoration(labelText: 'Hizmet adı')),
+    final tamam = await _form(h == null ? Dil.t.hizmetEkle : Dil.t.hizmetiDuzenle, [
+      TextField(controller: ad, decoration: InputDecoration(labelText: Dil.t.hizmetAdi)),
       TextField(controller: fiyat, keyboardType: TextInputType.number,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          decoration: const InputDecoration(labelText: 'Fiyat', suffixText: '₺')),
+          decoration: InputDecoration(labelText: Dil.t.fiyat, suffixText: '₺')),
       TextField(controller: sure, keyboardType: TextInputType.number,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          decoration: const InputDecoration(labelText: 'Süre', suffixText: 'dk')),
-      TextField(controller: aciklama, decoration: const InputDecoration(labelText: 'Açıklama (isteğe bağlı)')),
+          decoration: InputDecoration(labelText: Dil.t.sure, suffixText: Dil.t.dkKisa)),
+      TextField(controller: aciklama, decoration: InputDecoration(labelText: Dil.t.aciklamaIstegeBagli)),
       if (h != null)
-        Text('Fiyat değişikliği mevcut randevuları etkilemez.',
+        Text(Dil.t.fiyatDegisikligi,
             style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
     ]);
     if (tamam != true) return;
     final f = double.tryParse(fiyat.text), s = int.tryParse(sure.text);
     if (ad.text.trim().isEmpty || f == null || s == null || s < 5) {
-      if (mounted) bilgiGoster(context, 'Ad, fiyat ve en az 5 dakikalık süre girin.', hata: true);
+      if (mounted) bilgiGoster(context, Dil.t.hizmetKurali, hata: true);
       return;
     }
     await _calistir(
@@ -183,15 +184,15 @@ class _EkipSekmesiState extends State<EkipSekmesi> {
               'sure': s,
               'aciklama': aciklama.text.trim().isEmpty ? null : aciklama.text.trim(),
             }, id: h?['id']),
-        h == null ? 'Hizmet eklendi.' : 'Hizmet güncellendi.');
+        h == null ? Dil.t.hizmetEklendi : Dil.t.hizmetGuncellendi);
   }
 
   Future<void> _hizmetKaldir(Map<String, dynamic> h) async {
-    if (!await onayIste(context, 'Menüden kaldır', '"${h['ad']}" menüden kaldırılsın mı?',
-        evet: 'Kaldır', tehlikeli: true)) {
+    if (!await onayIste(context, Dil.t.menudenKaldir, Dil.t.menudenKaldirilsinMi('${h['ad']}'),
+        evet: Dil.t.kaldir, tehlikeli: true)) {
       return;
     }
-    await _calistir(() => PanelApi.hizmetKaldir(h['id']), 'Hizmet kaldırıldı.');
+    await _calistir(() => PanelApi.hizmetKaldir(h['id']), Dil.t.hizmetKaldirildi);
   }
 
   Future<bool?> _form(String baslik, List<Widget> alanlar) => showDialog<bool>(
@@ -205,11 +206,11 @@ class _EkipSekmesiState extends State<EkipSekmesi> {
             ]),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Vazgeç')),
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(Dil.t.vazgec)),
             ElevatedButton(
               onPressed: () => Navigator.pop(ctx, true),
               style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10)),
-              child: const Text('Kaydet'),
+              child: Text(Dil.t.kaydet),
             ),
           ],
         ),
@@ -223,13 +224,13 @@ class _EkipSekmesiState extends State<EkipSekmesi> {
       color: AppTheme.gold,
       onRefresh: _yukle,
       child: ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 32), children: [
-        _bolum('Personel', 'Ekle', _personelEkle),
+        _bolum(Dil.t.personel, Dil.t.ekle, _personelEkle),
         Padding(
           padding: const EdgeInsets.only(bottom: 6),
-          child: Text('Çalışma günleri ve verdiği hizmetler için personele dokunun.',
+          child: Text(Dil.t.personeleDokunun,
               style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
         ),
-        if (_personel.isEmpty) const BosGorunum(ikon: Icons.groups_outlined, mesaj: 'Henüz personel yok.'),
+        if (_personel.isEmpty) BosGorunum(ikon: Icons.groups_outlined, mesaj: Dil.t.henuzPersonelYok),
         for (final p in _personel)
           Card(
             child: ListTile(
@@ -238,18 +239,18 @@ class _EkipSekmesiState extends State<EkipSekmesi> {
               title: Text('${p['ad']} ${p['soyad']}'.trim(), style: const TextStyle(color: Colors.white)),
               subtitle: Text(
                   '${p['uzmanlik']} · ★ ${(p['puan'] as num).toStringAsFixed(1)}'
-                  '${p['hesap_bagli'] == true ? ' · hesabı bağlı' : (p['email'] != null ? ' · davet: ${p['email']}' : '')}'
+                  '${p['hesap_bagli'] == true ? ' · ${Dil.t.hesabiBagli}' : (p['email'] != null ? ' · ${Dil.t.davet('${p['email']}')}' : '')}'
                   '${_izinMetni(p)}${_hizmetMetni(p)}',
                   style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
               trailing: IconButton(
-                  tooltip: 'Kadrodan çıkar',
+                  tooltip: Dil.t.kadrodanCikar,
                   icon: const Icon(Icons.person_remove_outlined, color: AppTheme.error),
                   onPressed: () => _personelCikar(p)),
             ),
           ),
         const SizedBox(height: 16),
-        _bolum('Hizmet Menüsü', 'Ekle', () => _hizmetFormu()),
-        if (_hizmetler.isEmpty) const BosGorunum(ikon: Icons.content_cut, mesaj: 'Henüz hizmet yok.'),
+        _bolum(Dil.t.hizmetMenusu, Dil.t.ekle, () => _hizmetFormu()),
+        if (_hizmetler.isEmpty) BosGorunum(ikon: Icons.content_cut, mesaj: Dil.t.henuzHizmetYok),
         for (final h in _hizmetler)
           Card(
             child: ListTile(
@@ -260,7 +261,7 @@ class _EkipSekmesiState extends State<EkipSekmesi> {
                 Text(tl(h['fiyat']), style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 17,
                     fontWeight: FontWeight.bold)),
                 IconButton(
-                    tooltip: 'Menüden kaldır',
+                    tooltip: Dil.t.menudenKaldir,
                     icon: const Icon(Icons.delete_outline, color: AppTheme.textSecondary),
                     onPressed: () => _hizmetKaldir(h)),
               ]),
@@ -275,13 +276,13 @@ class _EkipSekmesiState extends State<EkipSekmesi> {
 
   String _hizmetMetni(Map<String, dynamic> p) {
     final vermedigi = p['vermedigi_hizmet_sayisi'] as int? ?? 0, ozel = p['ozel_fiyatli_hizmet_sayisi'] as int? ?? 0;
-    final parca = [if (vermedigi > 0) '$vermedigi hizmeti vermiyor', if (ozel > 0) '$ozel hizmette özel fiyat/süre'];
+    final parca = [if (vermedigi > 0) Dil.t.hizmetiVermiyor(vermedigi), if (ozel > 0) Dil.t.ozelFiyatli(ozel)];
     return parca.isEmpty ? '' : '\n${parca.join(' · ')}';
   }
 
   String _izinMetni(Map<String, dynamic> p) {
     final g = gunListesi(p['kapali_gunler']).difference(_salonKapali);
-    return g.isEmpty ? '' : '\nHaftalık izin: ${(g.toList()..sort()).map((x) => gunKisaAdlari[x]).join(', ')}';
+    return g.isEmpty ? '' : '\n${Dil.t.haftalikIzin((g.toList()..sort()).map((x) => gunKisaAdlari[x]).join(', '))}';
   }
 
   Widget _bolum(String baslik, String buton, VoidCallback onTap) => Padding(

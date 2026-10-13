@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/core/widgets/durum_gorunumleri.dart';
@@ -59,7 +60,7 @@ class _KampanyalarBolumuState extends State<KampanyalarBolumu> {
     if (veri == null || !mounted) return;
     try {
       await PanelApi.kampanyaKaydet(veri, id: k?['id']);
-      if (mounted) bilgiGoster(context, k == null ? 'Kampanya eklendi.' : 'Kampanya güncellendi.');
+      if (mounted) bilgiGoster(context, k == null ? Dil.t.kampanyaEklendi : Dil.t.kampanyaGuncellendi);
       await _yukle();
     } on ApiHata catch (e) {
       if (mounted) bilgiGoster(context, e.mesaj, hata: true);
@@ -67,9 +68,9 @@ class _KampanyalarBolumuState extends State<KampanyalarBolumu> {
   }
 
   Future<void> _sil(Json k) async {
-    if (!await onayIste(context, 'Kampanyayı kaldır',
+    if (!await onayIste(context, Dil.t.kampanyayiKaldir,
         '"${k['ad']}" kaldırılsın mı? Bu kampanyayla alınmış randevuların indirimi korunur.',
-        evet: 'Kaldır', tehlikeli: true)) {
+        evet: Dil.t.kaldir, tehlikeli: true)) {
       return;
     }
     try {
@@ -88,42 +89,41 @@ class _KampanyalarBolumuState extends State<KampanyalarBolumu> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.surface,
-        title: Text('Sadakat kartı', style: GoogleFonts.playfairDisplay(color: AppTheme.gold)),
+        title: Text(Dil.t.sadakatKarti, style: GoogleFonts.playfairDisplay(color: AppTheme.gold)),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
-          Text('Müşterinin bu salondaki her N. randevusu indirimli olur. Tamamlanan ve alınmış randevular sayılır; '
-              'gelinmeyen ve iptal edilenler sayılmaz.',
+          Text(Dil.t.sadakatAciklama,
               style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
           const SizedBox(height: 12),
           TextField(
             controller: esik,
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            decoration: const InputDecoration(labelText: 'Kaçıncı ziyaret (2–50)', suffixText: '. ziyaret'),
+            decoration: InputDecoration(labelText: Dil.t.kacinciZiyaret, suffixText: Dil.t.ziyaretEki),
           ),
           const SizedBox(height: 10),
           TextField(
             controller: yuzde,
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            decoration: const InputDecoration(labelText: 'İndirim (5–100)', suffixText: '%'),
+            decoration: InputDecoration(labelText: Dil.t.indirimAraligi, suffixText: '%'),
           ),
         ]),
         actions: [
-          if (acik) TextButton(onPressed: () => Navigator.pop(ctx, 'kapat'), child: const Text('Kapat')),
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Vazgeç')),
-          ElevatedButton(onPressed: () => Navigator.pop(ctx, 'kaydet'), child: const Text('Kaydet')),
+          if (acik) TextButton(onPressed: () => Navigator.pop(ctx, 'kapat'), child: Text(Dil.t.kapat)),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(Dil.t.vazgec)),
+          ElevatedButton(onPressed: () => Navigator.pop(ctx, 'kaydet'), child: Text(Dil.t.kaydet)),
         ],
       ),
     );
     if (sonuc == null || !mounted) return;
     final e = int.tryParse(esik.text), y = int.tryParse(yuzde.text);
     if (sonuc == 'kaydet' && (e == null || e < 2 || e > 50 || y == null || y < 5 || y > 100)) {
-      bilgiGoster(context, 'Ziyaret 2–50, indirim 5–100 arasında olmalı.', hata: true);
+      bilgiGoster(context, Dil.t.sadakatKuraliHata, hata: true);
       return;
     }
     try {
       await PanelApi.sadakatAyarla(esik: sonuc == 'kaydet' ? e : null, yuzde: sonuc == 'kaydet' ? y : null);
-      if (mounted) bilgiGoster(context, sonuc == 'kaydet' ? 'Sadakat kartı: her $e. ziyaret %$y.' : 'Sadakat kartı kapatıldı.');
+      if (mounted) bilgiGoster(context, sonuc == 'kaydet' ? Dil.t.sadakatKaydedildi(e!, y!) : Dil.t.sadakatKapatildi);
       await _yukle();
     } on ApiHata catch (err) {
       if (mounted) bilgiGoster(context, err.mesaj, hata: true);
@@ -135,14 +135,14 @@ class _KampanyalarBolumuState extends State<KampanyalarBolumu> {
     final baslik = Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(children: [
-        Text('Kampanyalar',
+        Text(Dil.t.kampanyalar,
             style: GoogleFonts.playfairDisplay(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
         const Spacer(),
         TextButton.icon(
             key: const ValueKey('kampanya_ekle'),
             onPressed: _kampanyalar == null ? null : () => _kampanyaFormu(),
             icon: const Icon(Icons.add, size: 18),
-            label: const Text('Ekle')),
+            label: Text(Dil.t.ekle)),
       ]),
     );
     if (_hata != null) return Column(children: [baslik, HataGorunumu(mesaj: _hata!, onTekrar: _yukle)]);
@@ -154,11 +154,10 @@ class _KampanyalarBolumuState extends State<KampanyalarBolumu> {
       baslik,
       Padding(
         padding: const EdgeInsets.only(bottom: 6),
-        child: Text('Boş günleri doldurmak için: ör. "Salı %20" veya "Hafta içi 10:00–14:00 sakal %30". '
-            'İndirimler üst üste binmez; müşteriye en yüksek olanı uygulanır.',
+        child: Text(Dil.t.kampanyaAciklama,
             style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
       ),
-      if (_kampanyalar!.isEmpty) const BosGorunum(ikon: Icons.local_offer_outlined, mesaj: 'Henüz kampanya yok.'),
+      if (_kampanyalar!.isEmpty) BosGorunum(ikon: Icons.local_offer_outlined, mesaj: Dil.t.henuzKampanyaYok),
       for (final k in _kampanyalar!)
         Card(
           child: ListTile(
@@ -170,7 +169,7 @@ class _KampanyalarBolumuState extends State<KampanyalarBolumu> {
                 '${(k['randevu_sayisi'] as int? ?? 0) > 0 ? '\n${k['randevu_sayisi']} randevuda kullanıldı' : ''}',
                 style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
             trailing: IconButton(
-                tooltip: 'Kaldır',
+                tooltip: Dil.t.kaldir,
                 icon: const Icon(Icons.delete_outline, color: AppTheme.textSecondary),
                 onPressed: () => _sil(k)),
           ),
@@ -181,8 +180,8 @@ class _KampanyalarBolumuState extends State<KampanyalarBolumu> {
           key: const ValueKey('sadakat_ayari'),
           onTap: _sadakat,
           leading: const Icon(Icons.card_giftcard, color: AppTheme.gold),
-          title: const Text('Sadakat kartı', style: TextStyle(color: Colors.white)),
-          subtitle: Text(esik == null ? 'Kapalı · açmak için dokunun' : 'Her $esik. ziyaret %$yuzde indirimli',
+          title: Text(Dil.t.sadakatKarti, style: TextStyle(color: Colors.white)),
+          subtitle: Text(esik == null ? Dil.t.sadakatKapaliAc : Dil.t.sadakatKurali(esik as int, yuzde as int),
               style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
           trailing: const Icon(Icons.chevron_right, color: AppTheme.textSecondary),
         ),
@@ -191,8 +190,8 @@ class _KampanyalarBolumuState extends State<KampanyalarBolumu> {
   }
 
   String _durum(Json k) {
-    if (k['aktif'] != true) return ' · Duraklatıldı';
-    if (k['suresi_doldu'] == true) return ' · Süresi doldu';
+    if (k['aktif'] != true) return ' · ${Dil.t.duraklatildi}';
+    if (k['suresi_doldu'] == true) return ' · ${Dil.t.suresiDoldu}';
     return '';
   }
 }
@@ -231,7 +230,7 @@ class _KampanyaFormuState extends State<_KampanyaFormu> {
       initialDate: ilk.isBefore(simdi) ? simdi : ilk,
       firstDate: DateTime(simdi.year, simdi.month, simdi.day),
       lastDate: simdi.add(const Duration(days: 365)),
-      locale: const Locale('tr', 'TR'),
+      locale: Dil.ingilizce ? const Locale('en') : const Locale('tr', 'TR'),
     );
     if (g != null) setState(() => bas ? _basTarih = tarihStr(g) : _bitTarih = tarihStr(g));
   }
@@ -239,11 +238,11 @@ class _KampanyaFormuState extends State<_KampanyaFormu> {
   void _kaydet() {
     final y = int.tryParse(_yuzde.text);
     if (_ad.text.trim().isEmpty || y == null || y < 5 || y > 90) {
-      bilgiGoster(context, 'Ad girin; indirim %5 ile %90 arasında olmalı.', hata: true);
+      bilgiGoster(context, Dil.t.kampanyaKurali, hata: true);
       return;
     }
     if (_basTarih != null && _bitTarih != null && _bitTarih!.compareTo(_basTarih!) < 0) {
-      bilgiGoster(context, 'Bitiş tarihi başlangıçtan önce olamaz.', hata: true);
+      bilgiGoster(context, Dil.t.bitisBaslangictanOnce, hata: true);
       return;
     }
     Navigator.pop(context, {
@@ -268,10 +267,10 @@ class _KampanyaFormuState extends State<_KampanyaFormu> {
         initialChildSize: 0.9,
         maxChildSize: 0.95,
         builder: (_, ctrl) => ListView(controller: ctrl, padding: const EdgeInsets.fromLTRB(20, 20, 20, 24), children: [
-          Text(widget.mevcut == null ? 'Yeni Kampanya' : 'Kampanyayı Düzenle',
+          Text(widget.mevcut == null ? Dil.t.yeniKampanya : Dil.t.kampanyayiDuzenle,
               style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          Text('Boş bıraktığınız koşul kısıt koymaz. Değişiklik yalnızca bundan sonraki randevulara uygulanır.',
+          Text(Dil.t.kampanyaFormAciklama,
               style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
           const SizedBox(height: 14),
           Row(children: [
@@ -281,7 +280,7 @@ class _KampanyaFormuState extends State<_KampanyaFormu> {
                   key: const ValueKey('kampanya_ad'),
                   controller: _ad,
                   maxLength: 60,
-                  decoration: const InputDecoration(labelText: 'Kampanya adı', hintText: 'Salı İndirimi', counterText: '')),
+                  decoration: InputDecoration(labelText: Dil.t.kampanyaAdi, hintText: Dil.t.kampanyaAdiOrnek, counterText: '')),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -291,10 +290,10 @@ class _KampanyaFormuState extends State<_KampanyaFormu> {
                   controller: _yuzde,
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: const InputDecoration(labelText: 'İndirim', suffixText: '%')),
+                  decoration: InputDecoration(labelText: Dil.t.indirim, suffixText: '%')),
             ),
           ]),
-          _baslik('Günler', _gunler.isEmpty ? 'Her gün' : null),
+          _baslik(Dil.t.gunler, _gunler.isEmpty ? Dil.t.herGun : null),
           Wrap(spacing: 6, runSpacing: 6, children: [
             for (var g = 0; g < 7; g++)
               FilterChip(
@@ -306,7 +305,7 @@ class _KampanyaFormuState extends State<_KampanyaFormu> {
                 labelStyle: TextStyle(color: _gunler.contains(g) ? AppTheme.black : Colors.white),
               ),
           ]),
-          _baslik('Saat aralığı', _basSaat == null ? 'Gün boyu' : null),
+          _baslik(Dil.t.saatAraligi, _basSaat == null ? Dil.t.gunBoyu : null),
           Row(children: [
             OutlinedButton.icon(
               onPressed: () async {
@@ -319,26 +318,26 @@ class _KampanyaFormuState extends State<_KampanyaFormu> {
                 }
               },
               icon: const Icon(Icons.schedule, size: 16),
-              label: Text(_basSaat == null ? 'Saat aralığı seç' : '$_basSaat – $_bitSaat'),
+              label: Text(_basSaat == null ? Dil.t.saatAraligiSec : '$_basSaat – $_bitSaat'),
             ),
             if (_basSaat != null)
               IconButton(
-                  tooltip: 'Gün boyu',
+                  tooltip: Dil.t.gunBoyu,
                   onPressed: () => setState(() => _basSaat = _bitSaat = null),
                   icon: const Icon(Icons.close, color: AppTheme.textSecondary)),
           ]),
-          _baslik('Tarih aralığı', _basTarih == null && _bitTarih == null ? 'Süresiz' : null),
+          _baslik(Dil.t.tarihAraligi, _basTarih == null && _bitTarih == null ? Dil.t.suresiz : null),
           Wrap(spacing: 8, runSpacing: 6, crossAxisAlignment: WrapCrossAlignment.center, children: [
             OutlinedButton(
                 onPressed: () => _tarihSec(true),
-                child: Text(_basTarih == null ? 'Başlangıç: hemen' : 'Başlangıç: ${tarihUzun(_basTarih!)}')),
+                child: Text(_basTarih == null ? Dil.t.baslangicHemen : Dil.t.baslangic(tarihUzun(_basTarih!)))),
             OutlinedButton(
                 onPressed: () => _tarihSec(false),
-                child: Text(_bitTarih == null ? 'Bitiş: yok' : 'Bitiş: ${tarihUzun(_bitTarih!)}')),
+                child: Text(_bitTarih == null ? Dil.t.bitisYok : Dil.t.bitis(tarihUzun(_bitTarih!)))),
             if (_basTarih != null || _bitTarih != null)
-              TextButton(onPressed: () => setState(() => _basTarih = _bitTarih = null), child: const Text('Temizle')),
+              TextButton(onPressed: () => setState(() => _basTarih = _bitTarih = null), child: Text(Dil.t.temizle)),
           ]),
-          _baslik('Hizmetler', _hizmetler.isEmpty ? 'Tüm hizmetler' : null),
+          _baslik(Dil.t.hizmetler, _hizmetler.isEmpty ? Dil.t.tumHizmetler : null),
           Wrap(spacing: 6, runSpacing: 6, children: [
             for (final h in widget.hizmetler)
               FilterChip(
@@ -355,12 +354,12 @@ class _KampanyaFormuState extends State<_KampanyaFormu> {
             value: _aktif,
             onChanged: (v) => setState(() => _aktif = v),
             activeThumbColor: AppTheme.gold,
-            title: const Text('Kampanya açık', style: TextStyle(color: Colors.white)),
-            subtitle: const Text('Kapatırsanız silinmez, duraklatılır.',
+            title: Text(Dil.t.kampanyaAcik, style: TextStyle(color: Colors.white)),
+            subtitle: Text(Dil.t.kapatirsanizDuraklatilir,
                 style: TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
           ),
           const SizedBox(height: 12),
-          ElevatedButton(key: const ValueKey('kampanya_kaydet'), onPressed: _kaydet, child: const Text('Kaydet')),
+          ElevatedButton(key: const ValueKey('kampanya_kaydet'), onPressed: _kaydet, child: Text(Dil.t.kaydet)),
         ]),
       ),
     );

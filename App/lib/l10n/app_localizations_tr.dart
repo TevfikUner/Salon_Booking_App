@@ -1173,4 +1173,679 @@ class AppLocalizationsTr extends AppLocalizations {
   String degerlendirildi(String yildiz) {
     return 'Değerlendirildi ($yildiz)';
   }
+
+  @override
+  String get ekle => 'Ekle';
+
+  @override
+  String get kaldir => 'Kaldır';
+
+  @override
+  String get gelmedi => 'Gelmedi';
+
+  @override
+  String get tamamlandi => 'Tamamlandı';
+
+  @override
+  String get iptalKisa => 'İptal';
+
+  @override
+  String get riskli => 'Riskli';
+
+  @override
+  String get ogleArasi => 'Öğle arası';
+
+  @override
+  String get kadrodanCikar => 'Kadrodan çıkar';
+
+  @override
+  String get menudenKaldir => 'Menüden kaldır';
+
+  @override
+  String get basvuruOnaylanmadi => 'Başvurunuz onaylanmadı';
+
+  @override
+  String get basvuruInceleniyor => 'Başvurunuz inceleniyor';
+
+  @override
+  String get destekleIletisim =>
+      'Ayrıntılar için destek ekibimizle iletişime geçebilirsiniz.';
+
+  @override
+  String get durumuKontrolEt => 'Durumu Kontrol Et';
+
+  @override
+  String basvuruAlindi(String ad) {
+    return '$ad için başvurunuz alındı. Onaylandığında salon paneliniz açılacak; günün randevularını, personelinizi ve hizmetlerinizi buradan yöneteceksiniz.';
+  }
+
+  @override
+  String get akis => 'Akış';
+
+  @override
+  String get ekipMenu => 'Ekip & Menü';
+
+  @override
+  String get kapaliGunler => 'Kapalı Günler';
+
+  @override
+  String get rapor => 'Rapor';
+
+  @override
+  String get personelPaneli => 'Personel Paneli';
+
+  @override
+  String get isletmePaneli => 'İşletme Paneli';
+
+  @override
+  String get randevuyuIptalEt => 'Randevuyu iptal et';
+
+  @override
+  String get randevuGuncellendi => 'Randevu güncellendi.';
+
+  @override
+  String get randevuyuTasi => 'Randevuyu taşı';
+
+  @override
+  String get tasimaAciklama =>
+      'Fiyat ve süre değişmez; müşteriye bildirim gönderilir.';
+
+  @override
+  String get tasi => 'Taşı';
+
+  @override
+  String get randevuEkle => 'Randevu Ekle';
+
+  @override
+  String get tasimaIpucu => 'Taşımak için randevuya basılı tutup sürükleyin.';
+
+  @override
+  String get liste => 'Liste';
+
+  @override
+  String get takvim => 'Takvim';
+
+  @override
+  String get buGunRandevuYok => 'Bu gün için randevu yok.';
+
+  @override
+  String get randevuEkleIpucu =>
+      '\"Randevu Ekle\" ile telefonla gelen müşteriyi ekleyebilirsiniz.';
+
+  @override
+  String get digerPersonel => 'diğer personel';
+
+  @override
+  String saatineTasindi(String saat) {
+    return 'Randevu $saat saatine taşındı.';
+  }
+
+  @override
+  String get notKaydedildi => 'Not kaydedildi.';
+
+  @override
+  String get ziyaret => 'Ziyaret';
+
+  @override
+  String get harcama => 'Harcama';
+
+  @override
+  String get sonZiyaret => 'Son ziyaret';
+
+  @override
+  String get isletmeNotu => 'İşletme notu';
+
+  @override
+  String get notIpucu => 'Ör: Yanlar 1 numara, üstü makas, ense düz.';
+
+  @override
+  String get ozelVeriYazmayin =>
+      'Sağlık bilgisi gibi özel nitelikli veri yazmayın.';
+
+  @override
+  String get notYalnizSalon => 'Not yalnızca salonunuzda görünür.';
+
+  @override
+  String get notuSil => 'Notu Sil';
+
+  @override
+  String get sonRandevular => 'Son randevular';
+
+  @override
+  String genelde(String ad) {
+    return 'Genelde: $ad';
+  }
+
+  @override
+  String sonGuncelleme(String bilgi) {
+    return 'Son: $bilgi';
+  }
+
+  @override
+  String get musteriAdiGirin => 'Müşteri adını girin.';
+
+  @override
+  String get telefonKuraliOrnek =>
+      'Telefon 5 ile başlayan 10 rakam olmalı (ör. 532 123 45 67).';
+
+  @override
+  String get randevuEklendi => 'Randevu eklendi.';
+
+  @override
+  String get telefonlaGelen => 'Telefonla veya kapıdan gelen müşteri için';
+
+  @override
+  String get tarihSaat => 'Tarih & Saat';
+
+  @override
+  String get saatIcinHizmet => 'Saatleri görmek için hizmet seçin.';
+
+  @override
+  String get uygunSaatKalmadi => 'Bu gün için uygun saat kalmadı.';
+
+  @override
+  String get adSoyad => 'Ad Soyad';
+
+  @override
+  String get telefonIstegeBagli => 'Telefon (isteğe bağlı)';
+
+  @override
+  String get notIstegeBagli => 'Not (isteğe bağlı)';
+
+  @override
+  String get randevuyuKaydet => 'Randevuyu Kaydet';
+
+  @override
+  String get randevuSayisiEtiket => 'Randevu';
+
+  @override
+  String get toplamSure => 'Toplam süre';
+
+  @override
+  String get beklenenCiro => 'Beklenen ciro';
+
+  @override
+  String get siradaki => 'SIRADAKİ';
+
+  @override
+  String get whatsappOnay => 'WhatsApp onay';
+
+  @override
+  String get araTelefon => 'Ara';
+
+  @override
+  String get musteriNotuVar => 'Müşteri notu var';
+
+  @override
+  String get bekleniyor => 'Bekleniyor';
+
+  @override
+  String get panelden => 'panelden eklendi';
+
+  @override
+  String notMetni(String not) {
+    return 'Not: $not';
+  }
+
+  @override
+  String get tasimakIcinBasiliTut => 'taşımak için basılı tutun';
+
+  @override
+  String get personelEkle => 'Personel Ekle';
+
+  @override
+  String get unvan => 'Unvan (Usta, Kalfa...)';
+
+  @override
+  String get epostaIstegeBagli => 'E-posta (isteğe bağlı)';
+
+  @override
+  String get personelEpostaIpucu =>
+      'Personel bu e-postayla kayıt olursa kendi takvimini görür.';
+
+  @override
+  String get personelEklendi => 'Personel eklendi.';
+
+  @override
+  String get calismaGunleri => 'Çalışma günleri';
+
+  @override
+  String get verdigiHizmetler => 'Verdiği hizmetler ve fiyatlar';
+
+  @override
+  String get verdigiHizmetlerAciklama =>
+      'Bu personele özel fiyat, süre veya vermediği hizmetler';
+
+  @override
+  String get cikar => 'Çıkar';
+
+  @override
+  String get personelCikarildi => 'Personel kadrodan çıkarıldı.';
+
+  @override
+  String get hizmetEkle => 'Hizmet Ekle';
+
+  @override
+  String get hizmetiDuzenle => 'Hizmeti Düzenle';
+
+  @override
+  String get hizmetAdi => 'Hizmet adı';
+
+  @override
+  String get fiyat => 'Fiyat';
+
+  @override
+  String get dkKisa => 'dk';
+
+  @override
+  String get aciklamaIstegeBagli => 'Açıklama (isteğe bağlı)';
+
+  @override
+  String get fiyatDegisikligi =>
+      'Fiyat değişikliği mevcut randevuları etkilemez.';
+
+  @override
+  String get hizmetKurali => 'Ad, fiyat ve en az 5 dakikalık süre girin.';
+
+  @override
+  String get hizmetEklendi => 'Hizmet eklendi.';
+
+  @override
+  String get hizmetGuncellendi => 'Hizmet güncellendi.';
+
+  @override
+  String get hizmetKaldirildi => 'Hizmet kaldırıldı.';
+
+  @override
+  String get personeleDokunun =>
+      'Çalışma günleri ve verdiği hizmetler için personele dokunun.';
+
+  @override
+  String get henuzPersonelYok => 'Henüz personel yok.';
+
+  @override
+  String get hizmetMenusu => 'Hizmet Menüsü';
+
+  @override
+  String get henuzHizmetYok => 'Henüz hizmet yok.';
+
+  @override
+  String calismaGunleriKaydedildi(String ad) {
+    return '$ad için çalışma günleri kaydedildi.';
+  }
+
+  @override
+  String hizmetlerKaydedildi(String ad) {
+    return '$ad için hizmetler kaydedildi.';
+  }
+
+  @override
+  String kadrodanCikarilsinMi(String ad) {
+    return '$ad kadrodan çıkarılsın mı? Geçmiş randevu kayıtları korunur.';
+  }
+
+  @override
+  String menudenKaldirilsinMi(String ad) {
+    return '\"$ad\" menüden kaldırılsın mı?';
+  }
+
+  @override
+  String get hesabiBagli => 'hesabı bağlı';
+
+  @override
+  String davet(String eposta) {
+    return 'davet: $eposta';
+  }
+
+  @override
+  String hizmetiVermiyor(int n) {
+    return '$n hizmeti vermiyor';
+  }
+
+  @override
+  String ozelFiyatli(int n) {
+    return '$n hizmette özel fiyat/süre';
+  }
+
+  @override
+  String haftalikIzin(String gunler) {
+    return 'Haftalık izin: $gunler';
+  }
+
+  @override
+  String get calismaGunleriAciklama =>
+      'İşaretli günlerde çalışır. İşaretsiz günlerde müşteriler bu personelden randevu alamaz.';
+
+  @override
+  String get salonBuGunKapali => 'Salon bu gün kapalı';
+
+  @override
+  String get solukGunler => 'Soluk günlerde salon kapalı.';
+
+  @override
+  String get kampanyaEklendi => 'Kampanya eklendi.';
+
+  @override
+  String get kampanyaGuncellendi => 'Kampanya güncellendi.';
+
+  @override
+  String get kampanyayiKaldir => 'Kampanyayı kaldır';
+
+  @override
+  String get sadakatAciklama =>
+      'Müşterinin bu salondaki her N. randevusu indirimli olur. Tamamlanan ve alınmış randevular sayılır; gelinmeyen ve iptal edilenler sayılmaz.';
+
+  @override
+  String get kacinciZiyaret => 'Kaçıncı ziyaret (2–50)';
+
+  @override
+  String get ziyaretEki => '. ziyaret';
+
+  @override
+  String get indirimAraligi => 'İndirim (5–100)';
+
+  @override
+  String get sadakatKuraliHata =>
+      'Ziyaret 2–50, indirim 5–100 arasında olmalı.';
+
+  @override
+  String get sadakatKapatildi => 'Sadakat kartı kapatıldı.';
+
+  @override
+  String get kampanyaAciklama =>
+      'Boş günleri doldurmak için: ör. \"Salı %20\" veya \"Hafta içi 10:00–14:00 sakal %30\". İndirimler üst üste binmez; müşteriye en yüksek olanı uygulanır.';
+
+  @override
+  String get henuzKampanyaYok => 'Henüz kampanya yok.';
+
+  @override
+  String get sadakatKapaliAc => 'Kapalı · açmak için dokunun';
+
+  @override
+  String get kampanyaKurali => 'Ad girin; indirim %5 ile %90 arasında olmalı.';
+
+  @override
+  String get bitisBaslangictanOnce => 'Bitiş tarihi başlangıçtan önce olamaz.';
+
+  @override
+  String get yeniKampanya => 'Yeni Kampanya';
+
+  @override
+  String get kampanyayiDuzenle => 'Kampanyayı Düzenle';
+
+  @override
+  String get kampanyaFormAciklama =>
+      'Boş bıraktığınız koşul kısıt koymaz. Değişiklik yalnızca bundan sonraki randevulara uygulanır.';
+
+  @override
+  String get kampanyaAdi => 'Kampanya adı';
+
+  @override
+  String get kampanyaAdiOrnek => 'Salı İndirimi';
+
+  @override
+  String get gunler => 'Günler';
+
+  @override
+  String get herGun => 'Her gün';
+
+  @override
+  String get saatAraligi => 'Saat aralığı';
+
+  @override
+  String get gunBoyu => 'Gün boyu';
+
+  @override
+  String get saatAraligiSec => 'Saat aralığı seç';
+
+  @override
+  String get tarihAraligi => 'Tarih aralığı';
+
+  @override
+  String get suresiz => 'Süresiz';
+
+  @override
+  String get baslangicHemen => 'Başlangıç: hemen';
+
+  @override
+  String get bitisYok => 'Bitiş: yok';
+
+  @override
+  String get temizle => 'Temizle';
+
+  @override
+  String get tumHizmetler => 'Tüm hizmetler';
+
+  @override
+  String get kampanyaAcik => 'Kampanya açık';
+
+  @override
+  String get kapatirsanizDuraklatilir => 'Kapatırsanız silinmez, duraklatılır.';
+
+  @override
+  String sadakatKaydedildi(int esik, int yuzde) {
+    return 'Sadakat kartı: her $esik. ziyaret %$yuzde.';
+  }
+
+  @override
+  String get duraklatildi => 'Duraklatıldı';
+
+  @override
+  String get suresiDoldu => 'Süresi doldu';
+
+  @override
+  String baslangic(String tarih) {
+    return 'Başlangıç: $tarih';
+  }
+
+  @override
+  String bitis(String tarih) {
+    return 'Bitiş: $tarih';
+  }
+
+  @override
+  String get enAzBirHizmetVermeli => 'Personel en az bir hizmet vermeli.';
+
+  @override
+  String get personelHizmetAciklama =>
+      'Kapalı hizmetler bu personelden alınamaz. Fiyat ve süre boşsa menüdeki geçerli; değişiklik mevcut randevuları etkilemez.';
+
+  @override
+  String get menudeHizmetYok => 'Menüde hizmet yok.';
+
+  @override
+  String get ozelFiyat => 'Özel fiyat';
+
+  @override
+  String get ozelSure => 'Özel süre';
+
+  @override
+  String sureEnAz5(String ad) {
+    return '$ad: süre en az 5 dakika olmalı.';
+  }
+
+  @override
+  String menuDegeri(String deger) {
+    return 'Menü: $deger';
+  }
+
+  @override
+  String get kapaliGunEklendi => 'Kapalı gün eklendi.';
+
+  @override
+  String get oncePersonelEkle =>
+      'Önce Ekip & Menü sekmesinden personel ekleyin.';
+
+  @override
+  String get hangiPersonel => 'Hangi personel?';
+
+  @override
+  String get kaydedildi => 'Kaydedildi.';
+
+  @override
+  String get hangiPersonelIzinli => 'Hangi personel izinli?';
+
+  @override
+  String get izinEklendi => 'İzin eklendi.';
+
+  @override
+  String get kapaliAciklama =>
+      'Öğle arası, kapalı gün, izin ve kapatılan saatlerde müşteriler randevu alamaz.';
+
+  @override
+  String get salonKapaliGunler => 'Salonun kapalı olduğu günler';
+
+  @override
+  String get kapaliGunYok => 'Planlanmış kapalı gün yok.';
+
+  @override
+  String get personelIzinleri => 'Personel izinleri';
+
+  @override
+  String get izinYok => 'Planlanmış izin yok.';
+
+  @override
+  String get saatlikKapatmalar => 'Saatlik kapatmalar';
+
+  @override
+  String get kapatilmisSaatYok =>
+      'Kapatılmış saat yok. Ör: \"Ali 14:00–16:00 dışarıda\".';
+
+  @override
+  String salonKapaliTarih(String tarih) {
+    return 'Salon kapalı: $tarih';
+  }
+
+  @override
+  String saatlerdeRandevuVar(int n) {
+    return 'Kaydedildi. Bu saatlerde $n aktif randevu var; müşterilere haber verin.';
+  }
+
+  @override
+  String izinGununderandevuVar(int n) {
+    return 'İzin eklendi. Bu günde $n aktif randevu var; müşterilere haber verin.';
+  }
+
+  @override
+  String get molaKaldirildi => 'Öğle arası kaldırıldı.';
+
+  @override
+  String get molaYok => 'Öğle arası tanımlı değil';
+
+  @override
+  String get molaAciklama => 'Her gün bu saatlerde randevu alınmaz.';
+
+  @override
+  String get molayiKaldir => 'Öğle arasını kaldır';
+
+  @override
+  String molaKaydedildi(String aralik) {
+    return 'Öğle arası $aralik olarak kaydedildi.';
+  }
+
+  @override
+  String get sinirYok => 'Sınır yok';
+
+  @override
+  String get oncedenSoru => 'Müşteri en az ne kadar önceden randevu alsın?';
+
+  @override
+  String get oncedenOrnek =>
+      'Örneğin 1 saat: saat 12:10\'da en erken 13:30 alınabilir. Sizin panelden eklediğiniz randevular bu sınırdan etkilenmez.';
+
+  @override
+  String get sonDakikaAcikNokta => 'Son dakika randevuya açık.';
+
+  @override
+  String get sonDakikaAcik => 'Son dakika randevuya açık';
+
+  @override
+  String get oncedenAciklama =>
+      'Müşterinin uygulamadan alabileceği en yakın saat.';
+
+  @override
+  String musterilerEnAz(String sure) {
+    return 'Müşteriler en az $sure önceden alabilir.';
+  }
+
+  @override
+  String enAzOncedenKisa(String sure) {
+    return 'En az $sure önceden';
+  }
+
+  @override
+  String get baslangicSaati => 'Başlangıç saati';
+
+  @override
+  String get bitisSaati => 'Bitiş saati';
+
+  @override
+  String get bitisSonraOlmali => 'Bitiş saati başlangıçtan sonra olmalı.';
+
+  @override
+  String get oncekiAy => 'Önceki ay';
+
+  @override
+  String get sonrakiAy => 'Sonraki ay';
+
+  @override
+  String get ciro => 'Ciro';
+
+  @override
+  String get tamamlanan => 'Tamamlanan';
+
+  @override
+  String get ortalamaSepet => 'Ortalama sepet';
+
+  @override
+  String get gelmemeOrani => 'Gelmeme oranı';
+
+  @override
+  String get verilenIndirim => 'Verilen indirim';
+
+  @override
+  String get personelCiro => 'Personel bazlı ciro';
+
+  @override
+  String get buAyTamamlananYok => 'Bu ay tamamlanan randevu yok.';
+
+  @override
+  String get populerHizmetler => 'En çok tercih edilen hizmetler';
+
+  @override
+  String yuzdeMetin(String y) {
+    return '%$y';
+  }
+
+  @override
+  String randevuSayisi(int n) {
+    return '$n randevu';
+  }
+
+  @override
+  String raporAlt(int iptal, int gelmedi, int uygulama) {
+    return 'İptal: $iptal · Gelmedi: $gelmedi · Uygulamadan gelen: $uygulama';
+  }
+
+  @override
+  String get ilkZiyaret => 'İlk ziyaret — geçmiş kaydı yok';
+
+  @override
+  String guvenOzet(int tamam, int gelmedi, int gec) {
+    return '$tamam tamamlanan · $gelmedi gelmedi · $gec geç iptal';
+  }
+
+  @override
+  String get guvenilir => 'Güvenilir';
+
+  @override
+  String get dikkat => 'Dikkat';
+
+  @override
+  String get isletmeHesapSilAciklama =>
+      'Hesabınıza ait kişisel bilgiler (ad, telefon, e-posta) silinecek ve panel erişiminiz kapanacak. Salon kaydı ve geçmiş randevular kimliksiz olarak kalır. Bu işlem geri alınamaz.';
+
+  @override
+  String get hesapSilinemediTekrar =>
+      'Hesap silinemedi. Lütfen tekrar deneyin.';
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/data/api/api_client.dart';
 import 'package:berber_app_ui/services/auth_service.dart';
 import 'package:berber_app_ui/services/yonlendirme.dart';
@@ -54,15 +55,14 @@ class _IsletmeBeklemeScreenState extends State<IsletmeBeklemeScreen> {
               Icon(reddedildi ? Icons.block : Icons.hourglass_top_rounded,
                   color: reddedildi ? AppTheme.error : AppTheme.gold, size: 72),
               const SizedBox(height: 24),
-              Text(reddedildi ? 'Başvurunuz onaylanmadı' : 'Başvurunuz inceleniyor',
+              Text(reddedildi ? Dil.t.basvuruOnaylanmadi : Dil.t.basvuruInceleniyor,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 26, fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
               Text(
                 reddedildi
-                    ? 'Ayrıntılar için destek ekibimizle iletişime geçebilirsiniz.'
-                    : '${widget.isletmeAdi} için başvurunuz alındı. Onaylandığında salon paneliniz açılacak; '
-                        'günün randevularını, personelinizi ve hizmetlerinizi buradan yöneteceksiniz.',
+                    ? Dil.t.destekleIletisim
+                    : Dil.t.basvuruAlindi(widget.isletmeAdi),
                 textAlign: TextAlign.center,
                 style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 14, height: 1.5),
               ),
@@ -73,16 +73,16 @@ class _IsletmeBeklemeScreenState extends State<IsletmeBeklemeScreen> {
                   icon: _kontrol
                       ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
                       : const Icon(Icons.refresh),
-                  label: const Text('Durumu Kontrol Et'),
+                  label: Text(Dil.t.durumuKontrolEt),
                   style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14)),
                 ),
               TextButton(onPressed: _cikis,
-                  child: const Text('Çıkış Yap', style: TextStyle(color: AppTheme.textSecondary))),
+                  child: Text(Dil.t.cikisYap, style: TextStyle(color: AppTheme.textSecondary))),
             ]),
           ),
         ),
         // En üstte: içerik sütununun altında kalıp dokunuşu kaçırmasın
-        const SafeArea(child: Align(alignment: Alignment.topRight, child: HesapMenusu())),
+        SafeArea(child: Align(alignment: Alignment.topRight, child: HesapMenusu())),
       ]),
     );
   }

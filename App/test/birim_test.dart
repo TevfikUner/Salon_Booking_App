@@ -198,7 +198,7 @@ void main() {
       }
     }
     expect(kullanilan, isEmpty);
-  });
+  }, skip: !Directory('lib').existsSync()); // cihazda (integration_test) kaynak klasörü yok
 
   test('telefonBicimli', () {
     expect(telefonBicimli('5321234567'), '0532 123 45 67');

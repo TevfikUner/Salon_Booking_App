@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/core/utils/harici.dart';
@@ -80,9 +81,9 @@ class _AkisSekmesiState extends State<AkisSekmesi> {
     if (durum == 'iptal' &&
         !await onayIste(
           context,
-          'Randevuyu iptal et',
+          Dil.t.randevuyuIptalEt,
           '${r['musteri']['ad']} — ${r['saat']} randevusu iptal edilsin mi? Müşteriye bildirim gönderilir.',
-          evet: 'İptal Et',
+          evet: Dil.t.iptalEt,
           tehlikeli: true,
         )) {
       return;
@@ -90,7 +91,7 @@ class _AkisSekmesiState extends State<AkisSekmesi> {
     setState(() => _islemde.add(r['id']));
     try {
       await PanelApi.durumGuncelle(r['id'], durum);
-      if (mounted) bilgiGoster(context, 'Randevu güncellendi.');
+      if (mounted) bilgiGoster(context, Dil.t.randevuGuncellendi);
       await _yukle();
     } on ApiHata catch (e) {
       if (mounted) bilgiGoster(context, e.mesaj, hata: true);
@@ -100,7 +101,7 @@ class _AkisSekmesiState extends State<AkisSekmesi> {
   }
 
   Future<void> _harici(Future<bool> islem) async {
-    if (!await islem && mounted) bilgiGoster(context, 'Uygulama açılamadı.', hata: true);
+    if (!await islem && mounted) bilgiGoster(context, Dil.t.uygulamaAcilamadi, hata: true);
   }
 
   Future<void> _randevuEkle({int? berberId, String? saat}) async {
@@ -125,21 +126,21 @@ class _AkisSekmesiState extends State<AkisSekmesi> {
         .firstOrNull;
     if (!await onayIste(
       context,
-      'Randevuyu taşı',
-      '${r['musteri']['ad']} · ${r['saat']} → $saat${ayniBerber ? '' : ' (${hedef ?? 'diğer personel'})'}\n'
-          'Fiyat ve süre değişmez; müşteriye bildirim gönderilir.',
-      evet: 'Taşı',
+      Dil.t.randevuyuTasi,
+      '${r['musteri']['ad']} · ${r['saat']} → $saat${ayniBerber ? '' : ' (${hedef ?? Dil.t.digerPersonel})'}\n'
+          '${Dil.t.tasimaAciklama}',
+      evet: Dil.t.tasi,
     )) {
       return;
     }
     try {
       await PanelApi.randevuTasi(r['id'], berberId: berberId, tarih: tarihStr(_gun), saat: saat);
-      if (mounted) bilgiGoster(context, 'Randevu $saat saatine taşındı.');
+      if (mounted) bilgiGoster(context, Dil.t.saatineTasindi(saat));
     } on ApiHata catch (e) {
       if (mounted) {
         bilgiGoster(
           context,
-          e.oneriler.isEmpty ? e.mesaj : '${e.mesaj} Uygun: ${e.oneriler.take(4).join(', ')}',
+          e.oneriler.isEmpty ? e.mesaj : '${e.mesaj} ${Dil.t.uygunSaatler(e.oneriler.take(4).join(', '))}',
           hata: true,
           sure: const Duration(seconds: 6),
         );
@@ -196,7 +197,7 @@ class _AkisSekmesiState extends State<AkisSekmesi> {
         backgroundColor: AppTheme.gold,
         foregroundColor: AppTheme.black,
         icon: const Icon(Icons.add),
-        label: const Text('Randevu Ekle', style: TextStyle(fontWeight: FontWeight.bold)),
+        label: Text(Dil.t.randevuEkle, style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: Column(
         children: [
@@ -207,12 +208,12 @@ class _AkisSekmesiState extends State<AkisSekmesi> {
               children: [
                 Expanded(
                   child: Text(
-                    _takvim ? 'Taşımak için randevuya basılı tutup sürükleyin.' : '',
+                    _takvim ? Dil.t.tasimaIpucu : '',
                     style: const TextStyle(color: AppTheme.textSecondary, fontSize: 11),
                   ),
                 ),
                 SegmentedButton<bool>(
-                  key: const ValueKey('akis_gorunum'),
+                  key: ValueKey('akis_gorunum'),
                   showSelectedIcon: false,
                   style: SegmentedButton.styleFrom(
                 visualDensity: VisualDensity.compact,
@@ -221,12 +222,12 @@ class _AkisSekmesiState extends State<AkisSekmesi> {
                 foregroundColor: AppTheme.gold,
                 side: BorderSide(color: AppTheme.gold.withValues(alpha: 0.5)),
               ),
-                  segments: const [
-                    ButtonSegment(value: false, icon: Icon(Icons.view_agenda_outlined, size: 18), tooltip: 'Liste'),
+                  segments: [
+                    ButtonSegment(value: false, icon: Icon(Icons.view_agenda_outlined, size: 18), tooltip: Dil.t.liste),
                     ButtonSegment(
                       value: true,
                       icon: Icon(Icons.calendar_view_day_outlined, size: 18),
-                      tooltip: 'Takvim',
+                      tooltip: Dil.t.takvim,
                     ),
                   ],
                   selected: {_takvim},
@@ -269,10 +270,10 @@ class _AkisSekmesiState extends State<AkisSekmesi> {
           DolulukCipleri(doluluk: (v['doluluk'] as List).cast<Map<String, dynamic>>()),
           const SizedBox(height: 8),
           if (randevular.isEmpty)
-            const BosGorunum(
+            BosGorunum(
               ikon: Icons.event_available,
-              mesaj: 'Bu gün için randevu yok.',
-              altMesaj: '"Randevu Ekle" ile telefonla gelen müşteriyi ekleyebilirsiniz.',
+              mesaj: Dil.t.buGunRandevuYok,
+              altMesaj: Dil.t.randevuEkleIpucu,
             )
           else
             for (final r in randevular)
@@ -300,9 +301,9 @@ class _GunSecici extends StatelessWidget {
   Widget build(BuildContext context) {
     final bugun = DateTime.now();
     final secenekler = [
-      (bugun.subtract(const Duration(days: 1)), 'Dün'),
-      (bugun, 'Bugün'),
-      (bugun.add(const Duration(days: 1)), 'Yarın'),
+      (bugun.subtract(const Duration(days: 1)), Dil.t.dun),
+      (bugun, Dil.t.bugun),
+      (bugun.add(const Duration(days: 1)), Dil.t.yarin),
     ];
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),

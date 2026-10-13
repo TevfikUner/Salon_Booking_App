@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
 import 'package:berber_app_ui/data/api/api_client.dart';
@@ -33,7 +34,7 @@ class _MolaKartiState extends State<MolaKarti> {
         'mola_bitis': bit,
       });
       widget.onDegisti(yeni);
-      if (mounted) bilgiGoster(context, bas == null ? 'Öğle arası kaldırıldı.' : 'Öğle arası $bas–$bit olarak kaydedildi.');
+      if (mounted) bilgiGoster(context, bas == null ? Dil.t.molaKaldirildi : Dil.t.molaKaydedildi('$bas–$bit'));
     } on ApiHata catch (e) {
       if (mounted) bilgiGoster(context, e.mesaj, hata: true);
     } finally {
@@ -55,17 +56,17 @@ class _MolaKartiState extends State<MolaKarti> {
     return Card(
       child: ListTile(
         leading: const Icon(Icons.free_breakfast_outlined, color: AppTheme.gold),
-        title: Text(bas == null ? 'Öğle arası tanımlı değil' : 'Öğle arası: $bas – $bit',
+        title: Text(bas == null ? Dil.t.molaYok : '${Dil.t.ogleArasi}: $bas – $bit',
             style: const TextStyle(color: Colors.white)),
-        subtitle: Text('Her gün bu saatlerde randevu alınmaz.',
+        subtitle: Text(Dil.t.molaAciklama,
             style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
         trailing: _kaydediliyor
             ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.gold))
             : Row(mainAxisSize: MainAxisSize.min, children: [
                 if (bas != null)
-                  IconButton(tooltip: 'Öğle arasını kaldır', icon: const Icon(Icons.close),
+                  IconButton(tooltip: Dil.t.molayiKaldir, icon: const Icon(Icons.close),
                       onPressed: () => _kaydet(null, null)),
-                IconButton(tooltip: 'Düzenle', icon: const Icon(Icons.edit_outlined, color: AppTheme.gold),
+                IconButton(tooltip: Dil.t.duzenle, icon: const Icon(Icons.edit_outlined, color: AppTheme.gold),
                     onPressed: _duzenle),
               ]),
       ),

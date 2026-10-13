@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/data/api/api_client.dart';
@@ -261,8 +262,8 @@ class _GunTakvimiState extends State<GunTakvimi> {
               height: GunTakvimi.satirH,
               child: _hucre(berberId, _saat(bas + i * GunTakvimi.slotDk), i, kapali != null),
             ),
-          if (mola != null && kapali == null) _alan(_dk(mola['bas']), _dk(mola['bit']), 'Öğle arası'),
-          for (final b in blokeler) _alan(_dk(b['bas_saat']), _dk(b['bit_saat']), b['aciklama'] ?? 'Kapalı'),
+          if (mola != null && kapali == null) _alan(_dk(mola['bas']), _dk(mola['bit']), Dil.t.ogleArasi),
+          for (final b in blokeler) _alan(_dk(b['bas_saat']), _dk(b['bit_saat']), b['aciklama'] ?? Dil.t.kapali),
           if (kapali != null)
             Positioned.fill(
               child: Container(
@@ -395,7 +396,7 @@ class _GunTakvimiState extends State<GunTakvimi> {
       left: 3,
       child: Semantics(
         button: true,
-        label: '${r['saat']} ${r['musteri']['ad']}${_tasinabilir(r) ? ', taşımak için basılı tutun' : ''}',
+        label: '${r['saat']} ${r['musteri']['ad']}${_tasinabilir(r) ? ', ${Dil.t.tasimakIcinBasiliTut}' : ''}',
         child: !_tasinabilir(r)
             ? govde
             : LongPressDraggable<Json>(

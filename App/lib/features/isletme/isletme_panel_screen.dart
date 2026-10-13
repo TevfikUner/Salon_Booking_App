@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/features/isletme/akis/akis_sekmesi.dart';
 import 'package:berber_app_ui/features/isletme/ekip/ekip_sekmesi.dart';
@@ -26,11 +27,11 @@ class _IsletmePanelScreenState extends State<IsletmePanelScreen> {
   @override
   Widget build(BuildContext context) {
     final sekmeler = <(IconData, String, Widget)>[
-      (Icons.view_timeline_outlined, 'Akış', AkisSekmesi(personel: widget.personel, baslangicTarihi: widget.akisTarihi)),
+      (Icons.view_timeline_outlined, Dil.t.akis, AkisSekmesi(personel: widget.personel, baslangicTarihi: widget.akisTarihi)),
       if (!widget.personel) ...[
-        (Icons.groups_outlined, 'Ekip & Menü', const EkipSekmesi()),
-        (Icons.event_busy_outlined, 'Kapalı Günler', const KapaliGunlerSekmesi()),
-        (Icons.insights_outlined, 'Rapor', const RaporSekmesi()),
+        (Icons.groups_outlined, Dil.t.ekipMenu, const EkipSekmesi()),
+        (Icons.event_busy_outlined, Dil.t.kapaliGunler, const KapaliGunlerSekmesi()),
+        (Icons.insights_outlined, Dil.t.rapor, const RaporSekmesi()),
       ],
     ];
     return Scaffold(
@@ -39,10 +40,10 @@ class _IsletmePanelScreenState extends State<IsletmePanelScreen> {
         title: Column(children: [
           Text(widget.salonAd, style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 18,
               fontWeight: FontWeight.bold)),
-          Text(widget.personel ? 'Personel Paneli' : 'İşletme Paneli',
+          Text(widget.personel ? Dil.t.personelPaneli : Dil.t.isletmePaneli,
               style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 11)),
         ]),
-        actions: const [HesapMenusu()],
+        actions: [HesapMenusu()],
       ),
       body: IndexedStack(index: _sekme, children: [for (final s in sekmeler) s.$3]),
       bottomNavigationBar: sekmeler.length < 2

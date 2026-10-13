@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/features/isletme/widgets/guven_rozeti.dart';
@@ -61,7 +62,7 @@ class AkisRandevuKarti extends StatelessWidget {
                 const Icon(Icons.local_offer_outlined, color: AppTheme.gold, size: 14),
                 const SizedBox(width: 6),
                 Expanded(
-                  child: Text('${r['indirim_aciklama'] ?? 'İndirim'} · −${tl(r['indirim_tutari'] as num)}',
+                  child: Text('${r['indirim_aciklama'] ?? Dil.t.indirim} · −${tl(r['indirim_tutari'] as num)}',
                       style: GoogleFonts.inter(color: AppTheme.gold, fontSize: 12)),
                 ),
               ]),
@@ -69,7 +70,7 @@ class AkisRandevuKarti extends StatelessWidget {
           Row(children: [
             _DurumEtiketi(durum: durum),
             const Spacer(),
-            Text('Toplam ', style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
+            Text('${Dil.t.toplam} ', style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
             Text(tl(r['toplam_fiyat'] as num? ?? 0),
                 style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 18, fontWeight: FontWeight.bold)),
           ]),
@@ -77,15 +78,15 @@ class AkisRandevuKarti extends StatelessWidget {
             const SizedBox(height: 10),
             Wrap(spacing: 8, runSpacing: 8, children: [
               if (r['whatsapp_link'] != null)
-                _Aksiyon(ikon: Icons.chat, etiket: 'WhatsApp onay', renk: const Color(0xFF25D366), onTap: onWhatsapp),
-              if (tel.isNotEmpty) _Aksiyon(ikon: Icons.call, etiket: 'Ara', renk: AppTheme.gold, onTap: onAra),
+                _Aksiyon(ikon: Icons.chat, etiket: Dil.t.whatsappOnay, renk: const Color(0xFF25D366), onTap: onWhatsapp),
+              if (tel.isNotEmpty) _Aksiyon(ikon: Icons.call, etiket: Dil.t.araTelefon, renk: AppTheme.gold, onTap: onAra),
               if (basladi) ...[
-                _Aksiyon(ikon: Icons.check_circle, etiket: 'Tamamlandı', renk: AppTheme.success,
+                _Aksiyon(ikon: Icons.check_circle, etiket: Dil.t.tamamlandi, renk: AppTheme.success,
                     onTap: islemde ? null : () => onDurum('tamamlandi')),
-                _Aksiyon(ikon: Icons.person_off, etiket: 'Gelmedi', renk: Colors.orange,
+                _Aksiyon(ikon: Icons.person_off, etiket: Dil.t.gelmedi, renk: Colors.orange,
                     onTap: islemde ? null : () => onDurum('gelmedi')),
               ],
-              _Aksiyon(ikon: Icons.cancel_outlined, etiket: 'İptal', renk: AppTheme.error,
+              _Aksiyon(ikon: Icons.cancel_outlined, etiket: Dil.t.iptalKisa, renk: AppTheme.error,
                   onTap: islemde ? null : () => onDurum('iptal')),
             ]),
           ],
@@ -136,7 +137,7 @@ class _Detay extends StatelessWidget {
           ),
           if (r['not_var'] == true) ...[
             const SizedBox(width: 4),
-            const Tooltip(message: 'Müşteri notu var', child: Icon(Icons.sticky_note_2, color: AppTheme.gold, size: 16)),
+            Tooltip(message: Dil.t.musteriNotuVar, child: Icon(Icons.sticky_note_2, color: AppTheme.gold, size: 16)),
           ],
           const SizedBox(width: 6),
           GuvenRozeti(guven: r['guven']),
@@ -144,7 +145,7 @@ class _Detay extends StatelessWidget {
         ]),
       ),
       const SizedBox(height: 2),
-      Text('${r['berber']['ad']}${r['kaynak'] == 'panel' ? ' · panelden eklendi' : ''}',
+      Text('${r['berber']['ad']}${r['kaynak'] == 'panel' ? ' · ${Dil.t.panelden}' : ''}',
           style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
       const SizedBox(height: 6),
       for (final h in hizmetler)
@@ -159,7 +160,7 @@ class _Detay extends StatelessWidget {
       if (notlar != null && notlar.isNotEmpty)
         Padding(
           padding: const EdgeInsets.only(top: 4),
-          child: Text('Not: $notlar',
+          child: Text(Dil.t.notMetni(notlar),
               style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12, fontStyle: FontStyle.italic)),
         ),
     ]);
@@ -173,10 +174,10 @@ class _DurumEtiketi extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (metin, renk) = switch (durum) {
-      'onaylandi' => ('Bekleniyor', AppTheme.gold),
-      'tamamlandi' => ('Tamamlandı', AppTheme.success),
-      'gelmedi' => ('Gelmedi', Colors.orange),
-      'iptal' => ('İptal', AppTheme.error),
+      'onaylandi' => (Dil.t.bekleniyor, AppTheme.gold),
+      'tamamlandi' => (Dil.t.tamamlandi, AppTheme.success),
+      'gelmedi' => (Dil.t.gelmedi, Colors.orange),
+      'iptal' => (Dil.t.iptalKisa, AppTheme.error),
       _ => (durum, AppTheme.textSecondary),
     };
     return Container(

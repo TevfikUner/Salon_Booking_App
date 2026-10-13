@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
 
 /// 24 saat biçimli saat seçici; "HH:MM" döner (vazgeçilirse null).
@@ -20,12 +21,12 @@ Future<String?> saatSec(BuildContext context, {required String baslik, String? i
 
 /// Başlangıç ve bitiş saatini art arda sorar. Vazgeçilirse null; bitiş başlangıçtan önceyse uyarı gösterip null.
 Future<(String, String)?> saatAraligiSec(BuildContext context, {String? bas, String? bit}) async {
-  final b = await saatSec(context, baslik: 'Başlangıç saati', ilk: bas);
+  final b = await saatSec(context, baslik: Dil.t.baslangicSaati, ilk: bas);
   if (b == null || !context.mounted) return null;
-  final e = await saatSec(context, baslik: 'Bitiş saati', ilk: bit ?? b);
+  final e = await saatSec(context, baslik: Dil.t.bitisSaati, ilk: bit ?? b);
   if (e == null) return null;
   if (e.compareTo(b) <= 0) {
-    if (context.mounted) bilgiGoster(context, 'Bitiş saati başlangıçtan sonra olmalı.', hata: true);
+    if (context.mounted) bilgiGoster(context, Dil.t.bitisSonraOlmali, hata: true);
     return null;
   }
   return (b, e);

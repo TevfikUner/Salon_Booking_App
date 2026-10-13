@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/core/widgets/durum_gorunumleri.dart';
@@ -67,7 +68,7 @@ class _MusteriKartiSheetState extends State<MusteriKartiSheet> {
       widget.onNotDegisti?.call();
       if (!mounted) return;
       setState(() => _veri = {..._veri!, 'not': v['not']});
-      bilgiGoster(context, v['mesaj'] ?? 'Not kaydedildi.');
+      bilgiGoster(context, v['mesaj'] ?? Dil.t.notKaydedildi);
     } on ApiHata catch (e) {
       if (mounted) bilgiGoster(context, e.mesaj, hata: true);
     } finally {
@@ -109,20 +110,20 @@ class _MusteriKartiSheetState extends State<MusteriKartiSheet> {
           Text(telefonBicimli(m['telefon']), style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 13)),
         const SizedBox(height: 14),
         Wrap(spacing: 8, runSpacing: 8, children: [
-          _Kutu('Ziyaret', '${o['ziyaret']}'),
-          _Kutu('Harcama', tl(o['toplam_harcama'] as num? ?? 0)),
-          _Kutu('Son ziyaret', o['son_ziyaret'] == null ? '—' : tarihUzun(o['son_ziyaret']).split(' ').take(2).join(' ')),
-          if ((o['gelmedi'] as int? ?? 0) > 0) _Kutu('Gelmedi', '${o['gelmedi']}', uyari: true),
+          _Kutu(Dil.t.ziyaret, '${o['ziyaret']}'),
+          _Kutu(Dil.t.harcama, tl(o['toplam_harcama'] as num? ?? 0)),
+          _Kutu(Dil.t.sonZiyaret, o['son_ziyaret'] == null ? '—' : tarihUzun(o['son_ziyaret']).split(' ').take(2).join(' ')),
+          if ((o['gelmedi'] as int? ?? 0) > 0) _Kutu(Dil.t.gelmedi, '${o['gelmedi']}', uyari: true),
         ]),
         if (o['en_sik_berber'] != null || (o['en_sik_hizmetler'] as List).isNotEmpty) ...[
           const SizedBox(height: 12),
           Text([
-            if (o['en_sik_berber'] != null) 'Genelde: ${o['en_sik_berber']}',
+            if (o['en_sik_berber'] != null) Dil.t.genelde('${o['en_sik_berber']}'),
             if ((o['en_sik_hizmetler'] as List).isNotEmpty) (o['en_sik_hizmetler'] as List).join(', '),
           ].join(' · '), style: GoogleFonts.inter(color: Colors.white70, fontSize: 13)),
         ],
         const SizedBox(height: 18),
-        Text('İşletme notu', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w700)),
+        Text(Dil.t.isletmeNotu, style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w700)),
         const SizedBox(height: 6),
         TextField(
           controller: _not,
@@ -130,26 +131,26 @@ class _MusteriKartiSheetState extends State<MusteriKartiSheet> {
           maxLines: 3,
           minLines: 2,
           onChanged: (_) => setState(() {}),
-          decoration: const InputDecoration(
-              hintText: 'Ör: Yanlar 1 numara, üstü makas, ense düz.',
-              helperText: 'Sağlık bilgisi gibi özel nitelikli veri yazmayın.',
+          decoration: InputDecoration(
+              hintText: Dil.t.notIpucu,
+              helperText: Dil.t.ozelVeriYazmayin,
               helperMaxLines: 2),
         ),
         Row(children: [
           Expanded(
             child: Text(
-                not == null ? 'Not yalnızca salonunuzda görünür.' : 'Son: ${not['guncelleyen'] ?? ''} · ${not['guncelleme']}'
+                not == null ? Dil.t.notYalnizSalon : Dil.t.sonGuncelleme('${not['guncelleyen'] ?? ''} · ${not['guncelleme']}')
                     .replaceFirst('T', ' '),
                 style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 11)),
           ),
           ElevatedButton(
             onPressed: _kaydediliyor ? null : _kaydet,
             style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10)),
-            child: Text(_not.text.trim().isEmpty && not != null ? 'Notu Sil' : 'Kaydet'),
+            child: Text(_not.text.trim().isEmpty && not != null ? Dil.t.notuSil : Dil.t.kaydet),
           ),
         ]),
         const SizedBox(height: 18),
-        Text('Son randevular', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w700)),
+        Text(Dil.t.sonRandevular, style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w700)),
         const SizedBox(height: 6),
         for (final r in randevular)
           Padding(

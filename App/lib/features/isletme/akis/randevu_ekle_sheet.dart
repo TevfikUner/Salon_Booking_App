@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/data/api/api_client.dart';
 import 'package:berber_app_ui/data/api/panel_api.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
@@ -130,7 +131,7 @@ class _RandevuEkleSheetState extends State<RandevuEkleSheet> {
       initialDate: _tarih,
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 30)),
-      locale: const Locale('tr', 'TR'),
+      locale: Dil.ingilizce ? const Locale('en') : const Locale('tr', 'TR'),
     );
     if (g != null) {
       setState(() => _tarih = g);
@@ -140,12 +141,12 @@ class _RandevuEkleSheetState extends State<RandevuEkleSheet> {
 
   Future<void> _kaydet() async {
     if (_adCtrl.text.trim().isEmpty) {
-      bilgiGoster(context, 'Müşteri adını girin.', hata: true);
+      bilgiGoster(context, Dil.t.musteriAdiGirin, hata: true);
       return;
     }
     final tel = _telCtrl.text.trim();
     if (tel.isNotEmpty && !(tel.length == 10 && tel.startsWith('5'))) {
-      bilgiGoster(context, 'Telefon 5 ile başlayan 10 rakam olmalı (ör. 532 123 45 67).', hata: true);
+      bilgiGoster(context, Dil.t.telefonKuraliOrnek, hata: true);
       return;
     }
     if (_kaydediliyor) return;
@@ -163,7 +164,7 @@ class _RandevuEkleSheetState extends State<RandevuEkleSheet> {
       );
       if (!mounted) return;
       Navigator.pop(context, true);
-      bilgiGoster(context, 'Randevu eklendi.');
+      bilgiGoster(context, Dil.t.randevuEklendi);
     } on ApiHata catch (e) {
       if (mounted) bilgiGoster(context, e.mesaj, hata: true);
       _saatleriGetir();
@@ -204,15 +205,15 @@ class _RandevuEkleSheetState extends State<RandevuEkleSheet> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Randevu Ekle',
+                    Dil.t.randevuEkle,
                     style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 22, fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    'Telefonla veya kapıdan gelen müşteri için',
+                    Dil.t.telefonlaGelen,
                     style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12),
                   ),
                   const SizedBox(height: 16),
-                  _baslik('Personel'),
+                  _baslik(Dil.t.personel),
                   Wrap(
                     spacing: 8,
                     children: [
@@ -226,7 +227,7 @@ class _RandevuEkleSheetState extends State<RandevuEkleSheet> {
                         ),
                     ],
                   ),
-                  _baslik('Hizmetler'),
+                  _baslik(Dil.t.hizmetler),
                   Wrap(
                     spacing: 8,
                     runSpacing: 4,
@@ -252,7 +253,7 @@ class _RandevuEkleSheetState extends State<RandevuEkleSheet> {
                         style: GoogleFonts.inter(color: AppTheme.gold, fontWeight: FontWeight.w600),
                       ),
                     ),
-                  _baslik('Tarih & Saat'),
+                  _baslik(Dil.t.tarihSaat),
                   OutlinedButton.icon(
                     onPressed: _tarihSec,
                     icon: const Icon(Icons.calendar_today, size: 16),
@@ -260,13 +261,13 @@ class _RandevuEkleSheetState extends State<RandevuEkleSheet> {
                   ),
                   const SizedBox(height: 8),
                   if (_secili.isEmpty)
-                    Text('Saatleri görmek için hizmet seçin.', style: GoogleFonts.inter(color: AppTheme.textSecondary))
+                    Text(Dil.t.saatIcinHizmet, style: GoogleFonts.inter(color: AppTheme.textSecondary))
                   else if (_saatYukleniyor)
                     const LinearProgressIndicator(color: AppTheme.gold)
                   else if (_kapaliNeden != null)
                     Text(_kapaliNeden!, style: GoogleFonts.inter(color: AppTheme.error))
                   else if (_saatler.isEmpty)
-                    Text('Bu gün için uygun saat kalmadı.', style: GoogleFonts.inter(color: AppTheme.error))
+                    Text(Dil.t.uygunSaatKalmadi, style: GoogleFonts.inter(color: AppTheme.error))
                   else
                     Wrap(
                       spacing: 6,
@@ -282,11 +283,11 @@ class _RandevuEkleSheetState extends State<RandevuEkleSheet> {
                           ),
                       ],
                     ),
-                  _baslik('Müşteri'),
+                  _baslik(Dil.t.musteri),
                   TextField(
                     controller: _adCtrl,
                     textCapitalization: TextCapitalization.words,
-                    decoration: const InputDecoration(labelText: 'Ad Soyad', prefixIcon: Icon(Icons.person_outline)),
+                    decoration: InputDecoration(labelText: Dil.t.adSoyad, prefixIcon: Icon(Icons.person_outline)),
                   ),
                   const SizedBox(height: 10),
                   TextField(
@@ -294,8 +295,8 @@ class _RandevuEkleSheetState extends State<RandevuEkleSheet> {
                     keyboardType: TextInputType.phone,
                     maxLength: 10,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: const InputDecoration(
-                      labelText: 'Telefon (isteğe bağlı)',
+                    decoration: InputDecoration(
+                      labelText: Dil.t.telefonIstegeBagli,
                       prefixText: '0 ',
                       counterText: '',
                       hintText: '5XX XXX XX XX',
@@ -305,11 +306,11 @@ class _RandevuEkleSheetState extends State<RandevuEkleSheet> {
                   const SizedBox(height: 10),
                   TextField(
                     controller: _notCtrl,
-                    decoration: const InputDecoration(labelText: 'Not (isteğe bağlı)', prefixIcon: Icon(Icons.notes)),
+                    decoration: InputDecoration(labelText: Dil.t.notIstegeBagli, prefixIcon: Icon(Icons.notes)),
                   ),
                   const SizedBox(height: 20),
                   AltinButon(
-                    text: 'Randevuyu Kaydet',
+                    text: Dil.t.randevuyuKaydet,
                     loading: _kaydediliyor,
                     onPressed: (_berberId != null && _secili.isNotEmpty && _saat != null) ? _kaydet : null,
                   ),

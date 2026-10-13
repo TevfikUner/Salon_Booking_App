@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
 
@@ -15,12 +16,12 @@ class AkisOzetKartlari extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(children: [
-        _Kart(deger: '${ozet['randevu_sayisi']}', etiket: 'Randevu', ikon: Icons.event_note),
-        _Kart(deger: sureMetni(ozet['toplam_sure_dk'] as int? ?? 0), etiket: 'Toplam süre', ikon: Icons.timer_outlined),
-        _Kart(deger: tl(ozet['beklenen_ciro'] as num? ?? 0), etiket: 'Beklenen ciro', ikon: Icons.payments_outlined),
+        _Kart(deger: '${ozet['randevu_sayisi']}', etiket: Dil.t.randevuSayisiEtiket, ikon: Icons.event_note),
+        _Kart(deger: sureMetni(ozet['toplam_sure_dk'] as int? ?? 0), etiket: Dil.t.toplamSure, ikon: Icons.timer_outlined),
+        _Kart(deger: tl(ozet['beklenen_ciro'] as num? ?? 0), etiket: Dil.t.beklenenCiro, ikon: Icons.payments_outlined),
         _Kart(
             deger: '$riskli',
-            etiket: 'Riskli',
+            etiket: Dil.t.riskli,
             ikon: Icons.warning_amber_rounded,
             renk: riskli > 0 ? AppTheme.error : AppTheme.textSecondary),
       ]),
@@ -80,7 +81,7 @@ class SiradakiKarti extends StatelessWidget {
         const SizedBox(width: 12),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('SIRADAKİ',
+            Text(Dil.t.siradaki,
                 style: GoogleFonts.inter(color: AppTheme.gold, fontSize: 11, letterSpacing: 1.5, fontWeight: FontWeight.w700)),
             Text('${r['saat']} · ${r['musteri']['ad']}',
                 style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),

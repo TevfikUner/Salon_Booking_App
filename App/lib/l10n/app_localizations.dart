@@ -2131,6 +2131,1200 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Değerlendirildi ({yildiz})'**
   String degerlendirildi(String yildiz);
+
+  /// No description provided for @ekle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ekle'**
+  String get ekle;
+
+  /// No description provided for @kaldir.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kaldır'**
+  String get kaldir;
+
+  /// No description provided for @gelmedi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gelmedi'**
+  String get gelmedi;
+
+  /// No description provided for @tamamlandi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tamamlandı'**
+  String get tamamlandi;
+
+  /// No description provided for @iptalKisa.
+  ///
+  /// In tr, this message translates to:
+  /// **'İptal'**
+  String get iptalKisa;
+
+  /// No description provided for @riskli.
+  ///
+  /// In tr, this message translates to:
+  /// **'Riskli'**
+  String get riskli;
+
+  /// No description provided for @ogleArasi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Öğle arası'**
+  String get ogleArasi;
+
+  /// No description provided for @kadrodanCikar.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kadrodan çıkar'**
+  String get kadrodanCikar;
+
+  /// No description provided for @menudenKaldir.
+  ///
+  /// In tr, this message translates to:
+  /// **'Menüden kaldır'**
+  String get menudenKaldir;
+
+  /// No description provided for @basvuruOnaylanmadi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Başvurunuz onaylanmadı'**
+  String get basvuruOnaylanmadi;
+
+  /// No description provided for @basvuruInceleniyor.
+  ///
+  /// In tr, this message translates to:
+  /// **'Başvurunuz inceleniyor'**
+  String get basvuruInceleniyor;
+
+  /// No description provided for @destekleIletisim.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ayrıntılar için destek ekibimizle iletişime geçebilirsiniz.'**
+  String get destekleIletisim;
+
+  /// No description provided for @durumuKontrolEt.
+  ///
+  /// In tr, this message translates to:
+  /// **'Durumu Kontrol Et'**
+  String get durumuKontrolEt;
+
+  /// No description provided for @basvuruAlindi.
+  ///
+  /// In tr, this message translates to:
+  /// **'{ad} için başvurunuz alındı. Onaylandığında salon paneliniz açılacak; günün randevularını, personelinizi ve hizmetlerinizi buradan yöneteceksiniz.'**
+  String basvuruAlindi(String ad);
+
+  /// No description provided for @akis.
+  ///
+  /// In tr, this message translates to:
+  /// **'Akış'**
+  String get akis;
+
+  /// No description provided for @ekipMenu.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ekip & Menü'**
+  String get ekipMenu;
+
+  /// No description provided for @kapaliGunler.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kapalı Günler'**
+  String get kapaliGunler;
+
+  /// No description provided for @rapor.
+  ///
+  /// In tr, this message translates to:
+  /// **'Rapor'**
+  String get rapor;
+
+  /// No description provided for @personelPaneli.
+  ///
+  /// In tr, this message translates to:
+  /// **'Personel Paneli'**
+  String get personelPaneli;
+
+  /// No description provided for @isletmePaneli.
+  ///
+  /// In tr, this message translates to:
+  /// **'İşletme Paneli'**
+  String get isletmePaneli;
+
+  /// No description provided for @randevuyuIptalEt.
+  ///
+  /// In tr, this message translates to:
+  /// **'Randevuyu iptal et'**
+  String get randevuyuIptalEt;
+
+  /// No description provided for @randevuGuncellendi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Randevu güncellendi.'**
+  String get randevuGuncellendi;
+
+  /// No description provided for @randevuyuTasi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Randevuyu taşı'**
+  String get randevuyuTasi;
+
+  /// No description provided for @tasimaAciklama.
+  ///
+  /// In tr, this message translates to:
+  /// **'Fiyat ve süre değişmez; müşteriye bildirim gönderilir.'**
+  String get tasimaAciklama;
+
+  /// No description provided for @tasi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Taşı'**
+  String get tasi;
+
+  /// No description provided for @randevuEkle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Randevu Ekle'**
+  String get randevuEkle;
+
+  /// No description provided for @tasimaIpucu.
+  ///
+  /// In tr, this message translates to:
+  /// **'Taşımak için randevuya basılı tutup sürükleyin.'**
+  String get tasimaIpucu;
+
+  /// No description provided for @liste.
+  ///
+  /// In tr, this message translates to:
+  /// **'Liste'**
+  String get liste;
+
+  /// No description provided for @takvim.
+  ///
+  /// In tr, this message translates to:
+  /// **'Takvim'**
+  String get takvim;
+
+  /// No description provided for @buGunRandevuYok.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu gün için randevu yok.'**
+  String get buGunRandevuYok;
+
+  /// No description provided for @randevuEkleIpucu.
+  ///
+  /// In tr, this message translates to:
+  /// **'\"Randevu Ekle\" ile telefonla gelen müşteriyi ekleyebilirsiniz.'**
+  String get randevuEkleIpucu;
+
+  /// No description provided for @digerPersonel.
+  ///
+  /// In tr, this message translates to:
+  /// **'diğer personel'**
+  String get digerPersonel;
+
+  /// No description provided for @saatineTasindi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Randevu {saat} saatine taşındı.'**
+  String saatineTasindi(String saat);
+
+  /// No description provided for @notKaydedildi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Not kaydedildi.'**
+  String get notKaydedildi;
+
+  /// No description provided for @ziyaret.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ziyaret'**
+  String get ziyaret;
+
+  /// No description provided for @harcama.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcama'**
+  String get harcama;
+
+  /// No description provided for @sonZiyaret.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son ziyaret'**
+  String get sonZiyaret;
+
+  /// No description provided for @isletmeNotu.
+  ///
+  /// In tr, this message translates to:
+  /// **'İşletme notu'**
+  String get isletmeNotu;
+
+  /// No description provided for @notIpucu.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ör: Yanlar 1 numara, üstü makas, ense düz.'**
+  String get notIpucu;
+
+  /// No description provided for @ozelVeriYazmayin.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sağlık bilgisi gibi özel nitelikli veri yazmayın.'**
+  String get ozelVeriYazmayin;
+
+  /// No description provided for @notYalnizSalon.
+  ///
+  /// In tr, this message translates to:
+  /// **'Not yalnızca salonunuzda görünür.'**
+  String get notYalnizSalon;
+
+  /// No description provided for @notuSil.
+  ///
+  /// In tr, this message translates to:
+  /// **'Notu Sil'**
+  String get notuSil;
+
+  /// No description provided for @sonRandevular.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son randevular'**
+  String get sonRandevular;
+
+  /// No description provided for @genelde.
+  ///
+  /// In tr, this message translates to:
+  /// **'Genelde: {ad}'**
+  String genelde(String ad);
+
+  /// No description provided for @sonGuncelleme.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son: {bilgi}'**
+  String sonGuncelleme(String bilgi);
+
+  /// No description provided for @musteriAdiGirin.
+  ///
+  /// In tr, this message translates to:
+  /// **'Müşteri adını girin.'**
+  String get musteriAdiGirin;
+
+  /// No description provided for @telefonKuraliOrnek.
+  ///
+  /// In tr, this message translates to:
+  /// **'Telefon 5 ile başlayan 10 rakam olmalı (ör. 532 123 45 67).'**
+  String get telefonKuraliOrnek;
+
+  /// No description provided for @randevuEklendi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Randevu eklendi.'**
+  String get randevuEklendi;
+
+  /// No description provided for @telefonlaGelen.
+  ///
+  /// In tr, this message translates to:
+  /// **'Telefonla veya kapıdan gelen müşteri için'**
+  String get telefonlaGelen;
+
+  /// No description provided for @tarihSaat.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tarih & Saat'**
+  String get tarihSaat;
+
+  /// No description provided for @saatIcinHizmet.
+  ///
+  /// In tr, this message translates to:
+  /// **'Saatleri görmek için hizmet seçin.'**
+  String get saatIcinHizmet;
+
+  /// No description provided for @uygunSaatKalmadi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu gün için uygun saat kalmadı.'**
+  String get uygunSaatKalmadi;
+
+  /// No description provided for @adSoyad.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ad Soyad'**
+  String get adSoyad;
+
+  /// No description provided for @telefonIstegeBagli.
+  ///
+  /// In tr, this message translates to:
+  /// **'Telefon (isteğe bağlı)'**
+  String get telefonIstegeBagli;
+
+  /// No description provided for @notIstegeBagli.
+  ///
+  /// In tr, this message translates to:
+  /// **'Not (isteğe bağlı)'**
+  String get notIstegeBagli;
+
+  /// No description provided for @randevuyuKaydet.
+  ///
+  /// In tr, this message translates to:
+  /// **'Randevuyu Kaydet'**
+  String get randevuyuKaydet;
+
+  /// No description provided for @randevuSayisiEtiket.
+  ///
+  /// In tr, this message translates to:
+  /// **'Randevu'**
+  String get randevuSayisiEtiket;
+
+  /// No description provided for @toplamSure.
+  ///
+  /// In tr, this message translates to:
+  /// **'Toplam süre'**
+  String get toplamSure;
+
+  /// No description provided for @beklenenCiro.
+  ///
+  /// In tr, this message translates to:
+  /// **'Beklenen ciro'**
+  String get beklenenCiro;
+
+  /// No description provided for @siradaki.
+  ///
+  /// In tr, this message translates to:
+  /// **'SIRADAKİ'**
+  String get siradaki;
+
+  /// No description provided for @whatsappOnay.
+  ///
+  /// In tr, this message translates to:
+  /// **'WhatsApp onay'**
+  String get whatsappOnay;
+
+  /// No description provided for @araTelefon.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ara'**
+  String get araTelefon;
+
+  /// No description provided for @musteriNotuVar.
+  ///
+  /// In tr, this message translates to:
+  /// **'Müşteri notu var'**
+  String get musteriNotuVar;
+
+  /// No description provided for @bekleniyor.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bekleniyor'**
+  String get bekleniyor;
+
+  /// No description provided for @panelden.
+  ///
+  /// In tr, this message translates to:
+  /// **'panelden eklendi'**
+  String get panelden;
+
+  /// No description provided for @notMetni.
+  ///
+  /// In tr, this message translates to:
+  /// **'Not: {not}'**
+  String notMetni(String not);
+
+  /// No description provided for @tasimakIcinBasiliTut.
+  ///
+  /// In tr, this message translates to:
+  /// **'taşımak için basılı tutun'**
+  String get tasimakIcinBasiliTut;
+
+  /// No description provided for @personelEkle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Personel Ekle'**
+  String get personelEkle;
+
+  /// No description provided for @unvan.
+  ///
+  /// In tr, this message translates to:
+  /// **'Unvan (Usta, Kalfa...)'**
+  String get unvan;
+
+  /// No description provided for @epostaIstegeBagli.
+  ///
+  /// In tr, this message translates to:
+  /// **'E-posta (isteğe bağlı)'**
+  String get epostaIstegeBagli;
+
+  /// No description provided for @personelEpostaIpucu.
+  ///
+  /// In tr, this message translates to:
+  /// **'Personel bu e-postayla kayıt olursa kendi takvimini görür.'**
+  String get personelEpostaIpucu;
+
+  /// No description provided for @personelEklendi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Personel eklendi.'**
+  String get personelEklendi;
+
+  /// No description provided for @calismaGunleri.
+  ///
+  /// In tr, this message translates to:
+  /// **'Çalışma günleri'**
+  String get calismaGunleri;
+
+  /// No description provided for @verdigiHizmetler.
+  ///
+  /// In tr, this message translates to:
+  /// **'Verdiği hizmetler ve fiyatlar'**
+  String get verdigiHizmetler;
+
+  /// No description provided for @verdigiHizmetlerAciklama.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu personele özel fiyat, süre veya vermediği hizmetler'**
+  String get verdigiHizmetlerAciklama;
+
+  /// No description provided for @cikar.
+  ///
+  /// In tr, this message translates to:
+  /// **'Çıkar'**
+  String get cikar;
+
+  /// No description provided for @personelCikarildi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Personel kadrodan çıkarıldı.'**
+  String get personelCikarildi;
+
+  /// No description provided for @hizmetEkle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hizmet Ekle'**
+  String get hizmetEkle;
+
+  /// No description provided for @hizmetiDuzenle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hizmeti Düzenle'**
+  String get hizmetiDuzenle;
+
+  /// No description provided for @hizmetAdi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hizmet adı'**
+  String get hizmetAdi;
+
+  /// No description provided for @fiyat.
+  ///
+  /// In tr, this message translates to:
+  /// **'Fiyat'**
+  String get fiyat;
+
+  /// No description provided for @dkKisa.
+  ///
+  /// In tr, this message translates to:
+  /// **'dk'**
+  String get dkKisa;
+
+  /// No description provided for @aciklamaIstegeBagli.
+  ///
+  /// In tr, this message translates to:
+  /// **'Açıklama (isteğe bağlı)'**
+  String get aciklamaIstegeBagli;
+
+  /// No description provided for @fiyatDegisikligi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Fiyat değişikliği mevcut randevuları etkilemez.'**
+  String get fiyatDegisikligi;
+
+  /// No description provided for @hizmetKurali.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ad, fiyat ve en az 5 dakikalık süre girin.'**
+  String get hizmetKurali;
+
+  /// No description provided for @hizmetEklendi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hizmet eklendi.'**
+  String get hizmetEklendi;
+
+  /// No description provided for @hizmetGuncellendi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hizmet güncellendi.'**
+  String get hizmetGuncellendi;
+
+  /// No description provided for @hizmetKaldirildi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hizmet kaldırıldı.'**
+  String get hizmetKaldirildi;
+
+  /// No description provided for @personeleDokunun.
+  ///
+  /// In tr, this message translates to:
+  /// **'Çalışma günleri ve verdiği hizmetler için personele dokunun.'**
+  String get personeleDokunun;
+
+  /// No description provided for @henuzPersonelYok.
+  ///
+  /// In tr, this message translates to:
+  /// **'Henüz personel yok.'**
+  String get henuzPersonelYok;
+
+  /// No description provided for @hizmetMenusu.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hizmet Menüsü'**
+  String get hizmetMenusu;
+
+  /// No description provided for @henuzHizmetYok.
+  ///
+  /// In tr, this message translates to:
+  /// **'Henüz hizmet yok.'**
+  String get henuzHizmetYok;
+
+  /// No description provided for @calismaGunleriKaydedildi.
+  ///
+  /// In tr, this message translates to:
+  /// **'{ad} için çalışma günleri kaydedildi.'**
+  String calismaGunleriKaydedildi(String ad);
+
+  /// No description provided for @hizmetlerKaydedildi.
+  ///
+  /// In tr, this message translates to:
+  /// **'{ad} için hizmetler kaydedildi.'**
+  String hizmetlerKaydedildi(String ad);
+
+  /// No description provided for @kadrodanCikarilsinMi.
+  ///
+  /// In tr, this message translates to:
+  /// **'{ad} kadrodan çıkarılsın mı? Geçmiş randevu kayıtları korunur.'**
+  String kadrodanCikarilsinMi(String ad);
+
+  /// No description provided for @menudenKaldirilsinMi.
+  ///
+  /// In tr, this message translates to:
+  /// **'\"{ad}\" menüden kaldırılsın mı?'**
+  String menudenKaldirilsinMi(String ad);
+
+  /// No description provided for @hesabiBagli.
+  ///
+  /// In tr, this message translates to:
+  /// **'hesabı bağlı'**
+  String get hesabiBagli;
+
+  /// No description provided for @davet.
+  ///
+  /// In tr, this message translates to:
+  /// **'davet: {eposta}'**
+  String davet(String eposta);
+
+  /// No description provided for @hizmetiVermiyor.
+  ///
+  /// In tr, this message translates to:
+  /// **'{n} hizmeti vermiyor'**
+  String hizmetiVermiyor(int n);
+
+  /// No description provided for @ozelFiyatli.
+  ///
+  /// In tr, this message translates to:
+  /// **'{n} hizmette özel fiyat/süre'**
+  String ozelFiyatli(int n);
+
+  /// No description provided for @haftalikIzin.
+  ///
+  /// In tr, this message translates to:
+  /// **'Haftalık izin: {gunler}'**
+  String haftalikIzin(String gunler);
+
+  /// No description provided for @calismaGunleriAciklama.
+  ///
+  /// In tr, this message translates to:
+  /// **'İşaretli günlerde çalışır. İşaretsiz günlerde müşteriler bu personelden randevu alamaz.'**
+  String get calismaGunleriAciklama;
+
+  /// No description provided for @salonBuGunKapali.
+  ///
+  /// In tr, this message translates to:
+  /// **'Salon bu gün kapalı'**
+  String get salonBuGunKapali;
+
+  /// No description provided for @solukGunler.
+  ///
+  /// In tr, this message translates to:
+  /// **'Soluk günlerde salon kapalı.'**
+  String get solukGunler;
+
+  /// No description provided for @kampanyaEklendi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kampanya eklendi.'**
+  String get kampanyaEklendi;
+
+  /// No description provided for @kampanyaGuncellendi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kampanya güncellendi.'**
+  String get kampanyaGuncellendi;
+
+  /// No description provided for @kampanyayiKaldir.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kampanyayı kaldır'**
+  String get kampanyayiKaldir;
+
+  /// No description provided for @sadakatAciklama.
+  ///
+  /// In tr, this message translates to:
+  /// **'Müşterinin bu salondaki her N. randevusu indirimli olur. Tamamlanan ve alınmış randevular sayılır; gelinmeyen ve iptal edilenler sayılmaz.'**
+  String get sadakatAciklama;
+
+  /// No description provided for @kacinciZiyaret.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kaçıncı ziyaret (2–50)'**
+  String get kacinciZiyaret;
+
+  /// No description provided for @ziyaretEki.
+  ///
+  /// In tr, this message translates to:
+  /// **'. ziyaret'**
+  String get ziyaretEki;
+
+  /// No description provided for @indirimAraligi.
+  ///
+  /// In tr, this message translates to:
+  /// **'İndirim (5–100)'**
+  String get indirimAraligi;
+
+  /// No description provided for @sadakatKuraliHata.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ziyaret 2–50, indirim 5–100 arasında olmalı.'**
+  String get sadakatKuraliHata;
+
+  /// No description provided for @sadakatKapatildi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sadakat kartı kapatıldı.'**
+  String get sadakatKapatildi;
+
+  /// No description provided for @kampanyaAciklama.
+  ///
+  /// In tr, this message translates to:
+  /// **'Boş günleri doldurmak için: ör. \"Salı %20\" veya \"Hafta içi 10:00–14:00 sakal %30\". İndirimler üst üste binmez; müşteriye en yüksek olanı uygulanır.'**
+  String get kampanyaAciklama;
+
+  /// No description provided for @henuzKampanyaYok.
+  ///
+  /// In tr, this message translates to:
+  /// **'Henüz kampanya yok.'**
+  String get henuzKampanyaYok;
+
+  /// No description provided for @sadakatKapaliAc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kapalı · açmak için dokunun'**
+  String get sadakatKapaliAc;
+
+  /// No description provided for @kampanyaKurali.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ad girin; indirim %5 ile %90 arasında olmalı.'**
+  String get kampanyaKurali;
+
+  /// No description provided for @bitisBaslangictanOnce.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bitiş tarihi başlangıçtan önce olamaz.'**
+  String get bitisBaslangictanOnce;
+
+  /// No description provided for @yeniKampanya.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni Kampanya'**
+  String get yeniKampanya;
+
+  /// No description provided for @kampanyayiDuzenle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kampanyayı Düzenle'**
+  String get kampanyayiDuzenle;
+
+  /// No description provided for @kampanyaFormAciklama.
+  ///
+  /// In tr, this message translates to:
+  /// **'Boş bıraktığınız koşul kısıt koymaz. Değişiklik yalnızca bundan sonraki randevulara uygulanır.'**
+  String get kampanyaFormAciklama;
+
+  /// No description provided for @kampanyaAdi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kampanya adı'**
+  String get kampanyaAdi;
+
+  /// No description provided for @kampanyaAdiOrnek.
+  ///
+  /// In tr, this message translates to:
+  /// **'Salı İndirimi'**
+  String get kampanyaAdiOrnek;
+
+  /// No description provided for @gunler.
+  ///
+  /// In tr, this message translates to:
+  /// **'Günler'**
+  String get gunler;
+
+  /// No description provided for @herGun.
+  ///
+  /// In tr, this message translates to:
+  /// **'Her gün'**
+  String get herGun;
+
+  /// No description provided for @saatAraligi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Saat aralığı'**
+  String get saatAraligi;
+
+  /// No description provided for @gunBoyu.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gün boyu'**
+  String get gunBoyu;
+
+  /// No description provided for @saatAraligiSec.
+  ///
+  /// In tr, this message translates to:
+  /// **'Saat aralığı seç'**
+  String get saatAraligiSec;
+
+  /// No description provided for @tarihAraligi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tarih aralığı'**
+  String get tarihAraligi;
+
+  /// No description provided for @suresiz.
+  ///
+  /// In tr, this message translates to:
+  /// **'Süresiz'**
+  String get suresiz;
+
+  /// No description provided for @baslangicHemen.
+  ///
+  /// In tr, this message translates to:
+  /// **'Başlangıç: hemen'**
+  String get baslangicHemen;
+
+  /// No description provided for @bitisYok.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bitiş: yok'**
+  String get bitisYok;
+
+  /// No description provided for @temizle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Temizle'**
+  String get temizle;
+
+  /// No description provided for @tumHizmetler.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tüm hizmetler'**
+  String get tumHizmetler;
+
+  /// No description provided for @kampanyaAcik.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kampanya açık'**
+  String get kampanyaAcik;
+
+  /// No description provided for @kapatirsanizDuraklatilir.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kapatırsanız silinmez, duraklatılır.'**
+  String get kapatirsanizDuraklatilir;
+
+  /// No description provided for @sadakatKaydedildi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sadakat kartı: her {esik}. ziyaret %{yuzde}.'**
+  String sadakatKaydedildi(int esik, int yuzde);
+
+  /// No description provided for @duraklatildi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Duraklatıldı'**
+  String get duraklatildi;
+
+  /// No description provided for @suresiDoldu.
+  ///
+  /// In tr, this message translates to:
+  /// **'Süresi doldu'**
+  String get suresiDoldu;
+
+  /// No description provided for @baslangic.
+  ///
+  /// In tr, this message translates to:
+  /// **'Başlangıç: {tarih}'**
+  String baslangic(String tarih);
+
+  /// No description provided for @bitis.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bitiş: {tarih}'**
+  String bitis(String tarih);
+
+  /// No description provided for @enAzBirHizmetVermeli.
+  ///
+  /// In tr, this message translates to:
+  /// **'Personel en az bir hizmet vermeli.'**
+  String get enAzBirHizmetVermeli;
+
+  /// No description provided for @personelHizmetAciklama.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kapalı hizmetler bu personelden alınamaz. Fiyat ve süre boşsa menüdeki geçerli; değişiklik mevcut randevuları etkilemez.'**
+  String get personelHizmetAciklama;
+
+  /// No description provided for @menudeHizmetYok.
+  ///
+  /// In tr, this message translates to:
+  /// **'Menüde hizmet yok.'**
+  String get menudeHizmetYok;
+
+  /// No description provided for @ozelFiyat.
+  ///
+  /// In tr, this message translates to:
+  /// **'Özel fiyat'**
+  String get ozelFiyat;
+
+  /// No description provided for @ozelSure.
+  ///
+  /// In tr, this message translates to:
+  /// **'Özel süre'**
+  String get ozelSure;
+
+  /// No description provided for @sureEnAz5.
+  ///
+  /// In tr, this message translates to:
+  /// **'{ad}: süre en az 5 dakika olmalı.'**
+  String sureEnAz5(String ad);
+
+  /// No description provided for @menuDegeri.
+  ///
+  /// In tr, this message translates to:
+  /// **'Menü: {deger}'**
+  String menuDegeri(String deger);
+
+  /// No description provided for @kapaliGunEklendi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kapalı gün eklendi.'**
+  String get kapaliGunEklendi;
+
+  /// No description provided for @oncePersonelEkle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Önce Ekip & Menü sekmesinden personel ekleyin.'**
+  String get oncePersonelEkle;
+
+  /// No description provided for @hangiPersonel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hangi personel?'**
+  String get hangiPersonel;
+
+  /// No description provided for @kaydedildi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kaydedildi.'**
+  String get kaydedildi;
+
+  /// No description provided for @hangiPersonelIzinli.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hangi personel izinli?'**
+  String get hangiPersonelIzinli;
+
+  /// No description provided for @izinEklendi.
+  ///
+  /// In tr, this message translates to:
+  /// **'İzin eklendi.'**
+  String get izinEklendi;
+
+  /// No description provided for @kapaliAciklama.
+  ///
+  /// In tr, this message translates to:
+  /// **'Öğle arası, kapalı gün, izin ve kapatılan saatlerde müşteriler randevu alamaz.'**
+  String get kapaliAciklama;
+
+  /// No description provided for @salonKapaliGunler.
+  ///
+  /// In tr, this message translates to:
+  /// **'Salonun kapalı olduğu günler'**
+  String get salonKapaliGunler;
+
+  /// No description provided for @kapaliGunYok.
+  ///
+  /// In tr, this message translates to:
+  /// **'Planlanmış kapalı gün yok.'**
+  String get kapaliGunYok;
+
+  /// No description provided for @personelIzinleri.
+  ///
+  /// In tr, this message translates to:
+  /// **'Personel izinleri'**
+  String get personelIzinleri;
+
+  /// No description provided for @izinYok.
+  ///
+  /// In tr, this message translates to:
+  /// **'Planlanmış izin yok.'**
+  String get izinYok;
+
+  /// No description provided for @saatlikKapatmalar.
+  ///
+  /// In tr, this message translates to:
+  /// **'Saatlik kapatmalar'**
+  String get saatlikKapatmalar;
+
+  /// No description provided for @kapatilmisSaatYok.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kapatılmış saat yok. Ör: \"Ali 14:00–16:00 dışarıda\".'**
+  String get kapatilmisSaatYok;
+
+  /// No description provided for @salonKapaliTarih.
+  ///
+  /// In tr, this message translates to:
+  /// **'Salon kapalı: {tarih}'**
+  String salonKapaliTarih(String tarih);
+
+  /// No description provided for @saatlerdeRandevuVar.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kaydedildi. Bu saatlerde {n} aktif randevu var; müşterilere haber verin.'**
+  String saatlerdeRandevuVar(int n);
+
+  /// No description provided for @izinGununderandevuVar.
+  ///
+  /// In tr, this message translates to:
+  /// **'İzin eklendi. Bu günde {n} aktif randevu var; müşterilere haber verin.'**
+  String izinGununderandevuVar(int n);
+
+  /// No description provided for @molaKaldirildi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Öğle arası kaldırıldı.'**
+  String get molaKaldirildi;
+
+  /// No description provided for @molaYok.
+  ///
+  /// In tr, this message translates to:
+  /// **'Öğle arası tanımlı değil'**
+  String get molaYok;
+
+  /// No description provided for @molaAciklama.
+  ///
+  /// In tr, this message translates to:
+  /// **'Her gün bu saatlerde randevu alınmaz.'**
+  String get molaAciklama;
+
+  /// No description provided for @molayiKaldir.
+  ///
+  /// In tr, this message translates to:
+  /// **'Öğle arasını kaldır'**
+  String get molayiKaldir;
+
+  /// No description provided for @molaKaydedildi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Öğle arası {aralik} olarak kaydedildi.'**
+  String molaKaydedildi(String aralik);
+
+  /// No description provided for @sinirYok.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sınır yok'**
+  String get sinirYok;
+
+  /// No description provided for @oncedenSoru.
+  ///
+  /// In tr, this message translates to:
+  /// **'Müşteri en az ne kadar önceden randevu alsın?'**
+  String get oncedenSoru;
+
+  /// No description provided for @oncedenOrnek.
+  ///
+  /// In tr, this message translates to:
+  /// **'Örneğin 1 saat: saat 12:10\'da en erken 13:30 alınabilir. Sizin panelden eklediğiniz randevular bu sınırdan etkilenmez.'**
+  String get oncedenOrnek;
+
+  /// No description provided for @sonDakikaAcikNokta.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son dakika randevuya açık.'**
+  String get sonDakikaAcikNokta;
+
+  /// No description provided for @sonDakikaAcik.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son dakika randevuya açık'**
+  String get sonDakikaAcik;
+
+  /// No description provided for @oncedenAciklama.
+  ///
+  /// In tr, this message translates to:
+  /// **'Müşterinin uygulamadan alabileceği en yakın saat.'**
+  String get oncedenAciklama;
+
+  /// No description provided for @musterilerEnAz.
+  ///
+  /// In tr, this message translates to:
+  /// **'Müşteriler en az {sure} önceden alabilir.'**
+  String musterilerEnAz(String sure);
+
+  /// No description provided for @enAzOncedenKisa.
+  ///
+  /// In tr, this message translates to:
+  /// **'En az {sure} önceden'**
+  String enAzOncedenKisa(String sure);
+
+  /// No description provided for @baslangicSaati.
+  ///
+  /// In tr, this message translates to:
+  /// **'Başlangıç saati'**
+  String get baslangicSaati;
+
+  /// No description provided for @bitisSaati.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bitiş saati'**
+  String get bitisSaati;
+
+  /// No description provided for @bitisSonraOlmali.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bitiş saati başlangıçtan sonra olmalı.'**
+  String get bitisSonraOlmali;
+
+  /// No description provided for @oncekiAy.
+  ///
+  /// In tr, this message translates to:
+  /// **'Önceki ay'**
+  String get oncekiAy;
+
+  /// No description provided for @sonrakiAy.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sonraki ay'**
+  String get sonrakiAy;
+
+  /// No description provided for @ciro.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ciro'**
+  String get ciro;
+
+  /// No description provided for @tamamlanan.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tamamlanan'**
+  String get tamamlanan;
+
+  /// No description provided for @ortalamaSepet.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ortalama sepet'**
+  String get ortalamaSepet;
+
+  /// No description provided for @gelmemeOrani.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gelmeme oranı'**
+  String get gelmemeOrani;
+
+  /// No description provided for @verilenIndirim.
+  ///
+  /// In tr, this message translates to:
+  /// **'Verilen indirim'**
+  String get verilenIndirim;
+
+  /// No description provided for @personelCiro.
+  ///
+  /// In tr, this message translates to:
+  /// **'Personel bazlı ciro'**
+  String get personelCiro;
+
+  /// No description provided for @buAyTamamlananYok.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu ay tamamlanan randevu yok.'**
+  String get buAyTamamlananYok;
+
+  /// No description provided for @populerHizmetler.
+  ///
+  /// In tr, this message translates to:
+  /// **'En çok tercih edilen hizmetler'**
+  String get populerHizmetler;
+
+  /// No description provided for @yuzdeMetin.
+  ///
+  /// In tr, this message translates to:
+  /// **'%{y}'**
+  String yuzdeMetin(String y);
+
+  /// No description provided for @randevuSayisi.
+  ///
+  /// In tr, this message translates to:
+  /// **'{n} randevu'**
+  String randevuSayisi(int n);
+
+  /// No description provided for @raporAlt.
+  ///
+  /// In tr, this message translates to:
+  /// **'İptal: {iptal} · Gelmedi: {gelmedi} · Uygulamadan gelen: {uygulama}'**
+  String raporAlt(int iptal, int gelmedi, int uygulama);
+
+  /// No description provided for @ilkZiyaret.
+  ///
+  /// In tr, this message translates to:
+  /// **'İlk ziyaret — geçmiş kaydı yok'**
+  String get ilkZiyaret;
+
+  /// No description provided for @guvenOzet.
+  ///
+  /// In tr, this message translates to:
+  /// **'{tamam} tamamlanan · {gelmedi} gelmedi · {gec} geç iptal'**
+  String guvenOzet(int tamam, int gelmedi, int gec);
+
+  /// No description provided for @guvenilir.
+  ///
+  /// In tr, this message translates to:
+  /// **'Güvenilir'**
+  String get guvenilir;
+
+  /// No description provided for @dikkat.
+  ///
+  /// In tr, this message translates to:
+  /// **'Dikkat'**
+  String get dikkat;
+
+  /// No description provided for @isletmeHesapSilAciklama.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hesabınıza ait kişisel bilgiler (ad, telefon, e-posta) silinecek ve panel erişiminiz kapanacak. Salon kaydı ve geçmiş randevular kimliksiz olarak kalır. Bu işlem geri alınamaz.'**
+  String get isletmeHesapSilAciklama;
+
+  /// No description provided for @hesapSilinemediTekrar.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hesap silinemedi. Lütfen tekrar deneyin.'**
+  String get hesapSilinemediTekrar;
 }
 
 class _AppLocalizationsDelegate

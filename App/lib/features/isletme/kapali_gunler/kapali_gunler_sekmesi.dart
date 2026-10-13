@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/data/api/api_client.dart';
 import 'package:berber_app_ui/data/api/panel_api.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
@@ -60,7 +61,7 @@ class _KapaliGunlerSekmesiState extends State<KapaliGunlerSekmesi> {
         initialDate: DateTime.now().add(const Duration(days: 1)),
         firstDate: DateTime.now(),
         lastDate: DateTime.now().add(const Duration(days: 365)),
-        locale: const Locale('tr', 'TR'),
+        locale: Dil.ingilizce ? const Locale('en') : const Locale('tr', 'TR'),
       );
 
   Future<String?> _aciklamaSor(String baslik) async {
@@ -70,10 +71,10 @@ class _KapaliGunlerSekmesiState extends State<KapaliGunlerSekmesi> {
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.surface,
         title: Text(baslik, style: GoogleFonts.playfairDisplay(color: AppTheme.gold)),
-        content: TextField(controller: c, decoration: const InputDecoration(labelText: 'Açıklama (isteğe bağlı)')),
+        content: TextField(controller: c, decoration: InputDecoration(labelText: Dil.t.aciklamaIstegeBagli)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Vazgeç')),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Kaydet')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(Dil.t.vazgec)),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(Dil.t.kaydet)),
         ],
       ),
     );
@@ -84,11 +85,11 @@ class _KapaliGunlerSekmesiState extends State<KapaliGunlerSekmesi> {
   Future<void> _tatilEkle() async {
     final g = await _gunSec();
     if (g == null) return;
-    final a = await _aciklamaSor('Salon kapalı: ${tarihUzun(tarihStr(g))}');
+    final a = await _aciklamaSor(Dil.t.salonKapaliTarih(tarihUzun(tarihStr(g))));
     if (a == null) return;
     try {
       final v = await PanelApi.tatilEkle(tarihStr(g), a.isEmpty ? null : a);
-      if (mounted) bilgiGoster(context, v['uyari'] ?? 'Kapalı gün eklendi.', hata: v['uyari'] != null);
+      if (mounted) bilgiGoster(context, v['uyari'] ?? Dil.t.kapaliGunEklendi, hata: v['uyari'] != null);
       _yukle();
     } on ApiHata catch (e) {
       if (mounted) bilgiGoster(context, e.mesaj, hata: true);
@@ -97,7 +98,7 @@ class _KapaliGunlerSekmesiState extends State<KapaliGunlerSekmesi> {
 
   Future<Map<String, dynamic>?> _personelSec(String soru) async {
     if (_personel.isEmpty) {
-      bilgiGoster(context, 'Önce Ekip & Menü sekmesinden personel ekleyin.', hata: true);
+      bilgiGoster(context, Dil.t.oncePersonelEkle, hata: true);
       return null;
     }
     return showModalBottomSheet<Map<String, dynamic>>(
@@ -119,7 +120,7 @@ class _KapaliGunlerSekmesiState extends State<KapaliGunlerSekmesi> {
 
   /// Personeli bir günün belirli saatlerinde kapatır (ör. 14:00–16:00 dışarıda).
   Future<void> _blokeEkle() async {
-    final secilen = await _personelSec('Hangi personel?');
+    final secilen = await _personelSec(Dil.t.hangiPersonel);
     if (secilen == null || !mounted) return;
     final g = await _gunSec();
     if (g == null || !mounted) return;
@@ -132,8 +133,8 @@ class _KapaliGunlerSekmesiState extends State<KapaliGunlerSekmesi> {
           berberId: secilen['id'], tarih: tarihStr(g), bas: aralik.$1, bit: aralik.$2, aciklama: a.isEmpty ? null : a);
       final etk = v['etkilenen_randevu'] as int? ?? 0;
       if (mounted) {
-        bilgiGoster(context, etk > 0 ? 'Kaydedildi. Bu saatlerde $etk aktif randevu var; müşterilere haber verin.'
-            : 'Kaydedildi.', hata: etk > 0);
+        bilgiGoster(context, etk > 0 ? Dil.t.saatlerdeRandevuVar(etk)
+            : Dil.t.kaydedildi, hata: etk > 0);
       }
       _yukle();
     } on ApiHata catch (e) {
@@ -142,7 +143,7 @@ class _KapaliGunlerSekmesiState extends State<KapaliGunlerSekmesi> {
   }
 
   Future<void> _izinEkle() async {
-    final secilen = await _personelSec('Hangi personel izinli?');
+    final secilen = await _personelSec(Dil.t.hangiPersonelIzinli);
     if (secilen == null) return;
     final g = await _gunSec();
     if (g == null) return;
@@ -150,8 +151,8 @@ class _KapaliGunlerSekmesiState extends State<KapaliGunlerSekmesi> {
       final v = await PanelApi.izinEkle(secilen['id'], tarihStr(g), null);
       final etk = v['etkilenen_randevu'] as int? ?? 0;
       if (mounted) {
-        bilgiGoster(context, etk > 0 ? 'İzin eklendi. Bu günde $etk aktif randevu var; müşterilere haber verin.'
-            : 'İzin eklendi.', hata: etk > 0);
+        bilgiGoster(context, etk > 0 ? Dil.t.izinGununderandevuVar(etk)
+            : Dil.t.izinEklendi, hata: etk > 0);
       }
       _yukle();
     } on ApiHata catch (e) {
@@ -176,13 +177,13 @@ class _KapaliGunlerSekmesiState extends State<KapaliGunlerSekmesi> {
       color: AppTheme.gold,
       onRefresh: _yukle,
       child: ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 32), children: [
-        Text('Öğle arası, kapalı gün, izin ve kapatılan saatlerde müşteriler randevu alamaz.',
+        Text(Dil.t.kapaliAciklama,
             style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
         const SizedBox(height: 8),
         if (_salon != null) MolaKarti(salon: _salon!, onDegisti: (s) => setState(() => _salon = s)),
         if (_salon != null) OncedenKarti(salon: _salon!, onDegisti: (s) => setState(() => _salon = s)),
-        _baslik('Salonun kapalı olduğu günler', _tatilEkle),
-        if (_tatiller.isEmpty) _bos('Planlanmış kapalı gün yok.'),
+        _baslik(Dil.t.salonKapaliGunler, _tatilEkle),
+        if (_tatiller.isEmpty) _bos(Dil.t.kapaliGunYok),
         for (final t in _tatiller)
           Card(
             child: ListTile(
@@ -190,13 +191,13 @@ class _KapaliGunlerSekmesiState extends State<KapaliGunlerSekmesi> {
               title: Text(tarihUzun(t['tarih'], yil: true), style: const TextStyle(color: Colors.white)),
               subtitle: t['aciklama'] != null ? Text(t['aciklama']) : null,
               trailing: IconButton(
-                  tooltip: 'Kaldır', icon: const Icon(Icons.close),
+                  tooltip: Dil.t.kaldir, icon: const Icon(Icons.close),
                   onPressed: () => _sil(() => PanelApi.tatilSil(t['id']))),
             ),
           ),
         const SizedBox(height: 12),
-        _baslik('Personel izinleri', _izinEkle),
-        if (_izinler.isEmpty) _bos('Planlanmış izin yok.'),
+        _baslik(Dil.t.personelIzinleri, _izinEkle),
+        if (_izinler.isEmpty) _bos(Dil.t.izinYok),
         for (final i in _izinler)
           Card(
             child: ListTile(
@@ -204,13 +205,13 @@ class _KapaliGunlerSekmesiState extends State<KapaliGunlerSekmesi> {
               title: Text('${i['berber']} · ${tarihUzun(i['tarih'])}', style: const TextStyle(color: Colors.white)),
               subtitle: i['aciklama'] != null ? Text(i['aciklama']) : null,
               trailing: IconButton(
-                  tooltip: 'Kaldır', icon: const Icon(Icons.close),
+                  tooltip: Dil.t.kaldir, icon: const Icon(Icons.close),
                   onPressed: () => _sil(() => PanelApi.izinSil(i['id']))),
             ),
           ),
         const SizedBox(height: 12),
-        _baslik('Saatlik kapatmalar', _blokeEkle),
-        if (_blokeler.isEmpty) _bos('Kapatılmış saat yok. Ör: "Ali 14:00–16:00 dışarıda".'),
+        _baslik(Dil.t.saatlikKapatmalar, _blokeEkle),
+        if (_blokeler.isEmpty) _bos(Dil.t.kapatilmisSaatYok),
         for (final b in _blokeler)
           Card(
             child: ListTile(
@@ -218,7 +219,7 @@ class _KapaliGunlerSekmesiState extends State<KapaliGunlerSekmesi> {
               title: Text('${b['berber']} · ${tarihUzun(b['tarih'])}', style: const TextStyle(color: Colors.white)),
               subtitle: Text('${b['bas_saat']}–${b['bit_saat']}${b['aciklama'] != null ? ' · ${b['aciklama']}' : ''}'),
               trailing: IconButton(
-                  tooltip: 'Kaldır', icon: const Icon(Icons.close),
+                  tooltip: Dil.t.kaldir, icon: const Icon(Icons.close),
                   onPressed: () => _sil(() => PanelApi.blokeSil(b['id']))),
             ),
           ),
@@ -231,7 +232,7 @@ class _KapaliGunlerSekmesiState extends State<KapaliGunlerSekmesi> {
         child: Row(children: [
           Expanded(child: Text(t, style: GoogleFonts.playfairDisplay(color: Colors.white, fontSize: 17,
               fontWeight: FontWeight.bold))),
-          TextButton.icon(onPressed: ekle, icon: const Icon(Icons.add, size: 18), label: const Text('Ekle')),
+          TextButton.icon(onPressed: ekle, icon: const Icon(Icons.add, size: 18), label: Text(Dil.t.ekle)),
         ]),
       );
 

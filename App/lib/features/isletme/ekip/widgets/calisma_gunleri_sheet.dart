@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
 
@@ -35,10 +36,10 @@ class _CalismaGunleriState extends State<_CalismaGunleri> {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('${widget.ad} · Çalışma günleri',
+          Text('${widget.ad} · ${Dil.t.calismaGunleri}',
               style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 19, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          Text('İşaretli günlerde çalışır. İşaretsiz günlerde müşteriler bu personelden randevu alamaz.',
+          Text(Dil.t.calismaGunleriAciklama,
               style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
           const SizedBox(height: 14),
           Wrap(spacing: 8, runSpacing: 8, children: [
@@ -54,19 +55,19 @@ class _CalismaGunleriState extends State<_CalismaGunleri> {
                 backgroundColor: AppTheme.card,
                 labelStyle: TextStyle(
                     color: !widget.salonKapali.contains(g) && !_izinli.contains(g) ? AppTheme.black : Colors.white),
-                tooltip: widget.salonKapali.contains(g) ? 'Salon bu gün kapalı' : null,
+                tooltip: widget.salonKapali.contains(g) ? Dil.t.salonBuGunKapali : null,
               ),
           ]),
           if (widget.salonKapali.isNotEmpty) ...[
             const SizedBox(height: 8),
-            Text('Soluk günlerde salon kapalı.', style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 11)),
+            Text(Dil.t.solukGunler, style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 11)),
           ],
           const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () => Navigator.pop(context, _izinli.difference(widget.salonKapali)),
-              child: const Text('Kaydet'),
+              child: Text(Dil.t.kaydet),
             ),
           ),
         ]),

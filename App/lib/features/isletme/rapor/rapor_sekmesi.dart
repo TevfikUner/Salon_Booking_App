@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/data/api/api_client.dart';
 import 'package:berber_app_ui/data/api/panel_api.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/core/widgets/durum_gorunumleri.dart';
 
-const _aylar = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım',
-  'Aralık'];
 
 /// Aylık salon raporu: ciro, randevu, gelmeme oranı, berber bazlı ciro, popüler hizmetler.
 class RaporSekmesi extends StatefulWidget {
@@ -51,10 +50,10 @@ class _RaporSekmesiState extends State<RaporSekmesi> {
   Widget build(BuildContext context) {
     return Column(children: [
       Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        IconButton(tooltip: 'Önceki ay', onPressed: () => _kaydir(-1), icon: const Icon(Icons.chevron_left)),
-        Text('${_aylar[_ay.month - 1]} ${_ay.year}',
+        IconButton(tooltip: Dil.t.oncekiAy, onPressed: () => _kaydir(-1), icon: const Icon(Icons.chevron_left)),
+        Text('${ayAdi(_ay.month)} ${_ay.year}',
             style: GoogleFonts.playfairDisplay(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-        IconButton(tooltip: 'Sonraki ay', onPressed: () => _kaydir(1), icon: const Icon(Icons.chevron_right)),
+        IconButton(tooltip: Dil.t.sonrakiAy, onPressed: () => _kaydir(1), icon: const Icon(Icons.chevron_right)),
       ]),
       Expanded(child: _govde()),
     ]);
@@ -75,22 +74,22 @@ class _RaporSekmesiState extends State<RaporSekmesi> {
         mainAxisSpacing: 10,
         crossAxisSpacing: 10,
         children: [
-          _kpi('Ciro', tl(v['toplam_ciro']), Icons.payments_outlined),
-          _kpi('Tamamlanan', '${v['tamamlanan']} / ${v['toplam_randevu']}', Icons.check_circle_outline),
-          _kpi('Ortalama sepet', tl(v['ortalama_sepet']), Icons.shopping_bag_outlined),
-          _kpi('Gelmeme oranı', '%${v['gelmeme_orani']}', Icons.person_off_outlined,
+          _kpi(Dil.t.ciro, tl(v['toplam_ciro']), Icons.payments_outlined),
+          _kpi(Dil.t.tamamlanan, '${v['tamamlanan']} / ${v['toplam_randevu']}', Icons.check_circle_outline),
+          _kpi(Dil.t.ortalamaSepet, tl(v['ortalama_sepet']), Icons.shopping_bag_outlined),
+          _kpi(Dil.t.gelmemeOrani, Dil.t.yuzdeMetin('${v['gelmeme_orani']}'), Icons.person_off_outlined,
               renk: (v['gelmeme_orani'] as num) > 10 ? AppTheme.error : AppTheme.gold),
           if ((v['indirimli_randevu'] as int? ?? 0) > 0)
-            _kpi('Verilen indirim', '${tl(v['toplam_indirim'])} · ${v['indirimli_randevu']} randevu',
+            _kpi(Dil.t.verilenIndirim, '${tl(v['toplam_indirim'])} · ${Dil.t.randevuSayisi(v['indirimli_randevu'] as int)}',
                 Icons.local_offer_outlined),
         ],
       ),
       const SizedBox(height: 20),
-      Text('Personel bazlı ciro', style: GoogleFonts.playfairDisplay(color: Colors.white, fontSize: 17,
+      Text(Dil.t.personelCiro, style: GoogleFonts.playfairDisplay(color: Colors.white, fontSize: 17,
           fontWeight: FontWeight.bold)),
       const SizedBox(height: 8),
       if (berberler.isEmpty)
-        Text('Bu ay tamamlanan randevu yok.', style: GoogleFonts.inter(color: AppTheme.textSecondary)),
+        Text(Dil.t.buAyTamamlananYok, style: GoogleFonts.inter(color: AppTheme.textSecondary)),
       for (final b in berberler)
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 5),
@@ -112,7 +111,7 @@ class _RaporSekmesiState extends State<RaporSekmesi> {
           ]),
         ),
       const SizedBox(height: 20),
-      Text('En çok tercih edilen hizmetler', style: GoogleFonts.playfairDisplay(color: Colors.white, fontSize: 17,
+      Text(Dil.t.populerHizmetler, style: GoogleFonts.playfairDisplay(color: Colors.white, fontSize: 17,
           fontWeight: FontWeight.bold)),
       const SizedBox(height: 8),
       for (final h in (v['populer_hizmetler'] as List).cast<Map<String, dynamic>>())
@@ -124,7 +123,7 @@ class _RaporSekmesiState extends State<RaporSekmesi> {
           trailing: Text('${h['adet']} kez', style: const TextStyle(color: AppTheme.textSecondary)),
         ),
       const SizedBox(height: 8),
-      Text('İptal: ${v['iptal']} · Gelmedi: ${v['gelmedi']} · Uygulamadan gelen: ${v['uygulamadan_gelen']}',
+      Text(Dil.t.raporAlt(v['iptal'] as int, v['gelmedi'] as int, v['uygulamadan_gelen'] as int),
           style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
     ]);
   }

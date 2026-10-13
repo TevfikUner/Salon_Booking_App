@@ -758,5 +758,415 @@
         "type": "String"
       }
     }
-  }
+  },
+  "ekle": "Ekle",
+  "kaldir": "Kaldır",
+  "gelmedi": "Gelmedi",
+  "tamamlandi": "Tamamlandı",
+  "iptalKisa": "İptal",
+  "riskli": "Riskli",
+  "ogleArasi": "Öğle arası",
+  "kadrodanCikar": "Kadrodan çıkar",
+  "menudenKaldir": "Menüden kaldır",
+  "basvuruOnaylanmadi": "Başvurunuz onaylanmadı",
+  "basvuruInceleniyor": "Başvurunuz inceleniyor",
+  "destekleIletisim": "Ayrıntılar için destek ekibimizle iletişime geçebilirsiniz.",
+  "durumuKontrolEt": "Durumu Kontrol Et",
+  "basvuruAlindi": "{ad} için başvurunuz alındı. Onaylandığında salon paneliniz açılacak; günün randevularını, personelinizi ve hizmetlerinizi buradan yöneteceksiniz.",
+  "@basvuruAlindi": {
+    "placeholders": {
+      "ad": {
+        "type": "String"
+      }
+    }
+  },
+  "akis": "Akış",
+  "ekipMenu": "Ekip & Menü",
+  "kapaliGunler": "Kapalı Günler",
+  "rapor": "Rapor",
+  "personelPaneli": "Personel Paneli",
+  "isletmePaneli": "İşletme Paneli",
+  "randevuyuIptalEt": "Randevuyu iptal et",
+  "randevuGuncellendi": "Randevu güncellendi.",
+  "randevuyuTasi": "Randevuyu taşı",
+  "tasimaAciklama": "Fiyat ve süre değişmez; müşteriye bildirim gönderilir.",
+  "tasi": "Taşı",
+  "randevuEkle": "Randevu Ekle",
+  "tasimaIpucu": "Taşımak için randevuya basılı tutup sürükleyin.",
+  "liste": "Liste",
+  "takvim": "Takvim",
+  "buGunRandevuYok": "Bu gün için randevu yok.",
+  "randevuEkleIpucu": "\"Randevu Ekle\" ile telefonla gelen müşteriyi ekleyebilirsiniz.",
+  "digerPersonel": "diğer personel",
+  "saatineTasindi": "Randevu {saat} saatine taşındı.",
+  "@saatineTasindi": {
+    "placeholders": {
+      "saat": {
+        "type": "String"
+      }
+    }
+  },
+  "notKaydedildi": "Not kaydedildi.",
+  "ziyaret": "Ziyaret",
+  "harcama": "Harcama",
+  "sonZiyaret": "Son ziyaret",
+  "isletmeNotu": "İşletme notu",
+  "notIpucu": "Ör: Yanlar 1 numara, üstü makas, ense düz.",
+  "ozelVeriYazmayin": "Sağlık bilgisi gibi özel nitelikli veri yazmayın.",
+  "notYalnizSalon": "Not yalnızca salonunuzda görünür.",
+  "notuSil": "Notu Sil",
+  "sonRandevular": "Son randevular",
+  "genelde": "Genelde: {ad}",
+  "@genelde": {
+    "placeholders": {
+      "ad": {
+        "type": "String"
+      }
+    }
+  },
+  "sonGuncelleme": "Son: {bilgi}",
+  "@sonGuncelleme": {
+    "placeholders": {
+      "bilgi": {
+        "type": "String"
+      }
+    }
+  },
+  "musteriAdiGirin": "Müşteri adını girin.",
+  "telefonKuraliOrnek": "Telefon 5 ile başlayan 10 rakam olmalı (ör. 532 123 45 67).",
+  "randevuEklendi": "Randevu eklendi.",
+  "telefonlaGelen": "Telefonla veya kapıdan gelen müşteri için",
+  "tarihSaat": "Tarih & Saat",
+  "saatIcinHizmet": "Saatleri görmek için hizmet seçin.",
+  "uygunSaatKalmadi": "Bu gün için uygun saat kalmadı.",
+  "adSoyad": "Ad Soyad",
+  "telefonIstegeBagli": "Telefon (isteğe bağlı)",
+  "notIstegeBagli": "Not (isteğe bağlı)",
+  "randevuyuKaydet": "Randevuyu Kaydet",
+  "randevuSayisiEtiket": "Randevu",
+  "toplamSure": "Toplam süre",
+  "beklenenCiro": "Beklenen ciro",
+  "siradaki": "SIRADAKİ",
+  "whatsappOnay": "WhatsApp onay",
+  "araTelefon": "Ara",
+  "musteriNotuVar": "Müşteri notu var",
+  "bekleniyor": "Bekleniyor",
+  "panelden": "panelden eklendi",
+  "notMetni": "Not: {not}",
+  "@notMetni": {
+    "placeholders": {
+      "not": {
+        "type": "String"
+      }
+    }
+  },
+  "tasimakIcinBasiliTut": "taşımak için basılı tutun",
+  "personelEkle": "Personel Ekle",
+  "unvan": "Unvan (Usta, Kalfa...)",
+  "epostaIstegeBagli": "E-posta (isteğe bağlı)",
+  "personelEpostaIpucu": "Personel bu e-postayla kayıt olursa kendi takvimini görür.",
+  "personelEklendi": "Personel eklendi.",
+  "calismaGunleri": "Çalışma günleri",
+  "verdigiHizmetler": "Verdiği hizmetler ve fiyatlar",
+  "verdigiHizmetlerAciklama": "Bu personele özel fiyat, süre veya vermediği hizmetler",
+  "cikar": "Çıkar",
+  "personelCikarildi": "Personel kadrodan çıkarıldı.",
+  "hizmetEkle": "Hizmet Ekle",
+  "hizmetiDuzenle": "Hizmeti Düzenle",
+  "hizmetAdi": "Hizmet adı",
+  "fiyat": "Fiyat",
+  "dkKisa": "dk",
+  "aciklamaIstegeBagli": "Açıklama (isteğe bağlı)",
+  "fiyatDegisikligi": "Fiyat değişikliği mevcut randevuları etkilemez.",
+  "hizmetKurali": "Ad, fiyat ve en az 5 dakikalık süre girin.",
+  "hizmetEklendi": "Hizmet eklendi.",
+  "hizmetGuncellendi": "Hizmet güncellendi.",
+  "hizmetKaldirildi": "Hizmet kaldırıldı.",
+  "personeleDokunun": "Çalışma günleri ve verdiği hizmetler için personele dokunun.",
+  "henuzPersonelYok": "Henüz personel yok.",
+  "hizmetMenusu": "Hizmet Menüsü",
+  "henuzHizmetYok": "Henüz hizmet yok.",
+  "calismaGunleriKaydedildi": "{ad} için çalışma günleri kaydedildi.",
+  "@calismaGunleriKaydedildi": {
+    "placeholders": {
+      "ad": {
+        "type": "String"
+      }
+    }
+  },
+  "hizmetlerKaydedildi": "{ad} için hizmetler kaydedildi.",
+  "@hizmetlerKaydedildi": {
+    "placeholders": {
+      "ad": {
+        "type": "String"
+      }
+    }
+  },
+  "kadrodanCikarilsinMi": "{ad} kadrodan çıkarılsın mı? Geçmiş randevu kayıtları korunur.",
+  "@kadrodanCikarilsinMi": {
+    "placeholders": {
+      "ad": {
+        "type": "String"
+      }
+    }
+  },
+  "menudenKaldirilsinMi": "\"{ad}\" menüden kaldırılsın mı?",
+  "@menudenKaldirilsinMi": {
+    "placeholders": {
+      "ad": {
+        "type": "String"
+      }
+    }
+  },
+  "hesabiBagli": "hesabı bağlı",
+  "davet": "davet: {eposta}",
+  "@davet": {
+    "placeholders": {
+      "eposta": {
+        "type": "String"
+      }
+    }
+  },
+  "hizmetiVermiyor": "{n} hizmeti vermiyor",
+  "@hizmetiVermiyor": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "ozelFiyatli": "{n} hizmette özel fiyat/süre",
+  "@ozelFiyatli": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "haftalikIzin": "Haftalık izin: {gunler}",
+  "@haftalikIzin": {
+    "placeholders": {
+      "gunler": {
+        "type": "String"
+      }
+    }
+  },
+  "calismaGunleriAciklama": "İşaretli günlerde çalışır. İşaretsiz günlerde müşteriler bu personelden randevu alamaz.",
+  "salonBuGunKapali": "Salon bu gün kapalı",
+  "solukGunler": "Soluk günlerde salon kapalı.",
+  "kampanyaEklendi": "Kampanya eklendi.",
+  "kampanyaGuncellendi": "Kampanya güncellendi.",
+  "kampanyayiKaldir": "Kampanyayı kaldır",
+  "sadakatAciklama": "Müşterinin bu salondaki her N. randevusu indirimli olur. Tamamlanan ve alınmış randevular sayılır; gelinmeyen ve iptal edilenler sayılmaz.",
+  "kacinciZiyaret": "Kaçıncı ziyaret (2–50)",
+  "ziyaretEki": ". ziyaret",
+  "indirimAraligi": "İndirim (5–100)",
+  "sadakatKuraliHata": "Ziyaret 2–50, indirim 5–100 arasında olmalı.",
+  "sadakatKapatildi": "Sadakat kartı kapatıldı.",
+  "kampanyaAciklama": "Boş günleri doldurmak için: ör. \"Salı %20\" veya \"Hafta içi 10:00–14:00 sakal %30\". İndirimler üst üste binmez; müşteriye en yüksek olanı uygulanır.",
+  "henuzKampanyaYok": "Henüz kampanya yok.",
+  "sadakatKapaliAc": "Kapalı · açmak için dokunun",
+  "kampanyaKurali": "Ad girin; indirim %5 ile %90 arasında olmalı.",
+  "bitisBaslangictanOnce": "Bitiş tarihi başlangıçtan önce olamaz.",
+  "yeniKampanya": "Yeni Kampanya",
+  "kampanyayiDuzenle": "Kampanyayı Düzenle",
+  "kampanyaFormAciklama": "Boş bıraktığınız koşul kısıt koymaz. Değişiklik yalnızca bundan sonraki randevulara uygulanır.",
+  "kampanyaAdi": "Kampanya adı",
+  "kampanyaAdiOrnek": "Salı İndirimi",
+  "gunler": "Günler",
+  "herGun": "Her gün",
+  "saatAraligi": "Saat aralığı",
+  "gunBoyu": "Gün boyu",
+  "saatAraligiSec": "Saat aralığı seç",
+  "tarihAraligi": "Tarih aralığı",
+  "suresiz": "Süresiz",
+  "baslangicHemen": "Başlangıç: hemen",
+  "bitisYok": "Bitiş: yok",
+  "temizle": "Temizle",
+  "tumHizmetler": "Tüm hizmetler",
+  "kampanyaAcik": "Kampanya açık",
+  "kapatirsanizDuraklatilir": "Kapatırsanız silinmez, duraklatılır.",
+  "sadakatKaydedildi": "Sadakat kartı: her {esik}. ziyaret %{yuzde}.",
+  "@sadakatKaydedildi": {
+    "placeholders": {
+      "esik": {
+        "type": "int"
+      },
+      "yuzde": {
+        "type": "int"
+      }
+    }
+  },
+  "duraklatildi": "Duraklatıldı",
+  "suresiDoldu": "Süresi doldu",
+  "baslangic": "Başlangıç: {tarih}",
+  "@baslangic": {
+    "placeholders": {
+      "tarih": {
+        "type": "String"
+      }
+    }
+  },
+  "bitis": "Bitiş: {tarih}",
+  "@bitis": {
+    "placeholders": {
+      "tarih": {
+        "type": "String"
+      }
+    }
+  },
+  "enAzBirHizmetVermeli": "Personel en az bir hizmet vermeli.",
+  "personelHizmetAciklama": "Kapalı hizmetler bu personelden alınamaz. Fiyat ve süre boşsa menüdeki geçerli; değişiklik mevcut randevuları etkilemez.",
+  "menudeHizmetYok": "Menüde hizmet yok.",
+  "ozelFiyat": "Özel fiyat",
+  "ozelSure": "Özel süre",
+  "sureEnAz5": "{ad}: süre en az 5 dakika olmalı.",
+  "@sureEnAz5": {
+    "placeholders": {
+      "ad": {
+        "type": "String"
+      }
+    }
+  },
+  "menuDegeri": "Menü: {deger}",
+  "@menuDegeri": {
+    "placeholders": {
+      "deger": {
+        "type": "String"
+      }
+    }
+  },
+  "kapaliGunEklendi": "Kapalı gün eklendi.",
+  "oncePersonelEkle": "Önce Ekip & Menü sekmesinden personel ekleyin.",
+  "hangiPersonel": "Hangi personel?",
+  "kaydedildi": "Kaydedildi.",
+  "hangiPersonelIzinli": "Hangi personel izinli?",
+  "izinEklendi": "İzin eklendi.",
+  "kapaliAciklama": "Öğle arası, kapalı gün, izin ve kapatılan saatlerde müşteriler randevu alamaz.",
+  "salonKapaliGunler": "Salonun kapalı olduğu günler",
+  "kapaliGunYok": "Planlanmış kapalı gün yok.",
+  "personelIzinleri": "Personel izinleri",
+  "izinYok": "Planlanmış izin yok.",
+  "saatlikKapatmalar": "Saatlik kapatmalar",
+  "kapatilmisSaatYok": "Kapatılmış saat yok. Ör: \"Ali 14:00–16:00 dışarıda\".",
+  "salonKapaliTarih": "Salon kapalı: {tarih}",
+  "@salonKapaliTarih": {
+    "placeholders": {
+      "tarih": {
+        "type": "String"
+      }
+    }
+  },
+  "saatlerdeRandevuVar": "Kaydedildi. Bu saatlerde {n} aktif randevu var; müşterilere haber verin.",
+  "@saatlerdeRandevuVar": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "izinGununderandevuVar": "İzin eklendi. Bu günde {n} aktif randevu var; müşterilere haber verin.",
+  "@izinGununderandevuVar": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "molaKaldirildi": "Öğle arası kaldırıldı.",
+  "molaYok": "Öğle arası tanımlı değil",
+  "molaAciklama": "Her gün bu saatlerde randevu alınmaz.",
+  "molayiKaldir": "Öğle arasını kaldır",
+  "molaKaydedildi": "Öğle arası {aralik} olarak kaydedildi.",
+  "@molaKaydedildi": {
+    "placeholders": {
+      "aralik": {
+        "type": "String"
+      }
+    }
+  },
+  "sinirYok": "Sınır yok",
+  "oncedenSoru": "Müşteri en az ne kadar önceden randevu alsın?",
+  "oncedenOrnek": "Örneğin 1 saat: saat 12:10'da en erken 13:30 alınabilir. Sizin panelden eklediğiniz randevular bu sınırdan etkilenmez.",
+  "sonDakikaAcikNokta": "Son dakika randevuya açık.",
+  "sonDakikaAcik": "Son dakika randevuya açık",
+  "oncedenAciklama": "Müşterinin uygulamadan alabileceği en yakın saat.",
+  "musterilerEnAz": "Müşteriler en az {sure} önceden alabilir.",
+  "@musterilerEnAz": {
+    "placeholders": {
+      "sure": {
+        "type": "String"
+      }
+    }
+  },
+  "enAzOncedenKisa": "En az {sure} önceden",
+  "@enAzOncedenKisa": {
+    "placeholders": {
+      "sure": {
+        "type": "String"
+      }
+    }
+  },
+  "baslangicSaati": "Başlangıç saati",
+  "bitisSaati": "Bitiş saati",
+  "bitisSonraOlmali": "Bitiş saati başlangıçtan sonra olmalı.",
+  "oncekiAy": "Önceki ay",
+  "sonrakiAy": "Sonraki ay",
+  "ciro": "Ciro",
+  "tamamlanan": "Tamamlanan",
+  "ortalamaSepet": "Ortalama sepet",
+  "gelmemeOrani": "Gelmeme oranı",
+  "verilenIndirim": "Verilen indirim",
+  "personelCiro": "Personel bazlı ciro",
+  "buAyTamamlananYok": "Bu ay tamamlanan randevu yok.",
+  "populerHizmetler": "En çok tercih edilen hizmetler",
+  "yuzdeMetin": "%{y}",
+  "@yuzdeMetin": {
+    "placeholders": {
+      "y": {
+        "type": "String"
+      }
+    }
+  },
+  "randevuSayisi": "{n} randevu",
+  "@randevuSayisi": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "raporAlt": "İptal: {iptal} · Gelmedi: {gelmedi} · Uygulamadan gelen: {uygulama}",
+  "@raporAlt": {
+    "placeholders": {
+      "iptal": {
+        "type": "int"
+      },
+      "gelmedi": {
+        "type": "int"
+      },
+      "uygulama": {
+        "type": "int"
+      }
+    }
+  },
+  "ilkZiyaret": "İlk ziyaret — geçmiş kaydı yok",
+  "guvenOzet": "{tamam} tamamlanan · {gelmedi} gelmedi · {gec} geç iptal",
+  "@guvenOzet": {
+    "placeholders": {
+      "tamam": {
+        "type": "int"
+      },
+      "gelmedi": {
+        "type": "int"
+      },
+      "gec": {
+        "type": "int"
+      }
+    }
+  },
+  "guvenilir": "Güvenilir",
+  "dikkat": "Dikkat",
+  "isletmeHesapSilAciklama": "Hesabınıza ait kişisel bilgiler (ad, telefon, e-posta) silinecek ve panel erişiminiz kapanacak. Salon kaydı ve geçmiş randevular kimliksiz olarak kalır. Bu işlem geri alınamaz.",
+  "hesapSilinemediTekrar": "Hesap silinemedi. Lütfen tekrar deneyin."
 }

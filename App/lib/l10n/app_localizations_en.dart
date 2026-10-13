@@ -1228,4 +1228,693 @@ class AppLocalizationsEn extends AppLocalizations {
   String degerlendirildi(String yildiz) {
     return 'Rated ($yildiz)';
   }
+
+  @override
+  String get ekle => 'Add';
+
+  @override
+  String get kaldir => 'Remove';
+
+  @override
+  String get gelmedi => 'No-show';
+
+  @override
+  String get tamamlandi => 'Completed';
+
+  @override
+  String get iptalKisa => 'Cancelled';
+
+  @override
+  String get riskli => 'Risky';
+
+  @override
+  String get ogleArasi => 'Lunch break';
+
+  @override
+  String get kadrodanCikar => 'Remove from team';
+
+  @override
+  String get menudenKaldir => 'Remove from menu';
+
+  @override
+  String get basvuruOnaylanmadi => 'Your application wasn\'t approved';
+
+  @override
+  String get basvuruInceleniyor => 'Your application is under review';
+
+  @override
+  String get destekleIletisim => 'Please contact our support team for details.';
+
+  @override
+  String get durumuKontrolEt => 'Check Status';
+
+  @override
+  String basvuruAlindi(String ad) {
+    return 'We\'ve received your application for $ad. Once approved, your salon dashboard opens and you\'ll manage the day\'s appointments, staff and services from here.';
+  }
+
+  @override
+  String get akis => 'Today';
+
+  @override
+  String get ekipMenu => 'Team & Menu';
+
+  @override
+  String get kapaliGunler => 'Closures';
+
+  @override
+  String get rapor => 'Report';
+
+  @override
+  String get personelPaneli => 'Staff Dashboard';
+
+  @override
+  String get isletmePaneli => 'Business Dashboard';
+
+  @override
+  String get randevuyuIptalEt => 'Cancel appointment';
+
+  @override
+  String get randevuGuncellendi => 'Appointment updated.';
+
+  @override
+  String get randevuyuTasi => 'Move appointment';
+
+  @override
+  String get tasimaAciklama =>
+      'Price and duration stay the same; the customer is notified.';
+
+  @override
+  String get tasi => 'Move';
+
+  @override
+  String get randevuEkle => 'Add Appointment';
+
+  @override
+  String get tasimaIpucu => 'Press and hold an appointment to drag it.';
+
+  @override
+  String get liste => 'List';
+
+  @override
+  String get takvim => 'Calendar';
+
+  @override
+  String get buGunRandevuYok => 'No appointments on this day.';
+
+  @override
+  String get randevuEkleIpucu =>
+      'Use \"Add Appointment\" for customers who call or walk in.';
+
+  @override
+  String get digerPersonel => 'other staff';
+
+  @override
+  String saatineTasindi(String saat) {
+    return 'Appointment moved to $saat.';
+  }
+
+  @override
+  String get notKaydedildi => 'Note saved.';
+
+  @override
+  String get ziyaret => 'Visits';
+
+  @override
+  String get harcama => 'Spent';
+
+  @override
+  String get sonZiyaret => 'Last visit';
+
+  @override
+  String get isletmeNotu => 'Business note';
+
+  @override
+  String get notIpucu =>
+      'E.g. sides number 1, scissors on top, straight neckline.';
+
+  @override
+  String get ozelVeriYazmayin =>
+      'Don\'t record sensitive data such as health information.';
+
+  @override
+  String get notYalnizSalon => 'The note is only visible to your salon.';
+
+  @override
+  String get notuSil => 'Delete Note';
+
+  @override
+  String get sonRandevular => 'Recent appointments';
+
+  @override
+  String genelde(String ad) {
+    return 'Usually: $ad';
+  }
+
+  @override
+  String sonGuncelleme(String bilgi) {
+    return 'Last: $bilgi';
+  }
+
+  @override
+  String get musteriAdiGirin => 'Enter the customer\'s name.';
+
+  @override
+  String get telefonKuraliOrnek =>
+      'The phone must be 10 digits starting with 5 (e.g. 532 123 45 67).';
+
+  @override
+  String get randevuEklendi => 'Appointment added.';
+
+  @override
+  String get telefonlaGelen => 'For customers who call or walk in';
+
+  @override
+  String get tarihSaat => 'Date & Time';
+
+  @override
+  String get saatIcinHizmet => 'Choose services to see times.';
+
+  @override
+  String get uygunSaatKalmadi => 'No times left on this day.';
+
+  @override
+  String get adSoyad => 'Full name';
+
+  @override
+  String get telefonIstegeBagli => 'Phone (optional)';
+
+  @override
+  String get notIstegeBagli => 'Note (optional)';
+
+  @override
+  String get randevuyuKaydet => 'Save Appointment';
+
+  @override
+  String get randevuSayisiEtiket => 'Appointments';
+
+  @override
+  String get toplamSure => 'Total time';
+
+  @override
+  String get beklenenCiro => 'Expected revenue';
+
+  @override
+  String get siradaki => 'NEXT UP';
+
+  @override
+  String get whatsappOnay => 'WhatsApp confirm';
+
+  @override
+  String get araTelefon => 'Call';
+
+  @override
+  String get musteriNotuVar => 'Has a customer note';
+
+  @override
+  String get bekleniyor => 'Upcoming';
+
+  @override
+  String get panelden => 'added in dashboard';
+
+  @override
+  String notMetni(String not) {
+    return 'Note: $not';
+  }
+
+  @override
+  String get tasimakIcinBasiliTut => 'press and hold to move';
+
+  @override
+  String get personelEkle => 'Add Staff';
+
+  @override
+  String get unvan => 'Title (Master, Junior...)';
+
+  @override
+  String get epostaIstegeBagli => 'Email (optional)';
+
+  @override
+  String get personelEpostaIpucu =>
+      'If the staff member signs up with this email, they\'ll see their own calendar.';
+
+  @override
+  String get personelEklendi => 'Staff member added.';
+
+  @override
+  String get calismaGunleri => 'Working days';
+
+  @override
+  String get verdigiHizmetler => 'Services and prices';
+
+  @override
+  String get verdigiHizmetlerAciklama =>
+      'Custom prices, durations or services this person doesn\'t offer';
+
+  @override
+  String get cikar => 'Remove';
+
+  @override
+  String get personelCikarildi => 'Removed from the team.';
+
+  @override
+  String get hizmetEkle => 'Add Service';
+
+  @override
+  String get hizmetiDuzenle => 'Edit Service';
+
+  @override
+  String get hizmetAdi => 'Service name';
+
+  @override
+  String get fiyat => 'Price';
+
+  @override
+  String get dkKisa => 'min';
+
+  @override
+  String get aciklamaIstegeBagli => 'Description (optional)';
+
+  @override
+  String get fiyatDegisikligi =>
+      'Price changes don\'t affect existing appointments.';
+
+  @override
+  String get hizmetKurali =>
+      'Enter a name, price and a duration of at least 5 minutes.';
+
+  @override
+  String get hizmetEklendi => 'Service added.';
+
+  @override
+  String get hizmetGuncellendi => 'Service updated.';
+
+  @override
+  String get hizmetKaldirildi => 'Service removed.';
+
+  @override
+  String get personeleDokunun =>
+      'Tap a staff member for working days and services.';
+
+  @override
+  String get henuzPersonelYok => 'No staff yet.';
+
+  @override
+  String get hizmetMenusu => 'Service Menu';
+
+  @override
+  String get henuzHizmetYok => 'No services yet.';
+
+  @override
+  String calismaGunleriKaydedildi(String ad) {
+    return 'Working days saved for $ad.';
+  }
+
+  @override
+  String hizmetlerKaydedildi(String ad) {
+    return 'Services saved for $ad.';
+  }
+
+  @override
+  String kadrodanCikarilsinMi(String ad) {
+    return 'Remove $ad from the team? Past appointment records are kept.';
+  }
+
+  @override
+  String menudenKaldirilsinMi(String ad) {
+    return 'Remove \"$ad\" from the menu?';
+  }
+
+  @override
+  String get hesabiBagli => 'account linked';
+
+  @override
+  String davet(String eposta) {
+    return 'invited: $eposta';
+  }
+
+  @override
+  String hizmetiVermiyor(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'doesn\'t offer $n services',
+      one: 'doesn\'t offer 1 service',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ozelFiyatli(int n) {
+    return 'custom price/duration on $n';
+  }
+
+  @override
+  String haftalikIzin(String gunler) {
+    return 'Weekly days off: $gunler';
+  }
+
+  @override
+  String get calismaGunleriAciklama =>
+      'Works on the selected days. Customers can\'t book this person on unselected days.';
+
+  @override
+  String get salonBuGunKapali => 'The salon is closed this day';
+
+  @override
+  String get solukGunler => 'The salon is closed on dimmed days.';
+
+  @override
+  String get kampanyaEklendi => 'Campaign added.';
+
+  @override
+  String get kampanyaGuncellendi => 'Campaign updated.';
+
+  @override
+  String get kampanyayiKaldir => 'Remove campaign';
+
+  @override
+  String get sadakatAciklama =>
+      'Every Nth appointment of a customer at this salon is discounted. Completed and booked appointments count; no-shows and cancellations don\'t.';
+
+  @override
+  String get kacinciZiyaret => 'Which visit (2–50)';
+
+  @override
+  String get ziyaretEki => 'th visit';
+
+  @override
+  String get indirimAraligi => 'Discount (5–100)';
+
+  @override
+  String get sadakatKuraliHata => 'Visit must be 2–50 and discount 5–100.';
+
+  @override
+  String get sadakatKapatildi => 'Loyalty card turned off.';
+
+  @override
+  String get kampanyaAciklama =>
+      'To fill quiet times: e.g. \"Tuesday 20%\" or \"Weekdays 10:00–14:00 beard 30%\". Discounts don\'t stack; the customer gets the highest one.';
+
+  @override
+  String get henuzKampanyaYok => 'No campaigns yet.';
+
+  @override
+  String get sadakatKapaliAc => 'Off · tap to turn on';
+
+  @override
+  String get kampanyaKurali =>
+      'Enter a name; the discount must be between 5% and 90%.';
+
+  @override
+  String get bitisBaslangictanOnce =>
+      'The end date can\'t be before the start date.';
+
+  @override
+  String get yeniKampanya => 'New Campaign';
+
+  @override
+  String get kampanyayiDuzenle => 'Edit Campaign';
+
+  @override
+  String get kampanyaFormAciklama =>
+      'Conditions left empty don\'t restrict. Changes apply only to future bookings.';
+
+  @override
+  String get kampanyaAdi => 'Campaign name';
+
+  @override
+  String get kampanyaAdiOrnek => 'Tuesday Deal';
+
+  @override
+  String get gunler => 'Days';
+
+  @override
+  String get herGun => 'Every day';
+
+  @override
+  String get saatAraligi => 'Time range';
+
+  @override
+  String get gunBoyu => 'All day';
+
+  @override
+  String get saatAraligiSec => 'Choose time range';
+
+  @override
+  String get tarihAraligi => 'Date range';
+
+  @override
+  String get suresiz => 'No end';
+
+  @override
+  String get baslangicHemen => 'Start: now';
+
+  @override
+  String get bitisYok => 'End: none';
+
+  @override
+  String get temizle => 'Clear';
+
+  @override
+  String get tumHizmetler => 'All services';
+
+  @override
+  String get kampanyaAcik => 'Campaign on';
+
+  @override
+  String get kapatirsanizDuraklatilir =>
+      'Turning it off pauses it; it isn\'t deleted.';
+
+  @override
+  String sadakatKaydedildi(int esik, int yuzde) {
+    return 'Loyalty card: every visit no. $esik is $yuzde% off.';
+  }
+
+  @override
+  String get duraklatildi => 'Paused';
+
+  @override
+  String get suresiDoldu => 'Expired';
+
+  @override
+  String baslangic(String tarih) {
+    return 'Start: $tarih';
+  }
+
+  @override
+  String bitis(String tarih) {
+    return 'End: $tarih';
+  }
+
+  @override
+  String get enAzBirHizmetVermeli => 'Staff must offer at least one service.';
+
+  @override
+  String get personelHizmetAciklama =>
+      'Turned-off services can\'t be booked with this person. Empty price/duration means the menu value; changes don\'t affect existing appointments.';
+
+  @override
+  String get menudeHizmetYok => 'No services on the menu.';
+
+  @override
+  String get ozelFiyat => 'Custom price';
+
+  @override
+  String get ozelSure => 'Custom duration';
+
+  @override
+  String sureEnAz5(String ad) {
+    return '$ad: duration must be at least 5 minutes.';
+  }
+
+  @override
+  String menuDegeri(String deger) {
+    return 'Menu: $deger';
+  }
+
+  @override
+  String get kapaliGunEklendi => 'Closure added.';
+
+  @override
+  String get oncePersonelEkle => 'First add staff in the Team & Menu tab.';
+
+  @override
+  String get hangiPersonel => 'Which staff member?';
+
+  @override
+  String get kaydedildi => 'Saved.';
+
+  @override
+  String get hangiPersonelIzinli => 'Who\'s taking the day off?';
+
+  @override
+  String get izinEklendi => 'Day off added.';
+
+  @override
+  String get kapaliAciklama =>
+      'Customers can\'t book during the lunch break, closures, days off and blocked hours.';
+
+  @override
+  String get salonKapaliGunler => 'Salon closures';
+
+  @override
+  String get kapaliGunYok => 'No planned closures.';
+
+  @override
+  String get personelIzinleri => 'Staff days off';
+
+  @override
+  String get izinYok => 'No planned days off.';
+
+  @override
+  String get saatlikKapatmalar => 'Blocked hours';
+
+  @override
+  String get kapatilmisSaatYok =>
+      'No blocked hours. E.g. \"Ali out 14:00–16:00\".';
+
+  @override
+  String salonKapaliTarih(String tarih) {
+    return 'Salon closed: $tarih';
+  }
+
+  @override
+  String saatlerdeRandevuVar(int n) {
+    return 'Saved. There are $n active appointments in these hours; let the customers know.';
+  }
+
+  @override
+  String izinGununderandevuVar(int n) {
+    return 'Day off added. There are $n active appointments that day; let the customers know.';
+  }
+
+  @override
+  String get molaKaldirildi => 'Lunch break removed.';
+
+  @override
+  String get molaYok => 'No lunch break set';
+
+  @override
+  String get molaAciklama => 'No bookings during these hours every day.';
+
+  @override
+  String get molayiKaldir => 'Remove lunch break';
+
+  @override
+  String molaKaydedildi(String aralik) {
+    return 'Lunch break saved as $aralik.';
+  }
+
+  @override
+  String get sinirYok => 'No limit';
+
+  @override
+  String get oncedenSoru => 'How far ahead must customers book?';
+
+  @override
+  String get oncedenOrnek =>
+      'E.g. 1 hour: at 12:10 the earliest bookable time is 13:30. Appointments you add in the dashboard aren\'t affected.';
+
+  @override
+  String get sonDakikaAcikNokta => 'Open to last-minute bookings.';
+
+  @override
+  String get sonDakikaAcik => 'Open to last-minute bookings';
+
+  @override
+  String get oncedenAciklama =>
+      'The earliest time customers can book in the app.';
+
+  @override
+  String musterilerEnAz(String sure) {
+    return 'Customers can book at least $sure ahead.';
+  }
+
+  @override
+  String enAzOncedenKisa(String sure) {
+    return 'At least $sure ahead';
+  }
+
+  @override
+  String get baslangicSaati => 'Start time';
+
+  @override
+  String get bitisSaati => 'End time';
+
+  @override
+  String get bitisSonraOlmali => 'The end time must be after the start time.';
+
+  @override
+  String get oncekiAy => 'Previous month';
+
+  @override
+  String get sonrakiAy => 'Next month';
+
+  @override
+  String get ciro => 'Revenue';
+
+  @override
+  String get tamamlanan => 'Completed';
+
+  @override
+  String get ortalamaSepet => 'Average ticket';
+
+  @override
+  String get gelmemeOrani => 'No-show rate';
+
+  @override
+  String get verilenIndirim => 'Discounts given';
+
+  @override
+  String get personelCiro => 'Revenue by staff';
+
+  @override
+  String get buAyTamamlananYok => 'No completed appointments this month.';
+
+  @override
+  String get populerHizmetler => 'Most popular services';
+
+  @override
+  String yuzdeMetin(String y) {
+    return '$y%';
+  }
+
+  @override
+  String randevuSayisi(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n appointments',
+      one: '1 appointment',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String raporAlt(int iptal, int gelmedi, int uygulama) {
+    return 'Cancelled: $iptal · No-show: $gelmedi · Booked in app: $uygulama';
+  }
+
+  @override
+  String get ilkZiyaret => 'First visit — no history';
+
+  @override
+  String guvenOzet(int tamam, int gelmedi, int gec) {
+    return '$tamam completed · $gelmedi no-show · $gec late cancel';
+  }
+
+  @override
+  String get guvenilir => 'Reliable';
+
+  @override
+  String get dikkat => 'Caution';
+
+  @override
+  String get isletmeHesapSilAciklama =>
+      'Your personal data (name, phone, email) will be deleted and your dashboard access closed. The salon record and past appointments remain without your identity. This can\'t be undone.';
+
+  @override
+  String get hesapSilinemediTekrar =>
+      'Couldn\'t delete the account. Please try again.';
 }

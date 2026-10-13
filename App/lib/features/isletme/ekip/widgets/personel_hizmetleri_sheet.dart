@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/core/widgets/durum_gorunumleri.dart';
@@ -89,12 +90,12 @@ class _PersonelHizmetleriState extends State<_PersonelHizmetleri> {
   Future<void> _kaydet() async {
     final satirlar = _satirlar!;
     if (!satirlar.any((s) => s.veriyor)) {
-      bilgiGoster(context, 'Personel en az bir hizmet vermeli.', hata: true);
+      bilgiGoster(context, Dil.t.enAzBirHizmetVermeli, hata: true);
       return;
     }
     final kisa = satirlar.where((s) => s.veriyor && (int.tryParse(s.sure.text) ?? 5) < 5);
     if (kisa.isNotEmpty) {
-      bilgiGoster(context, '${kisa.first.ad}: süre en az 5 dakika olmalı.', hata: true);
+      bilgiGoster(context, Dil.t.sureEnAz5(kisa.first.ad), hata: true);
       return;
     }
     setState(() => _kaydediliyor = true);
@@ -120,11 +121,10 @@ class _PersonelHizmetleriState extends State<_PersonelHizmetleri> {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 4),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('${widget.ad} · Hizmetler',
+              Text('${widget.ad} · ${Dil.t.hizmetler}',
                   style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 19, fontWeight: FontWeight.bold)),
               const SizedBox(height: 4),
-              Text('Kapalı hizmetler bu personelden alınamaz. Fiyat ve süre boşsa menüdeki geçerli; '
-                  'değişiklik mevcut randevuları etkilemez.',
+              Text(Dil.t.personelHizmetAciklama,
                   style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
             ]),
           ),
@@ -134,7 +134,7 @@ class _PersonelHizmetleriState extends State<_PersonelHizmetleri> {
                 : _satirlar == null
                     ? const Center(child: CircularProgressIndicator(color: AppTheme.gold))
                     : _satirlar!.isEmpty
-                        ? const BosGorunum(ikon: Icons.content_cut, mesaj: 'Menüde hizmet yok.')
+                        ? BosGorunum(ikon: Icons.content_cut, mesaj: Dil.t.menudeHizmetYok)
                         : ListView(controller: ctrl, padding: const EdgeInsets.fromLTRB(16, 8, 16, 8), children: [
                             for (final s in _satirlar!) _satir(s),
                           ]),
@@ -150,7 +150,7 @@ class _PersonelHizmetleriState extends State<_PersonelHizmetleri> {
                   child: _kaydediliyor
                       ? const SizedBox(
                           width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.black))
-                      : const Text('Kaydet'),
+                      : Text(Dil.t.kaydet),
                 ),
               ),
             ),
@@ -171,14 +171,14 @@ class _PersonelHizmetleriState extends State<_PersonelHizmetleri> {
               onChanged: (v) => setState(() => s.veriyor = v),
               activeThumbColor: AppTheme.gold,
               title: Text(s.ad, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
-              subtitle: Text('Menü: ${tl(s.menuFiyat)} · ${sureMetni(s.menuSure)}',
+              subtitle: Text(Dil.t.menuDegeri('${tl(s.menuFiyat)} · ${sureMetni(s.menuSure)}'),
                   style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
             ),
             if (s.veriyor)
               Row(children: [
-                Expanded(child: _alan(s.fiyat, 'Özel fiyat', s.menuFiyat.toStringAsFixed(0), '₺')),
+                Expanded(child: _alan(s.fiyat, Dil.t.ozelFiyat, s.menuFiyat.toStringAsFixed(0), '₺')),
                 const SizedBox(width: 10),
-                Expanded(child: _alan(s.sure, 'Özel süre', '${s.menuSure}', 'dk')),
+                Expanded(child: _alan(s.sure, Dil.t.ozelSure, '${s.menuSure}', Dil.t.dkKisa)),
               ]),
           ]),
         ),
