@@ -112,7 +112,7 @@ class _MusteriKartiSheetState extends State<MusteriKartiSheet> {
         Wrap(spacing: 8, runSpacing: 8, children: [
           _Kutu(Dil.t.ziyaret, '${o['ziyaret']}'),
           _Kutu(Dil.t.harcama, tl(o['toplam_harcama'] as num? ?? 0)),
-          _Kutu(Dil.t.sonZiyaret, o['son_ziyaret'] == null ? '—' : tarihUzun(o['son_ziyaret']).split(' ').take(2).join(' ')),
+          _Kutu(Dil.t.sonZiyaret, o['son_ziyaret'] == null ? '—' : gunAy(DateTime.parse(o['son_ziyaret']))),
           if ((o['gelmedi'] as int? ?? 0) > 0) _Kutu(Dil.t.gelmedi, '${o['gelmedi']}', uyari: true),
         ]),
         if (o['en_sik_berber'] != null || (o['en_sik_hizmetler'] as List).isNotEmpty) ...[
@@ -158,7 +158,7 @@ class _MusteriKartiSheetState extends State<MusteriKartiSheet> {
             child: Row(children: [
               SizedBox(
                 width: 92,
-                child: Text('${tarihUzun(r['tarih']).split(' ').take(2).join(' ')} ${r['saat']}',
+                child: Text('${gunAy(DateTime.parse(r['tarih']))} ${r['saat']}',
                     style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
               ),
               Expanded(

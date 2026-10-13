@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/data/api/randevu_api.dart';
 import 'package:berber_app_ui/data/api/salon_api.dart';
 import 'package:berber_app_ui/features/isletme/ekip/ekip_sekmesi.dart';
@@ -50,21 +51,21 @@ void main() {
     await cek(tester, 'm01_kesfet_rozet');
 
     await uygulamayiAc(tester, SalonDetayScreen(salonId: salon.id));
-    await bekle(tester, find.text('Kampanyalar'));
+    await bekle(tester, find.text(Dil.t.kampanyalar));
     await kaydir(tester, 250);
     await cek(tester, 'm02_salon_kampanya_sadakat');
 
-    await dokun(tester, find.text('Randevu Al'));
+    await dokun(tester, find.text(Dil.t.randevuAl));
     await bekle(tester, anahtarOneki('hizmet_'));
     await cek(tester, 'm03_hizmet_rozet_aralik');
 
     await dokun(tester, find.textContaining('Saç Kesimi'));
-    await dokun(tester, find.text('İleri →'));
+    await dokun(tester, find.text(Dil.t.ileri));
     await bekle(tester, anahtarOneki('berber_toplam_'));
     await cek(tester, 'm04_personel_fiyatlari');
 
     await dokun(tester, find.text('Mehmet Kaya'));
-    await dokun(tester, find.text('İleri →'));
+    await dokun(tester, find.text(Dil.t.ileri));
     await tester.pump(const Duration(seconds: 2));
     await cek(tester, 'm05_takvim_kampanya');
 
@@ -77,12 +78,12 @@ void main() {
     if (gun.month != DateTime.now().month) await dokun(tester, find.byIcon(Icons.chevron_right));
     final hucreler = find.descendant(of: takvim, matching: find.text('${gun.day}'));
     await dokun(tester, gun.day > 20 ? hucreler.last : hucreler.first);
-    await dokun(tester, find.text('İleri →'));
+    await dokun(tester, find.text(Dil.t.ileri));
     await bekle(tester, find.byType(SaatSlotWidget));
     await cek(tester, 'm06_saat_indirim');
 
     await dokun(tester, find.byWidgetPredicate((w) => w is SaatSlotWidget && w.durum == SlotDurumu.musait).first);
-    await dokun(tester, find.text('İleri →'));
+    await dokun(tester, find.text(Dil.t.ileri));
     await tester.pump(const Duration(seconds: 3));
     await cek(tester, 'm07_ozet');
   });
@@ -90,19 +91,19 @@ void main() {
   testWidgets('müşteri: randevularım, tekrar al, erteleme', (tester) async {
     await hazirla('demo-musteri');
     await uygulamayiAc(tester, const MainScreen(baslangicSekmesi: 1));
-    await dokun(tester, find.text('GEÇMİŞ'));
+    await dokun(tester, find.text(Dil.t.gecmis));
     await tester.pump(const Duration(seconds: 2));
     await cek(tester, 'm08_gecmis_tekrar_dugmesi');
-    await dokun(tester, find.text('Aynısını Tekrar Al'));
-    await bekle(tester, find.textContaining('randevusunu al'));
+    await dokun(tester, find.text(Dil.t.aynisiniTekrarAl));
+    await bekle(tester, find.byKey(const ValueKey('tekrar_al')));
     await cek(tester, 'm09_tekrar_sheet');
     await tester.tapAt(const Offset(20, 60)); // sayfayı kapat
     await tester.pump(const Duration(seconds: 1));
 
-    await dokun(tester, find.text('YAKLAŞANLAR'));
+    await dokun(tester, find.text(Dil.t.yaklasanlar));
     final yaklasan = (await RandevuApi.randevularim()).where((r) => r.yaklasan && r.ertelemeHakki > 0);
     if (yaklasan.isNotEmpty) {
-      await dokun(tester, find.text('Ertele'));
+      await dokun(tester, find.text(Dil.t.ertele));
       await bekle(tester, find.byType(SaatSlotWidget));
       await cek(tester, 'm10_erteleme');
     }
@@ -116,8 +117,8 @@ void main() {
     await tester.pump(const Duration(seconds: 2));
     await cek(tester, 'p01_gun_takvimi');
 
-    await dokun(tester, find.text('Ekip & Menü'));
-    await bekle(tester, find.text('Hizmet Menüsü'));
+    await dokun(tester, find.text(Dil.t.ekipMenu));
+    await bekle(tester, find.text(Dil.t.hizmetMenusu));
     final ekipListesi = find.descendant(of: find.byType(EkipSekmesi), matching: find.byType(Scrollable)).first;
     await tester.scrollUntilVisible(find.byKey(const ValueKey('sadakat_ayari')), 400, scrollable: ekipListesi);
     await tester.pump(const Duration(seconds: 1));
@@ -137,7 +138,7 @@ void main() {
     await tester.tapAt(const Offset(20, 60));
     await tester.pump(const Duration(seconds: 1));
 
-    await dokun(tester, find.text('Kapalı Günler'));
+    await dokun(tester, find.text(Dil.t.kapaliGunler));
     await bekle(tester, find.byKey(const ValueKey('onceden_karti')));
     await cek(tester, 'p05_kapali_gunler_onceden');
   });

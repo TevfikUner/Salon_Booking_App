@@ -7,6 +7,7 @@ import 'package:berber_app_ui/data/api/hesap_api.dart';
 import 'package:berber_app_ui/data/api/panel_api.dart';
 import 'package:berber_app_ui/data/api/randevu_api.dart';
 import 'package:berber_app_ui/data/api/salon_api.dart';
+import 'package:berber_app_ui/features/isletme/ekip/ekip_sekmesi.dart';
 import 'package:berber_app_ui/features/isletme/isletme_panel_screen.dart';
 import 'package:berber_app_ui/features/musteri/main_screen.dart';
 import 'package:berber_app_ui/features/randevu_al/widgets/saat_slot.dart';
@@ -160,6 +161,9 @@ void main() {
 
     // Personel → Verdiği hizmetler: İkinci Kalfa'da Sakal kapalı görünür
     final personel = (await PanelApi.personel()).firstWhere((p) => p['ad'] == 'İkinci');
+    // Kampanya bölümü listenin altında; personel yukarıda kaldı (liste tembel çizilir)
+    await tester.scrollUntilVisible(find.text('İkinci Kalfa'), -300,
+        scrollable: find.descendant(of: find.byType(EkipSekmesi), matching: find.byType(Scrollable)).first);
     await dokun(tester, find.text('İkinci Kalfa'));
     await dokun(tester, find.byKey(const ValueKey('personel_hizmetleri')));
     final hizmetler = await PanelApi.personelHizmetleri(personel['id']);

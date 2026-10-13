@@ -13,7 +13,8 @@ import 'package:berber_app_ui/main.dart';
 Future<void> hazirla(String uid) async {
   ApiClient.testJetonu = () async => 'dev:$uid';
   GoogleFonts.config.allowRuntimeFetching = false; // uygulamadaki gibi (main.dart): yalnızca gömülü yazı tipleri
-  Dil.ornek.zorla('tr'); // testler Türkçe metinleri arar; emülatör dili İngilizce olabilir
+  // Testler Türkçe metinleri arar; emülatör dili İngilizce olabilir. Görsel inceleme: --dart-define=TEST_DIL=en
+  Dil.ornek.zorla(const String.fromEnvironment('TEST_DIL', defaultValue: 'tr'));
   if (Firebase.apps.isEmpty) await Firebase.initializeApp();
   await initializeDateFormatting('tr_TR', null);
 }

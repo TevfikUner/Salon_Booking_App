@@ -309,18 +309,25 @@ class _GunSecici extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
       child: Row(
         children: [
-          for (final (tarih, etiket) in secenekler)
-            Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: ChoiceChip(
-                label: Text(etiket),
-                selected: tarihStr(gun) == tarihStr(tarih),
-                onSelected: (_) => onSecim(tarih),
-                selectedColor: AppTheme.gold,
-                showCheckmark: false,
-              ),
+          // Uzun etiketlerde (İngilizce, büyük yazı) taşmasın: çipler kendi içinde kayar
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(children: [
+                for (final (tarih, etiket) in secenekler)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: ChoiceChip(
+                      label: Text(etiket),
+                      selected: tarihStr(gun) == tarihStr(tarih),
+                      onSelected: (_) => onSecim(tarih),
+                      selectedColor: AppTheme.gold,
+                      showCheckmark: false,
+                    ),
+                  ),
+              ]),
             ),
-          const Spacer(),
+          ),
           TextButton.icon(
             onPressed: () async {
               final g = await showDatePicker(
@@ -332,7 +339,7 @@ class _GunSecici extends StatelessWidget {
               if (g != null) onSecim(g);
             },
             icon: const Icon(Icons.calendar_month, size: 18),
-            label: Text(tarihUzun(tarihStr(gun)).split(' ').take(2).join(' ')),
+            label: Text(gunAy(gun)),
           ),
         ],
       ),
