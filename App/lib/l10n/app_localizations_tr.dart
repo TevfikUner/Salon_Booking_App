@@ -821,4 +821,356 @@ class AppLocalizationsTr extends AppLocalizations {
   String azYerKaldi(int n) {
     return 'Bu günde yalnızca $n uygun saat kaldı.';
   }
+
+  @override
+  String get randevularim => 'Randevularım';
+
+  @override
+  String get iptalEt => 'İptal Et';
+
+  @override
+  String get ertele => 'Ertele';
+
+  @override
+  String get randevuIptali => 'Randevu İptali';
+
+  @override
+  String get cikisYap => 'Çıkış Yap';
+
+  @override
+  String get anaSayfa => 'Ana Sayfa';
+
+  @override
+  String get profil => 'Profil';
+
+  @override
+  String get yaklasanRandevulariniz => 'Yaklaşan Randevularınız';
+
+  @override
+  String get favoriBerberlerim => 'Favori Berberlerim';
+
+  @override
+  String get tumu => 'Tümü';
+
+  @override
+  String get hosGeldinizMakas => 'Hoş Geldiniz ✂️';
+
+  @override
+  String get kendinizeRandevu => 'Bugün kendinize güzel bir randevu alın';
+
+  @override
+  String sihhatlerOlsun(String ad) {
+    return 'Sıhhatler olsun, $ad!';
+  }
+
+  @override
+  String get favoriYok => 'Henüz favori berberiniz yok';
+
+  @override
+  String get favoriNasil => 'Salon sayfasındaki ♥ ile ekleyebilirsiniz';
+
+  @override
+  String get herZamankiRandevu => 'Her zamanki randevu';
+
+  @override
+  String get randevuyuAl => 'Randevuyu Al';
+
+  @override
+  String get herZamanki => 'Her Zamanki';
+
+  @override
+  String get yakinBosSaatYok => 'Yakın tarihte boş saat yok.';
+
+  @override
+  String get enYakinDokun => 'En yakın boş saatler — dokun, onayla, bitti:';
+
+  @override
+  String kacKez(int n) {
+    return '$n kez aldınız';
+  }
+
+  @override
+  String get nasilDevam => 'Nasıl devam etmek istersiniz?';
+
+  @override
+  String get yeniSalonKesfet => 'Yeni Bir Salon Keşfet';
+
+  @override
+  String get farkliSalonlar => 'Farklı salonları keşfet';
+
+  @override
+  String get kapat => 'Kapat';
+
+  @override
+  String get randevunuzuNasilBuldunuz => 'Randevunuzu nasıl buldunuz?';
+
+  @override
+  String get yorumunuz => 'Yorumunuz (isteğe bağlı)';
+
+  @override
+  String get degerlendir => 'Değerlendir';
+
+  @override
+  String get tesekkurler => 'Teşekkürler! ⭐';
+
+  @override
+  String get degerlendirmeKaydedildi => 'Değerlendirmeniz kaydedildi.';
+
+  @override
+  String get puanKotu => 'Kötü';
+
+  @override
+  String get puanFenaDegil => 'Fena değil';
+
+  @override
+  String get puanIyi => 'İyi';
+
+  @override
+  String get puanCokIyi => 'Çok iyi';
+
+  @override
+  String get puanMukemmel => 'Mükemmel!';
+
+  @override
+  String yildizSayisi(int n) {
+    return '$n yıldız';
+  }
+
+  @override
+  String get berberlerim => 'Berberlerim';
+
+  @override
+  String get berberGecmisiYok => 'Henüz favori veya geçmiş berberiniz yok';
+
+  @override
+  String get favoriEkleIpucu =>
+      'Salon sayfasında ♥ ile favori ekleyebilirsiniz';
+
+  @override
+  String get favorileriniz => 'Favorileriniz';
+
+  @override
+  String get dahaOnceGittikleriniz => 'Daha önce gittikleriniz';
+
+  @override
+  String get cikisEminMisiniz =>
+      'Hesabınızdan çıkış yapmak istediğinize emin misiniz?';
+
+  @override
+  String get hesabiSil => 'Hesabı Sil';
+
+  @override
+  String get hesapSilAciklama =>
+      'Kişisel bilgileriniz silinecek ve gelecekteki randevularınız iptal edilecek. Bu işlem geri alınamaz.';
+
+  @override
+  String get kaliciSil => 'Kalıcı Olarak Sil';
+
+  @override
+  String get hesapSilindi => 'Hesabınız ve kişisel verileriniz silindi.';
+
+  @override
+  String get verilerSilindiOturum =>
+      'Kişisel verileriniz silindi. Güvenlik nedeniyle oturumunuz kapatıldı.';
+
+  @override
+  String get yasalGizlilik => 'Yasal & Gizlilik';
+
+  @override
+  String get gizlilikPolitikasi => 'Gizlilik Politikası';
+
+  @override
+  String get kvkkMetni => 'KVKK Aydınlatma Metni';
+
+  @override
+  String get kullanimKosullari => 'Kullanım Koşulları';
+
+  @override
+  String get sikcaSorulanSorular => 'Sıkça Sorulan Sorular';
+
+  @override
+  String get hesap => 'Hesap';
+
+  @override
+  String get uygulamayiPaylas => 'Uygulamayı Paylaş';
+
+  @override
+  String get hesabimiSil => 'Hesabımı Sil';
+
+  @override
+  String hesapSilinemedi(String neden) {
+    return 'Hesap silinemedi: $neden';
+  }
+
+  @override
+  String get paylasMetni =>
+      'Premium Berber ile saniyeler içinde berber randevusu al 💈';
+
+  @override
+  String get dil => 'Dil';
+
+  @override
+  String get cihazDili => 'Cihaz dili';
+
+  @override
+  String get bilgilerKaydedildi => 'Bilgileriniz kaydedildi.';
+
+  @override
+  String get kisiselBilgiler => 'Kişisel Bilgiler';
+
+  @override
+  String get kaydet => 'Kaydet';
+
+  @override
+  String get duzenle => 'Düzenle';
+
+  @override
+  String get adiniz => 'Adınız';
+
+  @override
+  String get soyadiniz => 'Soyadınız';
+
+  @override
+  String get telefon => 'Telefon';
+
+  @override
+  String get randevuyuErtele => 'Randevuyu Ertele';
+
+  @override
+  String get acikGunYok => 'Önümüzdeki günlerde açık gün yok.';
+
+  @override
+  String get yeniSaatSecin => 'Yeni saat seçin';
+
+  @override
+  String get buGunBosSaatYok => 'Bu gün boş saat yok.';
+
+  @override
+  String get baskaGunSecin => 'Başka bir gün seçin.';
+
+  @override
+  String oneri(String saatler) {
+    return 'Öneri: $saatler';
+  }
+
+  @override
+  String suAn(String bilgi) {
+    return 'Şu an: $bilgi';
+  }
+
+  @override
+  String kalanErteleme(int n) {
+    return 'Kalan erteleme hakkı: $n';
+  }
+
+  @override
+  String get kampanya => 'kampanya';
+
+  @override
+  String indirimKalkar(String kampanya, String tutar) {
+    return 'Bu saat \"$kampanya\" kapsamında değil: indirim kalkar, tutar $tutar olur. İndirimli saatler işaretli.';
+  }
+
+  @override
+  String olarakErtele(String zaman) {
+    return '$zaman olarak ertele';
+  }
+
+  @override
+  String get randevunuzErtelendi => 'Randevunuz ertelendi.';
+
+  @override
+  String get randevunuzIptalEdildi => 'Randevunuz iptal edildi.';
+
+  @override
+  String get yaklasanlar => 'YAKLAŞANLAR';
+
+  @override
+  String get gecmis => 'GEÇMİŞ';
+
+  @override
+  String get aktifRandevuYok => 'Henüz aktif randevunuz yok';
+
+  @override
+  String get gecmisRandevuYok => 'Geçmiş randevu bulunamadı';
+
+  @override
+  String iptalEminMisiniz(String randevu) {
+    return '$randevu randevunuzu iptal etmek istiyor musunuz?';
+  }
+
+  @override
+  String get iptalYerineErtele =>
+      'Gelemiyorsanız iptal yerine başka bir saate erteleyebilirsiniz.';
+
+  @override
+  String get tekrarRandevuAl => 'Tekrar Randevu Al';
+
+  @override
+  String get kacHaftaSonra => 'Kaç hafta sonra?';
+
+  @override
+  String get herZamankiAraliginiz => '★ her zamanki aralığınız';
+
+  @override
+  String get saatSecinKisa => 'Saat seçin';
+
+  @override
+  String get bosSaatBulunamadi => 'Önümüzdeki günlerde boş saat bulunamadı.';
+
+  @override
+  String haftaSayisi(int n) {
+    return '$n hafta';
+  }
+
+  @override
+  String randevusunuAl(String zaman) {
+    return '$zaman randevusunu al';
+  }
+
+  @override
+  String herZamankiSaatBos(String gun, String saat) {
+    return '$gun, her zamanki saatiniz $saat boş.';
+  }
+
+  @override
+  String kapaliEnYakin(String gun, String neden) {
+    return '$gun: $neden En yakın boş saatler:';
+  }
+
+  @override
+  String saatDoluEnYakin(String gun, String saat) {
+    return '$gun $saat dolu. O günün en yakın saatleri:';
+  }
+
+  @override
+  String tekrarFiyatNotu(String bilgi) {
+    return 'Liste fiyatı $bilgi. Kampanya veya sadakat indirimi varsa onayda uygulanır.';
+  }
+
+  @override
+  String get durumOnaylandi => '✓ Onaylandı';
+
+  @override
+  String get durumTamamlandi => '✔ Tamamlandı';
+
+  @override
+  String get durumIptal => '✗ İptal';
+
+  @override
+  String get durumGelinmedi => 'Gelinmedi';
+
+  @override
+  String get salonIptalEtti => 'Salon tarafından iptal edildi.';
+
+  @override
+  String get hizmetiDegerlendir => 'Hizmeti Değerlendir';
+
+  @override
+  String get aynisiniTekrarAl => 'Aynısını Tekrar Al';
+
+  @override
+  String degerlendirildi(String yildiz) {
+    return 'Değerlendirildi ($yildiz)';
+  }
 }

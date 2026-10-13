@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:share_plus/share_plus.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/config.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
@@ -53,8 +54,8 @@ class _ProfilEkraniState extends State<ProfilEkrani> {
   }
 
   Future<void> _cikis() async {
-    if (!await onayIste(context, 'Çıkış Yap', 'Hesabınızdan çıkış yapmak istediğinize emin misiniz?',
-        evet: 'Çıkış Yap')) {
+    if (!await onayIste(context, Dil.t.cikisYap, Dil.t.cikisEminMisiniz,
+        evet: Dil.t.cikisYap)) {
       return;
     }
     await BildirimServisi.durdur();
@@ -62,12 +63,43 @@ class _ProfilEkraniState extends State<ProfilEkrani> {
     await _girisEkraninaDon();
   }
 
+  /// null → cihaz dili
+  String _dilAdi(String? kod) => switch (kod) {
+        'tr' => 'Türkçe',
+        'en' => 'English',
+        _ => Dil.t.cihazDili,
+      };
+
+  Future<void> _dilSec() async {
+    final secim = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: AppTheme.surface,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (ctx) => SafeArea(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          for (final kod in const ['', 'tr', 'en'])
+            ListTile(
+              key: ValueKey('dil_$kod'),
+              leading: Icon(
+                  (Dil.ornek.secim ?? '') == kod ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                  color: AppTheme.gold),
+              title: Text(_dilAdi(kod.isEmpty ? null : kod), style: const TextStyle(color: Colors.white)),
+              onTap: () => Navigator.pop(ctx, kod),
+            ),
+        ]),
+      ),
+    );
+    if (secim == null || secim == (Dil.ornek.secim ?? '')) return;
+    // Uygulama seçilen dille baştan açılır (kök yeniden kurulur)
+    await Dil.ornek.sec(secim.isEmpty ? null : secim);
+  }
+
   Future<void> _hesabiSil() async {
     final onay = await onayIste(
       context,
-      'Hesabı Sil',
-      'Kişisel bilgileriniz silinecek ve gelecekteki randevularınız iptal edilecek. Bu işlem geri alınamaz.',
-      evet: 'Kalıcı Olarak Sil',
+      Dil.t.hesabiSil,
+      Dil.t.hesapSilAciklama,
+      evet: Dil.t.kaliciSil,
       tehlikeli: true,
     );
     if (!onay || !mounted) return;
@@ -79,11 +111,11 @@ class _ProfilEkraniState extends State<ProfilEkrani> {
       bilgiGoster(
           context,
           tamamen
-              ? 'Hesabınız ve kişisel verileriniz silindi.'
-              : 'Kişisel verileriniz silindi. Güvenlik nedeniyle oturumunuz kapatıldı.');
+              ? Dil.t.hesapSilindi
+              : Dil.t.verilerSilindiOturum);
       await _girisEkraninaDon();
     } catch (e) {
-      if (mounted) bilgiGoster(context, 'Hesap silinemedi: $e', hata: true);
+      if (mounted) bilgiGoster(context, Dil.t.hesapSilinemedi('$e'), hata: true);
     } finally {
       if (mounted) setState(() => _islemde = false);
     }
@@ -92,39 +124,45 @@ class _ProfilEkraniState extends State<ProfilEkrani> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Profil'), automaticallyImplyLeading: false),
+      appBar: AppBar(title: Text(Dil.t.profil), automaticallyImplyLeading: false),
       body: AbsorbPointer(
         absorbing: _islemde,
         child: ListView(padding: const EdgeInsets.fromLTRB(20, 8, 20, 100), children: [
           _Avatar(adSoyad: _adSoyad, eposta: AuthService.currentUser?.email),
           const SizedBox(height: 24),
           KisiselBilgilerFormu(profil: _profil, onAdDegisti: (v) => setState(() => _adSoyad = v)),
-          MenuBolumu(baslik: 'Yasal & Gizlilik', ikon: Icons.shield_outlined, children: [
-            MenuSatiri(ikon: Icons.privacy_tip_outlined, etiket: 'Gizlilik Politikası',
+          MenuBolumu(baslik: Dil.t.yasalGizlilik, ikon: Icons.shield_outlined, children: [
+            MenuSatiri(ikon: Icons.privacy_tip_outlined, etiket: Dil.t.gizlilikPolitikasi,
                 onTap: () => _yasal(YasalMetinler.gizlilik)),
-            MenuSatiri(ikon: Icons.article_outlined, etiket: 'KVKK Aydınlatma Metni',
+            MenuSatiri(ikon: Icons.article_outlined, etiket: Dil.t.kvkkMetni,
                 onTap: () => _yasal(YasalMetinler.kvkk)),
-            MenuSatiri(ikon: Icons.description_outlined, etiket: 'Kullanım Koşulları',
+            MenuSatiri(ikon: Icons.description_outlined, etiket: Dil.t.kullanimKosullari,
                 onTap: () => _yasal(YasalMetinler.kullanim)),
           ]),
-          MenuBolumu(baslik: 'Yardım & Destek', ikon: Icons.support_agent_outlined, children: [
-            MenuSatiri(ikon: Icons.help_outline, etiket: 'Sıkça Sorulan Sorular',
+          MenuBolumu(baslik: Dil.t.yardimDestek, ikon: Icons.support_agent_outlined, children: [
+            MenuSatiri(ikon: Icons.help_outline, etiket: Dil.t.sikcaSorulanSorular,
                 onTap: () => _ac(const YardimDestekScreen())),
-            MenuSatiri(ikon: Icons.mail_outline, etiket: 'Bize Ulaşın',
+            MenuSatiri(ikon: Icons.mail_outline, etiket: Dil.t.bizeUlasin,
                 onTap: () => _ac(const YardimDestekScreen(baslangicSekmesi: 1))),
           ]),
-          MenuBolumu(baslik: 'Hesap', ikon: Icons.settings_outlined, children: [
+          MenuBolumu(baslik: Dil.t.hesap, ikon: Icons.settings_outlined, children: [
+            MenuSatiri(
+              ikon: Icons.language,
+              etiket: '${Dil.t.dil}: ${_dilAdi(Dil.ornek.secim)}',
+              renk: AppTheme.gold,
+              onTap: _dilSec,
+            ),
             MenuSatiri(
               ikon: Icons.share_outlined,
-              etiket: 'Uygulamayı Paylaş',
+              etiket: Dil.t.uygulamayiPaylas,
               renk: AppTheme.gold,
               onTap: () => Share.share(
-                'Premium Berber ile saniyeler içinde berber randevusu al 💈\n${AppConfig.magazaLinki}',
+                '${Dil.t.paylasMetni}\n${AppConfig.magazaLinki}',
                 subject: 'Premium Berber',
               ),
             ),
-            MenuSatiri(ikon: Icons.logout, etiket: 'Çıkış Yap', renk: AppTheme.gold, onTap: _cikis),
-            MenuSatiri(ikon: Icons.delete_forever, etiket: 'Hesabımı Sil', renk: AppTheme.error, onTap: _hesabiSil),
+            MenuSatiri(ikon: Icons.logout, etiket: Dil.t.cikisYap, renk: AppTheme.gold, onTap: _cikis),
+            MenuSatiri(ikon: Icons.delete_forever, etiket: Dil.t.hesabimiSil, renk: AppTheme.error, onTap: _hesabiSil),
           ]),
         ]),
       ),

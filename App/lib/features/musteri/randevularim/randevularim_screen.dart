@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/core/widgets/durum_gorunumleri.dart';
@@ -70,24 +71,24 @@ class RandevularimScreenState extends State<RandevularimScreen> {
       builder: (_) => ErtelemeSheet(randevu: r),
     );
     if (ertelendi != true) return;
-    if (mounted) bilgiGoster(context, 'Randevunuz ertelendi.');
+    if (mounted) bilgiGoster(context, Dil.t.randevunuzErtelendi);
     yenile();
   }
 
   /// İptal etmeden önce, hakkı varsa ertelemeyi önerir (müşteri slotunu, salon müşterisini kaybetmesin).
   Future<void> _iptal(Randevu r) async {
-    final mesaj = '${tarihUzun(r.tarih)} ${r.saat} randevunuzu iptal etmek istiyor musunuz?';
+    final mesaj = Dil.t.iptalEminMisiniz('${tarihUzun(r.tarih)} ${r.saat}');
     if (r.ertelemeHakki > 0) {
       final secim = await _iptalVeyaErtele(mesaj);
       if (secim == 'ertele') return _ertele(r);
       if (secim != 'iptal') return;
-    } else if (!await onayIste(context, 'Randevu İptali', mesaj, evet: 'İptal Et', tehlikeli: true)) {
+    } else if (!await onayIste(context, Dil.t.randevuIptali, mesaj, evet: Dil.t.iptalEt, tehlikeli: true)) {
       return;
     }
     try {
       await RandevuApi.iptal(r.id);
       Analitik.randevuIptal();
-      if (mounted) bilgiGoster(context, 'Randevunuz iptal edildi.');
+      if (mounted) bilgiGoster(context, Dil.t.randevunuzIptalEdildi);
       yenile();
     } on ApiHata catch (e) {
       if (mounted) bilgiGoster(context, e.mesaj, hata: true);
@@ -99,19 +100,19 @@ class RandevularimScreenState extends State<RandevularimScreen> {
         builder: (ctx) => AlertDialog(
           backgroundColor: AppTheme.surface,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Text('Randevu İptali', style: TextStyle(color: AppTheme.error)),
-          content: Text('$mesaj\n\nGelemiyorsanız iptal yerine başka bir saate erteleyebilirsiniz.',
+          title: Text(Dil.t.randevuIptali, style: TextStyle(color: AppTheme.error)),
+          content: Text('$mesaj\n\n${Dil.t.iptalYerineErtele}',
               style: const TextStyle(color: Colors.white)),
           actions: [
             TextButton(
                 onPressed: () => Navigator.pop(ctx),
-                child: const Text('Vazgeç', style: TextStyle(color: AppTheme.textSecondary))),
+                child: Text(Dil.t.vazgec, style: TextStyle(color: AppTheme.textSecondary))),
             TextButton(
                 onPressed: () => Navigator.pop(ctx, 'iptal'),
-                child: const Text('İptal Et', style: TextStyle(color: AppTheme.error))),
+                child: Text(Dil.t.iptalEt, style: TextStyle(color: AppTheme.error))),
             TextButton(
                 onPressed: () => Navigator.pop(ctx, 'ertele'),
-                child: const Text('Ertele', style: TextStyle(color: AppTheme.gold, fontWeight: FontWeight.bold))),
+                child: Text(Dil.t.ertele, style: TextStyle(color: AppTheme.gold, fontWeight: FontWeight.bold))),
           ],
         ),
       );
@@ -134,15 +135,15 @@ class RandevularimScreenState extends State<RandevularimScreen> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Randevularım'),
+          title: Text(Dil.t.randevularim),
           automaticallyImplyLeading: false,
-          bottom: const TabBar(
+          bottom: TabBar(
             indicatorColor: AppTheme.gold,
             labelColor: AppTheme.gold,
             unselectedLabelColor: AppTheme.textSecondary,
             tabs: [
-              Tab(text: 'YAKLAŞANLAR', icon: Icon(Icons.calendar_today, size: 20)),
-              Tab(text: 'GEÇMİŞ', icon: Icon(Icons.history, size: 20)),
+              Tab(text: Dil.t.yaklasanlar, icon: Icon(Icons.calendar_today, size: 20)),
+              Tab(text: Dil.t.gecmis, icon: Icon(Icons.history, size: 20)),
             ],
           ),
         ),
@@ -151,8 +152,8 @@ class RandevularimScreenState extends State<RandevularimScreen> {
           hata: _hata,
           onTekrar: yenile,
           builder: (_) => TabBarView(children: [
-            _liste(yaklasanlar, 'Henüz aktif randevunuz yok'),
-            _liste(gecmis, 'Geçmiş randevu bulunamadı'),
+            _liste(yaklasanlar, Dil.t.aktifRandevuYok),
+            _liste(gecmis, Dil.t.gecmisRandevuYok),
           ]),
         ),
       ),
@@ -186,7 +187,7 @@ class RandevularimScreenState extends State<RandevularimScreen> {
                             saat: r.saat,
                             bitis: r.bitis.isEmpty ? null : r.bitis,
                             baslik: '${r.salonAd} — ${r.hizmetler.join(', ')}',
-                            aciklama: 'Berber: ${r.berber}\nToplam: ${tl(r.toplamFiyat)}',
+                            aciklama: Dil.t.takvimAciklama(r.berber, tl(r.toplamFiyat)),
                           ))
                       : null,
                   onDegerlendir: () => _degerlendir(r),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/features/kesfet/kesfet_screen.dart';
 import 'package:berber_app_ui/features/musteri/ana_sayfa/ana_sayfa_screen.dart';
@@ -25,8 +26,8 @@ class _MainScreenState extends State<MainScreen> {
   late final List<Widget> _sayfalar = [
     AnaSayfaScreen(key: _anaSayfa, onKesfeteGit: () => _git(2), onRandevularimaGit: () => _git(1)),
     RandevularimScreen(key: _randevularim),
-    const KesfetScreen(),
-    const ProfilEkrani(),
+    KesfetScreen(),
+    ProfilEkrani(),
   ];
 
   void _git(int sekme) {
@@ -42,7 +43,7 @@ class _MainScreenState extends State<MainScreen> {
       body: IndexedStack(index: _sekme, children: _sayfalar),
       bottomNavigationBar: NavigationBarTheme(
         data: NavigationBarThemeData(
-          backgroundColor: const Color(0xFF141414),
+          backgroundColor: Color(0xFF141414),
           indicatorColor: AppTheme.gold.withValues(alpha: 0.15),
           labelTextStyle: WidgetStateProperty.resolveWith((s) => GoogleFonts.inter(
                 fontSize: 11,
@@ -55,12 +56,12 @@ class _MainScreenState extends State<MainScreen> {
         child: NavigationBar(
           selectedIndex: _sekme,
           onDestinationSelected: _git,
-          destinations: const [
-            NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Ana Sayfa'),
+          destinations: [
+            NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: Dil.t.anaSayfa),
             NavigationDestination(
-                icon: Icon(Icons.calendar_today_outlined), selectedIcon: Icon(Icons.calendar_today), label: 'Randevularım'),
-            NavigationDestination(icon: Icon(Icons.explore_outlined), selectedIcon: Icon(Icons.explore), label: 'Keşfet'),
-            NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Profil'),
+                icon: Icon(Icons.calendar_today_outlined), selectedIcon: Icon(Icons.calendar_today), label: Dil.t.randevularim),
+            NavigationDestination(icon: Icon(Icons.explore_outlined), selectedIcon: Icon(Icons.explore), label: Dil.t.kesfet),
+            NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: Dil.t.profil),
           ],
         ),
       ),

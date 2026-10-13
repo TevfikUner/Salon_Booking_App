@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
 import 'package:berber_app_ui/data/api/api_client.dart';
@@ -63,7 +64,7 @@ class _KisiselBilgilerFormuState extends State<KisiselBilgilerFormu> {
       widget.onAdDegisti('${_ad.text.trim()} ${_soyad.text.trim()}'.trim());
       if (!mounted) return;
       setState(() => _duzenle = false);
-      bilgiGoster(context, 'Bilgileriniz kaydedildi.');
+      bilgiGoster(context, Dil.t.bilgilerKaydedildi);
     } on ApiHata catch (e) {
       if (mounted) bilgiGoster(context, e.mesaj, hata: true);
     } finally {
@@ -76,22 +77,22 @@ class _KisiselBilgilerFormuState extends State<KisiselBilgilerFormu> {
     return Form(
       key: _form,
       child: MenuBolumu(
-        baslik: 'Kişisel Bilgiler',
+        baslik: Dil.t.kisiselBilgiler,
         ikon: Icons.person_outline,
         sag: _kaydediliyor
             ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
             : TextButton(
                 onPressed: _duzenle ? _kaydet : () => setState(() => _duzenle = true),
-                child: Text(_duzenle ? 'Kaydet' : 'Düzenle',
+                child: Text(_duzenle ? Dil.t.kaydet : Dil.t.duzenle,
                     style: GoogleFonts.inter(color: AppTheme.gold, fontWeight: FontWeight.w600)),
               ),
         children: [
           const SizedBox(height: 8),
-          _alan(_ad, 'Adınız', Icons.badge_outlined, zorunlu: true),
+          _alan(_ad, Dil.t.adiniz, Icons.badge_outlined, zorunlu: true),
           const SizedBox(height: 12),
-          _alan(_soyad, 'Soyadınız', Icons.badge_outlined),
+          _alan(_soyad, Dil.t.soyadiniz, Icons.badge_outlined),
           const SizedBox(height: 12),
-          _alan(_telefon, 'Telefon', Icons.phone_outlined, telefon: true),
+          _alan(_telefon, Dil.t.telefon, Icons.phone_outlined, telefon: true),
         ],
       ),
     );
@@ -115,8 +116,8 @@ class _KisiselBilgilerFormuState extends State<KisiselBilgilerFormu> {
       ),
       validator: (v) {
         final t = v?.trim() ?? '';
-        if (zorunlu && t.isEmpty) return 'Zorunlu alan';
-        if (telefon && t.isNotEmpty && (t.length != 10 || !t.startsWith('5'))) return '5 ile başlayan 10 rakam girin';
+        if (zorunlu && t.isEmpty) return Dil.t.zorunluAlan;
+        if (telefon && t.isNotEmpty && (t.length != 10 || !t.startsWith('5'))) return Dil.t.telefonKurali;
         return null;
       },
     );

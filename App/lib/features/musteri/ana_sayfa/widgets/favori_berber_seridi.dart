@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/data/models/berber.dart';
 
@@ -96,10 +97,10 @@ class _BosKart extends StatelessWidget {
             const SizedBox(width: 14),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('Henüz favori berberiniz yok',
+                Text(Dil.t.favoriYok,
                     style: GoogleFonts.inter(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 2),
-                Text('Salon sayfasındaki ♥ ile ekleyebilirsiniz',
+                Text(Dil.t.favoriNasil,
                     style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 11)),
               ]),
             ),

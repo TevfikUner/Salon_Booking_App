@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 
 /// 1–5 yıldız seçici.
@@ -8,7 +9,7 @@ class YildizSecici extends StatelessWidget {
   final ValueChanged<int> onSecim;
   const YildizSecici({super.key, required this.secili, required this.onSecim});
 
-  static String metin(int puan) => const ['', 'Kötü', 'Fena değil', 'İyi', 'Çok iyi', 'Mükemmel!'][puan];
+  static String metin(int puan) => ['', Dil.t.puanKotu, Dil.t.puanFenaDegil, Dil.t.puanIyi, Dil.t.puanCokIyi, Dil.t.puanMukemmel][puan];
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +18,7 @@ class YildizSecici extends StatelessWidget {
       children: [
         for (var i = 1; i <= 5; i++)
           IconButton(
-            tooltip: '$i yıldız',
+            tooltip: Dil.t.yildizSayisi(i),
             iconSize: 44,
             onPressed: () => onSecim(i),
             icon: AnimatedScale(

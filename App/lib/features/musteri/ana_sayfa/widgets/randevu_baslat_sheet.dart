@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/widgets/bolum_basligi.dart';
 import 'package:berber_app_ui/data/models/berber.dart';
@@ -25,10 +26,10 @@ Future<RandevuBaslatSecim?> randevuBaslatSor(BuildContext context, List<Berber> 
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           const SheetTutamagi(),
-          Text('Randevu Al',
+          Text(Dil.t.randevuAl,
               style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 22, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          Text('Nasıl devam etmek istersiniz?', style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 13)),
+          Text(Dil.t.nasilDevam, style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 13)),
           const SizedBox(height: 16),
           for (final b in favoriler.take(3))
             _Secenek(
@@ -40,8 +41,8 @@ Future<RandevuBaslatSecim?> randevuBaslatSor(BuildContext context, List<Berber> 
             ),
           _Secenek(
             ikon: Icons.explore,
-            baslik: 'Yeni Bir Salon Keşfet',
-            alt: 'Farklı salonları keşfet',
+            baslik: Dil.t.yeniSalonKesfet,
+            alt: Dil.t.farkliSalonlar,
             onTap: () => Navigator.pop(ctx, KesfetSecildi()),
           ),
         ]),

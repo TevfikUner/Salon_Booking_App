@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/core/widgets/durum_gorunumleri.dart';
@@ -102,19 +103,19 @@ class _TekrarSheetState extends State<TekrarSheet> {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('Tekrar Randevu Al',
+          Text(Dil.t.tekrarRandevuAl,
               style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
           Text('${r.berber} · ${r.hizmetler.join(', ')}',
               style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
           const SizedBox(height: 14),
-          Text('Kaç hafta sonra?', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600)),
+          Text(Dil.t.kacHaftaSonra, style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600)),
           const SizedBox(height: 8),
           Wrap(spacing: 8, runSpacing: 6, children: [
             for (final h in const [1, 2, 3, 4, 6, 8])
               ChoiceChip(
                 key: ValueKey('tekrar_hafta_$h'),
-                label: Text('$h hafta${_oneri?['olagan_hafta'] == h ? ' ★' : ''}'),
+                label: Text('${Dil.t.haftaSayisi(h)}${_oneri?['olagan_hafta'] == h ? ' ★' : ''}'),
                 selected: _hafta == h,
                 onSelected: _gonderiliyor ? null : (_) => _yukle(h),
                 selectedColor: AppTheme.gold,
@@ -125,7 +126,7 @@ class _TekrarSheetState extends State<TekrarSheet> {
           if (_oneri != null)
             Padding(
               padding: const EdgeInsets.only(top: 6),
-              child: Text('★ her zamanki aralığınız', style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 11)),
+              child: Text(Dil.t.herZamankiAraliginiz, style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 11)),
             ),
           const SizedBox(height: 16),
           if (_hata != null)
@@ -145,8 +146,8 @@ class _TekrarSheetState extends State<TekrarSheet> {
                   ? const SizedBox(
                       width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.black))
                   : Text(_secili == null
-                      ? 'Saat seçin'
-                      : '${tarihGoreli(_secili!['tarih'])} ${_secili!['saat']} randevusunu al'),
+                      ? Dil.t.saatSecinKisa
+                      : Dil.t.randevusunuAl('${tarihGoreli(_secili!['tarih'])} ${_secili!['saat']}')),
             ),
           ),
         ]),
@@ -159,15 +160,15 @@ class _TekrarSheetState extends State<TekrarSheet> {
     final oneriler = (o['oneriler'] as List).cast<Map<String, dynamic>>();
     final hedef = tarihUzun(o['hedef_tarih']);
     final baslik = o['ayni_saat_bos'] == true
-        ? '$hedef, her zamanki saatiniz ${widget.randevu.saat} boş.'
+        ? Dil.t.herZamankiSaatBos(hedef, widget.randevu.saat)
         : o['kapali_neden'] != null
-            ? '$hedef: ${o['kapali_neden']} En yakın boş saatler:'
-            : '$hedef ${widget.randevu.saat} dolu. O günün en yakın saatleri:';
+            ? Dil.t.kapaliEnYakin(hedef, '${o['kapali_neden']}')
+            : Dil.t.saatDoluEnYakin(hedef, widget.randevu.saat);
     return [
       Text(baslik, style: GoogleFonts.inter(color: Colors.white, fontSize: 13)),
       const SizedBox(height: 10),
       if (oneriler.isEmpty)
-        Text('Önümüzdeki günlerde boş saat bulunamadı.', style: GoogleFonts.inter(color: AppTheme.error, fontSize: 13))
+        Text(Dil.t.bosSaatBulunamadi, style: GoogleFonts.inter(color: AppTheme.error, fontSize: 13))
       else
         Wrap(spacing: 8, runSpacing: 8, children: [
           for (final s in oneriler)
@@ -181,8 +182,7 @@ class _TekrarSheetState extends State<TekrarSheet> {
             ),
         ]),
       const SizedBox(height: 6),
-      Text('Liste fiyatı ${tl(o['liste_fiyati'] as num)} · ${sureMetni(o['toplam_sure_dk'] as int)}. '
-          'Kampanya veya sadakat indirimi varsa onayda uygulanır.',
+      Text(Dil.t.tekrarFiyatNotu('${tl(o['liste_fiyati'] as num)} · ${sureMetni(o['toplam_sure_dk'] as int)}'),
           style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 11)),
     ];
   }

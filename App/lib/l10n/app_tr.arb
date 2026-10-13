@@ -523,5 +523,240 @@
         "type": "int"
       }
     }
+  },
+  "randevularim": "Randevularım",
+  "iptalEt": "İptal Et",
+  "ertele": "Ertele",
+  "randevuIptali": "Randevu İptali",
+  "cikisYap": "Çıkış Yap",
+  "anaSayfa": "Ana Sayfa",
+  "profil": "Profil",
+  "yaklasanRandevulariniz": "Yaklaşan Randevularınız",
+  "favoriBerberlerim": "Favori Berberlerim",
+  "tumu": "Tümü",
+  "hosGeldinizMakas": "Hoş Geldiniz ✂️",
+  "kendinizeRandevu": "Bugün kendinize güzel bir randevu alın",
+  "sihhatlerOlsun": "Sıhhatler olsun, {ad}!",
+  "@sihhatlerOlsun": {
+    "placeholders": {
+      "ad": {
+        "type": "String"
+      }
+    }
+  },
+  "favoriYok": "Henüz favori berberiniz yok",
+  "favoriNasil": "Salon sayfasındaki ♥ ile ekleyebilirsiniz",
+  "herZamankiRandevu": "Her zamanki randevu",
+  "randevuyuAl": "Randevuyu Al",
+  "herZamanki": "Her Zamanki",
+  "yakinBosSaatYok": "Yakın tarihte boş saat yok.",
+  "enYakinDokun": "En yakın boş saatler — dokun, onayla, bitti:",
+  "kacKez": "{n} kez aldınız",
+  "@kacKez": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "nasilDevam": "Nasıl devam etmek istersiniz?",
+  "yeniSalonKesfet": "Yeni Bir Salon Keşfet",
+  "farkliSalonlar": "Farklı salonları keşfet",
+  "kapat": "Kapat",
+  "randevunuzuNasilBuldunuz": "Randevunuzu nasıl buldunuz?",
+  "yorumunuz": "Yorumunuz (isteğe bağlı)",
+  "degerlendir": "Değerlendir",
+  "tesekkurler": "Teşekkürler! ⭐",
+  "degerlendirmeKaydedildi": "Değerlendirmeniz kaydedildi.",
+  "puanKotu": "Kötü",
+  "puanFenaDegil": "Fena değil",
+  "puanIyi": "İyi",
+  "puanCokIyi": "Çok iyi",
+  "puanMukemmel": "Mükemmel!",
+  "yildizSayisi": "{n} yıldız",
+  "@yildizSayisi": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "berberlerim": "Berberlerim",
+  "berberGecmisiYok": "Henüz favori veya geçmiş berberiniz yok",
+  "favoriEkleIpucu": "Salon sayfasında ♥ ile favori ekleyebilirsiniz",
+  "favorileriniz": "Favorileriniz",
+  "dahaOnceGittikleriniz": "Daha önce gittikleriniz",
+  "cikisEminMisiniz": "Hesabınızdan çıkış yapmak istediğinize emin misiniz?",
+  "hesabiSil": "Hesabı Sil",
+  "hesapSilAciklama": "Kişisel bilgileriniz silinecek ve gelecekteki randevularınız iptal edilecek. Bu işlem geri alınamaz.",
+  "kaliciSil": "Kalıcı Olarak Sil",
+  "hesapSilindi": "Hesabınız ve kişisel verileriniz silindi.",
+  "verilerSilindiOturum": "Kişisel verileriniz silindi. Güvenlik nedeniyle oturumunuz kapatıldı.",
+  "yasalGizlilik": "Yasal & Gizlilik",
+  "gizlilikPolitikasi": "Gizlilik Politikası",
+  "kvkkMetni": "KVKK Aydınlatma Metni",
+  "kullanimKosullari": "Kullanım Koşulları",
+  "sikcaSorulanSorular": "Sıkça Sorulan Sorular",
+  "hesap": "Hesap",
+  "uygulamayiPaylas": "Uygulamayı Paylaş",
+  "hesabimiSil": "Hesabımı Sil",
+  "hesapSilinemedi": "Hesap silinemedi: {neden}",
+  "@hesapSilinemedi": {
+    "placeholders": {
+      "neden": {
+        "type": "String"
+      }
+    }
+  },
+  "paylasMetni": "Premium Berber ile saniyeler içinde berber randevusu al 💈",
+  "dil": "Dil",
+  "cihazDili": "Cihaz dili",
+  "bilgilerKaydedildi": "Bilgileriniz kaydedildi.",
+  "kisiselBilgiler": "Kişisel Bilgiler",
+  "kaydet": "Kaydet",
+  "duzenle": "Düzenle",
+  "adiniz": "Adınız",
+  "soyadiniz": "Soyadınız",
+  "telefon": "Telefon",
+  "randevuyuErtele": "Randevuyu Ertele",
+  "acikGunYok": "Önümüzdeki günlerde açık gün yok.",
+  "yeniSaatSecin": "Yeni saat seçin",
+  "buGunBosSaatYok": "Bu gün boş saat yok.",
+  "baskaGunSecin": "Başka bir gün seçin.",
+  "oneri": "Öneri: {saatler}",
+  "@oneri": {
+    "placeholders": {
+      "saatler": {
+        "type": "String"
+      }
+    }
+  },
+  "suAn": "Şu an: {bilgi}",
+  "@suAn": {
+    "placeholders": {
+      "bilgi": {
+        "type": "String"
+      }
+    }
+  },
+  "kalanErteleme": "Kalan erteleme hakkı: {n}",
+  "@kalanErteleme": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "kampanya": "kampanya",
+  "indirimKalkar": "Bu saat \"{kampanya}\" kapsamında değil: indirim kalkar, tutar {tutar} olur. İndirimli saatler işaretli.",
+  "@indirimKalkar": {
+    "placeholders": {
+      "kampanya": {
+        "type": "String"
+      },
+      "tutar": {
+        "type": "String"
+      }
+    }
+  },
+  "olarakErtele": "{zaman} olarak ertele",
+  "@olarakErtele": {
+    "placeholders": {
+      "zaman": {
+        "type": "String"
+      }
+    }
+  },
+  "randevunuzErtelendi": "Randevunuz ertelendi.",
+  "randevunuzIptalEdildi": "Randevunuz iptal edildi.",
+  "yaklasanlar": "YAKLAŞANLAR",
+  "gecmis": "GEÇMİŞ",
+  "aktifRandevuYok": "Henüz aktif randevunuz yok",
+  "gecmisRandevuYok": "Geçmiş randevu bulunamadı",
+  "iptalEminMisiniz": "{randevu} randevunuzu iptal etmek istiyor musunuz?",
+  "@iptalEminMisiniz": {
+    "placeholders": {
+      "randevu": {
+        "type": "String"
+      }
+    }
+  },
+  "iptalYerineErtele": "Gelemiyorsanız iptal yerine başka bir saate erteleyebilirsiniz.",
+  "tekrarRandevuAl": "Tekrar Randevu Al",
+  "kacHaftaSonra": "Kaç hafta sonra?",
+  "herZamankiAraliginiz": "★ her zamanki aralığınız",
+  "saatSecinKisa": "Saat seçin",
+  "bosSaatBulunamadi": "Önümüzdeki günlerde boş saat bulunamadı.",
+  "haftaSayisi": "{n} hafta",
+  "@haftaSayisi": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "randevusunuAl": "{zaman} randevusunu al",
+  "@randevusunuAl": {
+    "placeholders": {
+      "zaman": {
+        "type": "String"
+      }
+    }
+  },
+  "herZamankiSaatBos": "{gun}, her zamanki saatiniz {saat} boş.",
+  "@herZamankiSaatBos": {
+    "placeholders": {
+      "gun": {
+        "type": "String"
+      },
+      "saat": {
+        "type": "String"
+      }
+    }
+  },
+  "kapaliEnYakin": "{gun}: {neden} En yakın boş saatler:",
+  "@kapaliEnYakin": {
+    "placeholders": {
+      "gun": {
+        "type": "String"
+      },
+      "neden": {
+        "type": "String"
+      }
+    }
+  },
+  "saatDoluEnYakin": "{gun} {saat} dolu. O günün en yakın saatleri:",
+  "@saatDoluEnYakin": {
+    "placeholders": {
+      "gun": {
+        "type": "String"
+      },
+      "saat": {
+        "type": "String"
+      }
+    }
+  },
+  "tekrarFiyatNotu": "Liste fiyatı {bilgi}. Kampanya veya sadakat indirimi varsa onayda uygulanır.",
+  "@tekrarFiyatNotu": {
+    "placeholders": {
+      "bilgi": {
+        "type": "String"
+      }
+    }
+  },
+  "durumOnaylandi": "✓ Onaylandı",
+  "durumTamamlandi": "✔ Tamamlandı",
+  "durumIptal": "✗ İptal",
+  "durumGelinmedi": "Gelinmedi",
+  "salonIptalEtti": "Salon tarafından iptal edildi.",
+  "hizmetiDegerlendir": "Hizmeti Değerlendir",
+  "aynisiniTekrarAl": "Aynısını Tekrar Al",
+  "degerlendirildi": "Değerlendirildi ({yildiz})",
+  "@degerlendirildi": {
+    "placeholders": {
+      "yildiz": {
+        "type": "String"
+      }
+    }
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/widgets/berber_desen.dart';
 import 'package:berber_app_ui/core/widgets/bolum_basligi.dart';
@@ -106,15 +107,15 @@ class AnaSayfaScreenState extends State<AnaSayfaScreen> {
               ),
             SliverToBoxAdapter(child: _RandevuAlButonu(onTap: _randevuAl)),
             if (_yaklasanlar.isNotEmpty) ...[
-              const SliverToBoxAdapter(child: BolumBasligi(baslik: 'Yaklaşan Randevularınız', ikon: Icons.calendar_today)),
+              SliverToBoxAdapter(child: BolumBasligi(baslik: Dil.t.yaklasanRandevulariniz, ikon: Icons.calendar_today)),
               SliverToBoxAdapter(
                   child: YaklasanRandevular(randevular: _yaklasanlar, onTap: widget.onRandevularimaGit)),
             ],
             SliverToBoxAdapter(
               child: BolumBasligi(
-                baslik: 'Favori Berberlerim',
+                baslik: Dil.t.favoriBerberlerim,
                 ikon: Icons.favorite,
-                sag: _favoriler.isEmpty ? null : TextButton(onPressed: _favorileriAc, child: const Text('Tümü')),
+                sag: _favoriler.isEmpty ? null : TextButton(onPressed: _favorileriAc, child: Text(Dil.t.tumu)),
               ),
             ),
             SliverToBoxAdapter(
@@ -141,10 +142,10 @@ class _Selamlama extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(ad.isEmpty ? 'Hoş Geldiniz ✂️' : 'Sıhhatler olsun, $ad!',
+        Text(ad.isEmpty ? Dil.t.hosGeldinizMakas : Dil.t.sihhatlerOlsun(ad),
             style: GoogleFonts.playfairDisplay(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
-        Text('Bugün kendinize güzel bir randevu alın',
+        Text(Dil.t.kendinizeRandevu,
             style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 13)),
       ]),
     );
@@ -174,7 +175,7 @@ class _RandevuAlButonu extends StatelessWidget {
             child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               const Icon(Icons.calendar_today, color: AppTheme.black, size: 24),
               const SizedBox(width: 12),
-              Text('Randevu Al',
+              Text(Dil.t.randevuAl,
                   style: GoogleFonts.inter(color: AppTheme.black, fontWeight: FontWeight.bold, fontSize: 18)),
             ]),
           ),

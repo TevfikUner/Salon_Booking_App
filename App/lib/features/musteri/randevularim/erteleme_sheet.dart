@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/core/widgets/durum_gorunumleri.dart';
@@ -86,7 +87,7 @@ class _ErtelemeSheetState extends State<ErtelemeSheet> {
       if (mounted) Navigator.pop(context, true);
     } on ApiHata catch (e) {
       if (!mounted) return;
-      bilgiGoster(context, e.oneriler.isEmpty ? e.mesaj : '${e.mesaj} Öneri: ${e.oneriler.take(3).join(', ')}',
+      bilgiGoster(context, e.oneriler.isEmpty ? e.mesaj : '${e.mesaj} ${Dil.t.oneri(e.oneriler.take(3).join(', '))}',
           hata: true);
       if (e.kod == 409) _gunSec(_gun!);
     } finally {
@@ -102,14 +103,14 @@ class _ErtelemeSheetState extends State<ErtelemeSheet> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 4),
-            child: Text('Randevuyu Ertele',
+            child: Text(Dil.t.randevuyuErtele,
                 style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 20, fontWeight: FontWeight.bold)),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Text(
-                'Şu an: ${tarihGoreli(_r.tarih)} ${_r.saat} · ${_r.berber} · ${sureMetni(_r.sureDk)}\n'
-                'Kalan erteleme hakkı: ${_r.ertelemeHakki}',
+                '${Dil.t.suAn('${tarihGoreli(_r.tarih)} ${_r.saat} · ${_r.berber} · ${sureMetni(_r.sureDk)}')}\n'
+                '${Dil.t.kalanErteleme(_r.ertelemeHakki)}',
                 style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
           ),
           const SizedBox(height: 12),
@@ -119,7 +120,7 @@ class _ErtelemeSheetState extends State<ErtelemeSheet> {
               hata: _hata,
               onTekrar: _gunleriYukle,
               builder: (_) => _gunler!.isEmpty
-                  ? const BosGorunum(ikon: Icons.event_busy, mesaj: 'Önümüzdeki günlerde açık gün yok.')
+                  ? BosGorunum(ikon: Icons.event_busy, mesaj: Dil.t.acikGunYok)
                   : Column(children: [_gunSecici(), const SizedBox(height: 12), Expanded(child: _saatler())]),
             ),
           ),
@@ -132,8 +133,7 @@ class _ErtelemeSheetState extends State<ErtelemeSheet> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                      'Bu saat "${_r.indirimAciklama ?? 'kampanya'}" kapsamında değil: indirim kalkar, '
-                      'tutar ${tl(_r.listeFiyati)} olur. İndirimli saatler işaretli.',
+                      Dil.t.indirimKalkar(_r.indirimAciklama ?? Dil.t.kampanya, tl(_r.listeFiyati)),
                       style: GoogleFonts.inter(color: Colors.orange, fontSize: 12)),
                 ),
               ]),
@@ -148,7 +148,7 @@ class _ErtelemeSheetState extends State<ErtelemeSheet> {
                 child: _gonderiliyor
                     ? const SizedBox(
                         height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.black))
-                    : Text(_saat == null ? 'Yeni saat seçin' : '${tarihGoreli(_gun!)} $_saat olarak ertele'),
+                    : Text(_saat == null ? Dil.t.yeniSaatSecin : Dil.t.olarakErtele('${tarihGoreli(_gun!)} $_saat')),
               ),
             ),
           ),
@@ -180,7 +180,7 @@ class _ErtelemeSheetState extends State<ErtelemeSheet> {
   Widget _saatler() {
     if (_saatlerYukleniyor) return const Yukleniyor();
     if (_musait.isEmpty) {
-      return const BosGorunum(ikon: Icons.event_busy, mesaj: 'Bu gün boş saat yok.', altMesaj: 'Başka bir gün seçin.');
+      return BosGorunum(ikon: Icons.event_busy, mesaj: Dil.t.buGunBosSaatYok, altMesaj: Dil.t.baskaGunSecin);
     }
     return GridView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 16),

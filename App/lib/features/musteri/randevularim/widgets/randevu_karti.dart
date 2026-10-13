@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/data/models/randevu.dart';
@@ -26,10 +27,10 @@ class RandevuKarti extends StatelessWidget {
       this.onTekrarla});
 
   static (String, Color) durumBilgisi(String durum) => switch (durum) {
-        'onaylandi' => ('✓ Onaylandı', AppTheme.success),
-        'tamamlandi' => ('✔ Tamamlandı', AppTheme.textSecondary),
-        'iptal' => ('✗ İptal', AppTheme.error),
-        'gelmedi' => ('Gelinmedi', Colors.orange),
+        'onaylandi' => (Dil.t.durumOnaylandi, AppTheme.success),
+        'tamamlandi' => (Dil.t.durumTamamlandi, AppTheme.textSecondary),
+        'iptal' => (Dil.t.durumIptal, AppTheme.error),
+        'gelmedi' => (Dil.t.durumGelinmedi, Colors.orange),
         _ => (durum, AppTheme.gold),
       };
 
@@ -76,8 +77,8 @@ class RandevuKarti extends StatelessWidget {
             InkWell(
               onTap: onTakvim,
               borderRadius: BorderRadius.circular(8),
-              child: const Tooltip(
-                message: 'Takvime ekle',
+              child: Tooltip(
+                message: Dil.t.takvimeEkle,
                 child: Padding(padding: EdgeInsets.all(4), child: Icon(Icons.event_available, color: AppTheme.gold, size: 20)),
               ),
             ),
@@ -86,12 +87,12 @@ class RandevuKarti extends StatelessWidget {
         _Satir(Icons.content_cut, r.hizmetler.join(', ')),
         if (r.salonAd.isNotEmpty) _Satir(Icons.store_outlined, r.salonAd, renk: AppTheme.gold),
         if (r.indirimTutari > 0)
-          _Satir(Icons.local_offer_outlined, '${r.indirimAciklama ?? 'İndirim'} · −${tl(r.indirimTutari)}',
+          _Satir(Icons.local_offer_outlined, '${r.indirimAciklama ?? Dil.t.indirim} · −${tl(r.indirimTutari)}',
               renk: AppTheme.gold),
         if (r.durum == 'iptal' && r.iptalEden == 'isletme')
           Padding(
             padding: const EdgeInsets.only(top: 6),
-            child: Text('Salon tarafından iptal edildi.', style: GoogleFonts.inter(color: AppTheme.error, fontSize: 12)),
+            child: Text(Dil.t.salonIptalEtti, style: GoogleFonts.inter(color: AppTheme.error, fontSize: 12)),
           ),
         if (onIptal != null || onErtele != null) ...[
           const SizedBox(height: 14),
@@ -105,7 +106,7 @@ class RandevuKarti extends StatelessWidget {
                   ),
                   onPressed: onErtele,
                   icon: const Icon(Icons.update, size: 18),
-                  label: const Text('Ertele'),
+                  label: Text(Dil.t.ertele),
                 ),
               ),
             if (onErtele != null && onIptal != null) const SizedBox(width: 10),
@@ -117,7 +118,7 @@ class RandevuKarti extends StatelessWidget {
                     side: BorderSide(color: AppTheme.error.withValues(alpha: 0.5)),
                   ),
                   onPressed: onIptal,
-                  child: const Text('İptal Et'),
+                  child: Text(Dil.t.iptalEt),
                 ),
               ),
           ]),
@@ -132,7 +133,7 @@ class RandevuKarti extends StatelessWidget {
                     onPressed: onDegerlendir,
                     style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12)),
                     icon: const Icon(Icons.star_border),
-                    label: const Text('Hizmeti Değerlendir'),
+                    label: Text(Dil.t.hizmetiDegerlendir),
                   ),
                 ),
           if (onTekrarla != null) ...[
@@ -148,7 +149,7 @@ class RandevuKarti extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
                 icon: const Icon(Icons.replay, size: 18),
-                label: const Text('Aynısını Tekrar Al'),
+                label: Text(Dil.t.aynisiniTekrarAl),
               ),
             ),
           ],
@@ -201,7 +202,7 @@ class _DegerlendirildiEtiketi extends StatelessWidget {
       child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
         const Icon(Icons.check_circle_outline, color: AppTheme.success, size: 20),
         const SizedBox(width: 8),
-        Text('Değerlendirildi (${'★' * puan})',
+        Text(Dil.t.degerlendirildi('★' * puan),
             style: GoogleFonts.inter(color: AppTheme.success, fontWeight: FontWeight.bold)),
       ]),
     );

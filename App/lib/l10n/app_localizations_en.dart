@@ -859,4 +859,373 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get randevularim => 'My Appointments';
+
+  @override
+  String get iptalEt => 'Cancel';
+
+  @override
+  String get ertele => 'Reschedule';
+
+  @override
+  String get randevuIptali => 'Cancel Appointment';
+
+  @override
+  String get cikisYap => 'Sign Out';
+
+  @override
+  String get anaSayfa => 'Home';
+
+  @override
+  String get profil => 'Profile';
+
+  @override
+  String get yaklasanRandevulariniz => 'Upcoming Appointments';
+
+  @override
+  String get favoriBerberlerim => 'My Favourite Barbers';
+
+  @override
+  String get tumu => 'All';
+
+  @override
+  String get hosGeldinizMakas => 'Welcome ✂️';
+
+  @override
+  String get kendinizeRandevu => 'Treat yourself to an appointment today';
+
+  @override
+  String sihhatlerOlsun(String ad) {
+    return 'Hello, $ad!';
+  }
+
+  @override
+  String get favoriYok => 'No favourite barbers yet';
+
+  @override
+  String get favoriNasil => 'Add them with ♥ on a salon page';
+
+  @override
+  String get herZamankiRandevu => 'Your usual appointment';
+
+  @override
+  String get randevuyuAl => 'Book It';
+
+  @override
+  String get herZamanki => 'Your Usual';
+
+  @override
+  String get yakinBosSaatYok => 'No free times soon.';
+
+  @override
+  String get enYakinDokun => 'Nearest free times — tap, confirm, done:';
+
+  @override
+  String kacKez(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Booked $n times',
+      one: 'Booked once',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get nasilDevam => 'How would you like to continue?';
+
+  @override
+  String get yeniSalonKesfet => 'Explore a New Salon';
+
+  @override
+  String get farkliSalonlar => 'Discover other salons';
+
+  @override
+  String get kapat => 'Close';
+
+  @override
+  String get randevunuzuNasilBuldunuz => 'How was your appointment?';
+
+  @override
+  String get yorumunuz => 'Your comment (optional)';
+
+  @override
+  String get degerlendir => 'Submit';
+
+  @override
+  String get tesekkurler => 'Thank you! ⭐';
+
+  @override
+  String get degerlendirmeKaydedildi => 'Your review has been saved.';
+
+  @override
+  String get puanKotu => 'Poor';
+
+  @override
+  String get puanFenaDegil => 'Fair';
+
+  @override
+  String get puanIyi => 'Good';
+
+  @override
+  String get puanCokIyi => 'Very good';
+
+  @override
+  String get puanMukemmel => 'Excellent!';
+
+  @override
+  String yildizSayisi(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n stars',
+      one: '1 star',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get berberlerim => 'My Barbers';
+
+  @override
+  String get berberGecmisiYok => 'No favourite or past barbers yet';
+
+  @override
+  String get favoriEkleIpucu => 'Add favourites with ♥ on a salon page';
+
+  @override
+  String get favorileriniz => 'Your Favourites';
+
+  @override
+  String get dahaOnceGittikleriniz => 'Visited Before';
+
+  @override
+  String get cikisEminMisiniz => 'Are you sure you want to sign out?';
+
+  @override
+  String get hesabiSil => 'Delete Account';
+
+  @override
+  String get hesapSilAciklama =>
+      'Your personal data will be deleted and your upcoming appointments cancelled. This can\'t be undone.';
+
+  @override
+  String get kaliciSil => 'Delete Permanently';
+
+  @override
+  String get hesapSilindi =>
+      'Your account and personal data have been deleted.';
+
+  @override
+  String get verilerSilindiOturum =>
+      'Your personal data has been deleted. You\'ve been signed out for security.';
+
+  @override
+  String get yasalGizlilik => 'Legal & Privacy';
+
+  @override
+  String get gizlilikPolitikasi => 'Privacy Policy';
+
+  @override
+  String get kvkkMetni => 'Privacy Notice (KVKK)';
+
+  @override
+  String get kullanimKosullari => 'Terms of Use';
+
+  @override
+  String get sikcaSorulanSorular => 'Frequently Asked Questions';
+
+  @override
+  String get hesap => 'Account';
+
+  @override
+  String get uygulamayiPaylas => 'Share the App';
+
+  @override
+  String get hesabimiSil => 'Delete My Account';
+
+  @override
+  String hesapSilinemedi(String neden) {
+    return 'Couldn\'t delete the account: $neden';
+  }
+
+  @override
+  String get paylasMetni =>
+      'Book your barber in seconds with Premium Berber 💈';
+
+  @override
+  String get dil => 'Language';
+
+  @override
+  String get cihazDili => 'Device language';
+
+  @override
+  String get bilgilerKaydedildi => 'Your details have been saved.';
+
+  @override
+  String get kisiselBilgiler => 'Personal Information';
+
+  @override
+  String get kaydet => 'Save';
+
+  @override
+  String get duzenle => 'Edit';
+
+  @override
+  String get adiniz => 'First name';
+
+  @override
+  String get soyadiniz => 'Last name';
+
+  @override
+  String get telefon => 'Phone';
+
+  @override
+  String get randevuyuErtele => 'Reschedule Appointment';
+
+  @override
+  String get acikGunYok => 'No open days in the coming period.';
+
+  @override
+  String get yeniSaatSecin => 'Choose a new time';
+
+  @override
+  String get buGunBosSaatYok => 'No free times on this day.';
+
+  @override
+  String get baskaGunSecin => 'Choose another day.';
+
+  @override
+  String oneri(String saatler) {
+    return 'Suggested: $saatler';
+  }
+
+  @override
+  String suAn(String bilgi) {
+    return 'Currently: $bilgi';
+  }
+
+  @override
+  String kalanErteleme(int n) {
+    return 'Reschedules left: $n';
+  }
+
+  @override
+  String get kampanya => 'campaign';
+
+  @override
+  String indirimKalkar(String kampanya, String tutar) {
+    return 'This time isn\'t covered by \"$kampanya\": the discount is removed and the price becomes $tutar. Discounted times are marked.';
+  }
+
+  @override
+  String olarakErtele(String zaman) {
+    return 'Reschedule to $zaman';
+  }
+
+  @override
+  String get randevunuzErtelendi => 'Your appointment has been rescheduled.';
+
+  @override
+  String get randevunuzIptalEdildi => 'Your appointment has been cancelled.';
+
+  @override
+  String get yaklasanlar => 'UPCOMING';
+
+  @override
+  String get gecmis => 'PAST';
+
+  @override
+  String get aktifRandevuYok => 'No active appointments yet';
+
+  @override
+  String get gecmisRandevuYok => 'No past appointments';
+
+  @override
+  String iptalEminMisiniz(String randevu) {
+    return 'Do you want to cancel your $randevu appointment?';
+  }
+
+  @override
+  String get iptalYerineErtele =>
+      'If you can\'t make it, you can reschedule instead of cancelling.';
+
+  @override
+  String get tekrarRandevuAl => 'Book Again';
+
+  @override
+  String get kacHaftaSonra => 'In how many weeks?';
+
+  @override
+  String get herZamankiAraliginiz => '★ your usual interval';
+
+  @override
+  String get saatSecinKisa => 'Choose a time';
+
+  @override
+  String get bosSaatBulunamadi => 'No free times found in the coming days.';
+
+  @override
+  String haftaSayisi(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n weeks',
+      one: '1 week',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String randevusunuAl(String zaman) {
+    return 'Book $zaman';
+  }
+
+  @override
+  String herZamankiSaatBos(String gun, String saat) {
+    return '$gun: your usual time $saat is free.';
+  }
+
+  @override
+  String kapaliEnYakin(String gun, String neden) {
+    return '$gun: $neden Nearest free times:';
+  }
+
+  @override
+  String saatDoluEnYakin(String gun, String saat) {
+    return '$gun $saat is taken. Nearest times that day:';
+  }
+
+  @override
+  String tekrarFiyatNotu(String bilgi) {
+    return 'List price $bilgi. Any campaign or loyalty discount is applied on confirmation.';
+  }
+
+  @override
+  String get durumOnaylandi => '✓ Confirmed';
+
+  @override
+  String get durumTamamlandi => '✔ Completed';
+
+  @override
+  String get durumIptal => '✗ Cancelled';
+
+  @override
+  String get durumGelinmedi => 'No-show';
+
+  @override
+  String get salonIptalEtti => 'Cancelled by the salon.';
+
+  @override
+  String get hizmetiDegerlendir => 'Rate Service';
+
+  @override
+  String get aynisiniTekrarAl => 'Book the Same Again';
+
+  @override
+  String degerlendirildi(String yildiz) {
+    return 'Rated ($yildiz)';
+  }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/features/randevu_al/onay_screen.dart';
 import 'package:berber_app_ui/data/api/api_client.dart';
 import 'package:berber_app_ui/data/api/randevu_api.dart';
@@ -31,10 +32,10 @@ class _HerZamankiKartiState extends State<HerZamankiKarti> {
     final berberAd = '${berber['ad']} ${berber['soyad']}'.trim();
     final onay = await onayIste(
       context,
-      'Her zamanki randevu',
+      Dil.t.herZamankiRandevu,
       '${tarihGoreli(slot['tarih'])} ${slot['saat']}\n$berberAd · ${v['salon']['ad']}\n'
-          '${hizmetler.map((h) => h['ad']).join(', ')}\nToplam: ${tl(v['toplam_fiyat'])}',
-      evet: 'Randevuyu Al',
+          '${hizmetler.map((h) => h['ad']).join(', ')}\n${Dil.t.toplam}: ${tl(v['toplam_fiyat'])}',
+      evet: Dil.t.randevuyuAl,
     );
     if (!onay || !mounted) return;
     final anahtar = '${slot['tarih']} ${slot['saat']}';
@@ -95,10 +96,10 @@ class _HerZamankiKartiState extends State<HerZamankiKarti> {
         Row(children: [
           const Icon(Icons.bolt, color: AppTheme.gold),
           const SizedBox(width: 6),
-          Text('Her Zamanki', style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 20,
+          Text(Dil.t.herZamanki, style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 20,
               fontWeight: FontWeight.bold)),
           const Spacer(),
-          Text('${v['kac_kez']} kez aldınız', style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 11)),
+          Text(Dil.t.kacKez(v['kac_kez'] as int), style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 11)),
         ]),
         const SizedBox(height: 8),
         Text('${'${berber['ad']} ${berber['soyad']}'.trim()} · ${v['salon']['ad']}',
@@ -108,9 +109,9 @@ class _HerZamankiKartiState extends State<HerZamankiKarti> {
             style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
         const SizedBox(height: 12),
         if (slotlar.isEmpty)
-          Text('Yakın tarihte boş saat yok.', style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12))
+          Text(Dil.t.yakinBosSaatYok, style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12))
         else ...[
-          Text('En yakın boş saatler — dokun, onayla, bitti:',
+          Text(Dil.t.enYakinDokun,
               style: GoogleFonts.inter(color: Colors.white70, fontSize: 12)),
           const SizedBox(height: 8),
           Wrap(spacing: 8, runSpacing: 8, children: [

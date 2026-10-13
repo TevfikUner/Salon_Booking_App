@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/config.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/widgets/altin_buton.dart';
@@ -56,7 +57,7 @@ class _DegerlendirmeEkraniState extends State<DegerlendirmeEkrani> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         leading: IconButton(
-            tooltip: 'Kapat', icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context, false)),
+            tooltip: Dil.t.kapat, icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context, false)),
       ),
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
@@ -75,7 +76,7 @@ class _DegerlendirmeEkraniState extends State<DegerlendirmeEkrani> {
             textAlign: TextAlign.center,
             style: GoogleFonts.playfairDisplay(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold)),
         const SizedBox(height: 6),
-        Text('Randevunuzu nasıl buldunuz?', style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 14)),
+        Text(Dil.t.randevunuzuNasilBuldunuz, style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 14)),
         const SizedBox(height: 24),
         YildizSecici(secili: _puan, onSecim: (v) => setState(() => _puan = v)),
         Text(YildizSecici.metin(_puan),
@@ -85,18 +86,18 @@ class _DegerlendirmeEkraniState extends State<DegerlendirmeEkrani> {
           controller: _yorum,
           maxLines: 3,
           maxLength: 500,
-          decoration: const InputDecoration(hintText: 'Yorumunuz (isteğe bağlı)'),
+          decoration: InputDecoration(hintText: Dil.t.yorumunuz),
         ),
         const SizedBox(height: 16),
         AltinButon(
-          text: 'Değerlendir',
+          text: Dil.t.degerlendir,
           onPressed: _gonder,
           loading: _gonderiliyor,
           icon: const Icon(Icons.star, color: AppTheme.black, size: 20),
         ),
         TextButton(
           onPressed: () => Navigator.pop(context, false),
-          child: const Text('Şimdi değil', style: TextStyle(color: AppTheme.textSecondary)),
+          child: Text(Dil.t.simdiDegil, style: TextStyle(color: AppTheme.textSecondary)),
         ),
       ]),
     );
@@ -143,10 +144,10 @@ class _Tesekkur extends StatelessWidget {
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         const Icon(Icons.check_circle, color: AppTheme.gold, size: 72),
         const SizedBox(height: 20),
-        Text('Teşekkürler! ⭐',
+        Text(Dil.t.tesekkurler,
             style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 26, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
-        Text('Değerlendirmeniz kaydedildi.', style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 14)),
+        Text(Dil.t.degerlendirmeKaydedildi, style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 14)),
       ]),
     );
   }

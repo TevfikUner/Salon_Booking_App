@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/widgets/durum_gorunumleri.dart';
 import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
@@ -59,7 +60,7 @@ class _FavoriBerberlerScreenState extends State<FavoriBerberlerScreen> {
       final favori = await HesapApi.favoriToggle(b.id);
       if (!mounted) return;
       setState(() => _berberler = _sirala([for (final x in _berberler) x.id == b.id ? x.copyWith(favori: favori) : x]));
-      bilgiGoster(context, favori ? '${b.tamAd} favorilere eklendi.' : '${b.tamAd} favorilerden çıkarıldı.');
+      bilgiGoster(context, favori ? Dil.t.favorilereEklendi(b.tamAd) : Dil.t.favorilerdenCikarildi(b.tamAd));
     } on ApiHata catch (e) {
       if (mounted) bilgiGoster(context, e.mesaj, hata: true);
     }
@@ -68,16 +69,16 @@ class _FavoriBerberlerScreenState extends State<FavoriBerberlerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Berberlerim')),
+      appBar: AppBar(title: Text(Dil.t.berberlerim)),
       body: AsenkronGorunum(
         yukleniyor: _yukleniyor,
         hata: _hata,
         onTekrar: _yukle,
         builder: (_) => _berberler.isEmpty
-            ? const BosGorunum(
+            ? BosGorunum(
                 ikon: Icons.favorite_border,
-                mesaj: 'Henüz favori veya geçmiş berberiniz yok',
-                altMesaj: 'Salon sayfasında ♥ ile favori ekleyebilirsiniz')
+                mesaj: Dil.t.berberGecmisiYok,
+                altMesaj: Dil.t.favoriEkleIpucu)
             : RefreshIndicator(
                 color: AppTheme.gold,
                 onRefresh: _yukle,
@@ -114,7 +115,7 @@ class _Ayirici extends StatelessWidget {
       child: Row(children: [
         Icon(favori ? Icons.favorite : Icons.history, color: renk, size: 16),
         const SizedBox(width: 8),
-        Text(favori ? 'Favorileriniz' : 'Daha önce gittikleriniz',
+        Text(favori ? Dil.t.favorileriniz : Dil.t.dahaOnceGittikleriniz,
             style: GoogleFonts.inter(color: renk, fontSize: 13, fontWeight: FontWeight.w600)),
         const SizedBox(width: 8),
         Expanded(child: Divider(color: renk.withValues(alpha: 0.2))),
@@ -146,7 +147,7 @@ class _BerberSatiri extends StatelessWidget {
         title: Text(b.tamAd, style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600)),
         subtitle: Text(b.salonAd ?? '', style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
         trailing: IconButton(
-          tooltip: b.favori ? 'Favorilerden çıkar' : 'Favorilere ekle',
+          tooltip: b.favori ? Dil.t.favorilerdenCikar : Dil.t.favorilereEkle,
           onPressed: onFavori,
           icon: Icon(b.favori ? Icons.favorite : Icons.favorite_border,
               color: b.favori ? Colors.redAccent : AppTheme.textSecondary),
