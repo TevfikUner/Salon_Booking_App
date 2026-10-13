@@ -1917,4 +1917,39 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get hesapSilinemediTekrar =>
       'Couldn\'t delete the account. Please try again.';
+
+  @override
+  String panelIptalSoru(String randevu) {
+    return 'Cancel the $randevu appointment? The customer will be notified.';
+  }
+
+  @override
+  String get kapaliKucuk => 'closed';
+
+  @override
+  String bosSaatSayisi(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n free slots',
+      one: '1 free slot',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String kampanyaKaldirSoru(String ad) {
+    return 'Remove \"$ad\"? Appointments already booked with it keep their discount.';
+  }
+
+  @override
+  String randevudaKullanildi(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Used in $n appointments',
+      one: 'Used in 1 appointment',
+    );
+    return '$_temp0';
+  }
 }

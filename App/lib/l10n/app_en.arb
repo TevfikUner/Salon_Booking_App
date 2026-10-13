@@ -537,5 +537,10 @@
   "guvenilir": "Reliable",
   "dikkat": "Caution",
   "isletmeHesapSilAciklama": "Your personal data (name, phone, email) will be deleted and your dashboard access closed. The salon record and past appointments remain without your identity. This can't be undone.",
-  "hesapSilinemediTekrar": "Couldn't delete the account. Please try again."
+  "hesapSilinemediTekrar": "Couldn't delete the account. Please try again.",
+  "panelIptalSoru": "Cancel the {randevu} appointment? The customer will be notified.",
+  "kapaliKucuk": "closed",
+  "bosSaatSayisi": "{n, plural, =1{1 free slot} other{{n} free slots}}",
+  "kampanyaKaldirSoru": "Remove \"{ad}\"? Appointments already booked with it keep their discount.",
+  "randevudaKullanildi": "{n, plural, =1{Used in 1 appointment} other{Used in {n} appointments}}"
 }

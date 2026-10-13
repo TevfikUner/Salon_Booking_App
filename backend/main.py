@@ -14,6 +14,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import DBAPIError, OperationalError
 from sqlalchemy.exc import TimeoutError as HavuzZamanAsimi
 
+from ceviri import DilAraKatmani
 from config import ayarlar
 from database import SessionLocal
 from gozlem import IstekLoguAraKatmani, loglamayi_kur, sentry_kur
@@ -63,9 +64,10 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type", "Idempotency-Key", "X-Request-ID"],
 )
 app.add_middleware(IstekLoguAraKatmani)
+app.add_middleware(DilAraKatmani)  # Accept-Language: en → mesaj alanları İngilizce (ceviri.py)
 
 
-# ── Hata yanıtları: kullanıcıya her zaman Türkçe ve ham iç hata olmadan ──
+# ── Hata yanıtları: kullanıcıya Türkçe (İngilizce istekte DilAraKatmani çevirir), ham iç hata olmadan ──
 # (beklenmeyen istisnalar IstekLoguAraKatmani'nda istek kodlu 500'e çevrilir)
 @app.exception_handler(OperationalError)
 @app.exception_handler(DBAPIError)

@@ -12,11 +12,13 @@ from datetime import date
 
 from sqlalchemy.orm import Session
 
+import ceviri
 import models
 from slot_servisi import Kalem, gun_listesi
 from zaman import bugun, saat_dk
 
 GUN_ADLARI = ("Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar")
+GUN_ADLARI_EN = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
 _BIRLER = ("", "'e", "'ye", "'e", "'e", "'e", "'ya", "'ye", "'e", "'a")
 _ONLAR = ("", "'a", "'ye", "'a", "'a", "'ye", "'a", "'e", "'e", "'a")
 
@@ -114,15 +116,16 @@ def slot_yuzdeleri(kampanyalar: list[models.Kampanya], kalemler: list[Kalem], gu
 
 
 def kampanya_ozeti(k: models.Kampanya, hizmet_adlari: dict[int, str]) -> str:
-    """"Salı · 10:00–14:00 · Saç Kesimi" gibi kısa koşul metni."""
+    """"Salı · 10:00–14:00 · Saç Kesimi" gibi kısa koşul metni (İngilizce istekte İngilizce)."""
+    en = ceviri.ingilizce()
     parca = []
     gunler = sorted(gun_listesi(k.gunler))
     if gunler == [0, 1, 2, 3, 4]:
-        parca.append("Hafta içi")
+        parca.append("Weekdays" if en else "Hafta içi")
     elif gunler == [5, 6]:
-        parca.append("Hafta sonu")
+        parca.append("Weekends" if en else "Hafta sonu")
     elif gunler and len(gunler) < 7:
-        parca.append(", ".join(GUN_ADLARI[g] for g in gunler))
+        parca.append(", ".join((GUN_ADLARI_EN if en else GUN_ADLARI)[g] for g in gunler))
     if k.bas_saat and k.bit_saat:
         parca.append(f"{k.bas_saat}–{k.bit_saat}")
     idler = id_listesi(k.hizmet_idler)
@@ -130,8 +133,8 @@ def kampanya_ozeti(k: models.Kampanya, hizmet_adlari: dict[int, str]) -> str:
         parca.append(", ".join(hizmet_adlari[i] for i in sorted(idler) if i in hizmet_adlari))
     if k.bit_tarih:
         y, a, g = k.bit_tarih.split("-")
-        parca.append(f"{g}.{a}.{y}{yonelme_eki(int(y))} kadar")
-    return " · ".join(parca) or "Tüm hizmetlerde, her gün"
+        parca.append(f"until {g}.{a}.{y}" if en else f"{g}.{a}.{y}{yonelme_eki(int(y))} kadar")
+    return " · ".join(parca) or ("All services, every day" if en else "Tüm hizmetlerde, her gün")
 
 
 # ─────────────────────────── Sadakat ───────────────────────────

@@ -3325,6 +3325,36 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Hesap silinemedi. Lütfen tekrar deneyin.'**
   String get hesapSilinemediTekrar;
+
+  /// No description provided for @panelIptalSoru.
+  ///
+  /// In tr, this message translates to:
+  /// **'{randevu} randevusu iptal edilsin mi? Müşteriye bildirim gönderilir.'**
+  String panelIptalSoru(String randevu);
+
+  /// No description provided for @kapaliKucuk.
+  ///
+  /// In tr, this message translates to:
+  /// **'kapalı'**
+  String get kapaliKucuk;
+
+  /// No description provided for @bosSaatSayisi.
+  ///
+  /// In tr, this message translates to:
+  /// **'{n} boş saat'**
+  String bosSaatSayisi(int n);
+
+  /// No description provided for @kampanyaKaldirSoru.
+  ///
+  /// In tr, this message translates to:
+  /// **'\"{ad}\" kaldırılsın mı? Bu kampanyayla alınmış randevuların indirimi korunur.'**
+  String kampanyaKaldirSoru(String ad);
+
+  /// No description provided for @randevudaKullanildi.
+  ///
+  /// In tr, this message translates to:
+  /// **'{n} randevuda kullanıldı'**
+  String randevudaKullanildi(int n);
 }
 
 class _AppLocalizationsDelegate

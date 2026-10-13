@@ -1168,5 +1168,38 @@
   "guvenilir": "Güvenilir",
   "dikkat": "Dikkat",
   "isletmeHesapSilAciklama": "Hesabınıza ait kişisel bilgiler (ad, telefon, e-posta) silinecek ve panel erişiminiz kapanacak. Salon kaydı ve geçmiş randevular kimliksiz olarak kalır. Bu işlem geri alınamaz.",
-  "hesapSilinemediTekrar": "Hesap silinemedi. Lütfen tekrar deneyin."
+  "hesapSilinemediTekrar": "Hesap silinemedi. Lütfen tekrar deneyin.",
+  "panelIptalSoru": "{randevu} randevusu iptal edilsin mi? Müşteriye bildirim gönderilir.",
+  "@panelIptalSoru": {
+    "placeholders": {
+      "randevu": {
+        "type": "String"
+      }
+    }
+  },
+  "kapaliKucuk": "kapalı",
+  "bosSaatSayisi": "{n} boş saat",
+  "@bosSaatSayisi": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "kampanyaKaldirSoru": "\"{ad}\" kaldırılsın mı? Bu kampanyayla alınmış randevuların indirimi korunur.",
+  "@kampanyaKaldirSoru": {
+    "placeholders": {
+      "ad": {
+        "type": "String"
+      }
+    }
+  },
+  "randevudaKullanildi": "{n} randevuda kullanıldı",
+  "@randevudaKullanildi": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -1848,4 +1848,27 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get hesapSilinemediTekrar =>
       'Hesap silinemedi. Lütfen tekrar deneyin.';
+
+  @override
+  String panelIptalSoru(String randevu) {
+    return '$randevu randevusu iptal edilsin mi? Müşteriye bildirim gönderilir.';
+  }
+
+  @override
+  String get kapaliKucuk => 'kapalı';
+
+  @override
+  String bosSaatSayisi(int n) {
+    return '$n boş saat';
+  }
+
+  @override
+  String kampanyaKaldirSoru(String ad) {
+    return '\"$ad\" kaldırılsın mı? Bu kampanyayla alınmış randevuların indirimi korunur.';
+  }
+
+  @override
+  String randevudaKullanildi(int n) {
+    return '$n randevuda kullanıldı';
+  }
 }

@@ -82,7 +82,7 @@ class _AkisSekmesiState extends State<AkisSekmesi> {
         !await onayIste(
           context,
           Dil.t.randevuyuIptalEt,
-          '${r['musteri']['ad']} — ${r['saat']} randevusu iptal edilsin mi? Müşteriye bildirim gönderilir.',
+          Dil.t.panelIptalSoru('${r['musteri']['ad']} — ${r['saat']}'),
           evet: Dil.t.iptalEt,
           tehlikeli: true,
         )) {

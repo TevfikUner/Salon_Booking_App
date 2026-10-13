@@ -109,7 +109,7 @@ class DolulukCipleri extends StatelessWidget {
           backgroundColor: AppTheme.surface,
           side: BorderSide(color: AppTheme.gold.withValues(alpha: 0.15)),
           avatar: const Icon(Icons.person, size: 16, color: AppTheme.gold),
-          label: Text(b['kapali_neden'] != null ? '${b['ad']}: kapalı' : '${b['ad']}: ${b['bos_slot']} boş saat',
+          label: Text(b['kapali_neden'] != null ? '${b['ad']}: ${Dil.t.kapaliKucuk}' : '${b['ad']}: ${Dil.t.bosSaatSayisi(b['bos_slot'] as int)}',
               style: GoogleFonts.inter(color: Colors.white, fontSize: 12)),
         ),
     ]);

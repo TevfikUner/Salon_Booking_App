@@ -69,7 +69,7 @@ class _KampanyalarBolumuState extends State<KampanyalarBolumu> {
 
   Future<void> _sil(Json k) async {
     if (!await onayIste(context, Dil.t.kampanyayiKaldir,
-        '"${k['ad']}" kaldırılsın mı? Bu kampanyayla alınmış randevuların indirimi korunur.',
+        Dil.t.kampanyaKaldirSoru('${k['ad']}'),
         evet: Dil.t.kaldir, tehlikeli: true)) {
       return;
     }
@@ -166,7 +166,7 @@ class _KampanyalarBolumuState extends State<KampanyalarBolumu> {
             title: Text(k['ad'], style: const TextStyle(color: Colors.white)),
             subtitle: Text(
                 '${k['kosul']}${_durum(k)}'
-                '${(k['randevu_sayisi'] as int? ?? 0) > 0 ? '\n${k['randevu_sayisi']} randevuda kullanıldı' : ''}',
+                '${(k['randevu_sayisi'] as int? ?? 0) > 0 ? '\n${Dil.t.randevudaKullanildi(k['randevu_sayisi'] as int)}' : ''}',
                 style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
             trailing: IconButton(
                 tooltip: Dil.t.kaldir,
