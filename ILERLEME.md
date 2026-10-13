@@ -16,7 +16,7 @@ Kullanıcı isteği: "Yapılacaklar listesindeki her şeyi önem sırasına gör
 | 19 | Tekrar randevu | ✅ | `GET /randevular/{id}/tekrar-onerisi`; Randevularım → Geçmiş → "Aynısını Tekrar Al" |
 | — | Doğrulama | ✅ | pytest 155 (SQLite + PostgreSQL 16 + `VERI_ANAHTARI` açık); migration 0006–0009 Tur 4 verili PostgreSQL'de; emülatörde 5 uçtan uca test; 15 ekranın görsel incelemesi |
 | C-1 | Mağaza ekran görüntüleri | ✅ | 8 PNG (kampanya, indirimli saat, gün takvimi dahil) |
-| 18 | Çoklu dil | ⬜ | Sırada — bkz. YAPILACAKLAR.md |
+| 18 | Çoklu dil | ✅ | Dal `feature/coklu-dil`: gen-l10n (`lib/l10n/app_tr.arb`, `app_en.arb`), `Dil.t`; Profil → Dil; sunucu mesajları `Accept-Language: en` ile İngilizce (`ceviri.py`); pytest 161, emülatörde 93 birim/widget testi (İngilizce taşma turu dahil) + 5 uçtan uca |
 | 10, 11, 17 | Kapora, galeri, SMS | ⏸ | Ücretli servis/sözleşme gerekiyor — kullanıcı kararı |
 
 Her maddeden sonra: `pytest` + `ruff check .` (backend), `flutter analyze` + `flutter test` (App), migration varsa boş SQLite'ta `alembic upgrade head` / `check` / `downgrade`.

@@ -1,11 +1,12 @@
 # Yapılacaklar
 
 Tek liste: biten iş buradan **silinir**. Ayrıntılı adımlar [BENDEN_GEREKENLER.md](BENDEN_GEREKENLER.md)'de (§ numaraları oraya bakar).
-Neyin hazır olduğu: [YAYIN_KONTROL_LISTESI.md](YAYIN_KONTROL_LISTESI.md) · Son güncelleme: 12 Ekim 2026 (Tur 5)
+Neyin hazır olduğu: [YAYIN_KONTROL_LISTESI.md](YAYIN_KONTROL_LISTESI.md) · Son güncelleme: 13 Ekim 2026 (çoklu dil)
 
 Kodun güncel hali GitHub `main` dalında (Tur 4 + Tur 5 dahil). Tur 5'te eklenenler: berbere özel hizmet/fiyat,
 kampanya ve sadakat kartı, işletme gün takvimi (sürükle-bırak), kişisel veri şifreleme (isteğe bağlı), en az önceden
 randevu süresi, "Aynısını Tekrar Al" — ayrıntı [KARARLAR.md](KARARLAR.md) "Tur 5", demo [DEMO.md](DEMO.md).
+Sonra: uygulama Türkçe + İngilizce (cihaz diline göre; Profil → Dil'den değiştirilebilir) — [KARARLAR.md](KARARLAR.md) "Çoklu dil".
 
 ---
 
@@ -13,7 +14,8 @@ randevu süresi, "Aynısını Tekrar Al" — ayrıntı [KARARLAR.md](KARARLAR.md
 
 Emülatörde benim doğruladıklarım (listeden çıkarıldı): erteleme ve iptal diyaloğu, müşteri kartı notu, takvimde
 dolu/az yer işaretleri, kampanya indirimi akışı, vermeyen personelin seçilemeyişi, tekrar al, takvimde sürükle-bırak,
-kampanya formu, personel hizmetleri; 15 ekranın cihaz görüntüsü (backend 155, Flutter 64, uçtan uca 5 test).
+kampanya formu, personel hizmetleri; 15 ekranın cihaz görüntüsü (backend 161, Flutter 93, uçtan uca 5 test);
+İngilizce arayüzde müşteri ve işletme ekranları (taşma yok, sunucu mesajları İngilizce).
 
 Sizin denemeniz gerekenler (gerçek telefon / gerçek Firebase / sizin gözünüz). Kurulum: [DEMO.md](DEMO.md) "Hazırlık".
 Sorunluysa bana yazın:
@@ -28,6 +30,8 @@ Sorunluysa bana yazın:
 - [ ] **Öğle arası / saatlik kapatma / çalışma günleri / en az önceden (yeni):** panelde ayarlayın → müşteri tarafında o saatler/günler kapanıyor mu
 - [ ] Eski akışlar: kayıt/giriş, şifremi unuttum, Her Zamanki, walk-in randevu, bekleme listesi, hesap silme
 - [ ] Büyük yazı boyutu (Ayarlar → Yazı tipi en büyük) ile yeni ekranlarda taşma var mı
+- [ ] **İngilizce (yeni):** Profil → Dil → English (veya telefon dili İngilizce) → ekranlar ve hata mesajları İngilizce mi;
+  çeviriler size doğal geliyor mu. Bilerek Türkçe kalanlar: push bildirimleri, yasal metinler, salonun girdiği hizmet/kampanya adları
 
 ## A. Sizin yapacaklarınız — önce bu 3'ü
 
@@ -63,11 +67,14 @@ Sorunluysa bana yazın:
 
 ## C. Benim yapacaklarım
 
-1. **#18 Çoklu dil** (sırada): müşteri ekranları için Türkçe + İngilizce, cihaz diline göre ve Profil'den seçilebilir.
-2. Sizin test sonuçlarınıza göre düzeltmeler (yukarıdaki HATIRLATMA listesi).
+1. Sizin test sonuçlarınıza göre düzeltmeler (yukarıdaki HATIRLATMA listesi).
 
 A-1 (Firebase) bitince B-4'ü (AAB derleme) ben de yapabilirim.
 Emülatör hazır: `emulator -avd berber_test` (testlerden önce saat dilimi: `adb shell cmd alarm set-timezone Europe/Istanbul`).
+Not: Windows "Akıllı Uygulama Denetimi" (Smart App Control) bu bilgisayarda `flutter_tester.exe`'yi engelliyor, bu yüzden
+`flutter test` masaüstünde çalışmıyor; birim testleri emülatörde koşuyorum (`integration_test/birim_cihazda_test.dart`).
+Masaüstünde de çalışsın isterseniz: Windows Güvenliği → Uygulama ve tarayıcı denetimi → Akıllı Uygulama Denetimi → Kapalı
+(bir kez kapatılınca yeniden açılamaz; isteğe bağlı).
 
 ## D. İlham raporundan bekleyenler — ayrıntı: [ILHAM_ANALIZI.md](ILHAM_ANALIZI.md) §3
 

@@ -102,7 +102,7 @@ Klonlanamayan repo yok (26/26). Atlananlar (konu dışı): `DietrichGebert/ponyt
 | SMS / WhatsApp hatırlatma | 🟡 | İşletmenin elle gönderdiği `wa.me` onay bağlantısı (ücretsiz) | SMS/WhatsApp hiçbirinde yok; e-posta hatırlatma: django (24 saat), vfix |
 | İşletme raporları | ✅ | Aylık: ciro, berber cirosu, gelmeme oranı, ortalama sepet, popüler hizmet, kaynak | CRM-laravel (görüntüleme → randevu analitiği), vfix (dashboard) |
 | Müşteri notları (CRM) | 🟡 → ✅ #5 | Randevu notu (yalnızca panel kaydında) + güven skoru; kalıcı müşteri notu ve geçmiş kartı yok | CRM-laravel (müşteri yönetimi, askıya alma), edoc (hasta detayı), masifdevs (geçmiş), django (`additional_info`) |
-| Çoklu dil | ❌ | `supportedLocales: [tr_TR]`, metinler kodda Türkçe | TareqAlKushari (easy_localization), thunderbird (Fluent en/de), django (gettext), masifdevs (en/ur) |
+| Çoklu dil | ❌ → ✅ #18 | `supportedLocales: [tr_TR]`, metinler kodda Türkçe | TareqAlKushari (easy_localization), thunderbird (Fluent en/de), django (gettext), masifdevs (en/ur) |
 | Karanlık / aydınlık tema | 🟡 | Yalnızca siyah-altın koyu tema (marka kararı) | Sarah358, thunderbird (açık/koyu/sistem), planner |
 | Onboarding | 🟡 → 🟡 #9 (bağlamlı bildirim izni) | Karşılama = rol seçimi; tanıtım ve izin ön ekranı yok, bildirim izni doğrudan sistem diyaloğuyla isteniyor | Sarah358 (walkthrough + konum/bildirim ön ekranı), DebankurMandal, himanshugoyal77, TareqAlKushari, Doctor-Hunt, thunderbird (`ftue_level`) |
 | *Ek:* Takvime ekle (ICS) | ❌ → ✅ #8 | — | django (ICS eki), thunderbird (icalendar) |
@@ -192,7 +192,7 @@ Klonlanamayan repo yok (26/26). Atlananlar (konu dışı): `DietrichGebert/ponyt
 
 > **Tur 5 (2026-10-12, dal `feature/tur5`, `main`'e birleştirildi):** #12, #13, #14, #15, #16, #19, #20 ✅ uygulandı
 > (ayrıntı ve kararlar: KARARLAR.md "Tur 5", ILERLEME.md). #10, #11, #17 ücretli servis/sözleşme gerektirdiği için
-> bekliyor; #18 çoklu dil ayrı kayıtta (YAPILACAKLAR.md).
+> bekliyor. #18 çoklu dil ✅ (2026-10-13, Türkçe + İngilizce; KARARLAR.md "Çoklu dil").
 
 **#10 — Online kapora / ödeme** · [Yüksek] · [L] · İlham: django (`down_payment`), calma (Razorpay), DebankurMandal ve himanshugoyal77 (Stripe) · Bizde ❌ · Backend: ödeme kuruluşu entegrasyonu, webhook, iade; frontend: ödeme sayfası · Fayda: no-show'a karşı en güçlü araç · **Önerim: SONRAYA.** 💰 Ücretli servis ve sözleşme gerekiyor (TR'de iyzico/PayTR; Stripe TR'de doğrudan yok). Ayrıca DebankurMandal'daki gibi gizli anahtar asla istemcide olmamalı. ANALIZ_RAPORU F7 ile aynı karar.
 
@@ -210,7 +210,7 @@ Klonlanamayan repo yok (26/26). Atlananlar (konu dışı): `DietrichGebert/ponyt
 
 **#17 — SMS / otomatik WhatsApp hatırlatma** · [Orta] · [M] · İlham: repolarda yalnızca e-posta hatırlatma var (django, vfix) · Bizde 🟡 (`wa.me` elle) · **Önerim: SONRAYA.** 💰 SMS kontörü (Netgsm/İleti Merkezi) + İYS kaydı veya WhatsApp Business API (Meta onayı + mesaj başı ücret).
 
-**#18 — Çoklu dil** · [Düşük] · [L] · İlham: TareqAlKushari (easy_localization), thunderbird (Fluent), django (gettext) · Bizde ❌ · **Önerim: SONRAYA.** Hedef pazar TR; bütün metinlerin ARB'ye taşınması geniş bir iş.
+**#18 — Çoklu dil** ✅ 2026-10-13 (Türkçe + İngilizce) · [Düşük] · [L] · İlham: TareqAlKushari (easy_localization), thunderbird (Fluent), django (gettext) · Bizde ❌ · **Önerim: SONRAYA.** Hedef pazar TR; bütün metinlerin ARB'ye taşınması geniş bir iş.
 
 **#19 — Tekrarlayan randevu** ✅ Tur 5 ("Aynısını Tekrar Al") · [Düşük] · [M] · İlham: hiçbir repoda yok · Bizde 🟡 (Her Zamanki) · **Önerim: SONRAYA.** Tamamlanan randevudan sonra "3 hafta sonra aynı saate al?" önerisi daha az riskli bir ara adım olur.
 
