@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'package:berber_app_ui/core/demo_oturum.dart';
 import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/data/api/hesap_api.dart';
 
@@ -35,7 +36,10 @@ class AuthService {
     await _auth.sendPasswordResetEmail(email: email);
   }
 
-  static Future<void> cikisYap() => _auth.signOut();
+  static Future<void> cikisYap() {
+    DemoOturum.bitir();
+    return _auth.signOut();
+  }
 
   static Future<void> isletmeKayitOl({
     required String email,

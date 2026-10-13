@@ -51,6 +51,9 @@ String ayAdi(int ay) => (Dil.ingilizce ? _aylarEn : _aylarTr)[ay];
 /// "9 Ekim" / "9 October" (yıl ve gün adı olmadan)
 String gunAy(DateTime d) => '${d.day} ${ayAdi(d.month)}';
 
+/// "9 Eki" / "9 Oct" (dar alanlar için)
+String gunAyKisa(DateTime d) => '${d.day} ${ayAdi(d.month).substring(0, 3)}';
+
 String tl(num tutar) => '${tutar.toStringAsFixed(0)} ₺';
 
 String sureMetni(int dk) {

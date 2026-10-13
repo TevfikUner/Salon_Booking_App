@@ -554,6 +554,24 @@ abstract class AppLocalizations {
   /// **'Zaten hesabınız var mı?'**
   String get zatenHesabinizVarMi;
 
+  /// No description provided for @demoModu.
+  ///
+  /// In tr, this message translates to:
+  /// **'Demo modu — Firebase hesabı gerekmez'**
+  String get demoModu;
+
+  /// No description provided for @demoMusteri.
+  ///
+  /// In tr, this message translates to:
+  /// **'Müşteri olarak dene'**
+  String get demoMusteri;
+
+  /// No description provided for @demoIsletme.
+  ///
+  /// In tr, this message translates to:
+  /// **'İşletme olarak dene'**
+  String get demoIsletme;
+
   /// No description provided for @guvensizYapilandirma.
   ///
   /// In tr, this message translates to:

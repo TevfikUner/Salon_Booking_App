@@ -270,6 +270,15 @@ class AppLocalizationsTr extends AppLocalizations {
   String get zatenHesabinizVarMi => 'Zaten hesabınız var mı?';
 
   @override
+  String get demoModu => 'Demo modu — Firebase hesabı gerekmez';
+
+  @override
+  String get demoMusteri => 'Müşteri olarak dene';
+
+  @override
+  String get demoIsletme => 'İşletme olarak dene';
+
+  @override
   String get guvensizYapilandirma =>
       'Uygulama güvenli sunucuya bağlanacak şekilde yapılandırılmamış. Lütfen uygulamayı güncelleyin.';
 

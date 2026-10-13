@@ -319,6 +319,8 @@ class _GunSecici extends StatelessWidget {
                     padding: const EdgeInsets.only(right: 8),
                     child: ChoiceChip(
                       label: Text(etiket),
+                      visualDensity: VisualDensity.compact,
+                      labelPadding: const EdgeInsets.symmetric(horizontal: 4),
                       selected: tarihStr(gun) == tarihStr(tarih),
                       onSelected: (_) => onSecim(tarih),
                       selectedColor: AppTheme.gold,
@@ -339,7 +341,7 @@ class _GunSecici extends StatelessWidget {
               if (g != null) onSecim(g);
             },
             icon: const Icon(Icons.calendar_month, size: 18),
-            label: Text(gunAy(gun)),
+            label: Text(gunAyKisa(gun)),
           ),
         ],
       ),

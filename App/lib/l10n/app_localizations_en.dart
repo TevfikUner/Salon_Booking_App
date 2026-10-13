@@ -272,6 +272,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get zatenHesabinizVarMi => 'Already have an account?';
 
   @override
+  String get demoModu => 'Demo mode — no Firebase account needed';
+
+  @override
+  String get demoMusteri => 'Try as customer';
+
+  @override
+  String get demoIsletme => 'Try as business';
+
+  @override
   String get guvensizYapilandirma =>
       'The app isn\'t configured to connect to a secure server. Please update the app.';
 
@@ -1411,7 +1420,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get randevuyuKaydet => 'Save Appointment';
 
   @override
-  String get randevuSayisiEtiket => 'Appointments';
+  String get randevuSayisiEtiket => 'Bookings';
 
   @override
   String get toplamSure => 'Total time';

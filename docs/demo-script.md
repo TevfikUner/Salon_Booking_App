@@ -3,21 +3,25 @@
 **Hikâye:** "Ahmet her iki haftada bir Ali Usta'ya saç-sakal için gidiyor. Premium Berber Center'ın sahibi ise
 günün akışını telefonundan yönetiyor ve gelmeyen müşteriler yüzünden boş koltuk kaybetmekten bıkmış."
 
-## Hazırlık (demo öncesi, 10 dk)
+## Hazırlık (demo öncesi, 5 dk)
 
-1. Firebase Console → Authentication'da iki test hesabı açın: `musteri@demo.com` ve `isletme@demo.com`. UID'lerini kopyalayın.
-2. Backend:
+1. Backend (`backend/.env` içinde `AUTH_MODE=dev`):
    ```bash
    cd backend
-   # .env içinde: AUTH_MODE=dev
    alembic upgrade head
-   SEED_MUSTERI_UID=<musteri uid>  SEED_ISLETME_UID=<isletme uid>  python seed_demo.py
+   python seed_demo.py                      # TÜM tabloları temizleyip demo verisini yükler
    uvicorn main:app --host 0.0.0.0 --port 8010
    ```
-   (Windows PowerShell: `$env:SEED_MUSTERI_UID="..."; $env:SEED_ISLETME_UID="..."; python seed_demo.py`)
-3. İki cihaz/emülatör: birinde müşteri, diğerinde işletme hesabıyla giriş yapın
-   (`flutter run --dart-define=API_URL=http://<bilgisayar-ip>:8010`).
-4. Seed demo için şunları hazırlar: Ahmet'in Ali Usta ile 4 geçmiş randevusu (→ "Her Zamanki"), Tolga'nın 2 kez gelmemesi
+2. Uygulama demo moduyla (Firebase hesabı gerekmez):
+   ```bash
+   cd App
+   flutter run --dart-define=DEMO=true      # gerçek telefonda ek olarak: --dart-define=API_URL=http://<bilgisayar-ip>:8010
+   ```
+   Hoş geldiniz ekranının altında **Müşteri olarak dene** / **İşletme olarak dene**. İki taraf için iki emülatör
+   açılabilir ya da Profil → Çıkış ile rol değiştirilir.
+   - Gerçek Firebase hesaplarıyla göstermek isterseniz: Authentication'da iki hesap açıp UID'leriyle seed edin
+     (`SEED_MUSTERI_UID=<uid> SEED_ISLETME_UID=<uid> python seed_demo.py`) ve `DEMO` olmadan çalıştırın.
+3. Seed demo için şunları hazırlar: Ahmet'in Ali Usta ile 4 geçmiş randevusu (→ "Her Zamanki"), Tolga'nın 2 kez gelmemesi
    (→ "Riskli"), salonda bugün 6 randevu, 10 gün sonra "Tadilat" kapalı günü, Mehmet Kalfa'nın 2 gün sonra izni.
 
 > Seed'deki bugünkü randevular sabit saatlerdedir (10:00–19:00). Demo akşam yapılıyorsa geçmiş olanlar

@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'package:berber_app_ui/core/demo_oturum.dart';
 import 'package:berber_app_ui/data/api/api_client.dart';
 
 /// Oturum, profil, KVKK, favoriler, işletme başvurusu.
@@ -46,7 +47,7 @@ class HesapApi {
 
   /// Profil yoksa veya oturum kapalıysa null.
   static Future<Json?> profil() async {
-    if (FirebaseAuth.instance.currentUser == null) return null;
+    if (FirebaseAuth.instance.currentUser == null && !DemoOturum.aktif) return null;
     try {
       return await ApiClient.get('/musteriler/profil');
     } on ApiHata {

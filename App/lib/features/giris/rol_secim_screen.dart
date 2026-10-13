@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/demo_oturum.dart';
 import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
+import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
+import 'package:berber_app_ui/data/api/api_client.dart';
 import 'package:berber_app_ui/features/giris/giris_screen.dart';
 import 'package:berber_app_ui/features/giris/isletme_kayit_screen.dart';
 import 'package:berber_app_ui/features/giris/widgets/giris_bilesenleri.dart';
 import 'package:berber_app_ui/features/giris/widgets/rol_karti.dart';
+import 'package:berber_app_ui/services/yonlendirme.dart';
 
 /// İlk ekran: Müşteri mi, İşletme Sahibi mi?
 class RolSecimScreen extends StatefulWidget {
@@ -29,6 +33,16 @@ class _RolSecimScreenState extends State<RolSecimScreen> with SingleTickerProvid
   }
 
   void _git(Widget ekran) => Navigator.push(context, MaterialPageRoute(builder: (_) => ekran));
+
+  Future<void> _demoGiris(String uid) async {
+    DemoOturum.baslat(uid);
+    try {
+      await Yonlendirme.git(context);
+    } on ApiHata catch (e) {
+      DemoOturum.bitir();
+      if (mounted) bilgiGoster(context, e.mesaj, hata: true);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,8 +88,44 @@ class _RolSecimScreenState extends State<RolSecimScreen> with SingleTickerProvid
             eylem: Dil.t.girisYapin,
             onTap: () => _git(const GirisScreen()),
           ),
+          if (DemoOturum.acik) ...[
+            const SizedBox(height: 24),
+            _DemoGiris(onSec: _demoGiris),
+          ],
         ]),
       ),
+    ]);
+  }
+}
+
+/// Yalnızca `--dart-define=DEMO=true` ile debug derlemede: Firebase hesabı olmadan seed kullanıcılarıyla giriş.
+class _DemoGiris extends StatelessWidget {
+  const _DemoGiris({required this.onSec});
+
+  final void Function(String uid) onSec;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget dugme(String etiket, String uid) => Expanded(
+          child: OutlinedButton(
+            key: ValueKey('demo_$uid'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppTheme.gold,
+              side: BorderSide(color: AppTheme.gold.withValues(alpha: 0.5)),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+            ),
+            onPressed: () => onSec(uid),
+            child: Text(etiket, textAlign: TextAlign.center),
+          ),
+        );
+    return Column(children: [
+      Text(Dil.t.demoModu, style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
+      const SizedBox(height: 8),
+      Row(children: [
+        dugme(Dil.t.demoMusteri, DemoOturum.musteriUid),
+        const SizedBox(width: 12),
+        dugme(Dil.t.demoIsletme, DemoOturum.isletmeUid),
+      ]),
     ]);
   }
 }

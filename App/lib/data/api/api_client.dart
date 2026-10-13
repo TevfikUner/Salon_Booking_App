@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/config.dart';
+import 'package:berber_app_ui/core/demo_oturum.dart';
 
 /// Backend'in döndürdüğü, kullanıcıya gösterilebilir hata.
 class ApiHata implements Exception {
@@ -88,7 +89,10 @@ class ApiClient {
     if (json) h['Content-Type'] = 'application/json';
     h['Accept-Language'] = Dil.kod;
     try {
-      final token = await (testJetonu ?? () async => FirebaseAuth.instance.currentUser?.getIdToken())();
+      final demoUid = DemoOturum.uid;
+      final token = await (testJetonu ??
+          (demoUid != null ? () async => 'dev:$demoUid' : null) ??
+          () async => FirebaseAuth.instance.currentUser?.getIdToken())();
       if (token != null) h['Authorization'] = 'Bearer $token';
     } on FirebaseAuthException {
       // Token yenilenemedi (ağ yok / oturum geçersiz): ekran sonsuz yüklemede kalmasın
