@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/widgets/altin_buton.dart';
 import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
 import 'package:berber_app_ui/data/api/api_client.dart';
@@ -39,7 +40,7 @@ class _GirisScreenState extends State<GirisScreen> {
     } on ApiHata catch (e) {
       if (mounted) bilgiGoster(context, e.mesaj, hata: true);
     } catch (e) {
-      if (mounted) bilgiGoster(context, 'Giriş başarısız: ${AuthService.hataMesaji(e)}', hata: true);
+      if (mounted) bilgiGoster(context, Dil.t.girisBasarisiz(AuthService.hataMesaji(e)), hata: true);
     } finally {
       if (mounted) setState(() => _yukleniyor = false);
     }
@@ -49,7 +50,7 @@ class _GirisScreenState extends State<GirisScreen> {
   Widget build(BuildContext context) {
     return GirisIskeleti(children: [
       const GirisLogosu(),
-      const GirisBasligi(baslik: 'Hoş Geldiniz', alt: 'Randevunuz sizi bekliyor'),
+      GirisBasligi(baslik: Dil.t.hosGeldiniz, alt: Dil.t.randevunuzSiziBekliyor),
       Form(
         key: _form,
         child: AutofillGroup(
@@ -64,15 +65,15 @@ class _GirisScreenState extends State<GirisScreen> {
         alignment: Alignment.centerRight,
         child: TextButton(
           onPressed: () => sifreSifirlamaGoster(context, onDoldurulmus: _eposta.text.trim()),
-          child: const Text('Şifremi Unuttum'),
+          child: Text(Dil.t.sifremiUnuttum),
         ),
       ),
       const SizedBox(height: 8),
-      AltinButon(text: 'Giriş Yap', onPressed: _girisYap, loading: _yukleniyor),
+      AltinButon(text: Dil.t.girisYap, onPressed: _girisYap, loading: _yukleniyor),
       const SizedBox(height: 16),
       AltBaglanti(
-        soru: 'Hesabınız yok mu?',
-        eylem: 'Kayıt Olun',
+        soru: Dil.t.hesabinizYokMu,
+        eylem: Dil.t.kayitOlun,
         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const KayitScreen())),
       ),
     ]);

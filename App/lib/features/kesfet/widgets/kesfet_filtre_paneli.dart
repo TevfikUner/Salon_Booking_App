@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 
 /// Şehir / ilçe seçicileri, filtre temizleme ve "Konumuma yakın" düğmesi.
@@ -51,7 +52,7 @@ class KesfetFiltrePaneli extends StatelessWidget {
             child: _Secici(
               ikon: Icons.location_city,
               deger: sehir,
-              ipucu: 'Şehir Seçin',
+              ipucu: Dil.t.sehirSecin,
               onTap: onSehirSec,
             ),
           ),
@@ -60,14 +61,14 @@ class KesfetFiltrePaneli extends StatelessWidget {
             child: _Secici(
               ikon: Icons.map_outlined,
               deger: ilce,
-              ipucu: 'İlçe Seçin',
+              ipucu: Dil.t.ilceSecin,
               onTap: sehir != null ? onIlceSec : null,
             ),
           ),
           if (_filtreVar) ...[
             const SizedBox(width: 8),
             IconButton.filledTonal(
-              tooltip: 'Filtreleri temizle',
+              tooltip: Dil.t.filtreleriTemizle,
               onPressed: onTemizle,
               style: IconButton.styleFrom(backgroundColor: AppTheme.error.withValues(alpha: 0.12)),
               icon: const Icon(Icons.clear, color: AppTheme.error, size: 18),
@@ -88,7 +89,7 @@ class KesfetFiltrePaneli extends StatelessWidget {
             icon: konumAliniyor
                 ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.gold))
                 : const Icon(Icons.my_location, color: AppTheme.gold, size: 18),
-            label: Text(konumModu ? 'Yakından uzağa sıralanıyor' : 'Konumuma Yakın Salonlar',
+            label: Text(konumModu ? Dil.t.yakindanUzaga : Dil.t.konumumaYakin,
                 style: GoogleFonts.inter(color: AppTheme.gold, fontSize: 13, fontWeight: FontWeight.w600)),
           ),
         ),

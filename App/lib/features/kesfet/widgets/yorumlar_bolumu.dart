@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/data/api/api_client.dart';
 import 'package:berber_app_ui/features/kesfet/widgets/yorum_bilesenleri.dart';
@@ -28,8 +29,8 @@ class YorumlarBolumu extends StatelessWidget {
   Widget build(BuildContext context) {
     if (hata) {
       return _Bilgi(
-        metin: 'Değerlendirmeler yüklenemedi.',
-        aksiyon: TextButton.icon(onPressed: onTekrar, icon: const Icon(Icons.refresh), label: const Text('Tekrar')),
+        metin: Dil.t.degerlendirmelerYuklenemedi,
+        aksiyon: TextButton.icon(onPressed: onTekrar, icon: const Icon(Icons.refresh), label: Text(Dil.t.tekrar)),
       );
     }
     final v = veri;
@@ -39,7 +40,7 @@ class YorumlarBolumu extends StatelessWidget {
     }
     final toplam = v['toplam'] as int? ?? 0;
     if (toplam == 0) {
-      return const _Bilgi(metin: 'Henüz değerlendirme yok. Randevunuzdan sonra ilk yorumu siz yapabilirsiniz.');
+      return _Bilgi(metin: Dil.t.ilkYorumuSizYapin);
     }
     final yorumlar = ApiClient.liste(v['yorumlar']);
     return Column(children: [
@@ -49,7 +50,7 @@ class YorumlarBolumu extends StatelessWidget {
         TextButton(
           onPressed: () => Navigator.push(context,
               MaterialPageRoute(builder: (_) => YorumlarScreen(salonId: salonId, salonAd: salonAd))),
-          child: Text('Tümünü gör ($toplam)'),
+          child: Text(Dil.t.tumunuGor(toplam)),
         ),
     ]);
   }

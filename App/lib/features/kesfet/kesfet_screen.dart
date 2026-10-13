@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/widgets/arama_listesi_sheet.dart';
 import 'package:berber_app_ui/core/widgets/durum_gorunumleri.dart';
@@ -76,7 +77,7 @@ class _KesfetScreenState extends State<KesfetScreen> {
 
   Future<void> _sehirSec() async {
     final secim = await aramaListesiGoster(context,
-        baslik: 'Şehir Seçin', secenekler: TurkiyeLokasyon.sehirler, ikon: Icons.location_city);
+        baslik: Dil.t.sehirSecin, secenekler: TurkiyeLokasyon.sehirler, ikon: Icons.location_city);
     if (secim == null) return;
     setState(() {
       _sehir = secim;
@@ -88,7 +89,7 @@ class _KesfetScreenState extends State<KesfetScreen> {
   Future<void> _ilceSec() async {
     if (_sehir == null) return;
     final secim = await aramaListesiGoster(context,
-        baslik: 'İlçe Seçin', secenekler: TurkiyeLokasyon.ilcelerGetir(_sehir!), ikon: Icons.map_outlined);
+        baslik: Dil.t.ilceSecin, secenekler: TurkiyeLokasyon.ilcelerGetir(_sehir!), ikon: Icons.map_outlined);
     if (secim == null) return;
     setState(() => _ilce = secim);
     _yukle();
@@ -126,11 +127,11 @@ class _KesfetScreenState extends State<KesfetScreen> {
       const SizedBox(height: 60),
       BosGorunum(
           ikon: Icons.store_outlined,
-          mesaj: aranan.isEmpty ? 'Salon bulunamadı' : '"$aranan" için sonuç yok',
-          altMesaj: 'Farklı bir kelime deneyin veya filtreleri temizleyin.'),
+          mesaj: aranan.isEmpty ? Dil.t.salonBulunamadi : Dil.t.aramaSonucYok(aranan),
+          altMesaj: Dil.t.farkliKelimeDeneyin),
       Center(
         child: TextButton.icon(
-            onPressed: _temizle, icon: const Icon(Icons.filter_alt_off), label: const Text('Filtreleri temizle')),
+            onPressed: _temizle, icon: const Icon(Icons.filter_alt_off), label: Text(Dil.t.filtreleriTemizle)),
       ),
     ]);
   }
@@ -138,7 +139,7 @@ class _KesfetScreenState extends State<KesfetScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Keşfet'), automaticallyImplyLeading: false),
+      appBar: AppBar(title: Text(Dil.t.kesfet), automaticallyImplyLeading: false),
       body: Column(children: [
         KesfetFiltrePaneli(
           sehir: _sehir,

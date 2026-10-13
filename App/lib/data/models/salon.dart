@@ -1,3 +1,4 @@
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/data/models/berber.dart';
 
 /// Salonun aktif kampanyası (salon detayında): "Salı İndirimi %20 · Salı · 10:00–14:00"
@@ -132,7 +133,7 @@ class Salon {
   bool get konumVar => lat != null && lng != null;
 
   /// "4.8" ya da henüz değerlendirme yoksa "Yeni"
-  String get puanMetni => degerlendirmeSayisi > 0 ? puan.toStringAsFixed(1) : 'Yeni';
+  String get puanMetni => degerlendirmeSayisi > 0 ? puan.toStringAsFixed(1) : Dil.t.yeni;
 
   /// Verilen gün (DateTime.weekday) için "09:00 – 21:00" veya null (kapalı).
   String? calismaSaati(int weekday) {

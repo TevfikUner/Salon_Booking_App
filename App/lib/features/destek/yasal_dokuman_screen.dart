@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/data/sabit/yasal_metinler.dart';
 
@@ -33,7 +34,7 @@ class YasalDokumanScreen extends StatelessWidget {
         actions: [
           if (webAdresi != null)
             IconButton(
-              tooltip: 'Tarayıcıda aç',
+              tooltip: Dil.t.tarayicidaAc,
               icon: const Icon(Icons.open_in_new, color: AppTheme.gold),
               onPressed: () => launchUrl(Uri.parse(webAdresi!), mode: LaunchMode.externalApplication),
             ),
@@ -42,7 +43,8 @@ class YasalDokumanScreen extends StatelessWidget {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: SelectableText(
-          icerik,
+          // Yasal metinler bağlayıcı olduğu için yalnızca Türkçe; İngilizce arayüzde başta not
+          Dil.ingilizce ? '${Dil.t.yasalMetinTurkce}\n\n$icerik' : icerik,
           style: GoogleFonts.inter(
             color: Colors.white.withValues(alpha: 0.85),
             fontSize: 14,

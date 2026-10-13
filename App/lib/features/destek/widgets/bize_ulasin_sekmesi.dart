@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:share_plus/share_plus.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/config.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/utils/harici.dart';
@@ -21,7 +22,14 @@ class BizeUlasinSekmesi extends StatefulWidget {
 }
 
 class _BizeUlasinSekmesiState extends State<BizeUlasinSekmesi> {
-  static const _konular = ['Randevu Sorunu', 'Ödeme / Fiyat', 'Hesap Problemi', 'Uygulama Hatası', 'Öneri / İstek', 'Diğer'];
+  static List<String> get _konular => [
+        Dil.t.konuRandevu,
+        Dil.t.konuOdeme,
+        Dil.t.konuHesap,
+        Dil.t.konuHata,
+        Dil.t.konuOneri,
+        Dil.t.konuDiger,
+      ];
 
   String? _konu;
   final _mesaj = TextEditingController();
@@ -39,11 +47,11 @@ class _BizeUlasinSekmesiState extends State<BizeUlasinSekmesi> {
       backgroundColor: AppTheme.surface,
       builder: (ctx) => SafeArea(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          ListTile(leading: const Icon(Icons.camera_alt, color: AppTheme.gold), title: const Text('Fotoğraf Çek'),
+          ListTile(leading: const Icon(Icons.camera_alt, color: AppTheme.gold), title: Text(Dil.t.fotografCek),
               onTap: () => Navigator.pop(ctx, 'kamera')),
-          ListTile(leading: const Icon(Icons.photo_library, color: AppTheme.gold), title: const Text('Galeriden Seç'),
+          ListTile(leading: const Icon(Icons.photo_library, color: AppTheme.gold), title: Text(Dil.t.galeridenSec),
               onTap: () => Navigator.pop(ctx, 'galeri')),
-          ListTile(leading: const Icon(Icons.attach_file, color: AppTheme.gold), title: const Text('Dosya Seç'),
+          ListTile(leading: const Icon(Icons.attach_file, color: AppTheme.gold), title: Text(Dil.t.dosyaSec),
               onTap: () => Navigator.pop(ctx, 'dosya')),
         ]),
       ),
@@ -65,31 +73,31 @@ class _BizeUlasinSekmesiState extends State<BizeUlasinSekmesi> {
   }
 
   Future<void> _gonder() async {
-    if (_konu == null) return bilgiGoster(context, 'Lütfen bir konu seçin.', hata: true);
+    if (_konu == null) return bilgiGoster(context, Dil.t.konuSecin, hata: true);
     final mesaj = _mesaj.text.trim();
-    if (mesaj.isEmpty) return bilgiGoster(context, 'Lütfen mesajınızı yazın.', hata: true);
+    if (mesaj.isEmpty) return bilgiGoster(context, Dil.t.mesajYazin, hata: true);
     final konu = 'Premium Berber - $_konu';
 
     if (_ekler.isEmpty) {
       if (!await Harici.eposta(AppConfig.destekEposta, konu: konu, govde: mesaj) && mounted) {
-        bilgiGoster(context, 'E-posta uygulaması açılamadı. Bize ${AppConfig.destekEposta} adresinden ulaşabilirsiniz.',
+        bilgiGoster(context, Dil.t.epostaAcilamadi(AppConfig.destekEposta),
             hata: true);
       }
       return;
     }
-    await Share.shareXFiles(_ekler, subject: konu, text: 'Alıcı: ${AppConfig.destekEposta}\n\n$mesaj');
+    await Share.shareXFiles(_ekler, subject: konu, text: '${Dil.t.alici(AppConfig.destekEposta)}\n\n$mesaj');
   }
 
   @override
   Widget build(BuildContext context) {
     return ListView(padding: const EdgeInsets.all(20), children: [
-      Text('Sorununuzu bize bildirin, en kısa sürede dönüş yapalım.',
+      Text(Dil.t.sorununuzuBildirin,
           style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 13)),
       const SizedBox(height: 20),
       DropdownButtonFormField<String>(
         initialValue: _konu,
         dropdownColor: AppTheme.surface,
-        decoration: const InputDecoration(labelText: 'Konu'),
+        decoration: InputDecoration(labelText: Dil.t.konu),
         items: [for (final k in _konular) DropdownMenuItem(value: k, child: Text(k))],
         onChanged: (v) => setState(() => _konu = v),
       ),
@@ -98,12 +106,13 @@ class _BizeUlasinSekmesiState extends State<BizeUlasinSekmesi> {
         controller: _mesaj,
         maxLines: 6,
         maxLength: 2000,
-        decoration: const InputDecoration(labelText: 'Mesajınız', hintText: 'Sorununuzu veya isteğinizi açıklayın…'),
+        decoration: InputDecoration(
+            labelText: Dil.t.mesajiniz, hintText: Dil.t.mesajIpucu),
       ),
       OutlinedButton.icon(
         onPressed: _ekEkle,
         icon: const Icon(Icons.attach_file, color: AppTheme.gold),
-        label: const Text('Fotoğraf veya dosya ekle', style: TextStyle(color: AppTheme.gold)),
+        label: Text(Dil.t.ekEkle, style: const TextStyle(color: AppTheme.gold)),
       ),
       for (var i = 0; i < _ekler.length; i++)
         ListTile(
@@ -111,14 +120,14 @@ class _BizeUlasinSekmesiState extends State<BizeUlasinSekmesi> {
           leading: const Icon(Icons.insert_drive_file_outlined, color: AppTheme.gold),
           title: Text(_ekler[i].name, overflow: TextOverflow.ellipsis),
           trailing: IconButton(
-            tooltip: 'Eki kaldır',
+            tooltip: Dil.t.ekiKaldir,
             icon: const Icon(Icons.close, color: AppTheme.error),
             onPressed: () => setState(() => _ekler.removeAt(i)),
           ),
         ),
       const SizedBox(height: 20),
       AltinButon(
-        text: _ekler.isEmpty ? 'E-posta Gönder' : 'Eklerle Gönder',
+        text: _ekler.isEmpty ? Dil.t.epostaGonder : Dil.t.eklerleGonder,
         onPressed: _gonder,
         icon: const Icon(Icons.send, color: AppTheme.black, size: 20),
       ),

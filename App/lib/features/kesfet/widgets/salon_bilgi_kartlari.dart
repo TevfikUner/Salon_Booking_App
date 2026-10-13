@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/core/widgets/bolum_basligi.dart';
@@ -55,20 +56,20 @@ class BugunDurumuKarti extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(children: [
         Row(children: [
-          Expanded(child: _Sayac(deger: randevu, etiket: 'Bugünkü\nRandevu', renk: AppTheme.gold, ikon: Icons.people_alt_outlined)),
+          Expanded(child: _Sayac(deger: randevu, etiket: Dil.t.bugunkuRandevu, renk: AppTheme.gold, ikon: Icons.people_alt_outlined)),
           const SizedBox(width: 12),
           Expanded(
             child: _Sayac(
                 deger: bos,
-                etiket: 'Boş\nKontenjan',
+                etiket: Dil.t.bosKontenjan,
                 renk: dolu ? AppTheme.error : AppTheme.success,
                 ikon: Icons.event_available),
           ),
         ]),
         const SizedBox(height: 12),
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Text('Doluluk', style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
-          Text('%${(oran * 100).round()}',
+          Text(Dil.t.doluluk, style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
+          Text(Dil.t.yuzde((oran * 100).round()),
               style: GoogleFonts.inter(color: AppTheme.gold, fontSize: 12, fontWeight: FontWeight.bold)),
         ]),
         const SizedBox(height: 6),
@@ -83,7 +84,7 @@ class BugunDurumuKarti extends StatelessWidget {
         ),
         if (toplam == 0) ...[
           const SizedBox(height: 8),
-          Text('Salon bugün kapalı veya günün saatleri doldu.',
+          Text(Dil.t.salonBugunKapali,
               style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
         ],
       ]),
@@ -140,7 +141,7 @@ class CalismaSaatleriKarti extends StatelessWidget {
                         color: g == bugun ? AppTheme.gold : Colors.white,
                         fontWeight: g == bugun ? FontWeight.bold : FontWeight.normal)),
               ),
-              Text(salon.calismaSaati(g) ?? 'Kapalı',
+              Text(salon.calismaSaati(g) ?? Dil.t.kapali,
                   style: GoogleFonts.inter(
                       color: salon.calismaSaati(g) == null
                           ? AppTheme.error

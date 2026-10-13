@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/widgets/altin_buton.dart';
 import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
 import 'package:berber_app_ui/data/sabit/yasal_metinler.dart';
@@ -41,7 +42,7 @@ class _IsletmeKayitScreenState extends State<IsletmeKayitScreen> {
 
   Future<void> _basvur() async {
     if (!_form.currentState!.validate()) return;
-    if (!_kvkk) return bilgiGoster(context, "Devam etmek için KVKK Aydınlatma Metni'ni onaylamalısınız.", hata: true);
+    if (!_kvkk) return bilgiGoster(context, Dil.t.kvkkOnaylamalisiniz, hata: true);
     setState(() => _yukleniyor = true);
     try {
       await AuthService.isletmeKayitOl(
@@ -55,7 +56,7 @@ class _IsletmeKayitScreenState extends State<IsletmeKayitScreen> {
       Analitik.kayit(rol: 'isletme');
       if (mounted) await Yonlendirme.git(context); // → onay bekleme ekranı
     } catch (e) {
-      if (mounted) bilgiGoster(context, 'Başvuru gönderilemedi: ${AuthService.hataMesaji(e)}', hata: true);
+      if (mounted) bilgiGoster(context, Dil.t.basvuruGonderilemedi(AuthService.hataMesaji(e)), hata: true);
     } finally {
       if (mounted) setState(() => _yukleniyor = false);
     }
@@ -64,17 +65,17 @@ class _IsletmeKayitScreenState extends State<IsletmeKayitScreen> {
   @override
   Widget build(BuildContext context) {
     return GirisIskeleti(children: [
-      const GirisBasligi(baslik: 'İşletme Başvurusu', alt: 'Salonunuzu kaydedin, onaylandığında paneliniz açılır',
+      GirisBasligi(baslik: Dil.t.isletmeBasvurusu, alt: Dil.t.salonunuzuKaydedin,
           renk: _isletmeRengi),
       Form(
         key: _form,
         child: Column(children: [
-          Alanlar.metin(_isletmeAdi, 'İşletme / Salon Adı', Icons.storefront_outlined),
+          Alanlar.metin(_isletmeAdi, Dil.t.isletmeSalonAdi, Icons.storefront_outlined),
           const SizedBox(height: 14),
           Row(children: [
-            Expanded(child: Alanlar.metin(_ad, 'Ad', Icons.person_outline)),
+            Expanded(child: Alanlar.metin(_ad, Dil.t.ad, Icons.person_outline)),
             const SizedBox(width: 12),
-            Expanded(child: Alanlar.metin(_soyad, 'Soyad', Icons.person_outline)),
+            Expanded(child: Alanlar.metin(_soyad, Dil.t.soyad, Icons.person_outline)),
           ]),
           const SizedBox(height: 14),
           Alanlar.telefon(_telefon),
@@ -88,7 +89,7 @@ class _IsletmeKayitScreenState extends State<IsletmeKayitScreen> {
       OnayKutusu(
         deger: _kvkk,
         degisti: (v) => setState(() => _kvkk = v),
-        metin: "KVKK Aydınlatma Metni'ni okudum, kabul ediyorum. (Zorunlu)",
+        metin: Dil.t.kvkkOkudumKabul,
         metniOku: () => Navigator.push(
           context,
           MaterialPageRoute(
@@ -96,11 +97,11 @@ class _IsletmeKayitScreenState extends State<IsletmeKayitScreen> {
         ),
       ),
       const SizedBox(height: 20),
-      AltinButon(text: 'Başvuruyu Gönder', onPressed: _basvur, loading: _yukleniyor),
+      AltinButon(text: Dil.t.basvuruyuGonder, onPressed: _basvur, loading: _yukleniyor),
       const SizedBox(height: 12),
       AltBaglanti(
-        soru: 'İşletme hesabınız var mı?',
-        eylem: 'Giriş Yapın',
+        soru: Dil.t.isletmeHesabinizVarMi,
+        eylem: Dil.t.girisYapin,
         onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const GirisScreen())),
       ),
     ]);

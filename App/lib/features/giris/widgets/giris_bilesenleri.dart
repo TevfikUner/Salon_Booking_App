@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/widgets/berber_desen.dart';
 
@@ -23,7 +24,7 @@ class GirisIskeleti extends StatelessWidget {
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               if (geriDugmesi && Navigator.canPop(context))
                 IconButton(
-                  tooltip: 'Geri',
+                  tooltip: Dil.t.geri,
                   icon: const Icon(Icons.arrow_back_ios, color: AppTheme.gold),
                   onPressed: () => Navigator.pop(context),
                 ),
@@ -53,7 +54,7 @@ class GirisLogosu extends StatelessWidget {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(24),
-          child: Image.asset('assets/images/logo.png', fit: BoxFit.contain, semanticLabel: 'Premium Berber logosu'),
+          child: Image.asset('assets/images/logo.png', fit: BoxFit.contain, semanticLabel: Dil.t.logoEtiketi),
         ),
       ),
     );
@@ -83,8 +84,8 @@ class GirisBasligi extends StatelessWidget {
 /// Göster/gizle düğmeli şifre alanı.
 class SifreAlani extends StatefulWidget {
   final TextEditingController controller;
-  final String etiket;
-  const SifreAlani({super.key, required this.controller, this.etiket = 'Şifre'});
+  final String? etiket;
+  const SifreAlani({super.key, required this.controller, this.etiket});
 
   @override
   State<SifreAlani> createState() => _SifreAlaniState();
@@ -100,15 +101,15 @@ class _SifreAlaniState extends State<SifreAlani> {
       obscureText: _gizli,
       autofillHints: const [AutofillHints.password],
       decoration: InputDecoration(
-        labelText: widget.etiket,
+        labelText: widget.etiket ?? Dil.t.sifre,
         prefixIcon: const Icon(Icons.lock_outline, color: AppTheme.gold),
         suffixIcon: IconButton(
-          tooltip: _gizli ? 'Şifreyi göster' : 'Şifreyi gizle',
+          tooltip: _gizli ? Dil.t.sifreyiGoster : Dil.t.sifreyiGizle,
           icon: Icon(_gizli ? Icons.visibility_off : Icons.visibility, color: AppTheme.textSecondary),
           onPressed: () => setState(() => _gizli = !_gizli),
         ),
       ),
-      validator: (v) => (v == null || v.length < 6) ? 'En az 6 karakter' : null,
+      validator: (v) => (v == null || v.length < 6) ? Dil.t.enAz6Karakter : null,
     );
   }
 }
@@ -137,7 +138,7 @@ class OnayKutusu extends StatelessWidget {
                 TextButton(
                   onPressed: metniOku,
                   style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(0, 32)),
-                  child: const Text('Metni oku', style: TextStyle(decoration: TextDecoration.underline)),
+                  child: Text(Dil.t.metniOku, style: TextStyle(decoration: TextDecoration.underline)),
                 ),
             ]),
           ),

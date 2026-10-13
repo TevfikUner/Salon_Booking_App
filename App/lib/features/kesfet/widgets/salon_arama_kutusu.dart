@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 
 /// Salon adı / ilçe / hizmet araması ve "★ 4.5+" filtresi. Metin değişimi üst bileşende gecikmeli işlenir.
@@ -32,13 +33,13 @@ class SalonAramaKutusu extends StatelessWidget {
             style: const TextStyle(color: Colors.white, fontSize: 14),
             decoration: InputDecoration(
               isDense: true,
-              hintText: 'Salon, ilçe veya hizmet ara (ör. sakal)',
+              hintText: Dil.t.salonAramaIpucu,
               prefixIcon: const Icon(Icons.search, color: AppTheme.gold, size: 20),
               suffixIcon: ValueListenableBuilder<TextEditingValue>(
                 valueListenable: controller,
                 builder: (_, v, _) => v.text.isEmpty
                     ? const SizedBox.shrink()
-                    : IconButton(tooltip: 'Aramayı temizle', icon: const Icon(Icons.close, size: 18), onPressed: onTemizle),
+                    : IconButton(tooltip: Dil.t.aramayiTemizle, icon: const Icon(Icons.close, size: 18), onPressed: onTemizle),
               ),
             ),
           ),
@@ -46,7 +47,7 @@ class SalonAramaKutusu extends StatelessWidget {
         const SizedBox(width: 8),
         FilterChip(
           label: const Text('★ 4.5+'),
-          tooltip: 'Yalnızca 4.5 ve üzeri puanlı salonlar',
+          tooltip: Dil.t.yuksekPuanIpucu,
           selected: yuksekPuan,
           onSelected: onYuksekPuan,
           selectedColor: AppTheme.gold,

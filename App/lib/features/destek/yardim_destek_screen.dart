@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/features/destek/widgets/bize_ulasin_sekmesi.dart';
 import 'package:berber_app_ui/features/destek/widgets/sss_sekmesi.dart';
@@ -16,14 +17,14 @@ class YardimDestekScreen extends StatelessWidget {
       initialIndex: baslangicSekmesi,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Yardım & Destek'),
-          bottom: const TabBar(
+          title: Text(Dil.t.yardimDestek),
+          bottom: TabBar(
             indicatorColor: AppTheme.gold,
             labelColor: AppTheme.gold,
             unselectedLabelColor: AppTheme.textSecondary,
             tabs: [
-              Tab(text: 'SSS', icon: Icon(Icons.help_outline, size: 20)),
-              Tab(text: 'Bize Ulaşın', icon: Icon(Icons.mail_outline, size: 20)),
+              Tab(text: Dil.t.sss, icon: Icon(Icons.help_outline, size: 20)),
+              Tab(text: Dil.t.bizeUlasin, icon: Icon(Icons.mail_outline, size: 20)),
             ],
           ),
         ),

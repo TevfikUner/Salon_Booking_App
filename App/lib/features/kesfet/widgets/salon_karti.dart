@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/data/models/salon.dart';
@@ -17,7 +18,7 @@ class SalonKarti extends StatelessWidget {
     final bugunSaat = salon.calismaSaati(DateTime.now().weekday);
     return Semantics(
       button: true,
-      label: '${salon.ad}, ${salon.konumMetni}, puan ${salon.puanMetni}',
+      label: Dil.t.salonSemantik(salon.ad, salon.konumMetni, salon.puanMetni),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(18),
@@ -54,14 +55,14 @@ class SalonKarti extends StatelessWidget {
                 Wrap(spacing: 8, runSpacing: 4, crossAxisAlignment: WrapCrossAlignment.center, children: [
                   _Etiket(ikon: Icons.star, metin: salon.puanMetni),
                   if (salon.mesafeKm != null) _Etiket(ikon: Icons.near_me, metin: mesafeMetni(salon.mesafeKm!)),
-                  _Satir(ikon: Icons.access_time, metin: bugunSaat == null ? 'Bugün kapalı' : 'Bugün $bugunSaat'),
+                  _Satir(ikon: Icons.access_time, metin: bugunSaat == null ? Dil.t.bugunKapali : Dil.t.bugunSaat(bugunSaat)),
                 ]),
                 if (salon.kampanyaYuzde > 0 || salon.sadakatVar) ...[
                   const SizedBox(height: 6),
                   Wrap(spacing: 8, runSpacing: 4, children: [
                     if (salon.kampanyaYuzde > 0) IndirimRozeti(
-                          yuzde: salon.kampanyaYuzde, onEk: '${yonelmeEki(salon.kampanyaYuzde)} varan indirim'),
-                    if (salon.sadakatVar) const _Etiket(ikon: Icons.card_giftcard, metin: 'Sadakat kartı'),
+                          yuzde: salon.kampanyaYuzde, onEk: Dil.t.varanIndirim(salon.kampanyaYuzde, yonelmeEki(salon.kampanyaYuzde))),
+                    if (salon.sadakatVar) _Etiket(ikon: Icons.card_giftcard, metin: Dil.t.sadakatKarti),
                   ]),
                 ],
                 if (salon.eslesenHizmetler.isNotEmpty) ...[

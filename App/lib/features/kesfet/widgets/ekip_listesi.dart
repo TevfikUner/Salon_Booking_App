@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/config.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/data/models/berber.dart';
@@ -63,19 +64,19 @@ class _BerberSatiri extends StatelessWidget {
                   if (b.uzmanlik.isNotEmpty) b.uzmanlik,
                   b.degerlendirmeSayisi > 0
                       ? '★ ${b.puan.toStringAsFixed(1)} (${b.degerlendirmeSayisi})'
-                      : 'Yeni',
-                  if (b.tamamlanan > 0) '${b.tamamlanan} tıraş',
+                      : Dil.t.yeni,
+                  if (b.tamamlanan > 0) Dil.t.trasSayisi(b.tamamlanan),
                 ].join(' · '),
                 style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
           ]),
         ),
         IconButton(
-          tooltip: b.favori ? 'Favorilerden çıkar' : 'Favorilere ekle',
+          tooltip: b.favori ? Dil.t.favorilerdenCikar : Dil.t.favorilereEkle,
           onPressed: () => onFavori(b),
           icon: Icon(b.favori ? Icons.favorite : Icons.favorite_border,
               color: b.favori ? Colors.redAccent : AppTheme.textSecondary),
         ),
-        TextButton(onPressed: () => onRandevu(b), child: const Text('Randevu')),
+        TextButton(onPressed: () => onRandevu(b), child: Text(Dil.t.randevu)),
       ]),
     );
   }

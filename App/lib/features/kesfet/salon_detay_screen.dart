@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/widgets/bolum_basligi.dart';
 import 'package:berber_app_ui/core/widgets/durum_gorunumleri.dart';
 import 'package:berber_app_ui/core/widgets/geri_bildirim.dart';
@@ -75,7 +76,7 @@ class _SalonDetayScreenState extends State<SalonDetayScreen> {
         _salon = _salon!.copyWith(
             berberler: [for (final x in _salon!.berberler) x.id == b.id ? x.copyWith(favori: favori) : x]);
       });
-      bilgiGoster(context, favori ? '${b.tamAd} favorilere eklendi.' : '${b.tamAd} favorilerden çıkarıldı.');
+      bilgiGoster(context, favori ? Dil.t.favorilereEklendi(b.tamAd) : Dil.t.favorilerdenCikarildi(b.tamAd));
     } on ApiHata catch (e) {
       if (mounted) bilgiGoster(context, e.mesaj, hata: true);
     }
@@ -90,7 +91,7 @@ class _SalonDetayScreenState extends State<SalonDetayScreen> {
   Widget build(BuildContext context) {
     final salon = _salon;
     return Scaffold(
-      appBar: AppBar(title: Text(salon?.ad ?? 'Salon')),
+      appBar: AppBar(title: Text(salon?.ad ?? Dil.t.salon)),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: salon == null
           ? null
@@ -99,7 +100,7 @@ class _SalonDetayScreenState extends State<SalonDetayScreen> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 55)),
                 onPressed: _randevuAl,
-                child: const Text('Randevu Al'),
+                child: Text(Dil.t.randevuAl),
               ),
             ),
       body: AsenkronGorunum(
@@ -112,22 +113,22 @@ class _SalonDetayScreenState extends State<SalonDetayScreen> {
             SalonBaslikKarti(salon: salon!),
             IletisimButonlari(salon: salon),
             if (salon.kampanyalar.isNotEmpty) ...[
-              const BolumBasligi(baslik: 'Kampanyalar', ikon: Icons.local_offer_outlined),
+              BolumBasligi(baslik: Dil.t.kampanyalar, ikon: Icons.local_offer_outlined),
               KampanyalarKarti(kampanyalar: salon.kampanyalar),
             ],
             if (salon.sadakatKarti != null) ...[
-              const BolumBasligi(baslik: 'Sadakat Kartı', ikon: Icons.card_giftcard),
+              BolumBasligi(baslik: Dil.t.sadakatKartiBaslik, ikon: Icons.card_giftcard),
               SadakatKartiWidget(kart: salon.sadakatKarti!),
             ],
             if (salon.berberler.isNotEmpty) ...[
-              const BolumBasligi(baslik: 'Ekibimiz', ikon: Icons.people_alt_outlined),
+              BolumBasligi(baslik: Dil.t.ekibimiz, ikon: Icons.people_alt_outlined),
               EkipListesi(
                 berberler: salon.berberler,
                 onFavori: _favori,
                 onRandevu: (b) => _randevuAl(berber: b),
               ),
             ],
-            const BolumBasligi(baslik: 'Değerlendirmeler', ikon: Icons.reviews_outlined),
+            BolumBasligi(baslik: Dil.t.degerlendirmeler, ikon: Icons.reviews_outlined),
             YorumlarBolumu(
               salonId: widget.salonId,
               salonAd: salon.ad,
@@ -135,9 +136,9 @@ class _SalonDetayScreenState extends State<SalonDetayScreen> {
               hata: _yorumHata,
               onTekrar: _yorumlariYukle,
             ),
-            const BolumBasligi(baslik: 'Bugünkü Durum', ikon: Icons.event_available),
+            BolumBasligi(baslik: Dil.t.bugunkuDurum, ikon: Icons.event_available),
             BugunDurumuKarti(istatistik: _istatistik),
-            const BolumBasligi(baslik: 'Çalışma Saatleri', ikon: Icons.schedule),
+            BolumBasligi(baslik: Dil.t.calismaSaatleri, ikon: Icons.schedule),
             CalismaSaatleriKarti(salon: salon),
           ]),
         ),

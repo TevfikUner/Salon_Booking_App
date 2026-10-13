@@ -75,5 +75,295 @@
         "type": "int"
       }
     }
+  },
+  "kvkkOnaylamalisiniz": "Devam etmek için KVKK Aydınlatma Metni'ni onaylamalısınız.",
+  "girisBasarisiz": "Giriş başarısız: {neden}",
+  "@girisBasarisiz": {
+    "placeholders": {
+      "neden": {
+        "type": "String"
+      }
+    }
+  },
+  "basvuruGonderilemedi": "Başvuru gönderilemedi: {neden}",
+  "@basvuruGonderilemedi": {
+    "placeholders": {
+      "neden": {
+        "type": "String"
+      }
+    }
+  },
+  "kayitBasarisiz": "Kayıt başarısız: {neden}",
+  "@kayitBasarisiz": {
+    "placeholders": {
+      "neden": {
+        "type": "String"
+      }
+    }
+  },
+  "sifreSifirlamaGonderildi": "Şifre sıfırlama bağlantısı {eposta} adresine gönderildi.",
+  "@sifreSifirlamaGonderildi": {
+    "placeholders": {
+      "eposta": {
+        "type": "String"
+      }
+    }
+  },
+  "hosGeldiniz": "Hoş Geldiniz",
+  "randevunuzSiziBekliyor": "Randevunuz sizi bekliyor",
+  "sifremiUnuttum": "Şifremi Unuttum",
+  "girisYap": "Giriş Yap",
+  "hesabinizYokMu": "Hesabınız yok mu?",
+  "kayitOlun": "Kayıt Olun",
+  "isletmeBasvurusu": "İşletme Başvurusu",
+  "salonunuzuKaydedin": "Salonunuzu kaydedin, onaylandığında paneliniz açılır",
+  "isletmeSalonAdi": "İşletme / Salon Adı",
+  "ad": "Ad",
+  "soyad": "Soyad",
+  "kvkkOkudumKabul": "KVKK Aydınlatma Metni'ni okudum, kabul ediyorum. (Zorunlu)",
+  "basvuruyuGonder": "Başvuruyu Gönder",
+  "isletmeHesabinizVarMi": "İşletme hesabınız var mı?",
+  "girisYapin": "Giriş Yapın",
+  "hesapOlustur": "Hesap Oluştur",
+  "birkacAdimdaRandevu": "Birkaç adımda randevu almaya başlayın",
+  "kvkkMusteriOnay": "KVKK Aydınlatma Metni'ni okudum; kişisel verilerimin randevu hizmeti için işlenmesini kabul ediyorum. (Zorunlu)",
+  "ticariIletiOnay": "Kampanya ve fırsatlardan haberdar olmak için ticari elektronik ileti almak istiyorum. (İsteğe bağlı)",
+  "kayitOl": "Kayıt Ol",
+  "rolunuzuSecin": "Devam etmek için rolünüzü seçin",
+  "musteri": "Müşteri",
+  "musteriRolAciklama": "Randevu al, berber bul\nve hizmetlerden yararlan",
+  "isletmeSahibi": "İşletme Sahibi",
+  "isletmeRolAciklama": "Salonunuzu kaydedin\nve müşterilerinizi yönetin",
+  "zatenHesabinizVarMi": "Zaten hesabınız var mı?",
+  "guvensizYapilandirma": "Uygulama güvenli sunucuya bağlanacak şekilde yapılandırılmamış. Lütfen uygulamayı güncelleyin.",
+  "premiumBerberHizmetleri": "Premium Berber Hizmetleri",
+  "geri": "Geri",
+  "logoEtiketi": "Premium Berber logosu",
+  "sifre": "Şifre",
+  "sifreyiGoster": "Şifreyi göster",
+  "sifreyiGizle": "Şifreyi gizle",
+  "enAz6Karakter": "En az 6 karakter",
+  "metniOku": "Metni oku",
+  "sifreSifirlamaAciklama": "E-posta adresinizi girin, şifre sıfırlama bağlantısını gönderelim.",
+  "iptal": "İptal",
+  "gonder": "Gönder",
+  "yardimDestek": "Yardım & Destek",
+  "sss": "SSS",
+  "bizeUlasin": "Bize Ulaşın",
+  "tarayicidaAc": "Tarayıcıda aç",
+  "yasalMetinTurkce": "",
+  "konuRandevu": "Randevu Sorunu",
+  "konuOdeme": "Ödeme / Fiyat",
+  "konuHesap": "Hesap Problemi",
+  "konuHata": "Uygulama Hatası",
+  "konuOneri": "Öneri / İstek",
+  "konuDiger": "Diğer",
+  "fotografCek": "Fotoğraf Çek",
+  "galeridenSec": "Galeriden Seç",
+  "dosyaSec": "Dosya Seç",
+  "konuSecin": "Lütfen bir konu seçin.",
+  "mesajYazin": "Lütfen mesajınızı yazın.",
+  "sorununuzuBildirin": "Sorununuzu bize bildirin, en kısa sürede dönüş yapalım.",
+  "konu": "Konu",
+  "mesajiniz": "Mesajınız",
+  "mesajIpucu": "Sorununuzu veya isteğinizi açıklayın…",
+  "ekEkle": "Fotoğraf veya dosya ekle",
+  "ekiKaldir": "Eki kaldır",
+  "epostaGonder": "E-posta Gönder",
+  "eklerleGonder": "Eklerle Gönder",
+  "epostaAcilamadi": "E-posta uygulaması açılamadı. Bize {eposta} adresinden ulaşabilirsiniz.",
+  "@epostaAcilamadi": {
+    "placeholders": {
+      "eposta": {
+        "type": "String"
+      }
+    }
+  },
+  "alici": "Alıcı: {eposta}",
+  "@alici": {
+    "placeholders": {
+      "eposta": {
+        "type": "String"
+      }
+    }
+  },
+  "yeni": "Yeni",
+  "sehirSecin": "Şehir Seçin",
+  "ilceSecin": "İlçe Seçin",
+  "filtreleriTemizle": "Filtreleri temizle",
+  "salonBulunamadi": "Salon bulunamadı",
+  "farkliKelimeDeneyin": "Farklı bir kelime deneyin veya filtreleri temizleyin.",
+  "kesfet": "Keşfet",
+  "aramaSonucYok": "\"{aranan}\" için sonuç yok",
+  "@aramaSonucYok": {
+    "placeholders": {
+      "aranan": {
+        "type": "String"
+      }
+    }
+  },
+  "konumServisiKapali": "Konum servisi kapalı. Lütfen cihaz ayarlarından açın.",
+  "konumIzniKaliciRed": "Konum izni kalıcı olarak reddedilmiş. Ayarlardan izin verebilirsiniz.",
+  "konumIzniGerekli": "Yakındaki salonları göstermek için konum izni gerekiyor.",
+  "konumAlinamadi": "Konum alınamadı. Lütfen tekrar deneyin.",
+  "salon": "Salon",
+  "randevuAl": "Randevu Al",
+  "kampanyalar": "Kampanyalar",
+  "sadakatKartiBaslik": "Sadakat Kartı",
+  "ekibimiz": "Ekibimiz",
+  "degerlendirmeler": "Değerlendirmeler",
+  "bugunkuDurum": "Bugünkü Durum",
+  "calismaSaatleri": "Çalışma Saatleri",
+  "favorilereEklendi": "{ad} favorilere eklendi.",
+  "@favorilereEklendi": {
+    "placeholders": {
+      "ad": {
+        "type": "String"
+      }
+    }
+  },
+  "favorilerdenCikarildi": "{ad} favorilerden çıkarıldı.",
+  "@favorilerdenCikarildi": {
+    "placeholders": {
+      "ad": {
+        "type": "String"
+      }
+    }
+  },
+  "henuzDegerlendirmeYok": "Henüz değerlendirme yok.",
+  "favorilerdenCikar": "Favorilerden çıkar",
+  "favorilereEkle": "Favorilere ekle",
+  "randevu": "Randevu",
+  "trasSayisi": "{n} tıraş",
+  "@trasSayisi": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "uygulamaAcilamadi": "Uygulama açılamadı.",
+  "harita": "Harita",
+  "yolTarifi": "Yol Tarifi",
+  "indirimOnaydaYansir": "İndirim, uygun gün ve saati seçtiğinizde onay ekranında tutara yansır.",
+  "sadakatGirisYap": "Giriş yaptığınızda ziyaretleriniz burada sayılır.",
+  "yuzde": "%{y}",
+  "@yuzde": {
+    "placeholders": {
+      "y": {
+        "type": "int"
+      }
+    }
+  },
+  "sadakatKurali": "Her {esik}. ziyaretiniz %{yuzde} indirimli",
+  "@sadakatKurali": {
+    "placeholders": {
+      "esik": {
+        "type": "int"
+      },
+      "yuzde": {
+        "type": "int"
+      }
+    }
+  },
+  "sadakatDamga": "{esik} ziyaretten {n} tanesi tamam",
+  "@sadakatDamga": {
+    "placeholders": {
+      "esik": {
+        "type": "int"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "sadakatSiradaki": "Sıradaki randevunuz %{yuzde} indirimli! 🎉",
+  "@sadakatSiradaki": {
+    "placeholders": {
+      "yuzde": {
+        "type": "int"
+      }
+    }
+  },
+  "sadakatKalan": "{n} ziyaret sonra indirim kazanırsınız.",
+  "@sadakatKalan": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "yakindanUzaga": "Yakından uzağa sıralanıyor",
+  "konumumaYakin": "Konumuma Yakın Salonlar",
+  "salonAramaIpucu": "Salon, ilçe veya hizmet ara (ör. sakal)",
+  "aramayiTemizle": "Aramayı temizle",
+  "yuksekPuanIpucu": "Yalnızca 4.5 ve üzeri puanlı salonlar",
+  "bugunkuRandevu": "Bugünkü\nRandevu",
+  "bosKontenjan": "Boş\nKontenjan",
+  "doluluk": "Doluluk",
+  "salonBugunKapali": "Salon bugün kapalı veya günün saatleri doldu.",
+  "kapali": "Kapalı",
+  "bugunKapali": "Bugün kapalı",
+  "sadakatKarti": "Sadakat kartı",
+  "salonSemantik": "{ad}, {konum}, puan {puan}",
+  "@salonSemantik": {
+    "placeholders": {
+      "ad": {
+        "type": "String"
+      },
+      "konum": {
+        "type": "String"
+      },
+      "puan": {
+        "type": "String"
+      }
+    }
+  },
+  "bugunSaat": "Bugün {saat}",
+  "@bugunSaat": {
+    "placeholders": {
+      "saat": {
+        "type": "String"
+      }
+    }
+  },
+  "varanIndirim": "%{yuzde}{ek} varan indirim",
+  "@varanIndirim": {
+    "placeholders": {
+      "yuzde": {
+        "type": "int"
+      },
+      "ek": {
+        "type": "String"
+      }
+    }
+  },
+  "anonim": "Anonim",
+  "degerlendirmeSayisi": "{n} değerlendirme",
+  "@degerlendirmeSayisi": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "yildizSemantik": "5 üzerinden {n} yıldız",
+  "@yildizSemantik": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "degerlendirmelerYuklenemedi": "Değerlendirmeler yüklenemedi.",
+  "tekrar": "Tekrar",
+  "ilkYorumuSizYapin": "Henüz değerlendirme yok. Randevunuzdan sonra ilk yorumu siz yapabilirsiniz.",
+  "tumunuGor": "Tümünü gör ({n})",
+  "@tumunuGor": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
   }
 }

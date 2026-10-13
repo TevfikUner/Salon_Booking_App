@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/config.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/widgets/berber_desen.dart';
@@ -40,7 +41,7 @@ class _SplashScreenState extends State<SplashScreen>
     if (!mounted) return;
     // Release derleme yanlışlıkla http:// adresle yapılmışsa kişisel veri şifresiz gitmesin
     if (AppConfig.guvensizAdres) {
-      setState(() => _hata = 'Uygulama güvenli sunucuya bağlanacak şekilde yapılandırılmamış. Lütfen uygulamayı güncelleyin.');
+      setState(() => _hata = Dil.t.guvensizYapilandirma);
       return;
     }
     setState(() => _hata = null);
@@ -111,7 +112,7 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Premium Berber Hizmetleri',
+                      Dil.t.premiumBerberHizmetleri,
                       style: GoogleFonts.inter(
                         color: AppTheme.textSecondary,
                         fontSize: 14,

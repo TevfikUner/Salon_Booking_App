@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/widgets/bolum_basligi.dart';
 import 'package:berber_app_ui/data/models/salon.dart';
 
-/// Küçük altın zeminli indirim rozeti: "%20" (salon kartı, hizmet, saat, takvim).
+/// Küçük altın zeminli indirim rozeti: "%20" / "20%" (salon kartı, hizmet, saat, takvim).
 class IndirimRozeti extends StatelessWidget {
   final int yuzde;
-  final String? onEk; // yüzdeye bitişik ek: "'ye varan indirim" → "%20'ye varan indirim"
+  final String? onEk; // verilirse rozetin tüm metni (ör. "%20'ye varan indirim"), yoksa yalnızca yüzde
   final double yaziBoyu;
   const IndirimRozeti({super.key, required this.yuzde, this.onEk, this.yaziBoyu = 11});
 
@@ -17,7 +18,7 @@ class IndirimRozeti extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(gradient: AppTheme.goldGradient, borderRadius: BorderRadius.circular(6)),
-      child: Text('%$yuzde${onEk ?? ''}',
+      child: Text(onEk ?? Dil.t.yuzde(yuzde),
           style: GoogleFonts.inter(color: AppTheme.black, fontSize: yaziBoyu, fontWeight: FontWeight.bold)),
     );
   }
@@ -49,7 +50,7 @@ class KampanyalarKarti extends StatelessWidget {
           ]),
         ],
         const SizedBox(height: 10),
-        Text('İndirim, uygun gün ve saati seçtiğinizde onay ekranında tutara yansır.',
+        Text(Dil.t.indirimOnaydaYansir,
             style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 11)),
       ]),
     );
@@ -68,11 +69,11 @@ class SadakatKartiWidget extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       kenarSaydamlik: 0.3,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('Her ${kart.esik}. ziyaretiniz %${kart.yuzde} indirimli',
+        Text(Dil.t.sadakatKurali(kart.esik, kart.yuzde),
             style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 14)),
         const SizedBox(height: 10),
         Semantics(
-          label: ziyaret == null ? null : '${kart.esik} ziyaretten $ziyaret tanesi tamam',
+          label: ziyaret == null ? null : Dil.t.sadakatDamga(kart.esik, ziyaret),
           child: Wrap(spacing: 6, runSpacing: 6, children: [
             for (var i = 1; i <= kart.esik; i++)
               Container(
@@ -92,10 +93,10 @@ class SadakatKartiWidget extends StatelessWidget {
         const SizedBox(height: 10),
         Text(
           ziyaret == null
-              ? 'Giriş yaptığınızda ziyaretleriniz burada sayılır.'
+              ? Dil.t.sadakatGirisYap
               : kart.siradakiIndirimli
-                  ? 'Sıradaki randevunuz %${kart.yuzde} indirimli! 🎉'
-                  : '${kart.esik - ziyaret - 1} ziyaret sonra indirim kazanırsınız.',
+                  ? Dil.t.sadakatSiradaki(kart.yuzde)
+                  : Dil.t.sadakatKalan(kart.esik - ziyaret - 1),
           style: GoogleFonts.inter(
               color: kart.siradakiIndirimli ? AppTheme.gold : AppTheme.textSecondary,
               fontSize: 12,

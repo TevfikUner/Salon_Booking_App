@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/features/giris/giris_screen.dart';
 import 'package:berber_app_ui/features/giris/isletme_kayit_screen.dart';
@@ -38,17 +39,17 @@ class _RolSecimScreenState extends State<RolSecimScreen> with SingleTickerProvid
           const SizedBox(height: 24),
           const GirisLogosu(boyut: 140),
           const SizedBox(height: 28),
-          Text('Hoş Geldiniz',
+          Text(Dil.t.hosGeldiniz,
               style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 30, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          Text('Devam etmek için rolünüzü seçin', style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 14)),
+          Text(Dil.t.rolunuzuSecin, style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 14)),
           const SizedBox(height: 48),
           SlideTransition(
             position: _kayma(0.2, 0.7, -0.3),
             child: RolKarti(
               icon: Icons.person_outline,
-              baslik: 'Müşteri',
-              aciklama: 'Randevu al, berber bul\nve hizmetlerden yararlan',
+              baslik: Dil.t.musteri,
+              aciklama: Dil.t.musteriRolAciklama,
               gradientColors: const [Color(0xFF2A1F0E), Color(0xFF1A1510)],
               borderColor: AppTheme.gold.withValues(alpha: 0.4),
               onTap: () => _git(const GirisScreen()),
@@ -59,8 +60,8 @@ class _RolSecimScreenState extends State<RolSecimScreen> with SingleTickerProvid
             position: _kayma(0.35, 0.85, 0.3),
             child: RolKarti(
               icon: Icons.store_outlined,
-              baslik: 'İşletme Sahibi',
-              aciklama: 'Salonunuzu kaydedin\nve müşterilerinizi yönetin',
+              baslik: Dil.t.isletmeSahibi,
+              aciklama: Dil.t.isletmeRolAciklama,
               gradientColors: const [Color(0xFF0E1F2A), Color(0xFF101518)],
               borderColor: const Color(0xFF4A90D9).withValues(alpha: 0.4),
               iconColor: const Color(0xFF4A90D9),
@@ -69,8 +70,8 @@ class _RolSecimScreenState extends State<RolSecimScreen> with SingleTickerProvid
           ),
           const SizedBox(height: 12),
           AltBaglanti(
-            soru: 'Zaten hesabınız var mı?',
-            eylem: 'Giriş Yapın',
+            soru: Dil.t.zatenHesabinizVarMi,
+            eylem: Dil.t.girisYapin,
             onTap: () => _git(const GirisScreen()),
           ),
         ]),

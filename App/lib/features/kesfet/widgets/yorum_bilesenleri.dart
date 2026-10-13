@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
 
@@ -28,7 +29,7 @@ class PuanOzetKarti extends StatelessWidget {
               style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 36, fontWeight: FontWeight.bold)),
           Yildizlar(puan: ortalama.round()),
           const SizedBox(height: 4),
-          Text('$toplam değerlendirme', style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 11)),
+          Text(Dil.t.degerlendirmeSayisi(toplam), style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 11)),
         ]),
         const SizedBox(width: 20),
         Expanded(
@@ -77,7 +78,7 @@ class Yildizlar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: '5 üzerinden $puan yıldız',
+      label: Dil.t.yildizSemantik(puan),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         for (var i = 1; i <= 5; i++)
           Icon(i <= puan ? Icons.star : Icons.star_border, color: AppTheme.gold, size: boyut),
@@ -102,7 +103,7 @@ class YorumKarti extends StatelessWidget {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
           Expanded(
-            child: Text(yorum['musteri'] ?? 'Anonim',
+            child: Text(yorum['musteri'] ?? Dil.t.anonim,
                 overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600)),
           ),

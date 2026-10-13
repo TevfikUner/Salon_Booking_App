@@ -1,3 +1,5 @@
+import 'package:berber_app_ui/core/dil.dart';
+
 class Berber {
   final int id;
   final String ad;
@@ -43,7 +45,7 @@ class Berber {
   String get tamAd => '$ad $soyad'.trim();
 
   /// "4.8" ya da henüz değerlendirme yoksa "Yeni"
-  String get puanMetni => degerlendirmeSayisi > 0 ? puan.toStringAsFixed(1) : 'Yeni';
+  String get puanMetni => degerlendirmeSayisi > 0 ? puan.toStringAsFixed(1) : Dil.t.yeni;
 
   factory Berber.fromJson(Map<String, dynamic> j) => Berber(
         // /musteriler/favoriler yanıtı "berber_id" kullanır

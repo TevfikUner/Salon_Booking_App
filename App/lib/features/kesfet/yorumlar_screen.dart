@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/widgets/durum_gorunumleri.dart';
 import 'package:berber_app_ui/data/api/api_client.dart';
@@ -61,7 +62,7 @@ class _YorumlarScreenState extends State<YorumlarScreen> {
         hata: _ozet == null ? _hata : null,
         onTekrar: _sonrakiSayfa,
         builder: (_) => _yorumlar.isEmpty
-            ? const BosGorunum(ikon: Icons.rate_review_outlined, mesaj: 'Henüz değerlendirme yok.')
+            ? BosGorunum(ikon: Icons.rate_review_outlined, mesaj: Dil.t.henuzDegerlendirmeYok)
             : NotificationListener<ScrollNotification>(
                 onNotification: (n) {
                   if (n.metrics.extentAfter < 300) _sonrakiSayfa();
