@@ -63,4 +63,4 @@ Lütfen bulduğunuz hataları Yardım & Destek'ten bildirin.
 - **Testçiler uygulamayı nasıl kullandı?** Hesap oluşturma, salon keşfetme, randevu alma/iptal, bildirimler; bir işletme hesabıyla panel (günün akışı, randevu ekleme, tamamlandı işaretleme).
 - **Hangi geri bildirimleri aldınız, ne değiştirdiniz?** (14 gün sonunda gerçek geri bildirimlerle doldurun.)
 - **Uygulama kime yönelik?** Türkiye'deki berber/erkek kuaförü müşterileri ve salon işletmecileri.
-- **Üretime hazır olduğunuzu nasıl biliyorsunuz?** Kapalı testte çökme oranı (Crashlytics), 1000 eşzamanlı kullanıcı yük testi (`YUK_TESTI.md`), uçtan uca otomatik testler.
+- **Üretime hazır olduğunuzu nasıl biliyorsunuz?** Kapalı testte çökme oranı (Crashlytics), 1000 eşzamanlı kullanıcı yük testi (`docs/load-testing.md`), uçtan uca otomatik testler.

@@ -1,7 +1,8 @@
 # Canlıya Alma Rehberi
 
-Sıfırdan production kurulumu, Play Store'a yükleme, güncelleme ve geri alma. Hesap gerektiren adımların kısa listesi:
-[BENDEN_GEREKENLER.md](BENDEN_GEREKENLER.md). Mimari kararlar: [KARARLAR.md](KARARLAR.md) "Tur 3".
+Sıfırdan production kurulumu (Firebase + Render), Android sürümü, güncelleme ve geri alma. Proje mağazada
+yayınlanmadı; bu rehber yayın için gereken her adımın hazır ve denenmiş olduğunu belgeler. Mimari kararlar:
+[decisions.md](decisions.md) "Tur 3".
 
 ```
 Telefon (Flutter, com.tevfikuner.premiumberber)
@@ -19,7 +20,7 @@ Firebase: Auth, Cloud Messaging, Crashlytics, Analytics    ·    Sentry (isteğe
 # Backend testleri (SQLite)
 cd backend
 python -m venv .venv && .venv/Scripts/pip install -r requirements-dev.txt     # Linux/macOS: .venv/bin/pip
-.venv/Scripts/python -m pytest -p no:cacheprovider                             # 70 passed beklenir
+.venv/Scripts/python -m pytest -p no:cacheprovider
 
 # Aynı testler PostgreSQL'e karşı (Docker varsa)
 docker run -d --name pg-test -e POSTGRES_USER=berber -e POSTGRES_PASSWORD=test -e POSTGRES_DB=berber_test -p 127.0.0.1:55432:5432 postgres:16
@@ -38,14 +39,24 @@ python ../scripts/yasal_senkron.py --kontrol && python ../scripts/magaza_kontrol
 
 ## 1. Firebase
 
-BENDEN_GEREKENLER adım 1 ve 3: yeni Android uygulaması (`com.tevfikuner.premiumberber`) + `google-services.json`
-(`python scripts/google_services_yukle.py <dosya>`), E-posta/Şifre girişi, servis hesabı anahtarı, Crashlytics.
+1. Firebase Console → proje → ⚙ **Proje ayarları** → **Uygulama ekle** → Android. Paket adı
+   `com.tevfikuner.premiumberber`, SHA-1: upload anahtarının parmak izi
+   (`keytool -list -v -keystore <upload-keystore.jks> -alias upload`).
+2. İnen `google-services.json`'u yerleştirin (paket adını doğrular, yanlış dosyada hiçbir şeyi değiştirmez):
+   `python scripts/google_services_yukle.py ~/Downloads/google-services.json`
+3. **Authentication → Sign-in method → E-posta/Şifre** açık; **Templates** dili Türkçe.
+4. **Hizmet hesapları → Yeni özel anahtar oluştur** → JSON. İçeriği Render'da `FIREBASE_CREDENTIALS_JSON` olur;
+   kimseyle paylaşılmaz, repoya girmez.
+5. **Crashlytics** → Etkinleştir; **Analytics** bağlı olmalı. Cloud Messaging ek ayar istemez (V1 API).
+6. Google Cloud Console → **Kimlik bilgileri** → "Android key (auto created by Firebase)" → **Android uygulamaları**
+   kısıtı: paket adı + SHA-1. Repo herkese açık olduğu için önemli.
+7. Play'e ilk yüklemeden sonra **Uygulama bütünlüğü → Uygulama imzalama** sayfasındaki SHA-1/SHA-256'yı da Firebase
+   uygulamasına ekleyin.
 
 ## 2. Render
 
 ### İlk kurulum
-1. GitHub'da `feature/v1-hazirlik` → `main` birleştirin.
-2. Render → **New → Blueprint** → repo → dal `main`. `render.yaml` şunları oluşturur:
+1. Render → **New → Blueprint** → repo → dal `main`. `render.yaml` şunları oluşturur:
 
    | Kaynak | Plan | Not |
    |---|---|---|
@@ -53,8 +64,18 @@ BENDEN_GEREKENLER adım 1 ve 3: yeni Android uygulaması (`com.tevfikuner.premiu
    | `premium-berber-gorevler` (worker) | Starter | `python worker.py` — zamanlanmış görevler yalnızca burada |
    | `premium-berber-db` | basic-256mb | Frankfurt, günlük otomatik yedek |
 
-3. Gizli değerler: `FIREBASE_CREDENTIALS_JSON`, `DESTEK_EPOSTA`, isteğe bağlı `SENTRY_DSN` (tablo: BENDEN_GEREKENLER 4.3).
-4. Diğer ayarlanabilir değişkenler (varsayılanları uygundur):
+   Ücretsiz plan neden kullanılmaz: [decisions.md](decisions.md) "Render planı".
+2. Gizli değerler (**premium-berber-ortak** grubu):
+
+   | Değişken | Değer | Zorunlu |
+   |---|---|---|
+   | `FIREBASE_CREDENTIALS_JSON` | Servis hesabı JSON'unun **tüm içeriği** (Firebase adım 4) | ✅ |
+   | `DESTEK_EPOSTA` | Gerçek destek adresi — gizlilik sayfasında görünür | ✅ |
+   | `ADMIN_UIDS` | Boş bırakılır; ilk yönetici aşağıda komutla eklenir | — |
+   | `SENTRY_DSN` | sentry.io → Python/FastAPI projesi. Boşsa hata izleme kapalı | İsteğe bağlı |
+   | `VERI_ANAHTARI` | Kişisel veri şifreleme anahtarı — boş bırakılır, açmak için aşağıdaki bölüm | İsteğe bağlı |
+
+3. Diğer ayarlanabilir değişkenler (varsayılanları uygundur):
 
    | Değişken | Varsayılan | Ne zaman değiştirilir |
    |---|---|---|
@@ -91,6 +112,18 @@ python araclar.py silme-uygula <talep_id>          # kimliği e-postayla doğrul
 
 > Production veritabanına `seed_demo.py` **çalıştırmayın** (zaten `ORTAM=production`'da reddeder).
 
+### Kişisel veri şifreleme (isteğe bağlı)
+Ad, telefon, e-posta, notlar ve yorumlar veritabanında Fernet ile şifreli durur; döküm veya yedek sızsa bile okunamaz
+(KVKK teknik tedbir). Tasarım: [decisions.md](decisions.md) "Kişisel veri şifreleme".
+
+> ⚠️ Anahtar kaybolursa şifreli veri geri getirilemez. Önce yedekleyin, sonra açın.
+
+1. Shell: `python araclar.py anahtar-uret` → değeri parola yöneticisine kaydedin.
+2. Render → **Env Groups → premium-berber-ortak** → `VERI_ANAHTARI` = o değer → Save (web ve worker yeniden başlar).
+3. Shell: `python araclar.py veri-sifrele` (mevcut kayıtlar) → `python araclar.py saglik` → "Veri şifreleme: açık".
+- Anahtar değişimi: yeni değer `VERI_ANAHTARI`'na, eskisi `VERI_ANAHTARI_ESKI`'ye → `veri-sifrele` → eskisini silin.
+- Kapatma: önce `python araclar.py veri-coz`, sonra `VERI_ANAHTARI`'nı silin.
+
 ### İzleme
 - **Loglar:** Render → servis → Logs. Her satır JSON: `istek_id`, `yontem`, `yol`, `durum`, `sure_ms`. Kullanıcı bir hata
   kodu iletirse (ör. "bu kodu iletin: 3f11313e6986") logda `istek_id` ile aratın.
@@ -99,7 +132,7 @@ python araclar.py silme-uygula <talep_id>          # kimliği e-postayla doğrul
 - **Sağlık:** Render `/health`'i izler; 503 dönerse trafik kesilir ve servis yeniden başlatılır.
 
 ### Ölçekleme
-Kapasite ölçümleri [YUK_TESTI.md](YUK_TESTI.md). Kısaca: 2 worker ≈ 150 istek/sn; 6 worker 1000 eşzamanlı agresif kullanıcıyı
+Kapasite ölçümleri [load-testing.md](load-testing.md). Kısaca: 2 worker ≈ 150 istek/sn; 6 worker 1000 eşzamanlı agresif kullanıcıyı
 p95 270 ms ile taşıdı. Render → web servisi → **Settings → Instance Type** (Standard) ve `WEB_CONCURRENCY=4`;
 daha fazlası için **Scaling → Instances: 2**. Worker tek kopya yeterli (fazlası zararsız, DB kilidi var).
 
@@ -119,8 +152,8 @@ flutter build appbundle --release \
   --dart-define=DESTEK_EPOSTA=destek@alanadiniz.com
 # → build/app/outputs/bundle/release/app-release.aab
 ```
-- İmza: `App/android/key.properties` + `C:\Users\VICTUS\.premium-berber\upload-keystore.jks` (yoksa derleme debug anahtarıyla
-  imzalar ve Play reddeder — `keytool -printcert -jarfile build/app/outputs/bundle/release/app-release.aab` çıktısında
+- İmza: `App/android/key.properties` (örnek: `key.properties.example`) repo dışındaki upload anahtar deposunu gösterir
+  (yoksa derleme debug anahtarıyla imzalar ve Play reddeder — `keytool -printcert -jarfile build/app/outputs/bundle/release/app-release.aab` çıktısında
   `CN=Tevfik Uner, OU=Premium Berber` görünmeli).
 - `API_URL` `https://` ile başlamazsa release uygulama açılışta durur (bilinçli koruma).
 

@@ -1,8 +1,9 @@
-# Premium Berber — Flutter uygulaması
+# Premium Berber — Flutter app
 
-Kurulum, çalıştırma ve yayına alma için kökteki [README.md](../README.md)'ye bakın.
+Setup, architecture and test instructions are in the root [README](../README.md).
 
 ```bash
 flutter pub get
-flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000
+flutter run                                              # Android emulator → http://10.0.2.2:8010
+flutter run --dart-define=API_URL=http://192.168.1.20:8010   # physical device on the same Wi-Fi
 ```

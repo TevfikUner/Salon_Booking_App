@@ -12,11 +12,11 @@ günün akışını telefonundan yönetiyor ve gelmeyen müşteriler yüzünden 
    # .env içinde: AUTH_MODE=dev
    alembic upgrade head
    SEED_MUSTERI_UID=<musteri uid>  SEED_ISLETME_UID=<isletme uid>  python seed_demo.py
-   uvicorn main:app --host 0.0.0.0 --port 8000
+   uvicorn main:app --host 0.0.0.0 --port 8010
    ```
    (Windows PowerShell: `$env:SEED_MUSTERI_UID="..."; $env:SEED_ISLETME_UID="..."; python seed_demo.py`)
 3. İki cihaz/emülatör: birinde müşteri, diğerinde işletme hesabıyla giriş yapın
-   (`flutter run --dart-define=API_BASE_URL=http://<bilgisayar-ip>:8000`).
+   (`flutter run --dart-define=API_URL=http://<bilgisayar-ip>:8010`).
 4. Seed demo için şunları hazırlar: Ahmet'in Ali Usta ile 4 geçmiş randevusu (→ "Her Zamanki"), Tolga'nın 2 kez gelmemesi
    (→ "Riskli"), salonda bugün 6 randevu, 10 gün sonra "Tadilat" kapalı günü, Mehmet Kalfa'nın 2 gün sonra izni.
 
@@ -97,5 +97,5 @@ eden bir akış. Komisyon yok, SMS maliyeti yok."*
 
 ### Yedek plan (internet/cihaz sorunu olursa)
 
-Tarayıcıda `http://localhost:8000/docs` → sağ üst **Authorize** → `dev:demo-isletme` → `GET /panel/akis` ve
+Tarayıcıda `http://localhost:8010/docs` → sağ üst **Authorize** → `dev:demo-isletme` → `GET /panel/akis` ve
 `dev:demo-musteri` → `GET /randevular/her-zamanki` yanıtlarını gösterin.

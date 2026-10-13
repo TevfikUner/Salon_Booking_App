@@ -15,7 +15,7 @@ Tarih: 2026-10-10 · Dal: `feature/v1-hazirlik`
 
 **Önemli kapasite bulgusu:** 2 worker (Render Starter varsayılanı) ~150 istek/sn civarında doyuyor. Locust senaryosundaki
 kullanıcılar 1–4 sn'de bir istek atıyor (gerçek kullanıcıdan çok daha agresif); 1000 kullanıcı ≈ 410 istek/sn. Bu yükte
-2 worker çöktü (aşağıda "stres-2w"), 6 worker hedeflerin hepsini tuttu. Plan önerisi `KARARLAR.md`'de.
+2 worker çöktü (aşağıda "stres-2w"), 6 worker hedeflerin hepsini tuttu. Plan önerisi [decisions.md](decisions.md)'de.
 
 ## Ortam
 
@@ -97,7 +97,7 @@ Ham CSV'ler: `backend/yuk/sonuc/{once,sonra,stres1000,stres1000_w6}_*.csv`
 | 1 | `/randevular/musait-takvim` 31 günün her biri için ayrı tatil + izin sorgusu atıyordu (~62 sorgu, N+1) | `slot_servisi.kapali_nedenler()` tüm aralığı 2 sorguda çeker | p50 52→9 ms, p95 130→43 ms |
 | 2 | Bağlantı havuzu dolunca `sqlalchemy.exc.TimeoutError` → 500 "Beklenmeyen hata" | 503 + `Retry-After: 5` + Türkçe mesaj (`main.py`), test: `test_havuz_doluysa_500_degil_503` | Aşırı yükte istemci "tekrar deneyin" görür, Sentry'ye hata yağmaz |
 | 3 | Havuz bekleme süresi 10 sn → istekler uzun asılı kalıyordu | `DB_POOL_TIMEOUT` varsayılanı 5 sn | Aşırı yükte hızlı geri bildirim |
-| 4 | 2 worker CPU'da doyuyor (~150 istek/sn) | `WEB_CONCURRENCY` ile ölçeklenir; 6 worker → 408 istek/sn hedefler içinde | Plan önerisi KARARLAR.md |
+| 4 | 2 worker CPU'da doyuyor (~150 istek/sn) | `WEB_CONCURRENCY` ile ölçeklenir; 6 worker → 408 istek/sn hedefler içinde | Plan önerisi decisions.md |
 | 5 | Worker yenilemesinde (her 2000 istek) bağlantı kopması | `--max-requests 10000 --max-requests-jitter 1000` | Yenileme 5 kat seyrek |
 | 6 | `yuk/veri.py` PostgreSQL'de ID sayaçlarını sıfırlamıyordu (2. kurulumda 404) | `TRUNCATE ... RESTART IDENTITY CASCADE` | Test tekrarlanabilir |
 

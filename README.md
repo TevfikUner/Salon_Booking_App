@@ -9,13 +9,12 @@ işletme sahibi günün akışını, ekibini, menüsünü ve kapalı günlerini 
 | `App/` | Flutter uygulaması (müşteri + işletme paneli tek uygulamada, rol bazlı) |
 | `docker-compose.yml` | Yerel production benzeri yığın: PostgreSQL + API + worker |
 | `render.yaml` | Render blueprint (web + worker + PostgreSQL, Frankfurt) |
-| `backend/yuk/` | Yük, yarış ve kesinti testleri (Locust) — sonuçlar [YUK_TESTI.md](YUK_TESTI.md) |
+| `backend/yuk/` | Yük, yarış ve kesinti testleri (Locust) — sonuçlar [docs/load-testing.md](docs/load-testing.md) |
 | `MAGAZA/` | Play Store metinleri, görseller, Veri Güvenliği ve içerik derecelendirme yanıtları, kapalı test rehberi |
 | `scripts/` | Görsel üretimi, yasal metin senkronu, mağaza kontrolü, google-services yükleme, yedekleme |
 
-**Yayın durumu:** [YAYIN_KONTROL_LISTESI.md](YAYIN_KONTROL_LISTESI.md) · **Sizden gerekenler:** [BENDEN_GEREKENLER.md](BENDEN_GEREKENLER.md) · **Dağıtım:** [CANLIYA_ALMA.md](CANLIYA_ALMA.md)
+**Belgeler:** [docs/](docs/) — kararlar, dağıtım, yük testi, demo senaryosu
 
-Diğer belgeler: [KARARLAR.md](KARARLAR.md) · [YUK_TESTI.md](YUK_TESTI.md) · [ANALIZ_RAPORU.md](ANALIZ_RAPORU.md) · [ILHAM_ANALIZI.md](ILHAM_ANALIZI.md) · [DEMO.md](DEMO.md) · [YAPILACAKLAR.md](YAPILACAKLAR.md)
 
 ---
 
@@ -102,13 +101,13 @@ lib/
 
 Kural: ekran dosyası durum + düzen taşır; görsel parçalar `widgets/` altına. Dosya başına ≤ 250 satır.
 - Paket adı `com.tevfikuner.premiumberber`, minSdk 24, targetSdk 36, R8 açık.
-- Release imzası: `android/key.properties` (gitignore) → anahtar deposu repo dışında; ayrıntı BENDEN_GEREKENLER §2.
+- Release imzası: `android/key.properties` (gitignore) → anahtar deposu repo dışında; ayrıntı docs/deployment.md.
 - Debug derlemesi `http` adreslerine izin verir; release yalnızca HTTPS kullanır.
 - Yasal metinler `backend/yasal/*.md`'den üretilir: `python scripts/yasal_senkron.py` (elle düzenlemeyin).
 
 ## 3. Yayına alma
 
-Adım adım: [CANLIYA_ALMA.md](CANLIYA_ALMA.md) (Render + Play Console + güncelleme/geri alma). Hesap gerektiren işler: [BENDEN_GEREKENLER.md](BENDEN_GEREKENLER.md).
+Adım adım: [docs/deployment.md](docs/deployment.md) (Firebase + Render + Android sürümü, güncelleme/geri alma).
 
 Yerelde production benzeri yığın (Docker gerekir):
 

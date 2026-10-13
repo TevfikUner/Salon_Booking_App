@@ -1,10 +1,10 @@
 # Render Blueprint — https://render.com/docs/blueprint-spec
-# Kurulum: Render → New → Blueprint → bu repo → dal: main (feature/v1-hazirlik birleştirildikten sonra).
-# Gizli değerler (sync: false) panelden girilir. Adım adım: CANLIYA_ALMA.md
+# Kurulum: Render → New → Blueprint → bu repo → dal: main.
+# Gizli değerler (sync: false) panelden girilir. Adım adım: docs/deployment.md
 #
 # Mimari: web (gunicorn, N worker) + ayrı zamanlanmış görev süreci (worker) + yönetilen PostgreSQL.
 # Görevler yalnızca worker'da çalışır; yine de DB kilidi (gorev_kilitleri) çift çalışmayı engeller.
-# Ücretsiz plan uykuya geçtiği ve worker desteklemediği için önerilmez (bkz. KARARLAR.md).
+# Ücretsiz plan uykuya geçtiği ve worker desteklemediği için önerilmez (bkz. docs/decisions.md "Render planı").
 envVarGroups:
   - name: premium-berber-ortak
     envVars:
@@ -25,7 +25,7 @@ envVarGroups:
       - key: DESTEK_EPOSTA
         sync: false
       # İsteğe bağlı: kişisel veri şifreleme anahtarı (boş bırakılabilir). Girerseniz YEDEKLEYİN ve Shell'den
-      # `python araclar.py veri-sifrele` çalıştırın. Ayrıntı: BENDEN_GEREKENLER.md §10
+      # `python araclar.py veri-sifrele` çalıştırın. Ayrıntı: docs/deployment.md "Kişisel veri şifreleme"
       - key: VERI_ANAHTARI
         sync: false
 

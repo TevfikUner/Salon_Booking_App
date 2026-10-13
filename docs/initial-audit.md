@@ -43,7 +43,7 @@ Format: `[Öncelik] · [Efor] · Dosya:satır · Açıklama · Çözüm · Karar
 
 | # | Öncelik · Efor | Dosya:satır | Açıklama | Çözüm | Karar | Durum |
 |---|---|---|---|---|---|---|
-| H1 | Kritik · S | backend/auth.py:9 | `ADMIN_SECRET` varsayılanı (`***KALDIRILDI***`) public repoda açık. Tüm admin uçları bu tek header'a bağlı. | Varsayılan kaldırıldı; env yoksa admin-secret yolu tamamen kapalı. Admin yetkisi Firebase UID listesiyle (`ADMIN_UIDS`). **Şifre git geçmişinde kaldığı için değiştirilmeli** (BENDEN_GEREKENLER). | UYGULA | ✅ |
+| H1 | Kritik · S | backend/auth.py:9 | `ADMIN_SECRET` varsayılanı public repoda açık. Tüm admin uçları bu tek header'a bağlı. | Varsayılan kaldırıldı; env yoksa admin-secret yolu tamamen kapalı. Admin yetkisi Firebase UID listesiyle (`ADMIN_UIDS`). | UYGULA | ✅ |
 | H2 | Kritik · M | backend/routers/*.py (`x_firebase_uid: Header`) | Kimlik doğrulama yok: istemci `x-firebase-uid` header'ını kendisi yazıyor; herkes başkası adına randevu alabilir/silebilir, profil okuyabilir. | Firebase ID token (`Authorization: Bearer`) backend'de `firebase_admin.auth.verify_id_token` ile doğrulanıyor. Geliştirme modunda (`AUTH_MODE=dev`) imzasız çözümleme. | UYGULA | ✅ |
 | H3 | Kritik · S | backend/main.py:9-10 | `isletmeler` router'ı bağlanmamış → `/isletmeler/kayit` 404, işletme kaydı hiç çalışmıyor. | Router bağlandı; kayıt token'dan UID alıyor. | UYGULA | ✅ |
 | H4 | Kritik · S | App/lib/main.dart:40-48 | FCM token hiçbir zaman backend'e gönderilmiyor (`fcm-token-guncelle` çağrılmıyor) → hiçbir push bildirimi ulaşmıyor. Ön planda gelen bildirim gösterilmiyor. | Girişten sonra token kaydı + `onTokenRefresh`; ön planda SnackBar. | UYGULA | ✅ |
@@ -103,9 +103,9 @@ Format: `[Öncelik] · [Efor] · Dosya:satır · Açıklama · Çözüm · Karar
 | P7 | Yüksek · S | HTTPS / cleartext | `usesCleartextTraffic="true"` release manifest'te. | Yalnızca debug/profile manifest'te. Render HTTPS sağlar. | UYGULA | ✅ |
 | P8 | Yüksek · S | FCM | Token kaydı yok, Android 13 bildirim izni yok, servis hesabı yalnızca dosyadan. | Token kaydı, `POST_NOTIFICATIONS`, `FIREBASE_CREDENTIALS_JSON` env desteği. | UYGULA | ✅ |
 | P9 | Yüksek · S | KVKK | Açık rıza alınmıyor; hesap silme yok. | Kayıtta zorunlu aydınlatma onayı + isteğe bağlı ticari ileti izni (tarihleriyle saklanıyor); hesap silme = anonimleştirme. | UYGULA | ✅ |
-| P10 | Yüksek · S | Mağaza | `applicationId=com.example…`, release debug anahtarıyla imzalanıyor. | `key.properties` varsa release imzası; applicationId değişikliği Firebase kaydı gerektirdiği için BENDEN_GEREKENLER. | UYGULA | 🟡 |
+| P10 | Yüksek · S | Mağaza | `applicationId=com.example…`, release debug anahtarıyla imzalanıyor. | `key.properties` varsa release imzası; applicationId değişikliği Firebase kaydı gerektirdiği için hesap sahibine bırakıldı ([deployment.md](deployment.md)). | UYGULA | 🟡 |
 | P11 | Orta · S | Yedekleme | Yok. | Render Postgres otomatik yedek + `scripts/yedekle.sh` (pg_dump). | UYGULA | ✅ |
-| P12 | Orta · S | Uploads | Render diski kalıcı değil. | Kalıcı disk/obje depolama → BENDEN_GEREKENLER. | SONRAYA | ⏭️ |
+| P12 | Orta · S | Uploads | Render diski kalıcı değil. | Kalıcı disk/obje depolama → yol haritası. | SONRAYA | ⏭️ |
 | P13 | Orta · S | Sağlık kontrolü | Yok. | `/saglik` ucu (DB ping). | UYGULA | ✅ |
 | P14 | Düşük · M | Rate limiting | Yok. | Render/Cloudflare katmanında; sonraya. | SONRAYA | ⏭️ |
 
@@ -146,7 +146,7 @@ Format: `[Öncelik] · [Efor] · Dosya:satır · Açıklama · Çözüm · Karar
 | Canlı API uçtan uca (uvicorn + httpx) | ✅ kayıt (KVKK) → salon → hizmet → berber → takvim → saat → randevu → aynı slota ikinci kişi 409 → işletme panelinde görünme → bekleme listesi → iptal → Her Zamanki |
 | `flutter analyze` | ✅ **No issues found** (başlangıçta 179 info) |
 | `flutter test` | ✅ 7/7 (yardımcılar, model ayrıştırma, slot widget'ı) |
-| `flutter build apk --debug` | ⚠️ Ortam engeli. 1. deneme: JDK 25 ↔ Gradle 8.14 uyumsuz → Gradle 9.1.0 + AGP 8.13.0'a yükseltildi, bu aşama geçildi. 2. deneme: Android SDK lisansları kabul edilmemiş (NDK 28.2) → `flutter doctor --android-licenses` gerekiyor (BENDEN_GEREKENLER #5). Dart tarafı `analyze` ile derleme hatasız. |
+| `flutter build apk --debug` | ⚠️ Ortam engeli. 1. deneme: JDK 25 ↔ Gradle 8.14 uyumsuz → Gradle 9.1.0 + AGP 8.13.0'a yükseltildi, bu aşama geçildi. 2. deneme: Android SDK lisansları kabul edilmemiş (NDK 28.2) → `flutter doctor --android-licenses` gerekiyor (sonradan kabul edildi). Dart tarafı `analyze` ile derleme hatasız. |
 | Docker imajı | ⚠️ Bu makinede Docker yok; Dockerfile/compose derlenerek doğrulanamadı |
 
 ## Sonraya Bırakılanlar
@@ -157,7 +157,7 @@ Format: `[Öncelik] · [Efor] · Dosya:satır · Açıklama · Çözüm · Karar
 | G8 Tüm uçlara Pydantic `response_model` | Davranış değiştirmeyen, geniş kapsamlı bir refactor; çekirdek akış önceliklendirildi. |
 | G9 Kapsamlı erişilebilirlik denetimi | Yeni ekranlarda tooltip/Semantics eklendi; eski ekranların tamamı ayrı bir tur ister. |
 | G10 Paket sürümlerinin toplu yükseltilmesi | 82 paketin major güncellemesi regresyon riski taşıyor; ayrı branch'te yapılmalı. |
-| P10 `applicationId` değişikliği | Firebase'de yeni Android uygulaması kaydı gerektiriyor (BENDEN_GEREKENLER #8). |
+| P10 `applicationId` değişikliği | Firebase'de yeni Android uygulaması kaydı gerektiriyor ([deployment.md](deployment.md)). |
 | P12 Kalıcı yükleme depolaması | Ücretli/harici servis hesabı gerekiyor. |
 | P14 Rate limiting | Render önünde Cloudflare veya `slowapi`; trafik oluşunca. |
 | F6 Reserve with Google | Partnerlik başvurusu gerekiyor. |

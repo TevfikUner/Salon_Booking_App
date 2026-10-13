@@ -90,7 +90,7 @@ Klonlanamayan repo yok (26/26). Atlananlar (konu dışı): `DietrichGebert/ponyt
 | Mola / öğle arası | ❌ → ✅ #4 | `gun_mesaisi` tek aralık döndürüyor | Gerato25 (2 vardiya), vfix (çoklu aralık + break_duration), django (Unavailability), rafaelmachadobr |
 | Hizmet süresi ve fiyat varyasyonları | 🟡 | Salon bazlı fiyat/süre, randevuda mühürleniyor; berbere göre fiyat yok, her berber her hizmeti yapıyor | Gerato25 (dükkan × hizmet fiyatı), vfix ve django (personel ↔ hizmet eşleşmesi), Snipped (kategori/cinsiyet), CRM-laravel (kategori, bakım ipuçları) |
 | Paket / kampanya | ❌ | — | Sohna (Deals), CRM-laravel (indirim % + tarih aralığı), Gerato25 (Promotion), Snipped (kupon), Doctor-Hunt (promo kodu) |
-| Ödeme / kapora | ❌ | ANALIZ_RAPORU F7 → SONRAYA | DebankurMandal (Stripe ⚠️), himanshugoyal77 (Stripe, kapalı), calma (Razorpay/nakit), django (tam/kapora), vfix ("Ödeme bekliyor") |
+| Ödeme / kapora | ❌ | initial-audit.md F7 → SONRAYA | DebankurMandal (Stripe ⚠️), himanshugoyal77 (Stripe, kapalı), calma (Razorpay/nakit), django (tam/kapora), vfix ("Ödeme bekliyor") |
 | Sadakat puanı | ❌ | — (Güven Skoru sadakat değil, risk göstergesi) | Gerçek sadakat hiçbirinde yok; en yakını kupon/promo (Snipped, Doctor-Hunt) |
 | Yorum ve fotoğraflı değerlendirme | 🟡 → 🟡 #3 (yorumlar görünür; fotoğraf ⏭️ #11) | Puan + yorum yazılıyor, berber/salon ortalaması güncelleniyor; **uygulamada yorumlar okunmuyor**, fotoğraf yok | dalpat98, Sohna, Gerato25, Doctor-Hunt, antoni-codes (puan + tıraş sayısı), Sarah358. Fotoğraflı yorum hiçbirinde yok |
 | Galeri / portföy | 🟡 | `SalonFotograf` tablosu var, `/salonlar/{id}` dönüyor; yükleme ucu ve gösterim yok | dalpat98, Sarah358 (portfolio), antoni-codes (stil galerisi), himanshugoyal77 (past work) |
@@ -146,7 +146,7 @@ Klonlanamayan repo yok (26/26). Atlananlar (konu dışı): `DietrichGebert/ponyt
 - **Backend:** Migration ile üç alan. (a) `Salon.mola_baslangic/mola_bitis` (nullable "HH:MM"). (b) `Berber.kapali_gunler` (salondaki gibi weekday listesi). (c) `BerberIzin.bas_saat/bit_saat` (nullable; boşsa tam gün, doluysa kısmi bloke); `(berber_id, tarih)` tekilliği kaldırılır ki aynı güne birden çok bloke girilebilsin (SQLite `render_as_batch`). `slot_servisi`: berberin haftalık izni `kapali_nedenler`'e; mola ve kısmi blokeler `dolu_araliklar`'a aralık olarak eklenir (mevcut çakışma mantığı aynen çalışır). Panel: `PUT /panel/personel/{id}` (kapali_gunler), `POST /panel/izin` (isteğe bağlı saat aralığı), `PUT /panel/salon` (mola). Alanlar boşken davranış bugünküyle birebir aynı. **pytest:** mola slotu kapatır; molaya taşan 60 dk hizmet reddedilir; haftalık izin günü takvimde yok; kısmi bloke yalnızca o saatleri kapatır; bloke saatine panelden de randevu girilemez; mevcut testler değişmeden yeşil.
 - **Frontend:** Ekip & Menü → personel düzenle: haftalık izin günü çipleri. Kapalı Günler: "Saat aralığı bloke et" (tarih + başlangıç/bitiş). Salon ayarları: öğle arası.
 - **Fayda:** Gerçek berber düzenine uyar (öğle arası, sabit izin günü, kısa dışarı çıkış); müşteri berberin olmadığı saate randevu alamaz.
-- **Önerim: UYGULA.** KARARLAR'daki "7 günlük ayrı saat tablosu sonraya" kararını bozmaz; aynı modeli küçük adımla genişletir.
+- **Önerim: UYGULA.** decisions.md'deki "7 günlük ayrı saat tablosu sonraya" kararını bozmaz; aynı modeli küçük adımla genişletir.
 
 **#5 — Müşteri kartı ve kalıcı işletme notu (mini CRM)**
 [Öncelik: Yüksek] · [Efor: M] · İlham: CRM-laravel (müşteri yönetimi ve analitik), edoc (hasta detayı), masifdevs (geçmiş sekmeleri), django (`additional_info`)
@@ -154,7 +154,7 @@ Klonlanamayan repo yok (26/26). Atlananlar (konu dışı): `DietrichGebert/ponyt
 - **Backend:** `MusteriNotu(salon_id, musteri_id, metin ≤500, guncelleme)` + tekil `(salon_id, musteri_id)` + migration. `GET /panel/musteriler/{musteri_id}`: **yalnızca o salonda randevusu olan müşteri** için ziyaret sayısı, son ziyaret, toplam harcama, en sık berber ve hizmet, son 10 randevu, güven skoru ve not. `PUT /panel/musteriler/{id}/not`. İşletme ve personel okuyup yazabilir (`panel_baglami`). Hesap silmede (`hesap_servisi`) notlar silinir. **pytest:** başka salonun müşterisi 404; personel erişimi; not 500 karakter sınırı; hesap silmede notun silinmesi.
 - **Frontend:** Akış kartında müşteri adına dokununca "Müşteri Kartı" alt sayfası (yükleniyor/boş/hata); not varsa kartta 📝 işareti.
 - **Fayda:** Müdavime kişisel hizmet ("her zamanki gibi mi?"); yeni personel müşteriyi tanır.
-- **Önerim: UYGULA.** ⚠️ İşletmenin müşteri hakkında tuttuğu not kişisel veridir: yasal metne bir cümle eklenmesi hukukçu onayı ister (BENDEN_GEREKENLER'e yazılacak). Ücretli servis gerekmiyor.
+- **Önerim: UYGULA.** ⚠️ İşletmenin müşteri hakkında tuttuğu not kişisel veridir: yasal metne bir cümle eklenmesi hukukçu onayı ister. Ücretli servis gerekmiyor.
 
 **#6 — Takvimde dolu günlerin işaretlenmesi**
 [Öncelik: Orta] · [Efor: S] · İlham: Doctor-Hunt (7 günlük pencerede 2 okumayla gün başına boş slot sayısı), Sarah358 ve CRM-laravel (dolu slotlar gri)
@@ -191,14 +191,14 @@ Klonlanamayan repo yok (26/26). Atlananlar (konu dışı): `DietrichGebert/ponyt
 ### SONRAYA / GEREK YOK
 
 > **Tur 5 (2026-10-12, dal `feature/tur5`, `main`'e birleştirildi):** #12, #13, #14, #15, #16, #19, #20 ✅ uygulandı
-> (ayrıntı ve kararlar: KARARLAR.md "Tur 5", ILERLEME.md). #10, #11, #17 ücretli servis/sözleşme gerektirdiği için
-> bekliyor. #18 çoklu dil ✅ (2026-10-13, Türkçe + İngilizce; KARARLAR.md "Çoklu dil").
+> (ayrıntı ve kararlar: decisions.md "Tur 5"). #10, #11, #17 ücretli servis/sözleşme gerektirdiği için
+> bekliyor. #18 çoklu dil ✅ (2026-10-13, Türkçe + İngilizce; decisions.md "Çoklu dil").
 
-**#10 — Online kapora / ödeme** · [Yüksek] · [L] · İlham: django (`down_payment`), calma (Razorpay), DebankurMandal ve himanshugoyal77 (Stripe) · Bizde ❌ · Backend: ödeme kuruluşu entegrasyonu, webhook, iade; frontend: ödeme sayfası · Fayda: no-show'a karşı en güçlü araç · **Önerim: SONRAYA.** 💰 Ücretli servis ve sözleşme gerekiyor (TR'de iyzico/PayTR; Stripe TR'de doğrudan yok). Ayrıca DebankurMandal'daki gibi gizli anahtar asla istemcide olmamalı. ANALIZ_RAPORU F7 ile aynı karar.
+**#10 — Online kapora / ödeme** · [Yüksek] · [L] · İlham: django (`down_payment`), calma (Razorpay), DebankurMandal ve himanshugoyal77 (Stripe) · Bizde ❌ · Backend: ödeme kuruluşu entegrasyonu, webhook, iade; frontend: ödeme sayfası · Fayda: no-show'a karşı en güçlü araç · **Önerim: SONRAYA.** 💰 Ücretli servis ve sözleşme gerekiyor (TR'de iyzico/PayTR; Stripe TR'de doğrudan yok). Ayrıca DebankurMandal'daki gibi gizli anahtar asla istemcide olmamalı. initial-audit.md F7 ile aynı karar.
 
 **#11 — Salon galerisi / berber portföyü + fotoğraflı yorum** · [Orta] · [M] · İlham: dalpat98, Sarah358 (portfolio), antoni-codes, himanshugoyal77 · Bizde 🟡 (tablo var, yükleme ve gösterim yok) · **Önerim: SONRAYA.** Render diski kalıcı değil (P12); 💰 obje depolama gerekiyor (Firebase Storage yeni projelerde Blaze planı ister, alternatif Cloudinary ücretsiz katmanı) ve fotoğraflı yorumda moderasyon gerekiyor.
 
-**#12 — Kampanya / paket fiyat** ✅ Tur 5 · [Orta] · [M–L] · İlham: Sohna (Deals), CRM-laravel (indirim % + tarih aralığı + gizli), Gerato25 (Promotion), Snipped (kupon) · Bizde ❌ · **Önerim: SONRAYA.** Boş günleri doldurmak için değerli ama fiyat mühürleme, rapor ve "uygulamadaki fiyat salondakiyle tutmuyor" (ANALIZ_RAPORU'ndaki TR şikâyeti) riskleri ayrı bir ürün kararı gerektiriyor.
+**#12 — Kampanya / paket fiyat** ✅ Tur 5 · [Orta] · [M–L] · İlham: Sohna (Deals), CRM-laravel (indirim % + tarih aralığı + gizli), Gerato25 (Promotion), Snipped (kupon) · Bizde ❌ · **Önerim: SONRAYA.** Boş günleri doldurmak için değerli ama fiyat mühürleme, rapor ve "uygulamadaki fiyat salondakiyle tutmuyor" (initial-audit.md'deki TR şikâyeti) riskleri ayrı bir ürün kararı gerektiriyor.
 
 **#13 — Berber ↔ hizmet eşleşmesi ve berbere göre fiyat/süre** ✅ Tur 5 · [Orta] · [M] · İlham: vfix (`employee_service`), django (`services_offered`), Gerato25 (Price) · Bizde 🟡 · **Önerim: SONRAYA.** Boyacı/usta berber ayrımı olan salonlar için yararlı; randevu akışı sırası (hizmet → berber) ve slot hesabı etkilenir. #4'ten sonra ele alınmalı.
 
@@ -218,7 +218,7 @@ Klonlanamayan repo yok (26/26). Atlananlar (konu dışı): `DietrichGebert/ponyt
 
 **#21 — Uygulama içi mesajlaşma** · İlham: sailesh307, masifdevs, Sarah358, Telecare · **Önerim: GEREK YOK.** WhatsApp/telefon derin bağlantısı TR'de daha yüksek etkileşim sağlıyor; sohbet moderasyon, KVKK ve altyapı yükü getirir.
 
-**#22 — İşletme onaylı (bekleyen) randevu** · İlham: thunderbird (`booking_confirmation`), Gerato25 (`pending`), masifdevs ("requested"), vfix · **Önerim: GEREK YOK.** KARARLAR: berberde anında onay norm; Güven Skoru + WhatsApp onayı riski zaten yönetiyor.
+**#22 — İşletme onaylı (bekleyen) randevu** · İlham: thunderbird (`booking_confirmation`), Gerato25 (`pending`), masifdevs ("requested"), vfix · **Önerim: GEREK YOK.** decisions.md: berberde anında onay norm; Güven Skoru + WhatsApp onayı riski zaten yönetiyor.
 
 **#23 — Aydınlık tema** · İlham: Sarah358, thunderbird, planner · **Önerim: GEREK YOK.** Siyah-altın kimlik marka kararı; ikinci tema bütün ekranların test yükünü ikiye katlar.
 
@@ -232,7 +232,7 @@ Klonlanamayan repo yok (26/26). Atlananlar (konu dışı): `DietrichGebert/ponyt
 |---|---|---|
 | Test veri fabrikaları (`test/factory/*_factory.py`) | thunderbird (MPL, yalnızca fikir) | Yeni özelliklerin testlerinde `conftest.py`'ye küçük `salon_olustur / randevu_olustur` yardımcıları eklenecek; eski testlere dokunulmayacak. |
 | Erteleme geçmişi (denetim izi) | django (`AppointmentRescheduleHistory`) | #2'de ilk sürümde sayaç yeterli; işletme "kim ne zaman değiştirdi" isterse ayrı tablo eklenir. |
-| Zaman damgalarının gerçek `DateTime` olması + `time_created/updated` mixin'i | thunderbird | Bizde string. Değiştirmek bütün sorguları ve migration'ı etkiler → yapılmayacak, KARARLAR'daki tercihimiz korunuyor. |
+| Zaman damgalarının gerçek `DateTime` olması + `time_created/updated` mixin'i | thunderbird | Bizde string. Değiştirmek bütün sorguları ve migration'ı etkiler → yapılmayacak, decisions.md'deki tercihimiz korunuyor. |
 | Bildirim matrisi (rol × olay) | vfix | #1 bu matrise göre tasarlanacak: müşteri/işletme/personel × oluştur/ertele/iptal. |
 | Deterministik rezervasyon anahtarı | Doctor-Hunt | Bizdeki kısmi tekil indeksin karşılığı → ✅ var. |
 
@@ -244,8 +244,7 @@ Klonlanamayan repo yok (26/26). Atlananlar (konu dışı): `DietrichGebert/ponyt
 > (SQLite ve PostgreSQL 16), `ruff` temiz, migration 0003–0005 boş ve dolu veritabanında ileri/geri + `alembic check`
 > temiz, `flutter analyze` 0 sorun, `flutter test` 49/49, emülatörde entegrasyon testleri 2/2 (müşteri: arayüzden
 > erteleme + üç seçenekli iptal; işletme: tamamlandı + müşteri kartı notu). Kod hiçbir repodan kopyalanmadı
-> (KAYNAKLAR.md gerekmedi). Kararlar: KARARLAR.md "Tur 4" · Kullanıcıdan gereken: BENDEN_GEREKENLER.md §9 (müşteri
-> notu için gizlilik metni cümlesi).
+> (KAYNAKLAR.md gerekmedi). Kararlar: decisions.md "Tur 4".
 
 Sıra bağımlılığa göre düzenlendi (#1 bildirimi #2 kullanıyor; #4'teki mola ve bloke hesabı #6'yı etkiliyor). **Uygulamada kullanıcı isteğiyle önem sırası izlendi: #1 → #2 → #3 → … → #9.** Toplam tahmin: ~7–9 iş günü.
 
@@ -255,7 +254,7 @@ Sıra bağımlılığa göre düzenlendi (#1 bildirimi #2 kullanıyor; #4'teki m
 | 2 | **#3** Yorumlar ve berber istatistikleri | S | Salon detayında yorum özeti + son 3 yorum + "Tümünü gör"; berberlerde puan ve tıraş sayısı; boş/hata durumları; sayfalı uç N+1'siz; testler yeşil | ✅ |
 | 3 | **#4** Haftalık izin günü + öğle arası + saatlik bloke | M | Migration ileri/geri çalışıyor; alanlar boşken mevcut 70 test değişmeden yeşil; mola, haftalık izin ve kısmi bloke hem müşteri slotlarını hem panel kaydını kapatıyor; panelden üçü de yönetilebiliyor | ✅ |
 | 4 | **#2** Randevu erteleme | M | Randevularım'da "Ertele" çalışıyor; limit, 30 dk kuralı, çakışmada 409 + öneriler, eşzamanlılık, eski gün için bekleme listesi bildirimi ve işletme bildirimi testli; iptal diyaloğu ertelemeyi öneriyor; idempotent | ✅ |
-| 5 | **#5** Müşteri kartı + kalıcı not | M | Akıştan müşteri kartı açılıyor (geçmiş, harcama, skor, not); salonlar arası izolasyon ve hesap silmede not silme testli; KVKK metni maddesi BENDEN_GEREKENLER'de | ✅ |
+| 5 | **#5** Müşteri kartı + kalıcı not | M | Akıştan müşteri kartı açılıyor (geçmiş, harcama, skor, not); salonlar arası izolasyon ve hesap silmede not silme testli; KVKK metni maddesi hukukçu onayına bırakıldı | ✅ |
 | 6 | **#6** Takvimde dolu günler | S | Dolu gün gri + "Dolu" etiketli, dokununca bekleme listesi öneriliyor; uç tek sorguyla hesaplıyor (testli); eski istemciyle geriye uyumlu | ✅ |
 | 7 | **#7** Salon ve hizmet araması | S | Keşfet'te arama kutusu; Türkçe harf duyarsız ad/ilçe/hizmet eşleşmesi ve `min_puan` testli; boş durum var | ✅ |
 | 8 | **#8** Takvime ekle (.ics) | S | Onay ekranı ve randevu kartından .ics paylaşılıyor, Google Takvim'de doğru saat ve dilimde açılıyor; uç yalnızca sahibine açık (testli) | ✅ |
