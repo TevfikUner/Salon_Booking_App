@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 
 /// Az yer kaldı uyarısının eşiği (gün içindeki boş başlangıç saati sayısı)
@@ -26,8 +27,8 @@ class GunDolulukBilgisi extends StatelessWidget {
         Expanded(
           child: Text(
             dolu
-                ? 'Bu gün dolu. Sonraki adımda "yer açılırsa haber ver" diyebilir veya en yakın boş saati seçebilirsiniz.'
-                : 'Bu günde yalnızca $b uygun saat kaldı.',
+                ? Dil.t.gunDoluAciklama
+                : Dil.t.azYerKaldi(b),
             style: GoogleFonts.inter(color: renk, fontSize: 12),
           ),
         ),
@@ -47,17 +48,17 @@ class TakvimLejanti extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Wrap(alignment: WrapAlignment.center, spacing: 14, runSpacing: 6, children: [
-      const _Oge(renk: AppTheme.gold, etiket: 'Müsait'),
+      _Oge(renk: AppTheme.gold, etiket: Dil.t.musait),
       if (doluluk) ...[
-        const _Oge(renk: Colors.orange, etiket: 'Az yer'),
-        const _Oge(renk: AppTheme.error, etiket: 'Dolu'),
+        _Oge(renk: Colors.orange, etiket: Dil.t.azYer),
+        _Oge(renk: AppTheme.error, etiket: Dil.t.dolu),
       ],
-      _Oge(renk: Colors.white.withValues(alpha: 0.18), etiket: 'Kapalı'),
+      _Oge(renk: Colors.white.withValues(alpha: 0.18), etiket: Dil.t.kapali),
       if (kampanya)
         Row(mainAxisSize: MainAxisSize.min, children: [
           Text('%', style: GoogleFonts.inter(color: AppTheme.gold, fontSize: 12, fontWeight: FontWeight.bold)),
           const SizedBox(width: 6),
-          Text('Kampanyalı', style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 11)),
+          Text(Dil.t.kampanyali, style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 11)),
         ]),
     ]);
   }

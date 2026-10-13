@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/data/api/api_client.dart';
@@ -72,17 +73,7 @@ class _Adim3TarihState extends State<Adim3Tarih> {
     return AppTheme.gold;
   }
 
-  String _tarihFormatla(DateTime t) {
-    const aylar = [
-      '', 'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
-      'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
-    ];
-    const gunler = [
-      '', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe',
-      'Cuma', 'Cumartesi', 'Pazar'
-    ];
-    return '${gunler[t.weekday]}, ${t.day} ${aylar[t.month]} ${t.year}';
-  }
+  String _tarihFormatla(DateTime t) => '${gunAdlari[t.weekday]}, ${t.day} ${ayAdi(t.month)} ${t.year}';
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +103,7 @@ class _Adim3TarihState extends State<Adim3Tarih> {
               border: Border.all(color: AppTheme.gold.withValues(alpha: 0.15)),
             ),
             child: TableCalendar(
-              locale: 'tr_TR',
+              locale: Dil.ingilizce ? 'en' : 'tr_TR',
               firstDay: ayBaslangic,
               lastDay: ayBitis,
               focusedDay: _focusedDay.isAfter(ayBitis) ? ayBitis : _focusedDay,
@@ -130,8 +121,8 @@ class _Adim3TarihState extends State<Adim3Tarih> {
                 setState(() => _focusedDay = focused);
               },
               calendarFormat: CalendarFormat.month,
-              availableCalendarFormats: const {
-                CalendarFormat.month: 'Ay',
+              availableCalendarFormats: {
+                CalendarFormat.month: Dil.t.ay,
               },
               calendarStyle: CalendarStyle(
                 outsideDaysVisible: true,
@@ -221,9 +212,9 @@ class _Adim3TarihState extends State<Adim3Tarih> {
           if (provider.seciliTarih != null && (_indirim[tarihStr(provider.seciliTarih!)] ?? 0) > 0)
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
-              child: Text('Bu günde %${_indirim[tarihStr(provider.seciliTarih!)]}'
-                  '${yonelmeEki(_indirim[tarihStr(provider.seciliTarih!)]!)} varan kampanya var; '
-                  'indirimli saatler sonraki adımda işaretli.',
+              child: Text(
+                  Dil.t.gunKampanyasi(_indirim[tarihStr(provider.seciliTarih!)]!,
+                      yonelmeEki(_indirim[tarihStr(provider.seciliTarih!)]!)),
                   style: GoogleFonts.inter(color: AppTheme.gold, fontSize: 12)),
             ),
 
@@ -259,7 +250,7 @@ class _Adim3TarihState extends State<Adim3Tarih> {
           TakvimLejanti(doluluk: _bosSlot.isNotEmpty, kampanya: _indirim.isNotEmpty),
           const SizedBox(height: 8),
           Text(
-            'Salonun kapalı olduğu günler ve personel izinleri otomatik olarak kapalıdır.',
+            Dil.t.kapaliGunlerOtomatik,
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
                 color: AppTheme.textSecondary,

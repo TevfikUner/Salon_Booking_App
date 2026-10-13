@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/core/widgets/altin_buton.dart';
@@ -84,7 +85,7 @@ class _Adim5FormState extends State<Adim5Form> {
     final p = context.read<RandevuProvider>();
     final berber = p.seciliBerber, tarih = p.seciliTarih, saat = p.seciliSaat;
     if (berber == null || tarih == null || saat == null) {
-      return bilgiGoster(context, 'Lütfen tüm adımları tamamlayın.', hata: true);
+      return bilgiGoster(context, Dil.t.tumAdimlariTamamlayin, hata: true);
     }
     setState(() => _gonderiliyor = true);
     try {
@@ -117,7 +118,7 @@ class _Adim5FormState extends State<Adim5Form> {
       Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (_) => onay), (r) => r.isFirst);
     } on ApiHata catch (e) {
       if (!mounted) return;
-      final oneri = e.oneriler.isEmpty ? '' : '\nUygun saatler: ${e.oneriler.take(4).join(', ')}';
+      final oneri = e.oneriler.isEmpty ? '' : '\n${Dil.t.uygunSaatler(e.oneriler.take(4).join(', '))}';
       bilgiGoster(context, '${e.mesaj}$oneri', hata: true, sure: const Duration(seconds: 6));
     } finally {
       if (mounted) setState(() => _gonderiliyor = false);
@@ -137,31 +138,31 @@ class _Adim5FormState extends State<Adim5Form> {
             indirim: (_teklif?['indirim_tutari'] as num?) ?? 0,
             indirimAciklama: _teklif?['indirim_aciklama'] as String?,
             satirlar: [
-              (Icons.person, 'Personel', p.seciliBerber?.tamAd ?? '-'),
-              (Icons.calendar_today, 'Tarih', p.seciliTarih == null ? '-' : tarihUzun(tarihStr(p.seciliTarih!), yil: true)),
-              (Icons.access_time, 'Saat', p.seciliSaat ?? '-'),
-              (Icons.content_cut, 'Hizmetler', p.seciliHizmetler.map((h) => h.ad).join(', ')),
-              (Icons.timer_outlined, 'Süre', sureMetni(p.toplamSureDk)),
+              (Icons.person, Dil.t.personel, p.seciliBerber?.tamAd ?? '-'),
+              (Icons.calendar_today, Dil.t.tarih, p.seciliTarih == null ? '-' : tarihUzun(tarihStr(p.seciliTarih!), yil: true)),
+              (Icons.access_time, Dil.t.saat, p.seciliSaat ?? '-'),
+              (Icons.content_cut, Dil.t.hizmetler, p.seciliHizmetler.map((h) => h.ad).join(', ')),
+              (Icons.timer_outlined, Dil.t.sure, sureMetni(p.toplamSureDk)),
             ],
           ),
           const SizedBox(height: 24),
-          Text('İletişim Bilgileriniz',
+          Text(Dil.t.iletisimBilgileriniz,
               style: GoogleFonts.playfairDisplay(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
           if (_profilYukleniyor)
             const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator(color: AppTheme.gold)))
           else ...[
             Row(children: [
-              Expanded(child: Alanlar.metin(_ad, 'Ad', Icons.person_outline)),
+              Expanded(child: Alanlar.metin(_ad, Dil.t.ad, Icons.person_outline)),
               const SizedBox(width: 12),
-              Expanded(child: Alanlar.metin(_soyad, 'Soyad', Icons.person_outline, zorunlu: false)),
+              Expanded(child: Alanlar.metin(_soyad, Dil.t.soyad, Icons.person_outline, zorunlu: false)),
             ]),
             const SizedBox(height: 14),
             Alanlar.telefon(_telefon),
           ],
           const SizedBox(height: 28),
           AltinButon(
-            text: 'Randevumu Onayla',
+            text: Dil.t.randevumuOnayla,
             onPressed: _olustur,
             loading: _gonderiliyor,
             icon: const Icon(Icons.check_circle_outline, color: AppTheme.black, size: 20),

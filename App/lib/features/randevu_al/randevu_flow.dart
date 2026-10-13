@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/widgets/altin_buton.dart';
 import 'package:berber_app_ui/features/randevu_al/randevu_provider.dart';
@@ -38,10 +39,10 @@ class _RandevuFlowState extends State<RandevuFlow> {
 
     if (_berberAtla) {
       // Favori berberle geldi → adım 2 atla
-      _stepBasliklari = ['Hizmet Seçin', 'Tarih Seçin', 'Saat Seçin', 'Bilgileriniz'];
+      _stepBasliklari = [Dil.t.hizmetSecin, Dil.t.tarihSecin, Dil.t.saatSecin, Dil.t.bilgileriniz];
       _sayfalar = const [Adim1Hizmet(), Adim3Tarih(), Adim4Saat(), Adim5Form()];
     } else {
-      _stepBasliklari = ['Hizmet Seçin', 'Personel Seçin', 'Tarih Seçin', 'Saat Seçin', 'Bilgileriniz'];
+      _stepBasliklari = [Dil.t.hizmetSecin, Dil.t.personelSecin, Dil.t.tarihSecin, Dil.t.saatSecin, Dil.t.bilgileriniz];
       _sayfalar = const [Adim1Hizmet(), Adim2Personel(), Adim3Tarih(), Adim4Saat(), Adim5Form()];
     }
 
@@ -60,33 +61,33 @@ class _RandevuFlowState extends State<RandevuFlow> {
     if (_berberAtla) {
       // 4 adımlı akış: Hizmet → Tarih → Saat → Form
       if (_currentStep == 0 && !provider.adim1Tamam) {
-        _snack('Lütfen en az bir hizmet seçin');
+        _snack(Dil.t.enAzBirHizmet);
         return;
       }
       if (_currentStep == 1 && !provider.adim3Tamam) {
-        _snack('Lütfen bir tarih seçin');
+        _snack(Dil.t.lutfenTarih);
         return;
       }
       if (_currentStep == 2 && !provider.adim4Tamam) {
-        _snack('Lütfen bir saat seçin');
+        _snack(Dil.t.lutfenSaat);
         return;
       }
     } else {
       // 5 adımlı akış: Hizmet → Personel → Tarih → Saat → Form
       if (_currentStep == 0 && !provider.adim1Tamam) {
-        _snack('Lütfen en az bir hizmet seçin');
+        _snack(Dil.t.enAzBirHizmet);
         return;
       }
       if (_currentStep == 1 && !provider.adim2Tamam) {
-        _snack('Lütfen bir personel seçin');
+        _snack(Dil.t.lutfenPersonel);
         return;
       }
       if (_currentStep == 2 && !provider.adim3Tamam) {
-        _snack('Lütfen bir tarih seçin');
+        _snack(Dil.t.lutfenTarih);
         return;
       }
       if (_currentStep == 3 && !provider.adim4Tamam) {
-        _snack('Lütfen bir saat seçin');
+        _snack(Dil.t.lutfenSaat);
         return;
       }
     }
@@ -139,7 +140,7 @@ class _RandevuFlowState extends State<RandevuFlow> {
                 style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 18, fontWeight: FontWeight.bold),
               ),
               Text(
-                'Adım ${_currentStep + 1} / $_totalSteps',
+                Dil.t.adim(_currentStep + 1, _totalSteps),
                 style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 11),
               ),
             ],
@@ -164,7 +165,7 @@ class _RandevuFlowState extends State<RandevuFlow> {
             if (_currentStep < _totalSteps - 1)
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-                child: AltinButon(text: 'İleri →', onPressed: _ileri),
+                child: AltinButon(text: Dil.t.ileri, onPressed: _ileri),
               ),
           ],
         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/features/randevu_al/randevu_provider.dart';
 import 'package:berber_app_ui/data/api/api_client.dart';
 import 'package:berber_app_ui/data/api/randevu_api.dart';
@@ -82,7 +83,7 @@ class _Adim4SaatState extends State<Adim4Saat> {
           p.seciliBerber!.id, tarihStr(p.seciliTarih!), p.seciliHizmetler.map((h) => h.id).toList());
       if (!mounted) return;
       setState(() => _beklemede = true);
-      bilgiGoster(context, 'Bu günde yer açılırsa size hemen bildirim göndereceğiz.');
+      bilgiGoster(context, Dil.t.yerAcilirsaBildirim);
     } on ApiHata catch (e) {
       if (mounted) bilgiGoster(context, e.mesaj, hata: true);
     } finally {
@@ -102,7 +103,7 @@ class _Adim4SaatState extends State<Adim4Saat> {
     final provider = context.watch<RandevuProvider>();
     final tarih = provider.seciliTarih;
     if (tarih == null) {
-      return const BosGorunum(ikon: Icons.calendar_today, mesaj: 'Lütfen önce bir tarih seçin.');
+      return BosGorunum(ikon: Icons.calendar_today, mesaj: Dil.t.onceTarihSecin);
     }
     if (_yukleniyor) return const Center(child: CircularProgressIndicator(color: AppTheme.gold));
     if (_hata != null) return HataGorunumu(mesaj: _hata!, onTekrar: _yukle);
@@ -126,16 +127,16 @@ class _Adim4SaatState extends State<Adim4Saat> {
               ),
             ),
             const SizedBox(width: 8),
-            const _Lejant(color: AppTheme.success, label: 'Müsait'),
+            _Lejant(color: AppTheme.success, label: Dil.t.musait),
             const SizedBox(width: 10),
-            const _Lejant(color: AppTheme.error, label: 'Dolu'),
+            _Lejant(color: AppTheme.error, label: Dil.t.dolu),
           ]),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Text(
-            'Toplam süre: ${sureMetni(provider.toplamSureDk)} — yalnızca hizmetin tamamının sığdığı saatler açıktır.'
-            '${_minOnceden > 0 ? ' Bu salon en az ${_minOnceden % 1440 == 0 ? '${_minOnceden ~/ 1440} gün' : sureMetni(_minOnceden)} önceden randevu alıyor.' : ''}',
+            '${Dil.t.toplamSureAciklama(sureMetni(provider.toplamSureDk))}'
+            '${_minOnceden > 0 ? ' ${Dil.t.enAzOnceden(_minOnceden % 1440 == 0 ? Dil.t.gunSayisi(_minOnceden ~/ 1440) : sureMetni(_minOnceden))}' : ''}',
             style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 11),
           ),
         ),
@@ -173,14 +174,14 @@ class _Adim4SaatState extends State<Adim4Saat> {
       const SizedBox(height: 12),
       Icon(Icons.event_busy, color: AppTheme.gold.withValues(alpha: 0.5), size: 52),
       const SizedBox(height: 12),
-      Text(_kapaliNeden ?? 'Bu gün seçtiğiniz hizmetler için boş saat kalmadı.',
+      Text(_kapaliNeden ?? Dil.t.bosSaatKalmadi,
           textAlign: TextAlign.center, style: GoogleFonts.inter(color: Colors.white, fontSize: 15)),
       const SizedBox(height: 20),
       if (_kapaliNeden == null)
         OutlinedButton.icon(
           onPressed: _beklemede || _beklemeGonderiliyor ? null : _beklemeyeEkle,
           icon: Icon(_beklemede ? Icons.notifications_active : Icons.notifications_none, color: AppTheme.gold),
-          label: Text(_beklemede ? 'Bekleme listesindesiniz' : 'Yer açılırsa haber ver',
+          label: Text(_beklemede ? Dil.t.beklemeListesindesiniz : Dil.t.yerAcilirsaHaberVer,
               style: const TextStyle(color: AppTheme.gold)),
           style: OutlinedButton.styleFrom(
             side: const BorderSide(color: AppTheme.gold),
@@ -189,7 +190,7 @@ class _Adim4SaatState extends State<Adim4Saat> {
         ),
       if (_enYakin.isNotEmpty) ...[
         const SizedBox(height: 24),
-        Text('En yakın boş saatler', style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 17,
+        Text(Dil.t.enYakinBosSaatler, style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 17,
             fontWeight: FontWeight.bold)),
         const SizedBox(height: 10),
         Wrap(spacing: 8, runSpacing: 8, children: [

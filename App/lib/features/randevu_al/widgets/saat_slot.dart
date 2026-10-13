@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 
 /// 30 dakikalık saat slotu — yeşil=müsait, kırmızı=dolu, gri=kapsam dışı
@@ -79,7 +80,7 @@ class SaatSlotWidget extends StatelessWidget {
                 ),
                 if (_indirimli)
                   Text(
-                    '%$indirimYuzde indirim',
+                    Dil.t.yuzdeIndirim(indirimYuzde),
                     style: TextStyle(
                       color: secili ? AppTheme.black : AppTheme.gold,
                       fontSize: 10,

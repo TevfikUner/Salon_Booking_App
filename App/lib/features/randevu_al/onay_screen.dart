@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/core/widgets/altin_buton.dart';
@@ -55,8 +56,8 @@ class _OnaySayfasiState extends State<OnaySayfasi> with SingleTickerProviderStat
         tarih: widget.tarih,
         saat: widget.saat,
         bitis: widget.bitis,
-        baslik: '${widget.salonAd ?? 'Berber'} — ${widget.hizmetler.join(', ')}',
-        aciklama: 'Berber: ${widget.berber}\nToplam: ${tl(widget.toplamFiyat)}',
+        baslik: '${widget.salonAd ?? Dil.t.berber} — ${widget.hizmetler.join(', ')}',
+        aciklama: Dil.t.takvimAciklama(widget.berber, tl(widget.toplamFiyat)),
       );
 
   void _anaEkrana(int sekme) => Navigator.of(context)
@@ -89,26 +90,26 @@ class _OnaySayfasiState extends State<OnaySayfasi> with SingleTickerProviderStat
                 FadeTransition(
                   opacity: CurvedAnimation(parent: _anim, curve: Curves.easeIn),
                   child: Column(children: [
-                    Text('Randevunuz Onaylandı!',
+                    Text(Dil.t.randevunuzOnaylandi,
                         textAlign: TextAlign.center,
                         style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 28, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
-                    Text('Sizi bekliyoruz 💈', style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 15)),
+                    Text(Dil.t.siziBekliyoruz, style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 15)),
                     const SizedBox(height: 28),
                     RandevuOzeti(
                       toplam: widget.toplamFiyat,
                       indirim: widget.indirim,
                       indirimAciklama: widget.indirimAciklama,
                       satirlar: [
-                        if (widget.salonAd != null) (Icons.storefront, 'Salon', widget.salonAd!),
-                        (Icons.calendar_today, 'Tarih', tarihUzun(widget.tarih, yil: true)),
-                        (Icons.access_time, 'Saat', widget.bitis == null ? widget.saat : '${widget.saat} – ${widget.bitis}'),
-                        (Icons.person, 'Personel', widget.berber),
-                        (Icons.content_cut, 'Hizmetler', widget.hizmetler.join(', ')),
+                        if (widget.salonAd != null) (Icons.storefront, Dil.t.salon, widget.salonAd!),
+                        (Icons.calendar_today, Dil.t.tarih, tarihUzun(widget.tarih, yil: true)),
+                        (Icons.access_time, Dil.t.saat, widget.bitis == null ? widget.saat : '${widget.saat} – ${widget.bitis}'),
+                        (Icons.person, Dil.t.personel, widget.berber),
+                        (Icons.content_cut, Dil.t.hizmetler, widget.hizmetler.join(', ')),
                       ],
                     ),
                     const SizedBox(height: 12),
-                    Text('Randevudan 1 saat önce hatırlatma bildirimi alacaksınız.',
+                    Text(Dil.t.birSaatOnceHatirlatma,
                         textAlign: TextAlign.center,
                         style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
                     const BildirimIzniKarti(),
@@ -116,12 +117,12 @@ class _OnaySayfasiState extends State<OnaySayfasi> with SingleTickerProviderStat
                     OutlinedButton.icon(
                       onPressed: () => TakvimPaylasimi.secenekleriGoster(context, _etkinlik),
                       icon: const Icon(Icons.event_available, color: AppTheme.gold),
-                      label: const Text('Takvime Ekle', style: TextStyle(color: AppTheme.gold)),
+                      label: Text(Dil.t.takvimeEkle, style: TextStyle(color: AppTheme.gold)),
                       style: OutlinedButton.styleFrom(side: const BorderSide(color: AppTheme.gold)),
                     ),
                     const SizedBox(height: 20),
-                    AltinButon(text: 'Ana Sayfaya Dön', onPressed: () => _anaEkrana(0)),
-                    TextButton(onPressed: () => _anaEkrana(1), child: const Text('Randevularımı Gör')),
+                    AltinButon(text: Dil.t.anaSayfayaDon, onPressed: () => _anaEkrana(0)),
+                    TextButton(onPressed: () => _anaEkrana(1), child: Text(Dil.t.randevularimiGor)),
                   ]),
                 ),
               ]),

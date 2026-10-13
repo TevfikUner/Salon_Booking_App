@@ -365,5 +365,163 @@
         "type": "int"
       }
     }
+  },
+  "tarih": "Tarih",
+  "saat": "Saat",
+  "personel": "Personel",
+  "hizmetler": "Hizmetler",
+  "takvimAciklama": "Berber: {berber}\nToplam: {toplam}",
+  "@takvimAciklama": {
+    "placeholders": {
+      "berber": {
+        "type": "String"
+      },
+      "toplam": {
+        "type": "String"
+      }
+    }
+  },
+  "randevunuzOnaylandi": "Randevunuz Onaylandı!",
+  "siziBekliyoruz": "Sizi bekliyoruz 💈",
+  "birSaatOnceHatirlatma": "Randevudan 1 saat önce hatırlatma bildirimi alacaksınız.",
+  "anaSayfayaDon": "Ana Sayfaya Dön",
+  "randevularimiGor": "Randevularımı Gör",
+  "hizmetSecin": "Hizmet Seçin",
+  "personelSecin": "Personel Seçin",
+  "tarihSecin": "Tarih Seçin",
+  "saatSecin": "Saat Seçin",
+  "bilgileriniz": "Bilgileriniz",
+  "enAzBirHizmet": "Lütfen en az bir hizmet seçin",
+  "lutfenTarih": "Lütfen bir tarih seçin",
+  "lutfenSaat": "Lütfen bir saat seçin",
+  "lutfenPersonel": "Lütfen bir personel seçin",
+  "ileri": "İleri →",
+  "adim": "Adım {n} / {toplam}",
+  "@adim": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "toplam": {
+        "type": "int"
+      }
+    }
+  },
+  "menuYok": "Bu salon henüz hizmet menüsünü eklemedi.",
+  "fiyatPersoneleGore": "Fiyat ve süre personele göre değişir",
+  "kesinSurePersonelle": "Kesin süre personel seçince",
+  "sureAraligi": "{min}–{max} dk",
+  "@sureAraligi": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "hizmetSecildi": "{n} hizmet seçildi",
+  "@hizmetSecildi": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "personelYok": "Bu salonda henüz personel bulunmuyor.",
+  "vermiyor": "Vermiyor: {hizmetler}",
+  "@vermiyor": {
+    "placeholders": {
+      "hizmetler": {
+        "type": "String"
+      }
+    }
+  },
+  "ay": "Ay",
+  "kapaliGunlerOtomatik": "Salonun kapalı olduğu günler ve personel izinleri otomatik olarak kapalıdır.",
+  "gunKampanyasi": "Bu günde %{yuzde}{ek} varan kampanya var; indirimli saatler sonraki adımda işaretli.",
+  "@gunKampanyasi": {
+    "placeholders": {
+      "yuzde": {
+        "type": "int"
+      },
+      "ek": {
+        "type": "String"
+      }
+    }
+  },
+  "musait": "Müsait",
+  "dolu": "Dolu",
+  "yerAcilirsaBildirim": "Bu günde yer açılırsa size hemen bildirim göndereceğiz.",
+  "onceTarihSecin": "Lütfen önce bir tarih seçin.",
+  "bosSaatKalmadi": "Bu gün seçtiğiniz hizmetler için boş saat kalmadı.",
+  "beklemeListesindesiniz": "Bekleme listesindesiniz",
+  "yerAcilirsaHaberVer": "Yer açılırsa haber ver",
+  "enYakinBosSaatler": "En yakın boş saatler",
+  "toplamSureAciklama": "Toplam süre: {sure} — yalnızca hizmetin tamamının sığdığı saatler açıktır.",
+  "@toplamSureAciklama": {
+    "placeholders": {
+      "sure": {
+        "type": "String"
+      }
+    }
+  },
+  "enAzOnceden": "Bu salon en az {sure} önceden randevu alıyor.",
+  "@enAzOnceden": {
+    "placeholders": {
+      "sure": {
+        "type": "String"
+      }
+    }
+  },
+  "gunSayisi": "{n} gün",
+  "@gunSayisi": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "tumAdimlariTamamlayin": "Lütfen tüm adımları tamamlayın.",
+  "sure": "Süre",
+  "iletisimBilgileriniz": "İletişim Bilgileriniz",
+  "randevumuOnayla": "Randevumu Onayla",
+  "uygunSaatler": "Uygun saatler: {saatler}",
+  "@uygunSaatler": {
+    "placeholders": {
+      "saatler": {
+        "type": "String"
+      }
+    }
+  },
+  "bildirimlerKapali": "Bildirimler kapalı",
+  "hatirlatalimMi": "Randevunuza 1 saat kala hatırlatalım mı?",
+  "bildirimKapaliAciklama": "Hatırlatma ve \"yer açıldı\" haberlerini alamazsınız. Açmak için: Telefon Ayarları › Uygulamalar › Premium Berber › Bildirimler.",
+  "bildirimIzniAciklama": "Hatırlatma, salonun değişiklikleri ve bekleme listesinde yer açılınca haber vereceğiz. Reklam göndermeyiz.",
+  "tamam": "Tamam",
+  "simdiDegil": "Şimdi değil",
+  "evetHatirlat": "Evet, hatırlat",
+  "listeFiyati": "Liste fiyatı",
+  "indirim": "İndirim",
+  "toplam": "Toplam",
+  "yuzdeIndirim": "%{y} indirim",
+  "@yuzdeIndirim": {
+    "placeholders": {
+      "y": {
+        "type": "int"
+      }
+    }
+  },
+  "gunDoluAciklama": "Bu gün dolu. Sonraki adımda \"yer açılırsa haber ver\" diyebilir veya en yakın boş saati seçebilirsiniz.",
+  "azYer": "Az yer",
+  "kampanyali": "Kampanyalı",
+  "azYerKaldi": "Bu günde yalnızca {n} uygun saat kaldı.",
+  "@azYerKaldi": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
   }
 }

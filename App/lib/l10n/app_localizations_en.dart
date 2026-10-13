@@ -624,4 +624,239 @@ class AppLocalizationsEn extends AppLocalizations {
   String tumunuGor(int n) {
     return 'See all ($n)';
   }
+
+  @override
+  String get tarih => 'Date';
+
+  @override
+  String get saat => 'Time';
+
+  @override
+  String get personel => 'Staff';
+
+  @override
+  String get hizmetler => 'Services';
+
+  @override
+  String takvimAciklama(String berber, String toplam) {
+    return 'Barber: $berber\nTotal: $toplam';
+  }
+
+  @override
+  String get randevunuzOnaylandi => 'Appointment Confirmed!';
+
+  @override
+  String get siziBekliyoruz => 'See you soon 💈';
+
+  @override
+  String get birSaatOnceHatirlatma =>
+      'You\'ll get a reminder notification 1 hour before.';
+
+  @override
+  String get anaSayfayaDon => 'Back to Home';
+
+  @override
+  String get randevularimiGor => 'View My Appointments';
+
+  @override
+  String get hizmetSecin => 'Choose Services';
+
+  @override
+  String get personelSecin => 'Choose Staff';
+
+  @override
+  String get tarihSecin => 'Choose Date';
+
+  @override
+  String get saatSecin => 'Choose Time';
+
+  @override
+  String get bilgileriniz => 'Your Details';
+
+  @override
+  String get enAzBirHizmet => 'Please choose at least one service';
+
+  @override
+  String get lutfenTarih => 'Please choose a date';
+
+  @override
+  String get lutfenSaat => 'Please choose a time';
+
+  @override
+  String get lutfenPersonel => 'Please choose a staff member';
+
+  @override
+  String get ileri => 'Next →';
+
+  @override
+  String adim(int n, int toplam) {
+    return 'Step $n of $toplam';
+  }
+
+  @override
+  String get menuYok => 'This salon hasn\'t added its service menu yet.';
+
+  @override
+  String get fiyatPersoneleGore => 'Price and duration vary by staff';
+
+  @override
+  String get kesinSurePersonelle => 'Exact duration once you pick staff';
+
+  @override
+  String sureAraligi(int min, int max) {
+    return '$min–$max min';
+  }
+
+  @override
+  String hizmetSecildi(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n services selected',
+      one: '1 service selected',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get personelYok => 'This salon has no staff yet.';
+
+  @override
+  String vermiyor(String hizmetler) {
+    return 'Doesn\'t offer: $hizmetler';
+  }
+
+  @override
+  String get ay => 'Month';
+
+  @override
+  String get kapaliGunlerOtomatik =>
+      'Days the salon is closed and staff days off are unavailable automatically.';
+
+  @override
+  String gunKampanyasi(int yuzde, String ek) {
+    return 'Up to $yuzde% off on this day; discounted times are marked in the next step.';
+  }
+
+  @override
+  String get musait => 'Available';
+
+  @override
+  String get dolu => 'Booked';
+
+  @override
+  String get yerAcilirsaBildirim =>
+      'We\'ll notify you right away if a spot opens up on this day.';
+
+  @override
+  String get onceTarihSecin => 'Please choose a date first.';
+
+  @override
+  String get bosSaatKalmadi =>
+      'No free times left on this day for the selected services.';
+
+  @override
+  String get beklemeListesindesiniz => 'You\'re on the waitlist';
+
+  @override
+  String get yerAcilirsaHaberVer => 'Notify me if a spot opens';
+
+  @override
+  String get enYakinBosSaatler => 'Nearest free times';
+
+  @override
+  String toplamSureAciklama(String sure) {
+    return 'Total duration: $sure — only times that fit the whole service are available.';
+  }
+
+  @override
+  String enAzOnceden(String sure) {
+    return 'This salon takes bookings at least $sure ahead.';
+  }
+
+  @override
+  String gunSayisi(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tumAdimlariTamamlayin => 'Please complete all steps.';
+
+  @override
+  String get sure => 'Duration';
+
+  @override
+  String get iletisimBilgileriniz => 'Your Contact Details';
+
+  @override
+  String get randevumuOnayla => 'Confirm Appointment';
+
+  @override
+  String uygunSaatler(String saatler) {
+    return 'Available times: $saatler';
+  }
+
+  @override
+  String get bildirimlerKapali => 'Notifications are off';
+
+  @override
+  String get hatirlatalimMi => 'Shall we remind you 1 hour before?';
+
+  @override
+  String get bildirimKapaliAciklama =>
+      'You won\'t get reminders or \"spot opened\" alerts. To turn them on: Phone Settings › Apps › Premium Berber › Notifications.';
+
+  @override
+  String get bildirimIzniAciklama =>
+      'We\'ll send reminders, salon changes and waitlist openings. No ads.';
+
+  @override
+  String get tamam => 'OK';
+
+  @override
+  String get simdiDegil => 'Not now';
+
+  @override
+  String get evetHatirlat => 'Yes, remind me';
+
+  @override
+  String get listeFiyati => 'List price';
+
+  @override
+  String get indirim => 'Discount';
+
+  @override
+  String get toplam => 'Total';
+
+  @override
+  String yuzdeIndirim(int y) {
+    return '$y% off';
+  }
+
+  @override
+  String get gunDoluAciklama =>
+      'This day is full. In the next step you can join the waitlist or pick the nearest free time.';
+
+  @override
+  String get azYer => 'Few left';
+
+  @override
+  String get kampanyali => 'Discounted';
+
+  @override
+  String azYerKaldi(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Only $n times left on this day.',
+      one: 'Only 1 time left on this day.',
+    );
+    return '$_temp0';
+  }
 }

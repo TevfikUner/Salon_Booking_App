@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/core/widgets/bolum_basligi.dart';
@@ -37,7 +38,7 @@ class RandevuOzeti extends StatelessWidget {
         Divider(color: AppTheme.gold.withValues(alpha: 0.15), height: 20),
         if (indirim > 0) ...[
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Text('Liste fiyatı', style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 13)),
+            Text(Dil.t.listeFiyati, style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 13)),
             Text(tl(toplam + indirim),
                 style: GoogleFonts.inter(
                     color: AppTheme.textSecondary, fontSize: 13, decoration: TextDecoration.lineThrough)),
@@ -47,7 +48,7 @@ class RandevuOzeti extends StatelessWidget {
             const Icon(Icons.local_offer_outlined, color: AppTheme.gold, size: 15),
             const SizedBox(width: 6),
             Expanded(
-              child: Text(indirimAciklama ?? 'İndirim',
+              child: Text(indirimAciklama ?? Dil.t.indirim,
                   style: GoogleFonts.inter(color: AppTheme.gold, fontSize: 13, fontWeight: FontWeight.w600)),
             ),
             Text('−${tl(indirim)}',
@@ -56,7 +57,7 @@ class RandevuOzeti extends StatelessWidget {
           const SizedBox(height: 8),
         ],
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Text('Toplam', style: GoogleFonts.inter(color: AppTheme.textSecondary)),
+          Text(Dil.t.toplam, style: GoogleFonts.inter(color: AppTheme.textSecondary)),
           Text(tl(toplam),
               style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 22, fontWeight: FontWeight.bold)),
         ]),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:berber_app_ui/core/dil.dart';
+import 'package:berber_app_ui/core/utils/bicim.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/data/models/hizmet.dart';
 import 'package:berber_app_ui/core/widgets/durum_gorunumleri.dart';
@@ -51,7 +53,7 @@ class _Adim1HizmetState extends State<Adim1Hizmet> {
       return AsenkronGorunum(yukleniyor: _yukleniyor, hata: _hata, onTekrar: _yukle, builder: (_) => const SizedBox());
     }
     if (_hizmetler!.isEmpty) {
-      return const BosGorunum(ikon: Icons.content_cut, mesaj: 'Bu salon henüz hizmet menüsünü eklemedi.');
+      return BosGorunum(ikon: Icons.content_cut, mesaj: Dil.t.menuYok);
     }
 
     return Column(
@@ -126,13 +128,13 @@ class _Adim1HizmetState extends State<Adim1Hizmet> {
                                 const Icon(Icons.access_time,
                                     color: AppTheme.textSecondary, size: 12),
                                 const SizedBox(width: 4),
-                                Text(h.sureDegisken ? '${h.sureMin}–${h.sureMax} dk' : '${h.sure} dk',
+                                Text(h.sureDegisken ? Dil.t.sureAraligi(h.sureMin, h.sureMax) : sureMetni(h.sure),
                                     style: GoogleFonts.inter(
                                         color: AppTheme.textSecondary, fontSize: 12)),
                               ]),
                               if (h.fiyatDegisken || h.sureDegisken) ...[
                                 const SizedBox(height: 2),
-                                Text('Fiyat ve süre personele göre değişir',
+                                Text(Dil.t.fiyatPersoneleGore,
                                     style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 11)),
                               ],
                             ],
@@ -167,9 +169,9 @@ class _Adim1HizmetState extends State<Adim1Hizmet> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text('${provider.seciliHizmetler.length} hizmet seçildi',
+                  Text(Dil.t.hizmetSecildi(provider.seciliHizmetler.length),
                       style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600)),
-                  Text(_degisken(provider) ? 'Kesin süre personel seçince' : '${provider.toplamSureDk} dakika',
+                  Text(_degisken(provider) ? Dil.t.kesinSurePersonelle : sureMetni(provider.toplamSureDk),
                       style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
                 ]),
                 Text('${_degisken(provider) ? '~' : ''}${provider.toplamFiyat.toStringAsFixed(0)} ₺',

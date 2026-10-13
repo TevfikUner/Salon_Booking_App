@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/config.dart';
 import 'package:berber_app_ui/data/models/berber.dart';
 import 'package:berber_app_ui/features/randevu_al/randevu_provider.dart';
@@ -61,7 +62,7 @@ class _Adim2PersonelState extends State<Adim2Personel> {
     if (_yukleniyor) return const Center(child: CircularProgressIndicator(color: AppTheme.gold));
     if (_hata != null) return HataGorunumu(mesaj: _hata!, onTekrar: _yukle);
     if (_berberler == null || _berberler!.isEmpty) {
-      return const BosGorunum(ikon: Icons.person_off_outlined, mesaj: 'Bu salonda henüz personel bulunmuyor.');
+      return BosGorunum(ikon: Icons.person_off_outlined, mesaj: Dil.t.personelYok);
     }
 
     return ListView.builder(
@@ -76,8 +77,8 @@ class _Adim2PersonelState extends State<Adim2Personel> {
           enabled: b.uygun,
           selected: secili,
           label:
-              '${b.tamAd}, ${b.uzmanlik}, puan ${b.puanMetni}'
-              '${b.uygun ? '' : ', ${b.vermedigiHizmetler.join(', ')} hizmetini vermiyor'}',
+              '${Dil.t.salonSemantik(b.tamAd, b.uzmanlik, b.puanMetni)}'
+              '${b.uygun ? '' : ', ${Dil.t.vermiyor(b.vermedigiHizmetler.join(', '))}'}',
           child: GestureDetector(
             key: ValueKey('berber_${b.id}'),
             onTap: b.uygun ? () => provider.berberSec(b) : null,
@@ -151,7 +152,7 @@ class _Adim2PersonelState extends State<Adim2Personel> {
                           const SizedBox(height: 6),
                           if (!b.uygun)
                             Text(
-                              'Vermiyor: ${b.vermedigiHizmetler.join(', ')}',
+                              Dil.t.vermiyor(b.vermedigiHizmetler.join(', ')),
                               style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12),
                             )
                           else if (b.toplamFiyat != null)

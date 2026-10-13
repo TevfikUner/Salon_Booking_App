@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/core/theme/app_theme.dart';
 import 'package:berber_app_ui/services/bildirim_servisi.dart';
 
@@ -84,17 +85,15 @@ class _BildirimIzniKartiState extends State<BildirimIzniKarti> {
               color: AppTheme.gold),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(reddedildi ? 'Bildirimler kapalı' : 'Randevunuza 1 saat kala hatırlatalım mı?',
+            child: Text(reddedildi ? Dil.t.bildirimlerKapali : Dil.t.hatirlatalimMi,
                 style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w700)),
           ),
         ]),
         const SizedBox(height: 6),
         Text(
           reddedildi
-              ? 'Hatırlatma ve "yer açıldı" haberlerini alamazsınız. Açmak için: Telefon Ayarları › Uygulamalar › '
-                  'Premium Berber › Bildirimler.'
-              : 'Hatırlatma, salonun değişiklikleri ve bekleme listesinde yer açılınca haber vereceğiz. '
-                  'Reklam göndermeyiz.',
+              ? Dil.t.bildirimKapaliAciklama
+              : Dil.t.bildirimIzniAciklama,
           style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12, height: 1.4),
         ),
         const SizedBox(height: 10),
@@ -102,12 +101,12 @@ class _BildirimIzniKartiState extends State<BildirimIzniKarti> {
         Align(
           alignment: Alignment.centerRight,
           child: Wrap(alignment: WrapAlignment.end, spacing: 8, runSpacing: 4, children: [
-            TextButton(onPressed: _ertele, child: Text(reddedildi ? 'Tamam' : 'Şimdi değil')),
+            TextButton(onPressed: _ertele, child: Text(reddedildi ? Dil.t.tamam : Dil.t.simdiDegil)),
             if (!reddedildi)
               ElevatedButton(
                 onPressed: _izinVer,
                 style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10)),
-                child: const Text('Evet, hatırlat'),
+                child: Text(Dil.t.evetHatirlat),
               ),
           ]),
         ),
