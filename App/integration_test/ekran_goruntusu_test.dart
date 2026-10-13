@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import 'package:berber_app_ui/core/dil.dart';
 import 'package:berber_app_ui/data/api/randevu_api.dart';
 import 'package:berber_app_ui/data/api/salon_api.dart';
 import 'package:berber_app_ui/features/isletme/isletme_panel_screen.dart';
@@ -38,21 +39,21 @@ void main() {
   testWidgets('müşteri ekranları', (tester) async {
     await hazirla('demo-musteri');
     await uygulamayiAc(tester, const MainScreen());
-    await bekle(tester, find.text('Ana Sayfa'));
+    await bekle(tester, find.text(Dil.t.anaSayfa));
     await cek(tester, '01_ana_sayfa');
 
-    await dokun(tester, find.text('Keşfet'));
+    await dokun(tester, find.text(Dil.t.kesfet));
     await bekle(tester, anahtarOneki('salon_'));
     await cek(tester, '02_kesfet');
 
     final salon = (await SalonApi.salonlar()).firstWhere((s) => s.ad == 'Premium Berber Center');
     await uygulamayiAc(tester, SalonDetayScreen(salonId: salon.id));
-    await bekle(tester, find.text('Kampanyalar'));
+    await bekle(tester, find.text(Dil.t.kampanyalar));
     await tester.drag(find.byType(Scrollable).first, const Offset(0, -250));
     await tester.pump(const Duration(milliseconds: 800));
     await cek(tester, '03_salon_detay');
 
-    await dokun(tester, find.text('Randevu Al'));
+    await dokun(tester, find.text(Dil.t.randevuAl));
     await bekle(tester, anahtarOneki('hizmet_'));
     await dokun(tester, find.textContaining('Saç Kesimi'));
     await tester.drag(find.byType(Scrollable).first, const Offset(0, 400)); // liste başa
@@ -60,10 +61,10 @@ void main() {
     await cek(tester, '04_hizmet_secimi');
 
     // Kampanyalı ilk gün ve saat (demo: hafta içi 09:00–12:00 saç kesimi %20)
-    await dokun(tester, find.text('İleri →'));
+    await dokun(tester, find.text(Dil.t.ileri));
     final berber = (await SalonApi.berberler(salon.id)).firstWhere((b) => b.ad == 'Mehmet');
     await dokun(tester, find.byKey(ValueKey('berber_${berber.id}')));
-    await dokun(tester, find.text('İleri →'));
+    await dokun(tester, find.text(Dil.t.ileri));
     final kesim = (await SalonApi.hizmetler(salon.id)).firstWhere((h) => h.ad == 'Saç Kesimi');
     final gunler = await RandevuApi.musaitTakvim(berberId: berber.id, hizmetIds: [kesim.id]);
     final gun = DateTime.parse(gunler.firstWhere((g) => (g['indirim_yuzde'] as int) > 0)['tarih'] as String);
@@ -72,7 +73,7 @@ void main() {
     if (gun.month != DateTime.now().month) await dokun(tester, find.byIcon(Icons.chevron_right));
     final hucreler = find.descendant(of: takvim, matching: find.text('${gun.day}'));
     await dokun(tester, gun.day > 20 ? hucreler.last : hucreler.first);
-    await dokun(tester, find.text('İleri →'));
+    await dokun(tester, find.text(Dil.t.ileri));
     await bekle(tester, find.byWidgetPredicate((w) => w is SaatSlotWidget && w.indirimYuzde > 0));
     await dokun(tester, find.byWidgetPredicate((w) => w is SaatSlotWidget && w.indirimYuzde > 0).at(1));
     await cek(tester, '05_saat_secimi');
