@@ -46,3 +46,5 @@ app.*.map.json
 
 # Gradle 9 derleme çıktısı
 /android/build/
+# Widget Preview related
+.widget_preview/
