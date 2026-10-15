@@ -1,6 +1,6 @@
 # Premium Berber
 
-[![CI](https://github.com/TevfikUner/pro_berber_full/actions/workflows/ci.yml/badge.svg)](https://github.com/TevfikUner/pro_berber_full/actions/workflows/ci.yml)
+[![CI](https://github.com/TevfikUner/Salon_Booking_App/actions/workflows/ci.yml/badge.svg)](https://github.com/TevfikUner/Salon_Booking_App/actions/workflows/ci.yml)
 ![Flutter](https://img.shields.io/badge/Flutter-3.47-02569B?logo=flutter&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-Python%203.12-009688?logo=fastapi&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
