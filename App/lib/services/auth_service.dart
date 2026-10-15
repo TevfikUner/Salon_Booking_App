@@ -77,11 +77,14 @@ class AuthService {
     }
   }
 
-  /// Hesabı siler: önce backend'deki kişisel veriler, sonra Firebase kullanıcısı.
-  /// Firebase son girişin eski olduğunu söylerse kullanıcı çıkış yaptırılır;
-  /// backend tarafı zaten silinmiş olur.
+  /// Hesabı siler: backend kişisel verileri siler ve (production'da) Firebase kullanıcısını da sunucuda siler;
+  /// bu durumda istemcide yalnızca oturum kapatılır. Sunucu silemediyse istemci siler; Firebase son girişin
+  /// eski olduğunu söylerse kullanıcı çıkış yaptırılır (backend tarafı zaten silinmiş olur).
   static Future<bool> hesabiSil() async {
-    await HesapApi.hesapSil();
+    if (await HesapApi.hesapSil()) {
+      await _auth.signOut();
+      return true;
+    }
     try {
       await _auth.currentUser?.delete();
       return true;

@@ -98,6 +98,7 @@ class Musteri(Base):
     telefon_ozet = Column(String, nullable=True, index=True)
     fcm_token = Column(String, nullable=True)
     favori_berber_id = Column(Integer, ForeignKey("berberler.id"), nullable=True)  # eski tekli favori
+    foto_url = Column(String, nullable=True)  # isteğe bağlı profil fotoğrafı (depolama.py; tahmin edilemez ad)
     # KVKK
     kvkk_onay_tarihi = Column(String, nullable=True)
     ticari_ileti_izni = Column(Boolean, default=False, nullable=False)

@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel, Field
 from sqlalchemy import case, func, or_
 from sqlalchemy.orm import Session, joinedload
 
@@ -17,7 +18,21 @@ def _kisa_ad(m: models.Musteri | None) -> str:
     return f"{m.ad} {soyad[0]}." if soyad else (m.ad or "Anonim")
 
 
-@router.post("/ekle")
+class DegerlendirmeIstegi(BaseModel):
+    randevu_id: int
+    puan: int
+    yorum: str | None = Field(default=None, max_length=2000)
+
+
+@router.post("")
+def degerlendirme_gonder(veri: DegerlendirmeIstegi, kimlik: Kimlik = Depends(kimlik_gerekli),
+                         db: Session = Depends(get_db)):
+    """Müşteri tamamlanan randevusunu bir kez değerlendirir (1-5). Yorum kişisel veri olduğundan gövdede gelir
+    (URL'deki sorgu parametreleri proxy/erişim loglarına düşer)."""
+    return _degerlendir(db, kimlik, veri.randevu_id, veri.puan, veri.yorum)
+
+
+@router.post("/ekle", deprecated=True)
 def degerlendirme_ekle(
     randevu_id: int,
     puan: int,
@@ -25,7 +40,11 @@ def degerlendirme_ekle(
     kimlik: Kimlik = Depends(kimlik_gerekli),
     db: Session = Depends(get_db),
 ):
-    """Müşteri tamamlanan randevusunu bir kez değerlendirir (1-5)."""
+    """Eski istemciler için (yorum sorgu parametresinde). Yeni istemciler POST /degerlendirmeler kullanır."""
+    return _degerlendir(db, kimlik, randevu_id, puan, yorum)
+
+
+def _degerlendir(db: Session, kimlik: Kimlik, randevu_id: int, puan: int, yorum: str | None) -> dict:
     if not (1 <= puan <= 5):
         raise HTTPException(status_code=400, detail="Puan 1 ile 5 arasında olmalı.")
     randevu = db.get(models.Randevu, randevu_id)

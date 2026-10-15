@@ -1,12 +1,12 @@
 # Gizlilik Politikası
 
-Son güncelleme: 10.10.2026
+Son güncelleme: 15.10.2026
 
 Bu politika, Premium Berber mobil uygulamasının (“Uygulama”) hangi kişisel verileri neden topladığını, kimlerle paylaştığını, ne kadar sakladığını ve haklarınızı açıklar. Uygulamayı kullanarak bu politikayı okuduğunuzu kabul edersiniz.
 
 ## 1. Topladığımız veriler
 
-**Hesap bilgileri:** ad, soyad, cep telefonu, e-posta adresi. Şifreniz bizim sunucularımıza gelmez; Google Firebase Authentication tarafından şifrelenmiş olarak saklanır.
+**Hesap bilgileri:** ad, soyad, cep telefonu, e-posta adresi ve isteğe bağlı olarak yüklediğiniz profil fotoğrafı. Şifreniz bizim sunucularımıza gelmez; Google Firebase Authentication tarafından şifrelenmiş olarak saklanır.
 
 **Randevu bilgileri:** seçtiğiniz salon, personel, hizmetler, tarih ve saat, ücret, randevu durumu (onaylandı, tamamlandı, iptal, gelinmedi), bekleme listesi kayıtları, favori berberleriniz, verdiğiniz puan ve yorumlar.
 
@@ -48,7 +48,7 @@ Uygulama ile sunucu arasındaki tüm iletişim HTTPS (TLS) ile şifrelenir. Sunu
 
 ## 6. Saklama süresi
 
-Hesabınız aktif olduğu sürece verileriniz saklanır. Hesabınızı sildiğinizde ad, soyad, telefon, bildirim anahtarı ve yorum metinleriniz silinir, gelecekteki randevularınız iptal edilir. Salonların muhasebe kayıtları için geçmiş randevular **kimliğinizle ilişkilendirilemeyecek şekilde** (anonim) kalır. Sunucu kayıtları en fazla 30 gün tutulur.
+Hesabınız aktif olduğu sürece verileriniz saklanır. Hesabınızı sildiğinizde ad, soyad, telefon, profil fotoğrafı, bildirim anahtarı ve yorum metinleriniz silinir, gelecekteki randevularınız iptal edilir. Salonların muhasebe kayıtları için geçmiş randevular **kimliğinizle ilişkilendirilemeyecek şekilde** (anonim) kalır. Sunucu kayıtları en fazla 30 gün tutulur.
 
 ## 7. Hesap ve veri silme
 

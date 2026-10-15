@@ -9,6 +9,18 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get profilFotografi => 'Profile photo';
+
+  @override
+  String get fotografiKaldir => 'Remove Photo';
+
+  @override
+  String get profilFotoGuncellendi => 'Your profile photo has been updated.';
+
+  @override
+  String get profilFotoKaldirildi => 'Your profile photo has been removed.';
+
+  @override
   String get uygulamaAdi => 'Premium Berber';
 
   @override

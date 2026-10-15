@@ -9,6 +9,18 @@ class AppLocalizationsTr extends AppLocalizations {
   AppLocalizationsTr([String locale = 'tr']) : super(locale);
 
   @override
+  String get profilFotografi => 'Profil fotoğrafı';
+
+  @override
+  String get fotografiKaldir => 'Fotoğrafı Kaldır';
+
+  @override
+  String get profilFotoGuncellendi => 'Profil fotoğrafınız güncellendi.';
+
+  @override
+  String get profilFotoKaldirildi => 'Profil fotoğrafınız kaldırıldı.';
+
+  @override
   String get uygulamaAdi => 'Premium Berber';
 
   @override

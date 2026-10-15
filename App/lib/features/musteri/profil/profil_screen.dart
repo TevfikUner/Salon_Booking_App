@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:share_plus/share_plus.dart';
 
 import 'package:berber_app_ui/core/dil.dart';
@@ -13,6 +13,7 @@ import 'package:berber_app_ui/features/destek/yasal_dokuman_screen.dart';
 import 'package:berber_app_ui/features/giris/rol_secim_screen.dart';
 import 'package:berber_app_ui/features/musteri/profil/widgets/kisisel_bilgiler_formu.dart';
 import 'package:berber_app_ui/features/musteri/profil/widgets/menu_bolumu.dart';
+import 'package:berber_app_ui/features/musteri/profil/widgets/profil_avatar.dart';
 import 'package:berber_app_ui/services/auth_service.dart';
 import 'package:berber_app_ui/services/bildirim_servisi.dart';
 
@@ -27,7 +28,9 @@ class ProfilEkrani extends StatefulWidget {
 class _ProfilEkraniState extends State<ProfilEkrani> {
   Map<String, dynamic>? _profil;
   String _adSoyad = '';
+  String? _fotoUrl;
   bool _islemde = false;
+  bool _fotoYukleniyor = false;
 
   @override
   void initState() {
@@ -41,7 +44,61 @@ class _ProfilEkraniState extends State<ProfilEkrani> {
     setState(() {
       _profil = p;
       _adSoyad = '${p?['ad'] ?? ''} ${p?['soyad'] ?? ''}'.trim();
+      _fotoUrl = p?['foto_url'] as String?;
     });
+  }
+
+  /// Avatar'a dokununca: kamera / galeri / (varsa) kaldır. Görsel cihazda küçültülür (sunucu sınırı 5 MB).
+  Future<void> _fotoSec() async {
+    final secim = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: AppTheme.surface,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (ctx) => SafeArea(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          ListTile(
+              leading: const Icon(Icons.photo_camera_outlined, color: AppTheme.gold),
+              title: Text(Dil.t.fotografCek, style: const TextStyle(color: Colors.white)),
+              onTap: () => Navigator.pop(ctx, 'kamera')),
+          ListTile(
+              leading: const Icon(Icons.photo_library_outlined, color: AppTheme.gold),
+              title: Text(Dil.t.galeridenSec, style: const TextStyle(color: Colors.white)),
+              onTap: () => Navigator.pop(ctx, 'galeri')),
+          if (_fotoUrl != null)
+            ListTile(
+                key: const ValueKey('foto_kaldir'),
+                leading: const Icon(Icons.delete_outline, color: AppTheme.error),
+                title: Text(Dil.t.fotografiKaldir, style: const TextStyle(color: AppTheme.error)),
+                onTap: () => Navigator.pop(ctx, 'kaldir')),
+        ]),
+      ),
+    );
+    if (secim == null || !mounted) return;
+    XFile? dosya;
+    if (secim != 'kaldir') {
+      dosya = await ImagePicker().pickImage(
+        source: secim == 'kamera' ? ImageSource.camera : ImageSource.gallery,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 85,
+      );
+      if (dosya == null || !mounted) return;
+    }
+    setState(() => _fotoYukleniyor = true);
+    try {
+      if (dosya == null) {
+        await HesapApi.profilFotoSil();
+        if (mounted) setState(() => _fotoUrl = null);
+      } else {
+        final url = await HesapApi.profilFotoYukle(await dosya.readAsBytes(), dosya.name);
+        if (mounted) setState(() => _fotoUrl = url);
+      }
+      if (mounted) bilgiGoster(context, dosya == null ? Dil.t.profilFotoKaldirildi : Dil.t.profilFotoGuncellendi);
+    } catch (e) {
+      if (mounted) bilgiGoster(context, '$e', hata: true);
+    } finally {
+      if (mounted) setState(() => _fotoYukleniyor = false);
+    }
   }
 
   void _ac(Widget ekran) => Navigator.push(context, MaterialPageRoute(builder: (_) => ekran));
@@ -128,7 +185,13 @@ class _ProfilEkraniState extends State<ProfilEkrani> {
       body: AbsorbPointer(
         absorbing: _islemde,
         child: ListView(padding: const EdgeInsets.fromLTRB(20, 8, 20, 100), children: [
-          _Avatar(adSoyad: _adSoyad, eposta: AuthService.currentUser?.email),
+          ProfilAvatar(
+            adSoyad: _adSoyad,
+            eposta: AuthService.currentUser?.email,
+            fotoUrl: _fotoUrl,
+            yukleniyor: _fotoYukleniyor,
+            onTap: _fotoSec,
+          ),
           const SizedBox(height: 24),
           KisiselBilgilerFormu(profil: _profil, onAdDegisti: (v) => setState(() => _adSoyad = v)),
           MenuBolumu(baslik: Dil.t.yasalGizlilik, ikon: Icons.shield_outlined, children: [
@@ -167,32 +230,5 @@ class _ProfilEkraniState extends State<ProfilEkrani> {
         ]),
       ),
     );
-  }
-}
-
-class _Avatar extends StatelessWidget {
-  final String adSoyad;
-  final String? eposta;
-  const _Avatar({required this.adSoyad, this.eposta});
-
-  String get _basHarfler =>
-      adSoyad.split(' ').where((p) => p.isNotEmpty).take(2).map((p) => p[0].toUpperCase()).join();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(children: [
-      CircleAvatar(
-        radius: 46,
-        backgroundColor: AppTheme.gold.withValues(alpha: 0.15),
-        child: _basHarfler.isEmpty
-            ? const Icon(Icons.person, color: AppTheme.gold, size: 46)
-            : Text(_basHarfler,
-                style: GoogleFonts.playfairDisplay(color: AppTheme.gold, fontSize: 32, fontWeight: FontWeight.bold)),
-      ),
-      const SizedBox(height: 10),
-      if (adSoyad.isNotEmpty)
-        Text(adSoyad, style: GoogleFonts.playfairDisplay(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-      if (eposta != null) Text(eposta!, style: GoogleFonts.inter(color: AppTheme.textSecondary, fontSize: 12)),
-    ]);
   }
 }

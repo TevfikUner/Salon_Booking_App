@@ -107,17 +107,31 @@ class ApiClient {
     final h = await _basliklar(json: govde != null);
     if (idempotencyKey != null) h['Idempotency-Key'] = idempotencyKey;
     final body = govde != null ? json.encode(govde) : null;
-    final http.Response res;
+    final res = await _agIstegi(switch (metod) {
+      'GET' => http.get(adres, headers: h),
+      'POST' => http.post(adres, headers: h, body: body),
+      'PUT' => http.put(adres, headers: h, body: body),
+      'PATCH' => http.patch(adres, headers: h, body: body),
+      'DELETE' => http.delete(adres, headers: h),
+      _ => throw ArgumentError(metod),
+    });
+    return _yanitCoz(res, ham: ham);
+  }
+
+  /// Dosya yükleme (multipart/form-data), ör. profil fotoğrafı. Gövde büyük olduğundan zaman aşımı daha uzun.
+  static Future<dynamic> dosyaGonder(String path,
+      {required String alan, required List<int> baytlar, required String dosyaAdi}) async {
+    final istek = http.MultipartRequest('POST', uri(path))
+      ..headers.addAll(await _basliklar(json: false))
+      ..files.add(http.MultipartFile.fromBytes(alan, baytlar, filename: dosyaAdi));
+    final res = await _agIstegi(istek.send().then(http.Response.fromStream), sure: AppConfig.timeout * 4);
+    return _yanitCoz(res);
+  }
+
+  /// Ağ hatalarını kullanıcı mesajına çevirir.
+  static Future<http.Response> _agIstegi(Future<http.Response> istek, {Duration? sure}) async {
     try {
-      final istek = switch (metod) {
-        'GET' => http.get(adres, headers: h),
-        'POST' => http.post(adres, headers: h, body: body),
-        'PUT' => http.put(adres, headers: h, body: body),
-        'PATCH' => http.patch(adres, headers: h, body: body),
-        'DELETE' => http.delete(adres, headers: h),
-        _ => throw ArgumentError(metod),
-      };
-      res = await istek.timeout(AppConfig.timeout);
+      return await istek.timeout(sure ?? AppConfig.timeout);
     } on TimeoutException {
       throw ApiHata(Dil.t.hataSunucuYanitVermiyor);
     } on HandshakeException {
@@ -128,7 +142,9 @@ class ApiClient {
     } on http.ClientException {
       throw ApiHata(Dil.t.hataSunucuyaUlasilamadi);
     }
+  }
 
+  static dynamic _yanitCoz(http.Response res, {bool ham = false}) {
     if (ham && res.statusCode >= 200 && res.statusCode < 300) return utf8.decode(res.bodyBytes);
     dynamic veri;
     try {

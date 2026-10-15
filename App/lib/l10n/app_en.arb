@@ -1,5 +1,9 @@
 {
   "@@locale": "en",
+  "profilFotografi": "Profile photo",
+  "fotografiKaldir": "Remove Photo",
+  "profilFotoGuncellendi": "Your profile photo has been updated.",
+  "profilFotoKaldirildi": "Your profile photo has been removed.",
   "uygulamaAdi": "Premium Berber",
   "bugun": "Today",
   "yarin": "Tomorrow",

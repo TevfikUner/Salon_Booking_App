@@ -49,6 +49,15 @@ SABIT = {
     "Girilen bilgileri kontrol edin.": "Please check the information you entered.",
     "Çok fazla istek gönderdiniz. Lütfen biraz bekleyip tekrar deneyin.": "Too many requests. Please wait and try again.",
     "İstek çok büyük.": "The request is too large.",
+    "Dosya şu anda kaydedilemiyor. Lütfen birazdan tekrar deneyin.":
+        "The file can't be saved right now. Please try again shortly.",
+    "Dosya depolama yapılandırılmamış.": "File storage isn't configured.",
+    "Profil fotoğrafı kaldırıldı.": "Profile photo removed.",
+    "Fotoğraf başarıyla yüklendi.": "Photo uploaded.",
+    "Fotoğraf en fazla 5 MB olabilir.": "The photo can be at most 5 MB.",
+    "Sadece JPG, PNG ve WebP formatı kabul edilir.": "Only JPG, PNG and WebP images are accepted.",
+    "Bu kayıt zaten mevcut veya eşzamanlı bir işlemle çakıştı. Sayfayı yenileyip tekrar deneyin.":
+        "This record already exists or conflicted with a concurrent action. Refresh and try again.",
     "Tarih formatı hatalı. Doğru format: YYYY-MM-DD": "Invalid date format. Use YYYY-MM-DD.",
     "Geçersiz saat formatı. Örnek: 14:30": "Invalid time format. Example: 14:30",
     "berber_id veya salon_id gerekli.": "berber_id or salon_id is required.",

@@ -83,8 +83,9 @@ class RandevuApi {
       await ApiClient.post('/randevular/$randevuId/ertele',
           govde: {'tarih': tarih, 'saat': saat}, idempotencyKey: idempotencyKey);
 
+  /// Yorum kişisel veri: URL'de değil gövdede gider (sorgu parametreleri proxy loglarına düşer).
   static Future<void> degerlendir({required int randevuId, required int puan, String? yorum}) =>
-      ApiClient.post('/degerlendirmeler/ekle', params: {
+      ApiClient.post('/degerlendirmeler', govde: {
         'randevu_id': randevuId,
         'puan': puan,
         if (yorum != null && yorum.isNotEmpty) 'yorum': yorum,

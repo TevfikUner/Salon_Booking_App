@@ -98,6 +98,30 @@ abstract class AppLocalizations {
     Locale('tr'),
   ];
 
+  /// No description provided for @profilFotografi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Profil fotoğrafı'**
+  String get profilFotografi;
+
+  /// No description provided for @fotografiKaldir.
+  ///
+  /// In tr, this message translates to:
+  /// **'Fotoğrafı Kaldır'**
+  String get fotografiKaldir;
+
+  /// No description provided for @profilFotoGuncellendi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Profil fotoğrafınız güncellendi.'**
+  String get profilFotoGuncellendi;
+
+  /// No description provided for @profilFotoKaldirildi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Profil fotoğrafınız kaldırıldı.'**
+  String get profilFotoKaldirildi;
+
   /// No description provided for @uygulamaAdi.
   ///
   /// In tr, this message translates to:

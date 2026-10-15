@@ -11,7 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from sqlalchemy import text
-from sqlalchemy.exc import DBAPIError, OperationalError
+from sqlalchemy.exc import DBAPIError, IntegrityError, OperationalError
 from sqlalchemy.exc import TimeoutError as HavuzZamanAsimi
 
 from ceviri import DilAraKatmani
@@ -81,12 +81,24 @@ async def veritabani_hatasi(_: Request, exc: Exception):
                         content={"detail": "Hizmet geçici olarak kullanılamıyor. Lütfen birazdan tekrar deneyin."})
 
 
+# IntegrityError da bir DBAPIError'dır; ayrı kaydedilir ki benzersizlik ihlali (eşzamanlı çift kayıt, zaten var olan
+# kayıt) "servis kullanılamıyor" 503'üne düşüp istemcide geçici hata sanılarak yeniden denenmesin.
+@app.exception_handler(IntegrityError)
+async def butunluk_hatasi(_: Request, exc: IntegrityError):
+    log.warning("Bütünlük kısıtı ihlali → 409: %s", exc.orig.__class__.__name__ if exc.orig else "?")
+    return JSONResponse(status_code=409, content={
+        "detail": "Bu kayıt zaten mevcut veya eşzamanlı bir işlemle çakıştı. Sayfayı yenileyip tekrar deneyin."})
+
+
 @app.exception_handler(RequestValidationError)
 async def dogrulama_hatasi(_: Request, exc: RequestValidationError):
     return JSONResponse(status_code=422, content={"detail": "Girilen bilgileri kontrol edin.", "hatalar": [
         {"alan": ".".join(str(x) for x in e.get("loc", [])[1:]), "mesaj": e.get("msg")} for e in exc.errors()]})
 
 
+if a.uretim_mi and a.depolama != "s3":
+    log.warning("DEPOLAMA=yerel: yüklenen dosyalar konteyner diskine yazılıyor; Render gibi kalıcı diski olmayan "
+                "ortamlarda her deploy'da silinir (bkz. docs/deployment.md 'Dosya depolama').")
 os.makedirs(os.path.join(a.uploads_dir, "berberler"), exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=a.uploads_dir), name="uploads")
 

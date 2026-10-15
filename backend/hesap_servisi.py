@@ -1,9 +1,14 @@
 """Hesap silme (KVKK / Google Play). Uygulama içi silme ve web talebi aynı işlevi kullanır."""
+import logging
+
 from sqlalchemy.orm import Session
 
 import models
 import randevu_servisi as rs
+from config import ayarlar
 from zaman import simdi
+
+log = logging.getLogger("premium_berber.hesap")
 
 
 def hesabi_anonimlestir(db: Session, uid: str) -> bool:
@@ -23,6 +28,10 @@ def hesabi_anonimlestir(db: Session, uid: str) -> bool:
         m.firebase_uid = None
         m.fcm_token = None
         m.ticari_ileti_izni = False
+        if m.foto_url:
+            from depolama import depolama
+            depolama().sil(m.foto_url)
+            m.foto_url = None
         m.silindi = True
         m.favori_berberler.clear()
         db.query(models.BeklemeListesi).filter(models.BeklemeListesi.musteri_id == m.id).delete()
@@ -52,3 +61,25 @@ def silme_talebini_tamamla(db: Session, talep: models.HesapSilmeTalebi) -> None:
     talep.durum = "tamamlandi"
     talep.aciklama = ((talep.aciklama or "") + f" [tamamlandı {simdi().isoformat(timespec='minutes')}]").strip()
     db.commit()
+
+
+def firebase_kullanicisini_sil(uid: str) -> bool:
+    """Firebase kullanıcısını sunucuda siler (AUTH_MODE=firebase ve servis hesabı varsa). İstemcideki
+    `currentUser.delete()` son giriş eskiyse (requires-recent-login) başarısız olur; sunucu tarafı bu kısıtlamaya
+    tabi değildir ve silinen hesabın yenileme token'ı da geçersizleşir. Silindiyse veya zaten yoksa True."""
+    if ayarlar().auth_mode != "firebase":
+        return False
+    from firebase_admin import auth as fb_auth
+
+    from firebase_app import firebase_hazir
+
+    if not firebase_hazir():
+        return False
+    try:
+        fb_auth.delete_user(uid)
+    except fb_auth.UserNotFoundError:
+        pass
+    except Exception as e:  # kişisel veri zaten silindi; istemci kendi tarafında silmeyi dener
+        log.warning("Firebase kullanıcısı sunucuda silinemedi", exc_info=e)
+        return False
+    return True

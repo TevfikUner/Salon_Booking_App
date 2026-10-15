@@ -1,6 +1,6 @@
 # KVKK Aydınlatma Metni
 
-Son güncelleme: 10.10.2026
+Son güncelleme: 15.10.2026
 
 6698 sayılı Kişisel Verilerin Korunması Kanunu (“KVKK”) uyarınca, Premium Berber uygulamasında kişisel verilerinizin işlenmesine ilişkin sizi bilgilendiririz.
 
@@ -11,6 +11,7 @@ Premium Berber uygulaması işletmecisi (“Premium Berber”). İletişim: {DES
 ## 2. İşlenen kişisel veriler
 
 - **Kimlik ve iletişim:** ad, soyad, cep telefonu, e-posta
+- **Görsel:** yalnızca yüklerseniz profil fotoğrafı (dilediğiniz an kaldırabilirsiniz)
 - **Müşteri işlem:** randevu, hizmet, ücret, bekleme listesi, favori, puan ve yorum bilgileri; randevu geçmişinden hesaplanan güven skoru
 - **İşlem güvenliği:** oturum anahtarı, bildirim anahtarı, sunucu erişim kayıtları, uygulama hata kayıtları
 - **Konum:** yalnızca talep ettiğinizde yaklaşık konum (saklanmaz)

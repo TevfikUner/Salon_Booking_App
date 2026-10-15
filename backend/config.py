@@ -57,8 +57,23 @@ class Ayarlar(BaseSettings):
     rate_limit_storage_uri: str = "memory://"
     rate_limit_varsayilan: str = "300/minute"
 
+    # İstemci IP'si (hız sınırı ve log). X-Forwarded-For'un SOLUNU istemci yazabilir; yalnızca güvenilir
+    # proxy'lerin eklediği SAĞDAKİ girdilere bakılır. 0: başlık yok sayılır, bağlantının karşı ucu kullanılır
+    # (doğrudan erişim / yerel). Render: 1 (proxy, istemci adresini listenin sonuna ekler).
+    guvenilir_proxy_sayisi: int = 0
+
     # İstek gövdesi üst sınırı (bayt). Fotoğraf yükleme ucu kendi sınırını uygular.
     maks_istek_boyutu: int = 1_000_000
+
+    # Yüklenen dosyalar (berber fotoğrafı). yerel: UPLOADS_DIR (Render'da disk kalıcı DEĞİL, her deploy'da silinir)
+    # s3: S3 uyumlu nesne depolama (Cloudflare R2, AWS S3, MinIO). Ayrıntı: docs/deployment.md "Dosya depolama"
+    depolama: str = "yerel"
+    s3_bucket: str = ""
+    s3_endpoint_url: str = ""  # R2: https://<hesap>.r2.cloudflarestorage.com · AWS: boş
+    s3_bolge: str = "auto"
+    s3_erisim_anahtari: str = ""
+    s3_gizli_anahtar: str = ""
+    s3_genel_url: str = ""  # dosyaların herkese açık adresi (R2 public bucket / CDN), sonda / olmadan
 
     # Gözlemlenebilirlik
     log_format: str = "json"  # json | metin

@@ -2,6 +2,7 @@
 import contextvars
 import json
 import logging
+import re
 import sys
 import time
 import uuid
@@ -11,9 +12,12 @@ from starlette.responses import JSONResponse
 from starlette.requests import Request
 
 from config import ayarlar
+from koruma import istemci_ip
 
 istek_kimligi: contextvars.ContextVar[str] = contextvars.ContextVar("istek_kimligi", default="-")
 log = logging.getLogger("premium_berber.erisim")
+# İstemcinin gönderdiği X-Request-ID yalnızca bu biçimdeyse kullanılır (log/başlık enjeksiyonu ve şişirmeye karşı)
+_GECERLI_ISTEK_KIMLIGI = re.compile(r"[A-Za-z0-9._-]{1,64}")
 
 
 class JsonBicim(logging.Formatter):
@@ -63,7 +67,8 @@ class IstekLoguAraKatmani(BaseHTTPMiddleware):
     """Her isteğe kimlik verir (X-Request-ID), süresini ölçer ve tek satır erişim logu yazar."""
 
     async def dispatch(self, request: Request, call_next):
-        kimlik = request.headers.get("x-request-id") or uuid.uuid4().hex[:12]
+        gelen = request.headers.get("x-request-id") or ""
+        kimlik = gelen if _GECERLI_ISTEK_KIMLIGI.fullmatch(gelen) else uuid.uuid4().hex[:12]
         jeton = istek_kimligi.set(kimlik)
         baslangic = time.perf_counter()
         durum = 500
@@ -82,7 +87,7 @@ class IstekLoguAraKatmani(BaseHTTPMiddleware):
             sure = round((time.perf_counter() - baslangic) * 1000, 1)
             if request.url.path not in ("/health", "/saglik"):
                 log.info("istek", extra={"yontem": request.method, "yol": request.url.path, "durum": durum,
-                                         "sure_ms": sure, "ip": request.client.host if request.client else None})
+                                         "sure_ms": sure, "ip": istemci_ip(request)})
             istek_kimligi.reset(jeton)
 
 

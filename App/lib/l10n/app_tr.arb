@@ -1,5 +1,9 @@
 {
   "@@locale": "tr",
+  "profilFotografi": "Profil fotoğrafı",
+  "fotografiKaldir": "Fotoğrafı Kaldır",
+  "profilFotoGuncellendi": "Profil fotoğrafınız güncellendi.",
+  "profilFotoKaldirildi": "Profil fotoğrafınız kaldırıldı.",
   "uygulamaAdi": "Premium Berber",
   "bugun": "Bugün",
   "yarin": "Yarın",

@@ -1,15 +1,13 @@
-import os
+from depolama import depolama, dosya_anahtari, resmi_oku
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
 from auth import admin_dogrula
 from sqlalchemy.orm import Session
 from database import get_db
 import models
 import slot_servisi as ss
-from config import ayarlar
 from routers.degerlendirmeler import degerlendirme_sayilari
 
 router = APIRouter(prefix="/berberler", tags=["Berber Yönetimi"])
-MAKS_FOTO_BOYUTU = 5 * 1024 * 1024
 
 @router.post("/ekle")
 def berber_ekle(
@@ -163,27 +161,17 @@ def berber_izin_sil(
 
 @router.get("/izinler/{berber_id}")
 def berber_izinleri(berber_id: int, db: Session = Depends(get_db)):
-    """Bir berberin tüm izin günlerini listeler."""
+    """Bir berberin tüm izin günlerini listeler. Herkese açık olduğundan izin açıklaması (örn. sağlık nedeni
+    gibi kişisel bilgi içerebilir) döndürülmez."""
     izinler = db.query(models.BerberIzin).filter(
         models.BerberIzin.berber_id == berber_id
     ).order_by(models.BerberIzin.tarih).all()
-    return [{"id": i.id, "tarih": i.tarih, "aciklama": i.aciklama} for i in izinler]
+    return [{"id": i.id, "tarih": i.tarih} for i in izinler]
 
 
 # ============================================================
 # FOTOĞRAF UPLOAD (8. Özellik)
 # ============================================================
-
-def resim_turu(bas: bytes) -> str | None:
-    """Dosyanın gerçek türü (istemcinin bildirdiği content-type'a güvenilmez)."""
-    if bas.startswith(bytes.fromhex("ffd8ff")):
-        return "jpg"
-    if bas.startswith(bytes.fromhex("89504e470d0a1a0a")):
-        return "png"
-    if bas[:4] == b"RIFF" and bas[8:12] == b"WEBP":
-        return "webp"
-    return None
-
 
 @router.post("/foto-yukle/{berber_id}")
 def berber_foto_yukle(
@@ -197,19 +185,11 @@ def berber_foto_yukle(
     if not berber:
         raise HTTPException(status_code=404, detail="Berber bulunamadı.")
 
-    icerik = foto.file.read(MAKS_FOTO_BOYUTU + 1)
-    if len(icerik) > MAKS_FOTO_BOYUTU:
-        raise HTTPException(status_code=413, detail="Fotoğraf en fazla 5 MB olabilir.")
-    uzanti = resim_turu(icerik[:16])
-    if not uzanti:
-        raise HTTPException(status_code=400, detail="Sadece JPG, PNG ve WebP formatı kabul edilir.")
-
-    klasor = os.path.join(ayarlar().uploads_dir, "berberler")
-    os.makedirs(klasor, exist_ok=True)
-    dosya_adi = f"berber_{berber_id}.{uzanti}"
-    with open(os.path.join(klasor, dosya_adi), "wb") as buffer:
-        buffer.write(icerik)
-
-    berber.foto_url = f"/uploads/berberler/{dosya_adi}"
+    icerik, uzanti = resmi_oku(foto)
+    d = depolama()
+    eski = berber.foto_url
+    berber.foto_url = d.kaydet(dosya_anahtari("berberler", f"berber_{berber_id}", icerik, uzanti), icerik, uzanti)
     db.commit()
+    if eski != berber.foto_url:
+        d.sil(eski)
     return {"mesaj": "Fotoğraf başarıyla yüklendi.", "foto_url": berber.foto_url}

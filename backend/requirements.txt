@@ -14,3 +14,4 @@ psycopg2-binary==2.9.13
 tzdata==2026.1
 slowapi==0.1.10
 sentry-sdk[fastapi]==2.71.0
+boto3==1.43.100  # DEPOLAMA=s3 (Cloudflare R2 / AWS S3 / MinIO)

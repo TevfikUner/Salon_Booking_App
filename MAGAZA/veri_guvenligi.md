@@ -35,7 +35,7 @@ kullanıcının kendi başlattığı ve beklediği bir aktarımdır (Play'in "ku
 | Uygulama bilgileri ve performans → **Teşhis** | Evet | Zorunlu değil | Hayır | Analiz | Crashlytics / Analytics cihaz modeli, OS sürümü |
 | Cihaz veya diğer kimlikler → **Cihaz veya diğer kimlikler** | Evet | Zorunlu | Hayır | Uygulama işlevi (bildirim), Analiz | FCM token (`/musteriler/fcm-token-guncelle`), Firebase installation ID |
 | Finansal bilgiler | Hayır | — | — | — | Uygulama içi ödeme yok; fiyat bilgisi kullanıcı verisi değil |
-| Fotoğraflar ve videolar | Hayır | — | — | — | Destek ekleri kullanıcının kendi e-posta uygulamasıyla gönderilir, sunucumuza gelmez (`bize_ulasin_sekmesi.dart`) |
+| Fotoğraflar ve videolar → **Fotoğraflar** | Evet | İsteğe bağlı | Hayır | Uygulama işlevi (hesap yönetimi: profil fotoğrafı) | `POST /musteriler/profil-foto`; Profil → avatar → kaldırılabilir, hesap silinince depodan da silinir (`hesap_servisi.py`). Destek ekleri ise kullanıcının kendi e-posta uygulamasıyla gider, sunucuya gelmez |
 | Mesajlar | Hayır | — | — | — | Destek talebi kullanıcının e-posta uygulamasından gider |
 | Kişiler, Takvim, Sağlık, Dosyalar, Web geçmişi, Sesli/ses dosyaları | Hayır | — | — | — | — |
 

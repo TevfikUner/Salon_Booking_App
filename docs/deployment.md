@@ -74,6 +74,7 @@ python ../scripts/yasal_senkron.py --kontrol && python ../scripts/magaza_kontrol
    | `ADMIN_UIDS` | Boş bırakılır; ilk yönetici aşağıda komutla eklenir | — |
    | `SENTRY_DSN` | sentry.io → Python/FastAPI projesi. Boşsa hata izleme kapalı | İsteğe bağlı |
    | `VERI_ANAHTARI` | Kişisel veri şifreleme anahtarı — boş bırakılır, açmak için aşağıdaki bölüm | İsteğe bağlı |
+   | `S3_BUCKET`, `S3_ENDPOINT_URL`, `S3_ERISIM_ANAHTARI`, `S3_GIZLI_ANAHTAR`, `S3_GENEL_URL` | Berber fotoğrafları için nesne depolama — aşağıdaki "Dosya depolama" | Fotoğraf yüklenecekse ✅ |
 
 3. Diğer ayarlanabilir değişkenler (varsayılanları uygundur):
 
@@ -88,6 +89,8 @@ python ../scripts/yasal_senkron.py --kontrol && python ../scripts/magaza_kontrol
    | `LOG_LEVEL` | `INFO` | Sorun ayıklarken `DEBUG` |
    | `SENTRY_TRACES_SAMPLE_RATE` | `0.1` | Performans izleme oranı |
    | `REZERVASYON_UFKU_GUN` | 30 | Kaç gün sonrasına randevu alınabileceği |
+   | `GUVENILIR_PROXY_SAYISI` | 1 (render.yaml) | İstemci IP'si `X-Forwarded-For`'da sağdan bu kadar sayılır. Render'ın önüne başka proxy/CDN eklenirse artırın; duman testindeki IP kontrolüyle doğrulayın |
+   | `FORWARDED_ALLOW_IPS` | `*` (render.yaml) | Proxy başlıklarına (https şeması) güvenilecek adresler; IP tespiti bundan etkilenmez |
 
 ### Duman testi (dağıtımdan sonra her seferinde)
 ```bash
@@ -98,7 +101,10 @@ curl -s -o /dev/null -w "%{http_code}\n" $API/yasal/gizlilik       # 200
 curl -s -o /dev/null -w "%{http_code}\n" $API/yasal/hesap-silme    # 200
 curl -s -o /dev/null -w "%{http_code}\n" $API/salonlar             # 200 (boş liste olabilir)
 curl -s $API/ben                                      # 401 Türkçe mesaj (token yok)
+curl -s -H "X-Forwarded-For: 6.6.6.6" $API/salonlar >/dev/null   # sonra Logs: bu isteğin "ip" alanı
 ```
+Son istekten sonra Render → Logs'ta o satırın `ip` alanı **kendi genel IP'niz** olmalı (`6.6.6.6` değil). Sahte değer
+görünüyorsa hız sınırı atlatılabilir demektir: `GUVENILIR_PROXY_SAYISI`'nı düzeltin. Kendi IP'niz: `curl -s ifconfig.me`.
 
 ### İlk yönetici ve işletme onayı (Render → web servisi → Shell)
 ```bash
@@ -123,6 +129,22 @@ Ad, telefon, e-posta, notlar ve yorumlar veritabanında Fernet ile şifreli duru
 3. Shell: `python araclar.py veri-sifrele` (mevcut kayıtlar) → `python araclar.py saglik` → "Veri şifreleme: açık".
 - Anahtar değişimi: yeni değer `VERI_ANAHTARI`'na, eskisi `VERI_ANAHTARI_ESKI`'ye → `veri-sifrele` → eskisini silin.
 - Kapatma: önce `python araclar.py veri-coz`, sonra `VERI_ANAHTARI`'nı silin.
+
+### Dosya depolama
+Render'ın diski kalıcı değildir; yerel diske yazılan dosya her deploy'da silinir. Bu yüzden `render.yaml`
+`DEPOLAMA=s3` kullanır (S3 uyumlu herhangi bir servis; örnek Cloudflare R2):
+
+1. Cloudflare → **R2 → Create bucket** (`premium-berber-medya`) → **Settings → Public access**: R2.dev alt alan adını
+   veya kendi alan adınızı açın → bu adres `S3_GENEL_URL` olur (sonda `/` olmadan).
+2. **R2 → Manage API tokens → Create** (izin: Object Read & Write, yalnızca bu bucket) → Access Key ID →
+   `S3_ERISIM_ANAHTARI`, Secret → `S3_GIZLI_ANAHTAR`; hesap uç noktası `https://<hesap-id>.r2.cloudflarestorage.com` →
+   `S3_ENDPOINT_URL`; bucket adı → `S3_BUCKET`. (AWS S3'te `S3_ENDPOINT_URL` boş, `S3_BOLGE=eu-central-1`.)
+3. Doğrulama: yöneticiyle bir berbere fotoğraf yükleyin (`POST /berberler/foto-yukle/{id}`); dönen `foto_url` genel
+   adreste açılmalı.
+
+Dosya adı içerik özetini taşır (`berberler/berber_7_3fa2c1d9e0b4.jpg`): yeni fotoğraf yeni URL demektir, CDN ve uygulama
+önbelleği eski resmi göstermez; eskisi silinir. Yapılandırılmamışsa yükleme 503 "Dosya depolama yapılandırılmamış." döner.
+Yerelde ve Docker Compose'da varsayılan `DEPOLAMA=yerel` (`uploads/`, Compose'da volume).
 
 ### İzleme
 - **Loglar:** Render → servis → Logs. Her satır JSON: `istek_id`, `yontem`, `yol`, `durum`, `sure_ms`. Kullanıcı bir hata

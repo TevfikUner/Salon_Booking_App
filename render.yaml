@@ -28,6 +28,20 @@ envVarGroups:
       # `python araclar.py veri-sifrele` çalıştırın. Ayrıntı: docs/deployment.md "Kişisel veri şifreleme"
       - key: VERI_ANAHTARI
         sync: false
+      # Berber fotoğrafları: Render diski kalıcı olmadığından S3 uyumlu nesne depolama (örn. Cloudflare R2).
+      # Yerel diske yazılsaydı her deploy'da silinirdi. Ayrıntı: docs/deployment.md "Dosya depolama"
+      - key: DEPOLAMA
+        value: s3
+      - key: S3_BUCKET
+        sync: false
+      - key: S3_ENDPOINT_URL
+        sync: false
+      - key: S3_ERISIM_ANAHTARI
+        sync: false
+      - key: S3_GIZLI_ANAHTAR
+        sync: false
+      - key: S3_GENEL_URL
+        sync: false
 
 services:
   - type: web
@@ -51,6 +65,12 @@ services:
         value: "false"
       - key: WEB_CONCURRENCY
         value: "2"
+      # Render proxy'si gelen X-Forwarded-For'u temizlemez, istemci adresini SONA ekler → sağdan 1.
+      # Deploy sonrası doğrulayın: erişim logundaki "ip" alanı kendi IP'niz olmalı (docs/deployment.md).
+      - key: GUVENILIR_PROXY_SAYISI
+        value: "1"
+      - key: FORWARDED_ALLOW_IPS
+        value: "*"
       - key: CORS_ORIGINS
         value: https://premiumberber.app
 

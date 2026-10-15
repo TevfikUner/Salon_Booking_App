@@ -15,7 +15,7 @@ import hmac
 import json
 from dataclasses import dataclass
 
-from fastapi import Depends, Header, HTTPException
+from fastapi import Depends, Header, HTTPException, Request
 from sqlalchemy.orm import Session
 
 import models
@@ -57,7 +57,9 @@ def _jwt_coz_imzasiz(token: str) -> dict:
         raise HTTPException(status_code=401, detail="Geçersiz oturum anahtarı.") from e
 
 
-def token_coz(token: str) -> Kimlik:
+def token_coz(token: str, iptal_kontrolu: bool = False) -> Kimlik:
+    """iptal_kontrolu: Firebase'e sorup hesabın silinmemiş/devre dışı olmadığını ve oturumların iptal
+    edilmediğini de doğrular (ağ çağrısı → yalnızca hassas işlemlerde)."""
     a = ayarlar()
     if a.auth_mode == "dev":
         if token.startswith("dev:"):
@@ -75,22 +77,52 @@ def token_coz(token: str) -> Kimlik:
     if not firebase_hazir():
         raise HTTPException(status_code=503, detail="Kimlik doğrulama servisi yapılandırılmamış.")
     try:
-        veri = fb_auth.verify_id_token(token, check_revoked=False)
+        veri = fb_auth.verify_id_token(token, check_revoked=iptal_kontrolu)
     except Exception as e:
         raise HTTPException(status_code=401, detail="Oturum süresi doldu veya geçersiz. Lütfen tekrar giriş yapın.") from e
     return Kimlik(uid=veri["uid"], email=veri.get("email"), email_dogrulandi=bool(veri.get("email_verified")))
 
 
-def kimlik_gerekli(authorization: str | None = Header(default=None)) -> Kimlik:
-    if not authorization or not authorization.lower().startswith("bearer "):
-        raise HTTPException(status_code=401, detail="Giriş yapmanız gerekiyor.")
-    return token_coz(authorization.split(" ", 1)[1].strip())
-
-
-def kimlik_istege_bagli(authorization: str | None = Header(default=None)) -> Kimlik | None:
-    if not authorization:
+def istek_kimligi(request: Request) -> Kimlik | None:
+    """Authorization başlığındaki token'ı istek başına BİR kez doğrular; sonuç (veya hata) istekte saklanır.
+    Hız sınırı anahtarı (koruma.py, uç çalışmadan önce) ve kimlik bağımlılıkları aynı sonucu kullanır.
+    Başlık yoksa None; geçersizse HTTPException."""
+    yetki = request.headers.get("authorization")
+    if not yetki:
         return None
-    return kimlik_gerekli(authorization)
+    onceki = getattr(request.state, "kimlik_onbellegi", None)
+    if onceki and onceki[0] == yetki:
+        sonuc = onceki[1]
+    else:
+        try:
+            if not yetki.lower().startswith("bearer "):
+                raise HTTPException(status_code=401, detail="Giriş yapmanız gerekiyor.")
+            sonuc = token_coz(yetki.split(" ", 1)[1].strip())
+        except HTTPException as e:
+            sonuc = e
+        request.state.kimlik_onbellegi = (yetki, sonuc)
+    if isinstance(sonuc, HTTPException):
+        raise sonuc
+    return sonuc
+
+
+# `authorization` parametresi yalnızca /docs'ta başlık alanı görünsün diye; değer istek_kimligi'nde okunur.
+def kimlik_gerekli(request: Request, authorization: str | None = Header(default=None)) -> Kimlik:
+    kimlik = istek_kimligi(request)
+    if kimlik is None:
+        raise HTTPException(status_code=401, detail="Giriş yapmanız gerekiyor.")
+    return kimlik
+
+
+def kimlik_istege_bagli(request: Request, authorization: str | None = Header(default=None)) -> Kimlik | None:
+    return istek_kimligi(request)
+
+
+def kimlik_gerekli_iptal_kontrollu(request: Request, authorization: str | None = Header(default=None)) -> Kimlik:
+    """Hassas işlemler (hesap silme) için: token imzasına ek olarak Firebase'de hesabın hâlâ etkin olduğu ve
+    oturumların iptal edilmediği doğrulanır. Çalınmış ama iptal edilmiş bir token bu uçları kullanamaz."""
+    kimlik_gerekli(request, authorization)  # biçim + imza (önbellekli); hata varsa aynı mesajla döner
+    return token_coz(request.headers["authorization"].split(" ", 1)[1].strip(), iptal_kontrolu=True)
 
 
 def yonetici_mi(db: Session, uid: str) -> bool:
